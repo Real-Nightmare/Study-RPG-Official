@@ -316,6 +316,53 @@ export class QdrantService implements OnModuleInit {
     });
   }
 
+  /**
+   * Scrolls points page by page (used by the background reindex pipeline).
+   * `offset` is the last point id of the previous page.
+   */
+  async scrollPoints(
+    collectionName: string,
+    limit = 100,
+    offset?: string,
+  ): Promise<Array<{ id: string; payload?: Record<string, unknown> }>> {
+    if (!this.client) {
+      this.logger.warn('Qdrant not available - skipping scroll');
+      return [];
+    }
+
+    const fullName = this.getCollectionName(collectionName);
+    const result = await this.client.scroll(fullName, {
+      limit,
+      offset,
+      with_payload: true,
+      with_vector: false,
+    });
+
+    return (result.points ?? []).map((p) => ({
+      id: String(p.id),
+      payload: (p.payload as Record<string, unknown>) ?? {},
+    }));
+  }
+
+  /**
+   * Deletes points whose payload `embeddingVersion` matches the given version
+   * (superseded-index cleanup after a completed reindex).
+   */
+  async deletePointsByVersion(collectionName: string, version: string): Promise<void> {
+    if (!this.client) {
+      this.logger.warn('Qdrant not available - skipping version delete');
+      return;
+    }
+
+    const fullName = this.getCollectionName(collectionName);
+    await this.client.delete(fullName, {
+      wait: true,
+      filter: {
+        must: [{ key: 'embeddingVersion', match: { value: version } }],
+      } as Parameters<typeof this.client.delete>[1] extends { filter?: infer F } ? F : never,
+    });
+  }
+
   async healthCheck(): Promise<boolean> {
     if (!this.client) return false;
 

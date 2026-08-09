@@ -3,6 +3,7 @@ import {
   HeroSection,
   TrustedBySection,
   FeaturesSection,
+  PhilosophySection,
   HowItWorksSection,
   TestimonialsSection,
   FAQSection,
@@ -15,6 +16,7 @@ export function HomePage() {
       <HeroSection />
       <TrustedBySection />
       <FeaturesSection />
+      <PhilosophySection />
       <HowItWorksSection />
       <TestimonialsSection />
       <FAQSection />

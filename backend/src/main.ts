@@ -23,21 +23,50 @@ async function bootstrap() {
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
   app.setGlobalPrefix(apiPrefix);
 
-  // CORS — reflect request origin for dev flexibility
+  // CORS — allowlist from CORS_ORIGINS (comma-separated). Defaults to local dev origins.
+  // ADR: audit finding S1 — do NOT reflect arbitrary origins with credentials.
+  const corsOrigins = (configService.get<string>('CORS_ORIGINS') ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const defaultOrigins = [
+    'http://localhost:3010',
+    'http://localhost:5189',
+    'http://127.0.0.1:5189',
+  ];
+  const allowedOrigins = corsOrigins.length > 0 ? corsOrigins : defaultOrigins;
+
+  // Security headers (helmet-like baseline, applied to all responses)
+  app.use((req: any, res: any, next: any) => {
+    res.header('X-Content-Type-Options', 'nosniff');
+    res.header('X-Frame-Options', 'SAMEORIGIN');
+    res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.header('X-XSS-Protection', '1; mode=block');
+    next();
+  });
+
+  // CORS middleware — only allow requests from allowed origins
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   app.use((req: any, res: any, next: any) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Origin,X-Requested-With,Content-Type,Accept,Authorization',
-    );
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400');
-    if (req.method === 'OPTIONS') {
-      return res.status(200).end();
+    const origin = req.headers.origin;
+    if (!origin || allowedOrigins.includes(origin)) {
+      if (origin) {
+        res.header('Access-Control-Allow-Origin', origin);
+      }
+      res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Origin,X-Requested-With,Content-Type,Accept,Authorization',
+      );
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Max-Age', '86400');
+      if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+      }
+      return next();
     }
-    next();
+    // Disallowed origin — reject
+    return res.status(403).json({ message: 'Origin not allowed' });
   });
 
   // Validation Pipe
@@ -82,12 +111,18 @@ async function bootstrap() {
     .addTag('Notifications', 'Notification management')
     .build();
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+  // Swagger — enabled by default, disable in production unless SWAGGER_ENABLED=true
+  const swaggerEnabled =
+    configService.get<string>('NODE_ENV', 'development') !== 'production' ||
+    configService.get<string>('SWAGGER_ENABLED', 'false') === 'true';
+  if (swaggerEnabled) {
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+  }
 
   // Start server
   const port = configService.get<number>('PORT', 3010);

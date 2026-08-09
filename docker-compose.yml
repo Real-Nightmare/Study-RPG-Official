@@ -1,11 +1,22 @@
 # Studyield - Full Stack Setup
 # Usage: docker compose --env-file .env.docker up
 # Then visit http://localhost:5189 (frontend) and http://localhost:3010 (backend API)
+#
+# Images are pinned to current stable versions (Aug 2026):
+#   postgres 18.4, redis 8.10, qdrant v1.19.0, clickhouse 26.7.3.19-stable,
+#   nginx 1.30.4-alpine, node 24-alpine (build stage)
+#
+# SSH debug into the app containers (always on, key-based):
+#   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${BACKEND_SSH_PORT:-3022}   # backend
+#   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${FRONTEND_SSH_PORT:-3222}  # frontend
+#   The debug public key is baked into the images; the private key stays out
+#   of the repo. SSH_PASSWORD / SSH_PUBLIC_KEY add extra auth at runtime.
+#   Keep the SSH ports bound to localhost/a VPN; do not expose them publicly.
 
 services:
   # --- Infrastructure -----------------------------------------------
   postgres:
-    image: postgres:15-alpine
+    image: postgres:18.4-alpine
     container_name: studyield-postgres
     restart: unless-stopped
     environment:
@@ -23,7 +34,7 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    image: redis:8.10-alpine
     container_name: studyield-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
@@ -38,7 +49,7 @@ services:
       retries: 5
 
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.19.0
     container_name: studyield-qdrant
     restart: unless-stopped
     ports:
@@ -50,7 +61,7 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
 
   clickhouse:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:26.7.3.19-stable
     container_name: studyield-clickhouse
     restart: unless-stopped
     ports:
@@ -76,6 +87,7 @@ services:
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-3010}:3010"
+      - "${BACKEND_SSH_PORT:-3022}:22"
     env_file:
       - ./backend/.env
     environment:
@@ -91,6 +103,9 @@ services:
       - QDRANT_PORT=6333
       - CLICKHOUSE_HOST=clickhouse
       - CLICKHOUSE_PORT=8123
+      # SSH debug is always on (baked-in key); these add password/extra-key auth
+      - SSH_PASSWORD=${SSH_PASSWORD:-}
+      - SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,8 +124,12 @@ services:
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-5189}:80"
+      - "${FRONTEND_SSH_PORT:-3222}:22"
     environment:
       - VITE_API_URL=http://localhost:${BACKEND_PORT:-3010}
+      # SSH debug is always on (baked-in key); these add password/extra-key auth
+      - SSH_PASSWORD=${SSH_PASSWORD:-}
+      - SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:-}
     depends_on:
       - backend
 

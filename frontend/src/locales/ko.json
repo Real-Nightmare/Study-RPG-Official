@@ -1,6 +1,41 @@
 {
+  "philosophy": {
+    "badge": "Study RPG의 방식",
+    "title": "암기보다",
+    "titleHighlight": "숙달",
+    "description": "Study RPG는 단순한 학습 도구가 아닙니다 — 진정한 깊은 학습을 장려합니다. 능동적 회상으로 매일 공부하고, 공부가 놀이 시간처럼 느껴지는 보상, 그리고 퀴즈·복습 테스트·연습 시험·티치백·공동 시험을 위한 AI 튜터 — 암기만 하는 것이 아니라 주제를 숙달하게 합니다.",
+    "learnMore": "자세히 보기",
+    "goalTitle": "목표",
+    "goal": "단순한 암기가 아니라 주제의 숙달과 진정한 이해를 통해 배우는 것. 직업은 학습의 숙달을 요구하며, 암기는 진짜 학습의 힘을 이기지 못합니다.",
+    "healthTitle": "학습 건강",
+    "health": "적절한 시간표로 학생의 건강을 최우선으로 합니다. 놓친 학습 시간은 효율적으로 다시 잡히며, 이벤트는 연대와 새로운 아이디어를 키웁니다.",
+    "freeToWin": "100% 무료 승리 — 지름길도 페이-투-윈도 없습니다",
+    "start": "여정 시작하기",
+    "pillars": {
+      "missions": {
+        "title": "미션",
+        "description": "숙제·과제·프로젝트 등 어떤 일이든 낮은 보상의 미션으로, 기억력에 필요한 암기력을 키웁니다."
+      },
+      "revisionCentre": {
+        "title": "복습 센터",
+        "description": "길이보다 깊이. 가입하고 제대로 복습한 뒤 증명하세요 — 배운 아이디어를 다른 상황에 적용해 중간 보상을 얻습니다."
+      },
+      "competencyTesting": {
+        "title": "역량 기반 평가",
+        "description": "과목을 고르고 사고력을 키우는 역량 문제에 도전하세요 — 어디서 점수를 잃었는지, 어떻게 개선할지에 대한 통찰과 함께."
+      },
+      "programmes": {
+        "title": "프로그램",
+        "description": "실제 학습 문제를 해결하는 시스템을 생각하고 만들도록 훈련하는 선택형 프레임워크. 당신의 선택이 가장 중요합니다."
+      },
+      "factions": {
+        "title": "진영",
+        "description": "한 명의 팀 리더가 이끄는 학습 그룹으로, 더 나은 공부와 더 높은 점수로 진영을 이끕니다. 약한 진영은 강한 진영의 도움을 받습니다 — 서로 돕는 학습."
+      }
+    }
+  },
   "common": {
-    "appName": "Studyield",
+    "appName": "Study RPG",
     "loading": "로딩 중...",
     "save": "저장",
     "cancel": "취소",
@@ -54,6 +89,7 @@
   },
   "nav": {
     "dashboard": "대시보드",
+    "tasks": "미션",
     "studySets": "학습 세트",
     "aiChat": "AI 채팅",
     "problemSolver": "문제 풀이",
@@ -70,7 +106,52 @@
     "tutorial": "튜토리얼",
     "about": "소개",
     "contact": "문의",
-    "viewAllFeatures": "모든 기능 보기"
+    "viewAllFeatures": "모든 기능 보기",
+    "academics": "학업 구조",
+    "focus": "Focus",
+    "mistakes": "Mistakes",
+    "puzzles": "Puzzles",
+    "examCentre": "Exam Centre",
+    "rpg": "Study RPG",
+    "economy": "경제",
+    "events": "이벤트"
+  },
+  "tasks": {
+    "title": "미션",
+    "subtitle": "숙제, 과제, 프로젝트는 미션입니다. 완료해 기억력을 키우고 보상을 얻으세요.",
+    "dueToday": "오늘 마감",
+    "completedCount": "완료",
+    "addTask": "작업 추가",
+    "titlePlaceholder": "무엇을 공부해야 하나요?",
+    "subjectPlaceholder": "과목 (선택)",
+    "descriptionPlaceholder": "세부 정보, 링크 또는 메모…",
+    "create": "작업 만들기",
+    "openTasks": "진행 중인 작업",
+    "noOpenTasks": "진행 중인 작업이 없습니다. 집중 시간을 즐기세요!",
+    "completedTasks": "완료됨",
+    "noCompletedTasks": "아직 완료된 작업이 없습니다. 할 수 있어요!",
+    "complete": "완료로 표시",
+    "reopen": "작업 다시 열기",
+    "type": {
+      "homework": "숙제",
+      "revision": "복습",
+      "exam_prep": "시험 준비",
+      "project": "프로젝트",
+      "reading": "독서",
+      "practice": "연습"
+    },
+    "priority": {
+      "low": "낮음",
+      "medium": "보통",
+      "high": "높음",
+      "urgent": "긴급"
+    },
+    "recurrence": {
+      "none": "일회성",
+      "daily": "매일",
+      "weekly": "매주",
+      "monthly": "매월"
+    }
   },
   "header": {
     "features": {
@@ -95,11 +176,11 @@
     "changeLanguage": "언어 변경"
   },
   "hero": {
-    "badge": "AI 기반 학습 플랫폼",
-    "titleLine1": "노트를 올리면,",
-    "titleLine2": "시험을 정복하세요.",
-    "description": "PDF, 문서 또는 손글씨 노트를 업로드하세요 — AI가 <strong>플래시카드, 퀴즈 & 개념 맵</strong>을 몇 초 만에 생성합니다. 간격 반복으로 복습하고, 단계별로 문제를 풀고, XP로 레벨업하세요.",
-    "startLearningFree": "무료로 학습 시작",
+    "badge": "Study RPG · 암기보다 숙달",
+    "titleLine1": "숙달을 위해 공부하세요,",
+    "titleLine2": "암기만 하지 마세요.",
+    "description": "노트를 업로드하면 AI가 몇 초 만에 <strong>플래시카드, 퀴즈 & 연습 시험</strong>을 만듭니다. 능동적 회상으로 매일 공부하고, 놀이 시간 보상을 얻고, 티치백으로 깊이를 증명하세요 — 암기보다 숙달, 무료로 이기는 학습.",
+    "startLearningFree": "무료로 공부 시작",
     "watchDemo": "사용 방법 보기",
     "highlights": {
       "flashcardGeneration": "기본, 빈칸 채우기 & 이미지 가리기 카드",
@@ -160,18 +241,18 @@
     "badge": "학생 후기",
     "title": "전 세계",
     "titleHighlight": "학생들이 사랑하는",
-    "description": "Studyield과 함께하는 학습 경험에 대한 학생들의 이야기를 확인하세요.",
+    "description": "Study RPG과 함께하는 학습 경험에 대한 학생들의 이야기를 확인하세요.",
     "t1": {
       "name": "Sarah Chen",
       "role": "의대 예과생",
       "university": "Stanford University",
-      "text": "Studyield이 유기화학 공부 방법을 완전히 바꿔놨어요. AI가 생성한 플래시카드 덕분에 준비 시간을 몇 시간이나 절약했고, 간격 반복 시스템으로 MCAT 시험을 위해 모든 내용을 기억할 수 있었어요."
+      "text": "Study RPG이 유기화학 공부 방법을 완전히 바꿔놨어요. AI가 생성한 플래시카드 덕분에 준비 시간을 몇 시간이나 절약했고, 간격 반복 시스템으로 MCAT 시험을 위해 모든 내용을 기억할 수 있었어요."
     },
     "t2": {
       "name": "James Williams",
       "role": "컴퓨터 과학 전공",
       "university": "MIT",
-      "text": "문서 분석 기능이 정말 놀라워요. 강의 PDF를 업로드하면 몇 초 만에 플래시카드와 퀴즈가 준비돼요. Studyield을 쓰기 시작한 이후로 성적이 B+에서 A로 올랐어요."
+      "text": "문서 분석 기능이 정말 놀라워요. 강의 PDF를 업로드하면 몇 초 만에 플래시카드와 퀴즈가 준비돼요. Study RPG을 쓰기 시작한 이후로 성적이 B+에서 A로 올랐어요."
     },
     "t3": {
       "name": "Aiko Tanaka",
@@ -189,20 +270,20 @@
       "name": "Emma Rodriguez",
       "role": "의대생",
       "university": "Johns Hopkins",
-      "text": "Studyield을 발견하기 전까지 해부학에 어려움을 겪었어요. 이미지 가리기 플래시카드 덕분에 해부학적 구조를 훨씬 쉽게 학습할 수 있었어요. 모든 의대생에게 강력 추천해요!"
+      "text": "Study RPG을 발견하기 전까지 해부학에 어려움을 겪었어요. 이미지 가리기 플래시카드 덕분에 해부학적 구조를 훨씬 쉽게 학습할 수 있었어요. 모든 의대생에게 강력 추천해요!"
     },
     "t6": {
       "name": "David Kim",
       "role": "MBA 학생",
       "university": "Wharton School",
-      "text": "저희 스터디 그룹은 Studyield의 라이브 퀴즈 기능을 사례 연구 준비에 활용해요. 실시간 퀴즈 대결이 복습 시간을 정말 재미있고 생산적으로 만들어줘요."
+      "text": "저희 스터디 그룹은 Study RPG의 라이브 퀴즈 기능을 사례 연구 준비에 활용해요. 실시간 퀴즈 대결이 복습 시간을 정말 재미있고 생산적으로 만들어줘요."
     }
   },
   "howItWorks": {
     "badge": "사용 방법",
     "title": "간단한",
     "titleHighlight": "4단계로 학습 시작",
-    "description": "9가지 소스에서 가져오고, AI가 학습 키트를 만들고, 간격 반복과 실시간 분석으로 모든 과목을 마스터하세요.",
+    "description": "어디서든 가져오고, AI가 학습 키트를 만들게 한 다음 길이보다 깊이를 증명하세요 — 능동적 회상과 실시간 분석으로 어떤 과목이든 숙달합니다.",
     "steps": {
       "upload": {
         "title": "어디서든 가져오기",
@@ -247,9 +328,9 @@
   },
   "cta": {
     "badge": "오늘 학습 여정을 시작하세요",
-    "title": "더 똑똑하게",
-    "titleHighlight": "학습할 준비가 되셨나요?",
-    "description": "AI 기반 학습 도구로 어떤 과목이든 더 빠르게 마스터하세요. 무료로 시작하고, 언제든 업그레이드하세요.",
+    "title": "숙달할 준비가 되셨나요,",
+    "titleHighlight": "암기만이 아닌가요?",
+    "description": "모든 미션, 복습 퀴즈, 연습 시험이 보상을 줍니다 — 진짜 공부만이 승리의 유일한 길이기 때문입니다. 언제나 무료로 승리하세요.",
     "getStartedFree": "무료로 시작하기",
     "talkToSales": "영업팀 문의",
     "benefits": {
@@ -296,11 +377,13 @@
       "cookiePolicy": "쿠키 정책",
       "dataDeletion": "데이터 삭제"
     },
-    "copyright": "{{year}} Studyield. 모든 권리 보유.",
+    "copyright": "{{year}} Study RPG. 모든 권리 보유.",
     "madeWith": "제작",
     "andAI": "더 나은 학습을 위한 AI",
     "sitemap": "사이트맵",
     "accessibility": "접근성",
+    "license": "AGPL-3.0 라이선스",
+    "sourceCode": "소스 코드",
     "backToTop": "맨 위로"
   },
   "auth": {
@@ -431,7 +514,39 @@
     },
     "userMenu": {
       "user": "사용자"
-    }
+    },
+    "summaryUnavailable": "Live summary unavailable right now.",
+    "hideGameStats": "Hide game stats",
+    "gameStatsHidden": "Game stats hidden",
+    "recommendedNext": "Recommended next",
+    "recommend": {
+      "examToday": "Exam today: {name}",
+      "examIn": "Exam in {days} days: {name}",
+      "flashcards": "{count} flashcards due",
+      "tasks": "{count} overdue tasks",
+      "mistakes": "{count} mistakes to review",
+      "puzzle": "Keep your puzzle streak going",
+      "relax": "All caught up — take a break!"
+    },
+    "todaysPlan": "Today's plan",
+    "tasksDueToday": "Tasks due today",
+    "overdue": "Overdue",
+    "nextUp": "Next up",
+    "examPortions": "{count} exam portions coming up",
+    "noUpcomingExams": "No upcoming exams",
+    "focusThisWeek": "Focus time",
+    "focusTodayMsg": "{minutes} minutes focused today",
+    "noFocusYet": "No focus time yet today",
+    "recentMistakes": "Recent mistakes",
+    "noMistakes": "No open mistakes — great job!",
+    "weakTopics": "Weak topics",
+    "noWeakTopics": "No weak-topic data yet",
+    "studyStreak": "Study streak",
+    "puzzleBest": "Best puzzle streak",
+    "gameStats": "Game stats",
+    "playerXp": "Player XP",
+    "eventExp": "Event EXP",
+    "stpToday": "STP today"
   },
   "studySets": {
     "title": "내 학습 세트",
@@ -784,7 +899,12 @@
     "productUpdatesDesc": "새로운 기능과 개선 사항에 대한 소식",
     "saving": "저장 중...",
     "saved": "저장됨!",
-    "savePreferences": "환경설정 저장"
+    "savePreferences": "환경설정 저장",
+    "webPush": "브라우저 알림",
+    "webPushDesc": "브라우저에서 푸시 알림을 받으세요(앱 불필요).",
+    "webPushEnable": "브라우저 알림 사용",
+    "webPushEnabled": "브라우저 알림 사용 중",
+    "webPushDenied": "브라우저 권한이 거부되었습니다"
   },
   "subscription": {
     "title": "구독",
@@ -878,14 +998,14 @@
     "badge": "FAQ",
     "title": "자주 묻는",
     "titleHighlight": "질문",
-    "description": "Studyield에 대해 알아야 할 모든 것. 찾으시는 내용이 없나요? 지원팀에 문의하세요.",
+    "description": "Study RPG에 대해 알아야 할 모든 것. 찾으시는 내용이 없나요? 지원팀에 문의하세요.",
     "stillHaveQuestions": "아직 궁금한 점이 있으신가요?",
     "contactSupport": "지원팀 문의",
     "q1": "어떤 유형의 문서를 업로드할 수 있나요?",
-    "a1": "Studyield은 PDF, Word 문서(.docx, .doc), 텍스트 파일, 마크다운 파일, 이미지(PNG, JPEG) 등 다양한 문서 형식을 지원합니다. AI가 이러한 문서를 처리하여 텍스트를 추출하고 학습 자료를 만듭니다.",
+    "a1": "Study RPG은 PDF, Word 문서(.docx, .doc), 텍스트 파일, 마크다운 파일, 이미지(PNG, JPEG) 등 다양한 문서 형식을 지원합니다. AI가 이러한 문서를 처리하여 텍스트를 추출하고 학습 자료를 만듭니다.",
     "q2": "간격 반복 시스템은 어떻게 작동하나요?",
     "a2": "플래시카드 시스템은 SM-2 간격 반복 알고리즘을 사용하여 학습을 최적화합니다. 각 카드를 얼마나 잘 기억하는지에 따라 다음 복습 최적 시간을 계산합니다. 어려운 카드는 더 자주 나타나고, 숙달한 카드는 덜 자주 나타납니다.",
-    "q3": "Studyield을 오프라인으로 사용할 수 있나요?",
+    "q3": "Study RPG을 오프라인으로 사용할 수 있나요?",
     "a3": "현재 대부분의 기능은 AI 처리가 클라우드에서 이루어지기 때문에 인터넷 연결이 필요합니다. 향후 업데이트에서 플래시카드 복습을 위한 오프라인 지원을 준비하고 있습니다.",
     "q4": "AI가 생성한 콘텐츠는 얼마나 정확한가요?",
     "a4": "AI는 업로드한 자료를 기반으로 높은 품질의 콘텐츠를 생성합니다. 하지만 정확성을 위해 항상 생성된 플래시카드와 퀴즈를 검토하는 것을 권장합니다. 생성된 콘텐츠를 쉽게 편집할 수 있습니다.",
@@ -895,14 +1015,14 @@
     "a6": "네! 학습 세트를 누구나 접근할 수 있도록 공개하거나, 특정 사람들과 비공개 링크를 공유할 수 있습니다. 모든 학습 자료는 기본적으로 비공개이며, 누가 볼 수 있는지 직접 제어할 수 있습니다.",
     "q7": "시험 복제 기능이란 무엇인가요?",
     "a7": "시험 복제는 기출 시험이나 모의 시험의 스타일, 형식, 난이도를 분석합니다. 그런 다음 정확히 같은 스타일의 새로운 문제를 생성하여 관련 연습 자료로 준비할 수 있도록 도와줍니다.",
-    "q8": "Studyield은 학생들에게 부담 없는 가격인가요?",
+    "q8": "Study RPG은 학생들에게 부담 없는 가격인가요?",
     "a8": "물론이죠! 가격은 학생을 고려하여 설계되었습니다. 7일 무료 체험으로 시작한 후, 월간 또는 연간 플랜 중 선택하세요 — 모두 학생 친화적인 가격입니다.",
     "q9": "언제든 구독을 취소할 수 있나요?",
     "a9": "물론이죠! 계정 설정에서 언제든 구독을 취소할 수 있습니다. 청구 기간이 끝날 때까지 프리미엄 기능에 계속 접근할 수 있습니다. 취소 수수료는 없습니다.",
     "q10": "플랜을 다운그레이드하면 어떻게 되나요?",
     "a10": "다운그레이드 시 현재 청구 기간이 끝날 때까지 프리미엄 기능에 접근할 수 있습니다. 그 이후 새 플랜으로 전환됩니다. 학습 자료는 보존되지만, 일부 기능에 대한 접근이 제한될 수 있습니다.",
     "q11": "어떤 브라우저와 기기가 지원되나요?",
-    "a11": "Studyield은 Chrome, Firefox, Safari, Edge 등 모든 최신 브라우저에서 작동합니다. 완전한 반응형 디자인으로 데스크톱, 태블릿, 모바일 기기에서 잘 작동합니다. iOS 및 Android 네이티브 앱도 곧 출시됩니다.",
+    "a11": "Study RPG은 Chrome, Firefox, Safari, Edge 등 모든 최신 브라우저에서 작동합니다. 완전한 반응형 디자인으로 데스크톱, 태블릿, 모바일 기기에서 잘 작동합니다. iOS 및 Android 네이티브 앱도 곧 출시됩니다.",
     "q12": "티치백 기능이란 무엇인가요?",
     "a12": "티치백은 AI에게 개념을 다시 설명하여 학습을 강화하는 Pro 기능입니다. AI가 설명을 평가하고, 이해의 부족한 부분을 파악하고, 지식을 강화하기 위한 맞춤 피드백을 제공합니다.",
     "searchPlaceholder": "FAQ 검색...",
@@ -1062,10 +1182,10 @@
     }
   },
   "about": {
-    "badge": "Studyield 소개",
+    "badge": "Study RPG 소개",
     "title": "더 똑똑한 학습,",
     "titleHighlight": "AI가 함께합니다",
-    "description": "Studyield은 문서를 플래시카드, 퀴즈, 인터랙티브 학습 도구로 변환하여 학생들이 더 효과적으로 공부할 수 있도록 도와줍니다 — 모두 AI로 구동됩니다.",
+    "description": "Study RPG은 문서를 플래시카드, 퀴즈, 인터랙티브 학습 도구로 변환하여 학생들이 더 효과적으로 공부할 수 있도록 도와줍니다 — 모두 AI로 구동됩니다.",
     "stats": {
       "featuresCount": "10+",
       "featuresLabel": "학습 도구",
@@ -1076,10 +1196,10 @@
       "uptime": "무료",
       "uptimeLabel": "시작하기"
     },
-    "ourStory": "Studyield을 만든 이유",
-    "storyP1": "플래시카드와 학습 노트를 손으로 만드는 데 몇 시간씩 소비하는 것에 지쳐서 Studyield을 만들었습니다. 학생으로서 AI가 문서에서 핵심 개념을 추출하고, 퀴즈를 생성하고, 복습 일정을 관리하는 무거운 작업을 대신할 수 있다는 것을 알고 있었습니다 — 그래서 우리는 실제 학습에 집중할 수 있습니다.",
-    "storyP2": "Studyield은 간격 반복과 능동적 회상과 같은 검증된 기법을 문서를 이해하는 AI와 결합합니다. PDF를 업로드하면 몇 초 안에 플래시카드, 퀴즈, 자료에 대한 질문에 답할 수 있는 AI 튜터가 준비됩니다.",
-    "storyP3": "우리는 항상 원했던 학습 도구를 만들고 있는 소규모 팀입니다. Studyield은 무료로 시작할 수 있으며, 매일 사용하는 실제 학생들의 피드백을 바탕으로 계속 개선하고 있습니다.",
+    "ourStory": "Study RPG을 만든 이유",
+    "storyP1": "플래시카드와 학습 노트를 손으로 만드는 데 몇 시간씩 소비하는 것에 지쳐서 Study RPG을 만들었습니다. 학생으로서 AI가 문서에서 핵심 개념을 추출하고, 퀴즈를 생성하고, 복습 일정을 관리하는 무거운 작업을 대신할 수 있다는 것을 알고 있었습니다 — 그래서 우리는 실제 학습에 집중할 수 있습니다.",
+    "storyP2": "Study RPG은 간격 반복과 능동적 회상과 같은 검증된 기법을 문서를 이해하는 AI와 결합합니다. PDF를 업로드하면 몇 초 안에 플래시카드, 퀴즈, 자료에 대한 질문에 답할 수 있는 AI 튜터가 준비됩니다.",
+    "storyP3": "우리는 항상 원했던 학습 도구를 만들고 있는 소규모 팀입니다. Study RPG은 무료로 시작할 수 있으며, 매일 사용하는 실제 학생들의 피드백을 바탕으로 계속 개선하고 있습니다.",
     "whatWeOffer": "할 수 있는 것들",
     "features": {
       "studySets": "학습 세트 & 플래시카드",
@@ -1090,12 +1210,12 @@
       "examClone": "시험 복제"
     },
     "ourValues": "우리가 소중히 여기는 것",
-    "valuesDescription": "Studyield을 만드는 원칙들.",
+    "valuesDescription": "Study RPG을 만드는 원칙들.",
     "values": {
       "missionDriven": "접근 가능한 학습",
-      "missionDrivenDesc": "양질의 학습 도구가 비쌀 필요는 없습니다. Studyield은 모든 학생이 AI 기반 학습을 경험할 수 있도록 7일 무료 체험을 제공합니다.",
+      "missionDrivenDesc": "양질의 학습 도구가 비쌀 필요는 없습니다. Study RPG은 모든 학생이 AI 기반 학습을 경험할 수 있도록 7일 무료 체험을 제공합니다.",
       "userCentric": "학생을 위해 제작",
-      "userCentricDesc": "우리도 직접 Studyield을 사용합니다. 모든 기능은 학생들이 실제로 공부하는 방식에 맞춰 설계됩니다.",
+      "userCentricDesc": "우리도 직접 Study RPG을 사용합니다. 모든 기능은 학생들이 실제로 공부하는 방식에 맞춰 설계됩니다.",
       "innovationFirst": "정말 도움이 되는 AI",
       "innovationFirstDesc": "단순히 AI를 추가하지 않습니다. 모든 AI 기능은 플래시카드 생성, 개념 설명, 모의 시험 만들기 등 실제 문제를 해결합니다.",
       "communityFocused": "함께 배우기",
@@ -1109,7 +1229,7 @@
     "badge": "도움을 드리겠습니다",
     "title": "문의",
     "titleHighlight": "하기",
-    "description": "Studyield에 대한 질문이 있으신가요? 도움을 드리겠습니다. 아래 방법 중 하나로 연락하시거나 문의 양식을 작성해 주세요.",
+    "description": "Study RPG에 대한 질문이 있으신가요? 도움을 드리겠습니다. 아래 방법 중 하나로 연락하시거나 문의 양식을 작성해 주세요.",
     "methods": {
       "emailSupport": "이메일 지원",
       "emailSupportDesc": "질문이나 문제에 대한 도움 받기",
@@ -1230,7 +1350,7 @@
       "a1": "네, 언제든 플랜을 업그레이드하거나 다운그레이드할 수 있습니다. 업그레이드 시 새 기능에 즉시 접근할 수 있습니다. 다운그레이드 시 청구 주기가 끝날 때 변경됩니다.",
       "q2": "무료로 다운그레이드하면 어떻게 되나요?",
       "a2": "학습 자료는 보존되지만 프리미엄 기능에 대한 접근이 제한됩니다. 언제든 Pro로 다시 업그레이드하여 전체 접근 권한을 복구할 수 있습니다.",
-      "q3": "Studyield은 학생들에게 부담 없는 가격인가요?",
+      "q3": "Study RPG은 학생들에게 부담 없는 가격인가요?",
       "a3": "물론이죠! 가격은 학생을 고려하여 설계되었습니다. 7일 무료 체험으로 시작한 후, 월간($7.99/월) 또는 연간($47.88/년) 플랜 중 선택하세요 — 모두 학생 친화적인 가격입니다.",
       "q4": "어떤 결제 방법을 받나요?",
       "a4": "Visa, Mastercard, American Express 등 모든 주요 신용카드, PayPal, 일부 지역에서는 현지 결제 방법을 지원합니다. 모든 결제는 Stripe를 통해 안전하게 처리됩니다.",
@@ -1240,11 +1360,11 @@
       "a6": "AI 요청에는 문서에서 플래시카드 생성, 퀴즈 만들기, AI 튜터 채팅 사용, 문제 풀이, 시험 복제가 포함됩니다. 플래시카드 복습과 같은 기본 작업은 포함되지 않습니다.",
       "q7": "어떤 결제 주기를 제공하나요?",
       "a7": "월간($7.99/월) 및 연간($47.88/년) 결제 주기를 제공합니다. 연간 플랜은 월간 결제 대비 약 50%를 절약합니다.",
-      "q8": "Studyield은 학생들에게 부담 없는 가격인가요?",
+      "q8": "Study RPG은 학생들에게 부담 없는 가격인가요?",
       "a8": "물론이죠! 가격은 학생을 고려하여 설계되었습니다. 7일 무료 체험으로 시작한 후, 월간($7.99/월) 또는 연간($47.88/년) 중 선택하세요 — 모두 학생 친화적인 가격입니다."
     },
     "ctaTitle": "학습을 혁신할 준비가 되셨나요?",
-    "ctaDescription": "Studyield으로 이미 더 똑똑하게 공부하고 있는 수천 명의 학생들과 함께하세요. 오늘 무료로 시작하세요.",
+    "ctaDescription": "Study RPG으로 이미 더 똑똑하게 공부하고 있는 수천 명의 학생들과 함께하세요. 오늘 무료로 시작하세요.",
     "startFree": "무료로 시작하기",
     "talkToSales": "영업팀 문의"
   },
@@ -1252,7 +1372,7 @@
     "badge": "FAQ",
     "title": "자주 묻는",
     "titleHighlight": "질문",
-    "description": "Studyield에 대한 가장 일반적인 질문에 대한 답변을 찾아보세요. 찾으시는 내용이 없나요? 지원팀에 문의하세요.",
+    "description": "Study RPG에 대한 가장 일반적인 질문에 대한 답변을 찾아보세요. 찾으시는 내용이 없나요? 지원팀에 문의하세요.",
     "searchPlaceholder": "FAQ 검색...",
     "questionsCount": "{{count}}개 질문",
     "categories": {
@@ -1264,18 +1384,18 @@
       "technical": "기술"
     },
     "general": {
-      "q1": "Studyield이란 무엇인가요?",
-      "a1": "Studyield은 더 똑똑하게 공부할 수 있도록 도와주는 AI 기반 학습 플랫폼입니다. 문서를 업로드하고, 플래시카드를 생성하고, 퀴즈를 풀고, AI 튜터와 채팅하세요 — 모두 간격 반복과 같은 검증된 학습 기법으로 어떤 과목이든 더 빠르게 마스터할 수 있도록 설계되었습니다.",
-      "q2": "Studyield은 무료로 사용할 수 있나요?",
-      "a2": "네! Studyield은 학습 세트 3개, 플래시카드 50장, AI 요청 10회가 포함된 7일 무료 체험을 제공합니다. 체험 후 문제 풀이, 시험 복제, 심층 연구 같은 고급 기능과 무제한 이용을 위해 Pro로 업그레이드하세요.",
-      "q3": "어떤 기기에서 Studyield을 사용할 수 있나요?",
-      "a3": "Studyield은 최신 웹 브라우저가 있는 모든 기기 — 컴퓨터, 태블릿, 스마트폰에서 작동합니다. 웹 앱은 완전한 반응형이며 모바일 화면에 최적화되어 있습니다.",
-      "q4": "Studyield을 사용하려면 계정을 만들어야 하나요?",
+      "q1": "Study RPG이란 무엇인가요?",
+      "a1": "Study RPG은 더 똑똑하게 공부할 수 있도록 도와주는 AI 기반 학습 플랫폼입니다. 문서를 업로드하고, 플래시카드를 생성하고, 퀴즈를 풀고, AI 튜터와 채팅하세요 — 모두 간격 반복과 같은 검증된 학습 기법으로 어떤 과목이든 더 빠르게 마스터할 수 있도록 설계되었습니다.",
+      "q2": "Study RPG은 무료로 사용할 수 있나요?",
+      "a2": "네! Study RPG은 학습 세트 3개, 플래시카드 50장, AI 요청 10회가 포함된 7일 무료 체험을 제공합니다. 체험 후 문제 풀이, 시험 복제, 심층 연구 같은 고급 기능과 무제한 이용을 위해 Pro로 업그레이드하세요.",
+      "q3": "어떤 기기에서 Study RPG을 사용할 수 있나요?",
+      "a3": "Study RPG은 최신 웹 브라우저가 있는 모든 기기 — 컴퓨터, 태블릿, 스마트폰에서 작동합니다. 웹 앱은 완전한 반응형이며 모바일 화면에 최적화되어 있습니다.",
+      "q4": "Study RPG을 사용하려면 계정을 만들어야 하나요?",
       "a4": "네, 학습 자료를 저장하고 진행 상황을 추적하려면 무료 계정이 필요합니다. 이메일 주소로 가입할 수 있습니다."
     },
     "features": {
       "q1": "어떤 유형의 문서를 업로드할 수 있나요?",
-      "a1": "Studyield은 PDF, Word 문서(.docx, .doc), 텍스트 파일, 마크다운 파일, 이미지(PNG, JPEG)를 지원합니다. AI가 이러한 문서에서 텍스트를 추출하여 학습 자료를 만듭니다.",
+      "a1": "Study RPG은 PDF, Word 문서(.docx, .doc), 텍스트 파일, 마크다운 파일, 이미지(PNG, JPEG)를 지원합니다. AI가 이러한 문서에서 텍스트를 추출하여 학습 자료를 만듭니다.",
       "q2": "AI는 어떻게 플래시카드를 생성하나요?",
       "a2": "AI가 업로드한 문서를 분석하여 핵심 개념, 정의, 중요 정보를 식별합니다. 그런 다음 학습과 기억에 최적화된 질문-답변 쌍을 만듭니다.",
       "q3": "AI가 생성한 콘텐츠는 얼마나 정확한가요?",
@@ -1302,7 +1422,7 @@
       "a2": "네, 언제든 업그레이드하거나 다운그레이드할 수 있습니다. 업그레이드 시 새 기능에 즉시 접근할 수 있습니다. 다운그레이드 시 청구 주기가 끝날 때 변경됩니다.",
       "q3": "무료 체험이 있나요?",
       "a3": "네! 7일 무료 체험은 학습 세트, 플래시카드, 퀴즈, 간격 반복 등 핵심 기능에 접근할 수 있으며 — 신용카드가 필요 없습니다. 체험 후 무제한 이용을 위해 Pro를 구독하세요.",
-      "q4": "Studyield은 학생들에게 부담 없는 가격인가요?",
+      "q4": "Study RPG은 학생들에게 부담 없는 가격인가요?",
       "a4": "물론이죠! 가격은 학생을 고려하여 설계되었습니다. 7일 무료 체험으로 시작한 후, 월간 또는 연간 플랜 중 선택하세요 — 모두 학생 친화적인 가격입니다.",
       "q5": "구독을 어떻게 취소하나요?",
       "a5": "계정 설정 > 결제 > 구독 관리에서 언제든 취소할 수 있습니다. 청구 기간이 끝날 때까지 프리미엄 기능에 접근할 수 있습니다.",
@@ -1320,10 +1440,10 @@
       "a4": "기본적으로 학습 자료는 비공개이며 본인만 볼 수 있습니다. 공유를 직접 제어할 수 있습니다 — 세트를 공개하거나, 특정 사람들과 공유하거나, 완전히 비공개로 유지할 수 있습니다."
     },
     "technical": {
-      "q1": "Studyield을 오프라인으로 사용할 수 있나요?",
+      "q1": "Study RPG을 오프라인으로 사용할 수 있나요?",
       "a1": "현재 대부분의 기능은 AI 처리가 클라우드에서 이루어지기 때문에 인터넷 연결이 필요합니다. 향후 업데이트에서 플래시카드 복습을 위한 오프라인 지원을 준비하고 있습니다.",
       "q2": "어떤 브라우저가 지원되나요?",
-      "a2": "Studyield은 Chrome, Firefox, Safari, Edge 등 모든 최신 브라우저에서 작동합니다. 최상의 경험을 위해 브라우저를 최신 상태로 유지하는 것을 권장합니다.",
+      "a2": "Study RPG은 Chrome, Firefox, Safari, Edge 등 모든 최신 브라우저에서 작동합니다. 최상의 경험을 위해 브라우저를 최신 상태로 유지하는 것을 권장합니다.",
       "q3": "문제 풀이 기능이란 무엇인가요?",
       "a3": "문제 풀이는 복잡한 문제를 단계별로 풀어주는 Pro 기능입니다. 수학, 과학 또는 기타 문제를 입력하면 AI가 설명과 함께 상세한 풀이를 제공합니다. 일괄 풀이로 여러 문제를 한 번에 풀 수 있습니다.",
       "q4": "AI 요청이란 무엇인가요?",
@@ -1505,7 +1625,7 @@
     }
   },
   "onboarding": {
-    "title": "Studyield에 오신 것을 환영합니다",
+    "title": "Study RPG에 오신 것을 환영합니다",
     "skipForNow": "지금은 건너뛰기",
     "stepOf": "단계 {{current}} / {{total}}",
     "welcome": {
@@ -1674,7 +1794,7 @@
     },
     "features": {
       "title": "할 수 있는 것들",
-      "description": "Studyield에는 학습을 더 빠르고 효과적으로 만드는 도구가 가득합니다",
+      "description": "Study RPG에는 학습을 더 빠르고 효과적으로 만드는 도구가 가득합니다",
       "studySets": "학습 세트",
       "studySetsDesc": "수동으로 플래시카드를 만들거나 AI로 문서에서 생성하세요",
       "aiChat": "AI 채팅 튜터",
@@ -1700,7 +1820,7 @@
       "deepResearch": "심층 연구",
       "deepResearchDesc": "AI 기반 모든 주제 심층 탐구",
       "adFreeTitle": "100% 광고 없음, 항상",
-      "adFreeDesc": "광고도 방해도 없습니다. 당신과 학습만 있습니다. Studyield은 절대 광고를 표시하지 않습니다."
+      "adFreeDesc": "광고도 방해도 없습니다. 당신과 학습만 있습니다. Study RPG은 절대 광고를 표시하지 않습니다."
     },
     "done": {
       "title": "모두 준비되었습니다!",
@@ -1799,7 +1919,7 @@
     "articles": "{{count}}개 문서",
     "categories": {
       "gettingStarted": "시작하기",
-      "gettingStartedDesc": "Studyield의 기본을 배우고 빠르게 시작하세요",
+      "gettingStartedDesc": "Study RPG의 기본을 배우고 빠르게 시작하세요",
       "studySets": "학습 세트 & 플래시카드",
       "studySetsDesc": "학습 자료를 만들고, 관리하고, 마스터하세요",
       "documents": "문서 처리",
@@ -1839,10 +1959,10 @@
     "faqSubtitle": "가장 일반적인 질문에 대한 빠른 답변",
     "faqs": {
       "q1": "어떤 유형의 문서를 업로드할 수 있나요?",
-      "a1": "Studyield은 PDF, Word 문서(.docx, .doc), 텍스트 파일, 마크다운 파일, 이미지(PNG, JPEG) 등 다양한 문서 형식을 지원합니다. AI가 이러한 문서를 처리하여 텍스트를 추출하고 학습 자료를 만듭니다.",
+      "a1": "Study RPG은 PDF, Word 문서(.docx, .doc), 텍스트 파일, 마크다운 파일, 이미지(PNG, JPEG) 등 다양한 문서 형식을 지원합니다. AI가 이러한 문서를 처리하여 텍스트를 추출하고 학습 자료를 만듭니다.",
       "q2": "간격 반복 시스템은 어떻게 작동하나요?",
       "a2": "플래시카드 시스템은 SM-2 간격 반복 알고리즘을 사용하여 학습을 최적화합니다. 각 카드를 얼마나 잘 기억하는지에 따라 다음 복습 최적 시간을 계산합니다. 어려운 카드는 더 자주 나타나고, 숙달한 카드는 덜 자주 나타납니다.",
-      "q3": "Studyield을 오프라인으로 사용할 수 있나요?",
+      "q3": "Study RPG을 오프라인으로 사용할 수 있나요?",
       "a3": "현재 대부분의 기능은 AI 처리가 클라우드에서 이루어지기 때문에 인터넷 연결이 필요합니다. 향후 업데이트에서 플래시카드 복습을 위한 오프라인 지원을 준비하고 있습니다.",
       "q4": "AI가 생성한 콘텐츠는 얼마나 정확한가요?",
       "a4": "AI는 업로드한 자료를 기반으로 높은 품질의 콘텐츠를 생성합니다. 하지만 정확성을 위해 항상 생성된 플래시카드와 퀴즈를 검토하는 것을 권장합니다. 생성된 콘텐츠를 쉽게 편집할 수 있습니다.",
@@ -1850,13 +1970,13 @@
       "a5": "네, 데이터 보안을 매우 중요하게 생각합니다. 모든 문서는 저장 및 전송 시 암호화됩니다. 학습 자료는 다른 사용자와 공유되거나 AI 모델 훈련에 사용되지 않습니다. 계정 설정에서 언제든 데이터를 삭제할 수 있습니다.",
       "q6": "시험 복제 기능이란 무엇인가요?",
       "a6": "시험 복제는 기출 시험이나 모의 시험의 스타일, 형식, 난이도를 분석합니다. 그런 다음 정확히 같은 스타일의 새로운 문제를 생성하여 관련 연습 자료로 준비할 수 있도록 도와줍니다.",
-      "q7": "Studyield은 학생들에게 부담 없는 가격인가요?",
+      "q7": "Study RPG은 학생들에게 부담 없는 가격인가요?",
       "a7": "물론이죠! 가격은 학생을 고려하여 설계되었습니다. 7일 무료 체험으로 시작한 후, 월간 또는 연간 플랜 중 선택하세요 — 모두 학생 친화적인 가격입니다.",
       "q8": "구독을 어떻게 취소하나요?",
       "a8": "계정 설정에서 언제든 구독을 취소할 수 있습니다. 설정 > 결제 > 구독 관리로 이동하여 \"플랜 취소\"를 클릭하세요. 청구 기간이 끝날 때까지 프리미엄 기능에 접근할 수 있습니다."
     },
     "videoTutorials": "비디오 튜토리얼",
-    "videoTutorialsDesc": "단계별 비디오 가이드로 Studyield 사용법을 배우세요. 시작하기부터 고급 기능까지.",
+    "videoTutorialsDesc": "단계별 비디오 가이드로 Study RPG 사용법을 배우세요. 시작하기부터 고급 기능까지.",
     "watchTutorials": "튜토리얼 보기",
     "ctaTitle": "아직 도움이 필요하신가요?",
     "ctaDescription": "지원팀이 모든 질문에 답변할 준비가 되어 있습니다. 보통 24시간 이내에 응답합니다.",
@@ -1885,7 +2005,7 @@
     },
     "introduction": {
       "title": "소개",
-      "p1": "Studyield에서는 개인정보를 매우 중요하게 생각합니다. 이 개인정보 처리방침은 AI 기반 학습 플랫폼을 사용할 때 정보를 어떻게 수집, 사용, 공개, 보호하는지 설명합니다.",
+      "p1": "Study RPG에서는 개인정보를 매우 중요하게 생각합니다. 이 개인정보 처리방침은 AI 기반 학습 플랫폼을 사용할 때 정보를 어떻게 수집, 사용, 공개, 보호하는지 설명합니다.",
       "p2": "이 개인정보 처리방침을 주의 깊게 읽어주세요. 이 방침의 조건에 동의하지 않으시면 플랫폼에 접근하지 마세요."
     },
     "informationCollected": {
@@ -1899,7 +2019,7 @@
         "커뮤니케이션 환경설정"
       ],
       "studyContent": "학습 콘텐츠",
-      "studyContentDesc": "Studyield을 사용할 때 다음을 저장합니다:",
+      "studyContentDesc": "Study RPG을 사용할 때 다음을 저장합니다:",
       "studyItems": [
         "업로드하는 문서 (PDF, 이미지)",
         "플래시카드 및 학습 세트",
@@ -1982,7 +2102,7 @@
     "badge": "법적 계약",
     "title": "이용",
     "titleHighlight": "약관",
-    "description": "Studyield을 사용하기 전에 이 약관을 주의 깊게 읽어주세요. 플랫폼에 접근함으로써 이 약관에 동의하는 것으로 간주됩니다.",
+    "description": "Study RPG을 사용하기 전에 이 약관을 주의 깊게 읽어주세요. 플랫폼에 접근함으로써 이 약관에 동의하는 것으로 간주됩니다.",
     "lastUpdated": "최종 업데이트: 2026년 2월 14일",
     "contents": "목차",
     "toc": {
@@ -2002,11 +2122,11 @@
     },
     "acceptance": {
       "title": "1. 약관 동의",
-      "content": "Studyield에 접근하거나 사용함으로써 이 이용약관 및 모든 적용 가능한 법률과 규정에 동의하는 것으로 간주됩니다. 이 약관 중 어느 부분이라도 동의하지 않으시면 이 플랫폼을 사용하거나 접근할 수 없습니다."
+      "content": "Study RPG에 접근하거나 사용함으로써 이 이용약관 및 모든 적용 가능한 법률과 규정에 동의하는 것으로 간주됩니다. 이 약관 중 어느 부분이라도 동의하지 않으시면 이 플랫폼을 사용하거나 접근할 수 없습니다."
     },
     "descriptionOfService": {
       "title": "2. 서비스 설명",
-      "intro": "Studyield은 다음을 제공하는 AI 기반 학습 플랫폼입니다:",
+      "intro": "Study RPG은 다음을 제공하는 AI 기반 학습 플랫폼입니다:",
       "items": [
         "문서 업로드 및 분석이 포함된 학습 세트",
         "간격 반복이 포함된 AI 생성 플래시카드",
@@ -2042,7 +2162,7 @@
     "contentOwnership": {
       "title": "5. 콘텐츠 소유권",
       "yourContent": "사용자 콘텐츠",
-      "yourContentDesc": "Studyield에 업로드하는 모든 콘텐츠(문서, 노트, 학습 자료 포함)의 소유권은 사용자에게 있습니다. 콘텐츠를 업로드함으로써 서비스 제공을 위해 처리, 저장, 표시할 수 있는 제한적 라이선스를 부여합니다.",
+      "yourContentDesc": "Study RPG에 업로드하는 모든 콘텐츠(문서, 노트, 학습 자료 포함)의 소유권은 사용자에게 있습니다. 콘텐츠를 업로드함으로써 서비스 제공을 위해 처리, 저장, 표시할 수 있는 제한적 라이선스를 부여합니다.",
       "aiGenerated": "AI 생성 콘텐츠",
       "aiGeneratedDesc": "자료를 기반으로 AI가 생성한 콘텐츠(플래시카드, 퀴즈, 요약)는 사용자에게 귀속됩니다. 이 콘텐츠를 자유롭게 사용, 수정, 공유할 수 있습니다."
     },
@@ -2058,11 +2178,11 @@
     },
     "aiDisclaimer": {
       "title": "7. AI 면책 조항",
-      "content": "AI는 학습을 돕기 위한 콘텐츠를 생성합니다. 정확성을 위해 노력하지만 AI가 생성한 콘텐츠에는 오류가 포함될 수 있습니다. 모든 생성된 자료를 검토하고 중요한 결정에 AI에만 의존하지 마세요. Studyield은 AI 생성 콘텐츠의 오류에 대해 책임지지 않습니다."
+      "content": "AI는 학습을 돕기 위한 콘텐츠를 생성합니다. 정확성을 위해 노력하지만 AI가 생성한 콘텐츠에는 오류가 포함될 수 있습니다. 모든 생성된 자료를 검토하고 중요한 결정에 AI에만 의존하지 마세요. Study RPG은 AI 생성 콘텐츠의 오류에 대해 책임지지 않습니다."
     },
     "liability": {
       "title": "8. 책임 제한",
-      "content": "법이 허용하는 최대 범위 내에서, Studyield은 서비스 사용으로 인해 발생하는 간접적, 부수적, 특별, 결과적 또는 징벌적 손해(데이터, 이익 또는 영업권의 손실 포함)에 대해 책임지지 않습니다."
+      "content": "법이 허용하는 최대 범위 내에서, Study RPG은 서비스 사용으로 인해 발생하는 간접적, 부수적, 특별, 결과적 또는 징벌적 손해(데이터, 이익 또는 영업권의 손실 포함)에 대해 책임지지 않습니다."
     },
     "availability": {
       "title": "9. 서비스 이용 가능성",
@@ -2078,7 +2198,7 @@
     },
     "governingLaw": {
       "title": "12. 준거법",
-      "content": "이 약관은 해당 법률에 의해 규율되고 해석됩니다. 이 약관이나 Studyield 사용에서 발생하는 분쟁은 성실한 협상을 통해, 필요한 경우 구속력 있는 중재를 통해 해결됩니다."
+      "content": "이 약관은 해당 법률에 의해 규율되고 해석됩니다. 이 약관이나 Study RPG 사용에서 발생하는 분쟁은 성실한 협상을 통해, 필요한 경우 구속력 있는 중재를 통해 해결됩니다."
     },
     "contact": {
       "title": "13. 문의",
@@ -2096,7 +2216,7 @@
     "badge": "쿠키 정책",
     "title": "쿠키",
     "titleHighlight": "정책",
-    "description": "Studyield에서 쿠키와 유사 기술을 사용하여 경험을 개선하는 방법을 알아보세요.",
+    "description": "Study RPG에서 쿠키와 유사 기술을 사용하여 경험을 개선하는 방법을 알아보세요.",
     "lastUpdated": "최종 업데이트: 2026년 2월 14일",
     "contents": "목차",
     "toc": {
@@ -2112,7 +2232,7 @@
     "whatAreCookies": {
       "title": "쿠키란 무엇인가",
       "content": "쿠키는 웹사이트를 방문할 때 기기에 저장되는 작은 텍스트 파일입니다. 웹사이트가 더 효율적으로 작동하고, 더 나은 사용자 경험을 제공하며, 웹사이트 소유자에게 사이트 사용에 대한 유용한 정보를 제공하는 데 널리 사용됩니다.",
-      "note": "Studyield을 사용하면 이 쿠키 정책에 따른 쿠키 사용에 동의하는 것입니다. 언제든 쿠키 환경설정을 관리할 수 있습니다.",
+      "note": "Study RPG을 사용하면 이 쿠키 정책에 따른 쿠키 사용에 동의하는 것입니다. 언제든 쿠키 환경설정을 관리할 수 있습니다.",
       "noteLabel": "참고:"
     },
     "typesOfCookies": {
@@ -2170,7 +2290,7 @@
     },
     "howWeUse": {
       "title": "쿠키 사용 방법",
-      "description": "Studyield에서의 경험을 향상시키기 위해 다양한 목적으로 쿠키를 사용합니다:",
+      "description": "Study RPG에서의 경험을 향상시키기 위해 다양한 목적으로 쿠키를 사용합니다:",
       "items": [
         {
           "title": "인증",
@@ -2238,11 +2358,11 @@
         }
       ],
       "warningLabel": "경고:",
-      "warning": "필수 쿠키를 비활성화하면 Studyield의 기능에 영향을 미쳐 특정 기능을 사용하지 못할 수 있습니다."
+      "warning": "필수 쿠키를 비활성화하면 Study RPG의 기능에 영향을 미쳐 특정 기능을 사용하지 못할 수 있습니다."
     },
     "cookieSettings": {
       "title": "쿠키 설정",
-      "description": "언제든 Studyield의 쿠키 환경설정을 맞춤 설정할 수 있습니다. 아래 버튼을 클릭하여 허용할 쿠키 유형을 관리하세요.",
+      "description": "언제든 Study RPG의 쿠키 환경설정을 맞춤 설정할 수 있습니다. 아래 버튼을 클릭하여 허용할 쿠키 유형을 관리하세요.",
       "managePreferences": "쿠키 환경설정 관리"
     },
     "policyUpdates": {
@@ -2263,7 +2383,7 @@
     "badge": "GDPR 준수",
     "title": "계정 &",
     "titleHighlight": "데이터 삭제",
-    "description": "잊힐 권리를 존중합니다. Studyield 계정과 모든 관련 데이터를 영구 삭제하는 방법을 알아보세요. 이 과정은 되돌릴 수 없습니다.",
+    "description": "잊힐 권리를 존중합니다. Study RPG 계정과 모든 관련 데이터를 영구 삭제하는 방법을 알아보세요. 이 과정은 되돌릴 수 없습니다.",
     "importantNotice": {
       "title": "중요: 이 작업은 되돌릴 수 없습니다",
       "description": "계정을 삭제하면 모든 데이터가 서버에서 영구적으로 제거됩니다. 진행하기 전에 중요한 학습 자료를 내보내세요.",
@@ -2315,7 +2435,7 @@
       "steps": [
         {
           "title": "계정에 로그인",
-          "description": "이메일과 비밀번호로 Studyield에 로그인하여 계정 설정에 접근하세요."
+          "description": "이메일과 비밀번호로 Study RPG에 로그인하여 계정 설정에 접근하세요."
         },
         {
           "title": "계정 설정으로 이동",
@@ -2356,7 +2476,7 @@
     "badge": "사이트 내비게이션",
     "title": "사이트",
     "titleHighlight": "맵",
-    "description": "Studyield의 모든 페이지에 대한 전체 개요. 찾으시는 것을 정확히 찾아보세요.",
+    "description": "Study RPG의 모든 페이지에 대한 전체 개요. 찾으시는 것을 정확히 찾아보세요.",
     "quickAccess": "빠른 접근",
     "sections": {
       "mainPages": "주요 페이지",
@@ -2367,7 +2487,7 @@
     },
     "links": {
       "home": "홈",
-      "homeDesc": "Studyield에 오신 것을 환영합니다",
+      "homeDesc": "Study RPG에 오신 것을 환영합니다",
       "aboutUs": "회사 소개",
       "aboutUsDesc": "미션에 대해 알아보기",
       "features": "기능",
@@ -2418,7 +2538,7 @@
     "xmlSitemapDesc": "검색 엔진 및 개발자용",
     "viewSitemapXml": "sitemap.xml 보기",
     "ctaTitle": "찾으시는 것을 못 찾으셨나요?",
-    "ctaDescription": "지원팀이 Studyield 탐색을 도와드리겠습니다.",
+    "ctaDescription": "지원팀이 Study RPG 탐색을 도와드리겠습니다.",
     "contactUs": "문의하기",
     "helpCenterBtn": "도움말 센터"
   },
@@ -4023,8 +4143,717 @@
       ]
     },
     "faq": {
-      "studentQuestion": "Studyield은 학생들에게 부담 없는 가격인가요?",
+      "studentQuestion": "Study RPG은 학생들에게 부담 없는 가격인가요?",
       "studentAnswer": "물론이죠! 가격은 학생을 고려하여 설계되었습니다. 7일 무료 체험으로 시작한 후, 월간($7.99/월) 또는 연간($47.88/년) 플랜 중 선택하세요 — 모두 학생 친화적인 가격입니다."
     }
+  },
+  "academics": {
+    "title": "학업 구조",
+    "subtitle": "과목, 챕터, 토픽, 시험과 학교 프로필을 한곳에서 관리하세요.",
+    "profileTab": "프로필",
+    "subjectsTab": "과목",
+    "examsTab": "시험",
+    "profileTitle": "학교 프로필",
+    "profileSubtitle": "학교 정보를 알려주시면 Study RPG가 학습 계획을 맞춰드립니다.",
+    "country": "국가",
+    "board": "교육청",
+    "school": "학교",
+    "grade": "학년",
+    "academicYear": "학년도",
+    "saveProfile": "프로필 저장",
+    "profileSaved": "프로필 저장됨",
+    "addSubject": "과목 추가",
+    "subjectNamePlaceholder": "과목 이름 (예: 수학)",
+    "chapters_other": "챕터 {{count}}개",
+    "topics": "토픽",
+    "noSubjects": "아직 과목이 없습니다. 첫 과목을 추가하세요.",
+    "noChapters": "아직 챕터가 없습니다 — 아래에서 첫 챕터를 추가하세요.",
+    "addChapter": "챕터 추가",
+    "chapterNamePlaceholder": "챕터 이름",
+    "addTopic": "토픽 추가",
+    "topicNamePlaceholder": "토픽 이름",
+    "learningObjective": "학습 목표",
+    "deleteSubject": "과목 삭제",
+    "deleteSubjectConfirm": "이 과목을 삭제할까요? 챕터와 토픽도 함께 삭제됩니다.",
+    "deleteChapterConfirm": "이 챕터를 삭제할까요? 토픽도 함께 삭제됩니다.",
+    "deleteTopicConfirm": "이 토픽을 삭제할까요?",
+    "deleteExamConfirm": "이 시험을 삭제할까요? 범위도 함께 삭제됩니다.",
+    "addExam": "시험 추가",
+    "examNamePlaceholder": "시험 이름 (예: 중간고사)",
+    "examDate": "시험 날짜",
+    "subjectLabel": "과목",
+    "noExams": "예정된 시험이 없습니다. 시험을 추가하고 범위를 관리하세요.",
+    "portions": "시험 범위",
+    "noPortions": "이 범위에는 아직 챕터가 없습니다.",
+    "addPortion": "범위에 챕터 추가",
+    "removePortion": "범위에서 제거",
+    "create": "만들기",
+    "add": "추가",
+    "cancel": "취소",
+    "error": "문제가 발생했습니다. 다시 시도해 주세요."
+  },
+"wellbeing": {
+    "title": "학습 건강",
+    "today": "오늘의 집중",
+    "optimal": "건강한 최적: 하루 {{min}}분",
+    "budget": "일일 상한까지 {{min}}분 남음",
+    "band": {
+      "fresh": "신선함",
+      "focused": "집중",
+      "draining": "저하 중",
+      "depleted": "지침"
+    },
+    "cooldownTitle": "휴식 시간 활성화",
+    "cooldownBody": "마지막 집중 블록이 길었습니다. 진짜 휴식을 취하세요({{min}}분 남음) — 쉬는 동안 뇌는 배운 것을 굳힙니다.",
+    "nightTitle": "늦은 시간입니다",
+    "nightBody": "학습은 수면 중에 굳어집니다. 오늘은 여기서 마무리하세요 — 내일의 세션이 오늘 밤의 한 시간보다 더 가치 있습니다.",
+    "diminishingTitle": "수확 체감",
+    "diminishingBody": "건강한 최적치를 넘었습니다 — 오늘 추가 시간은 평소 보상의 ×{{mult}}만 얻습니다. 휴식이 학습을 더 가치 있게 만듭니다."
+  },
+  "focusSessions": {
+    "title": "Focus Sessions",
+    "subtitle": "Record your study time, subject by subject.",
+    "startFocus": "Ready to focus?",
+    "nowFocusing": "In a focus session",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "complete": "Complete",
+    "paused": "Paused",
+    "today": "Focus today",
+    "history": "Session history",
+    "minutes": "min",
+    "general": "General study",
+    "noSessions": "No sessions yet. Start one above!",
+    "subjectPlaceholder": "Subject (optional)",
+    "deleteConfirm": "Delete this session?",
+    "alreadyActive": "A session is already running or paused. Complete it first.",
+    "error": "Could not load focus sessions."
+  },
+  "mistakes": {
+    "title": "Mistake Notebook",
+    "subtitle": "Turn every mistake into a lesson.",
+    "addMistake": "Add mistake",
+    "save": "Save",
+    "cancel": "Cancel",
+    "questionLabel": "Question",
+    "questionPlaceholder": "What question did you get wrong?",
+    "subject": "Subject",
+    "chapter": "Chapter",
+    "correctAnswer": "Correct answer",
+    "wrongAnswer": "Your answer",
+    "category": "Category",
+    "category_concept": "Concept",
+    "category_careless": "Careless",
+    "category_time": "Time pressure",
+    "category_guess": "Guessed",
+    "category_other": "Other",
+    "cause": "Why it happened",
+    "correctionNote": "Correction note",
+    "status_open": "Open",
+    "status_resolved": "Resolved",
+    "status_reopened": "Reopened",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "resolvePrompt": "Correction note (optional):",
+    "search": "Search mistakes…",
+    "empty": "No mistakes match.",
+    "deleteConfirm": "Delete this mistake?",
+    "error": "Could not load mistakes."
+  },
+  "puzzles": {
+    "title": "Subject Puzzles",
+    "subtitle": "Ranked streaks and practice for every subject.",
+    "mode_ranked": "Ranked",
+    "mode_practice": "Practice",
+    "total": "puzzles",
+    "rankedToday": "ranked today",
+    "best": "best {best}",
+    "pickSubject": "Pick a subject to start puzzling.",
+    "noSubjects": "No puzzles yet. Create original puzzles for your subjects.",
+    "dailyLimit": "Daily ranked limit reached",
+    "dailyLimitHint": "Come back tomorrow, or keep practicing!",
+    "noneLeft": "No puzzles left for this subject.",
+    "retry": "Try again",
+    "submit": "Submit answer",
+    "correct": "Correct!",
+    "incorrect": "Not quite.",
+    "answer": "Answer",
+    "next": "Next puzzle",
+    "history": "Recent attempts",
+    "error": "Could not load puzzles."
+  },
+  "examCentre": {
+    "title": "Exam Centre",
+    "subtitle": "역량 기반 평가 — 과목을 고르고 사고력을 키우며, 어디서 점수를 잃었는지와 개선 방법을 알 수 있습니다.",
+    "addPeriod": "Add period",
+    "periodName": "Period name",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "notes": "Notes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "status_upcoming": "Upcoming",
+    "status_live": "Live",
+    "status_ended": "Ended",
+    "noPeriods": "No exam periods yet. Add one to plan your exams.",
+    "noExamsInPeriod": "No exams attached to this period.",
+    "recordResult": "Record result: {exam}",
+    "recordResultTitle": "Record exam result",
+    "marksObtained": "Marks obtained",
+    "marksTotal": "Total marks",
+    "mistakeAnalysis": "Mistake analysis",
+    "revisionPlan": "Revision plan",
+    "saveResult": "Save result",
+    "results": "Results",
+    "deleteConfirm": "Delete this exam period?",
+    "error": "Could not load the exam centre."
+  },
+  "rpg": {
+    "title": "Study RPG",
+    "subtitle": "Defeat the monsters of distraction with knowledge and original cards.",
+    "stp": "STP",
+    "error": "Failed to load Study RPG data.",
+    "deckError": "Could not create the deck — check card restrictions.",
+    "battleError": "Could not start a battle.",
+    "actionError": "That move was rejected by the server.",
+    "tab": {
+      "character": "Character",
+      "decks": "Decks",
+      "battle": "Battle",
+      "duel": "Duels"
+    },
+    "level": "Level",
+    "xp": "XP",
+    "studyStreak": "Study streak",
+    "bestPuzzleStreak": "Best puzzle streak",
+    "eventExp": "Event XP",
+    "equippedDeck": "Equipped deck",
+    "noDeck": "No deck yet",
+    "startBattle": "Start battle",
+    "collectionCount": "Cards owned",
+    "manageDecks": "Manage decks",
+    "cardLibrary": "Card library",
+    "libraryHint": "Original cards only — no third-party content.",
+    "balance": "Wallet balance",
+    "ledgerHint": "Every STP/SLC change is recorded on an immutable ledger.",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "legendary": "Legendary"
+    },
+    "buildDeck": "Build a deck",
+    "deckNamePlaceholder": "Deck name",
+    "deckHint": "five cards, max one Poison, one Decay and one Shield",
+    "saveDeck": "Save deck",
+    "collection": "Collection",
+    "active": "Active",
+    "equip": "Equip",
+    "deckValid": "Valid deck",
+    "deckInvalid": "Invalid deck",
+    "defaultDeckName": "My Deck",
+    "noBattle": "No battle in progress",
+    "noBattleHint": "Equip a validated deck, then challenge a monster.",
+    "turn": "Turn",
+    "shield": "Shield",
+    "forfeit": "Forfeit",
+    "done": "Done",
+    "victory": "Victory!",
+    "defeat": "Defeated…",
+    "forfeited": "Forfeited",
+    "pendingReward": "Reward on victory",
+    "log": {
+      "start": "Battle starts —",
+      "action": "plays",
+      "damage": "deals",
+      "dot": "damage over time",
+      "heal": "heals",
+      "shield": "shield from",
+      "status": "status",
+      "mana": "mana",
+      "quiz": "quiz restores",
+      "challengeWin": "Damage challenge: perfect! +10",
+      "challengeFail": "Damage challenge missed.",
+      "defeatWin": "Monster defeated!",
+      "defeatLoss": "You were defeated.",
+      "end": "Turn ends."
+    },
+    "pvp": {
+      "challengeByEmail": "Challenge by email",
+      "emailPlaceholder": "friend@example.com",
+      "challengeBtn": "Challenge",
+      "randomMatchmaking": "Random matchmaking",
+      "needDeck": "You need a validated, equipped deck to duel.",
+      "leaderboard": "Leaderboard",
+      "noDuels": "No duels yet",
+      "level": "Level",
+      "yourDuels": "Your duels",
+      "rating": "Rating",
+      "vs": "vs",
+      "you": "you",
+      "status": {
+        "challenged": "Challenged",
+        "in_progress": "In progress",
+        "settled": "Settled",
+        "expired": "Expired"
+      },
+      "youWon": "You won the duel!",
+      "youLost": "You lost the duel.",
+      "draw": "The duel was a draw.",
+      "ratingChange": "Rating change",
+      "limited": "daily limit reached",
+      "expires": "Expires",
+      "continue": "Continue battle",
+      "fight": "Fight",
+      "duelError": "Could not create the duel.",
+      "battleError": "Could not start the duel battle."
+    }
+  },
+  "economy": {
+    "title": "카드 마켓",
+    "subtitle": "오리지널 카드를 사고, 팔고, 폐기하고, 소각하세요 — 모든 STP 이동은 불변 원장에 기록됩니다.",
+    "error": "마켓에 문제가 발생했습니다.",
+    "loading": "마켓을 여는 중…",
+    "tab": {
+      "marketplace": "마켓",
+      "collection": "내 카드",
+      "supply": "공급"
+    },
+    "rarity": {
+      "all": "전체",
+      "common": "일반",
+      "rare": "희귀",
+      "legendary": "전설",
+      "supply": "희귀도"
+    },
+    "officialValue": "공식 가치",
+    "seller": "판매자",
+    "buy": "구매",
+    "offer": "제안",
+    "sendOffer": "보내기",
+    "offerPlaceholder": "STP 제안 금액",
+    "offerMade": "제안을 보냈습니다 — 판매자의 답변을 기다립니다.",
+    "pendingOffers": "대기 중인 제안",
+    "from": "보낸이",
+    "to": "받는이",
+    "accept": "수락",
+    "decline": "거절",
+    "cancelOffer": "취소",
+    "myListings": "내 판매 목록",
+    "noListings": "현재 마켓에 카드가 없습니다.",
+    "owned": "보유",
+    "location": {
+      "inventory": "인벤토리",
+      "vault": "금고"
+    },
+    "inDeck": "덱에 있음",
+    "listedBadge": "판매 중",
+    "sell": "판매",
+    "confirmList": "등록",
+    "pricePlaceholder": "STP 가격",
+    "listed": "카드가 마켓에 등록되었습니다.",
+    "toVault": "금고로",
+    "toInventory": "인벤토리로",
+    "scrape": "폐기",
+    "scrapeTitle": "이 카드를 폐기할까요?",
+    "scrapeWarning": "카드가 영구히 제거되고 공식 가치가 즉시 지급됩니다. 되돌릴 수 없습니다.",
+    "confirmScrape": "STP로 폐기",
+    "burn": "소각",
+    "burnTitle": "이 카드를 소각할까요?",
+    "burnWarning": "카드가 영구히 제거됩니다. 할부로 지급됩니다 — 첫 회는 지금, 나머지는 시간에 걸쳐. 되돌릴 수 없습니다.",
+    "confirmBurn": "할부로 소각",
+    "cancel": "취소",
+    "burnActive": "소각 진행 중",
+    "instalments": "할부",
+    "nextInstalment": "다음 지급",
+    "noCards": "아직 보유한 카드가 없습니다. 전투에서 승리하고 팩을 열어 컬렉션을 키우세요.",
+    "card": "카드",
+    "original": "원본",
+    "active": "활성",
+    "burned": "소각됨",
+    "scraped": "폐기됨",
+    "listedShort": "판매 중",
+    "statusCol": "상태",
+    "extinct": "절판",
+    "replacement": "에코",
+    "activeBadge": "활성",
+    "retired": "은퇴",
+    "priceHistory": "공식 가치 기록",
+    "noHistory": "아직 가치 변경이 기록되지 않았습니다.",
+    "supplyHint": "공급 원장은 모든 인쇄, 소각, 폐기, 절판을 추적합니다 — 공식 가치는 공급을 따릅니다.",
+    "adminReconcile": "조정",
+    "adminInstalments": "할부 지급"
+  },
+  "events": {
+    "title": "학습 이벤트",
+    "subtitle": "항상 하나의 이벤트가 진행됩니다. 공부하고 이벤트 경험치를 모아 Study Pass를 올리고 보상을 받으세요 — 게임은 결코 공부에서 벗어나게 하지 않습니다.",
+    "loadError": "현재 이벤트를 불러올 수 없습니다.",
+    "none": "지금 활성화된 이벤트가 없습니다 — 스케줄러가 자동으로 시작합니다.",
+    "daysLeft": "{count}일 후 종료",
+    "startsOn": "시작",
+    "endsOn": "종료",
+    "fallbackBadge": "폴백",
+    "status": {
+      "scheduled": "예정",
+      "active": "진행 중",
+      "ended": "종료됨"
+    },
+    "studyPass": {
+      "title": "Study Pass",
+      "hint": "이벤트 경험치는 실제 공부에서만 얻을 수 있습니다 — 과제, 집중, 퀴즈, 퍼즐, 전투.",
+      "level": "레벨 {level}",
+      "exp": "{exp} / {next} 경험치",
+      "maxed": "최고 레벨 도달",
+      "trackNone": "트랙 선택",
+      "trackLocked": "트랙 고정됨",
+      "free": "무료 패스",
+      "gold": "골드 패스",
+      "goldCost": "골드 패스 · {cost} STP",
+      "chooseFree": "무료 선택",
+      "chooseGold": "골드 선택",
+      "goldConfirmTitle": "골드 패스를 구매할까요?",
+      "goldConfirmBody": "지갑에서 {cost} STP가 차감되며 이벤트 전체 동안 트랙이 고정됩니다. 이 선택은 변경할 수 없습니다.",
+      "claim": "받기",
+      "claimed": "받음",
+      "locked": "잠김",
+      "claimHint": "보상 {count}개 준비됨"
+    },
+    "quests": {
+      "title": "퀘스트",
+      "subtitle": "실제 공부 활동을 완료하여 STP, 이벤트 경험치와 아이템을 얻으세요.",
+      "category": {
+        "daily": "일일",
+        "weekly": "주간",
+        "study": "공부",
+        "puzzle": "퍼즐"
+      },
+      "claim": "받기",
+      "claimed": "받음",
+      "none": "이 이벤트의 활성 퀘스트가 아직 없습니다."
+    },
+    "items": {
+      "title": "이벤트 아이템",
+      "subtitle": "Abstracted 오류, 파편, 멸종의 인장.",
+      "none": "아직 보유한 이벤트 아이템이 없습니다.",
+      "transfer": "인장 보내기",
+      "transferHint": "친구에게 멸종의 인장을 보냅니다 (사용자 ID + 수량).",
+      "friendId": "친구 사용자 ID",
+      "quantity": "수량",
+      "send": "보내기",
+      "transferred": "인장을 보냈습니다.",
+      "transferError": "인장을 보낼 수 없습니다.",
+      "redeemLimbo": "림보 교환",
+      "limboTitle": "림보를 교환할까요?",
+      "limboBody": "7개의 Abstracted 오류를 모두 소모하여 거래 불가한 림보 전설 카드를 받습니다. 한 번만 가능합니다.",
+      "limboDone": "림보 획득!",
+      "errorsHave": "Abstracted 오류 {count}개 보유"
+    },
+    "abstracted": {
+      "title": "Abstracted 카드",
+      "subtitle": "언앱스트랙트하면 Abstracted 카드가 전설 카드로 영구 변환됩니다.",
+      "none": "언앱스트랙트할 Abstracted 카드가 없습니다.",
+      "unabstract": "언앱스트랙트",
+      "unabstractTitle": "{name}을(를) 언앱스트랙트할까요?",
+      "unabstractBody": "카드는 {result}(으)로 영구 변환되며 {stp} STP와 Abstracted 오류 1개를 받습니다. 되돌릴 수 없습니다.",
+      "reason": "사유 (감사 로그에 표시)",
+      "confirm": "확인",
+      "done": "카드가 언앱스트랙트되었습니다 — {result} 컬렉션에 추가됨."
+    },
+    "extinction": {
+      "title": "대멸종",
+      "subtitle": "이 카드 계열이 사라지고 있습니다. 대상 카드를 태워 멸종의 인장을 얻거나, 인장으로 즐겨 찾는 카드를 보존하세요.",
+      "targets": "대상",
+      "value": "가치",
+      "milestone": "세계의 화톳불",
+      "milestoneProgress": "{progress} / {target}회 대상 소각",
+      "claimMilestone": "인장 받기",
+      "milestoneClaimed": "받음",
+      "none": "아직 대상이 설정되지 않았습니다."
+    },
+    "admin": {
+      "title": "이벤트 관리",
+      "subtitle": "이벤트 예약, 활성화, 멸종 관리를 담당합니다. 모든 작업은 사유와 함께 감사됩니다.",
+      "slug": "슬러그",
+      "name": "이름",
+      "story": "스토리",
+      "startsAt": "시작",
+      "endsAt": "종료",
+      "graceHours": "유예 시간",
+      "reason": "사유",
+      "create": "이벤트 예약",
+      "created": "이벤트가 예약되었습니다.",
+      "createError": "이벤트를 예약할 수 없습니다.",
+      "activate": "지금 활성화",
+      "activated": "이벤트가 활성화되었습니다.",
+      "activateError": "이벤트를 활성화할 수 없습니다.",
+      "seedTargets": "멸종 대상 재설정",
+      "cardKeys": "카드 키 (쉼표로 구분)",
+      "seeded": "멸종 대상이 업데이트되었습니다.",
+      "seedError": "멸종 대상을 업데이트할 수 없습니다."
+    }
+  },
+  "programmes": {
+    "title": "프로그램",
+    "subtitle": "사고력을 훈련하는 선택형 프레임워크 — 실제 학습 문제를 해결하는 시스템을 설계하세요. 모든 프로그램은 선택 사항이며, 당신의 선택이 가장 중요합니다.",
+    "suggest": "프로그램 제안하기",
+    "suggestBtn": "프로그램 제안",
+    "suggestHint": "프로그램 아이디어를 설명하세요(예: «10학년 과학 복습 센터»).",
+    "suggestError": "프로그램을 제안할 수 없습니다.",
+    "loadError": "프로그램을 불러올 수 없습니다.",
+    "join": "참여",
+    "leave": "나가기",
+    "review": "검토",
+    "reviewBtn": "검토 제출",
+    "reviewError": "검토를 저장할 수 없습니다.",
+    "reviewAccepted": "승인됨",
+    "reviewRejected": "거부됨",
+    "reviewReasonPlaceholder": "이 검토의 이유(필수)",
+    "reviewHistory": "검토 기록",
+    "reviewQueue": "검토 대기열",
+    "reviewQueueError": "검토 대기열을 불러올 수 없습니다.",
+    "queueHint": "인간의 판단을 기다리는 프로그램(AI 검토가 없거나 점수가 낮음).",
+    "queueEmpty": "검토 대기열이 비어 있습니다.",
+    "applyVerdicts": "판정 적용",
+    "accept": "승인",
+    "reject": "거부",
+    "by": "제안자",
+    "none": "아직 프로그램이 없습니다. 첫 제안자가 되어 보세요.",
+    "score": "점수",
+    "reward": "보상",
+    "objectives": "목표",
+    "weeks": "주",
+    "hoursWeek": "시간/주",
+    "reasonPlaceholder": "이유(필수)",
+    "namePlaceholder": "프로그램 이름",
+    "descriptionPlaceholder": "간단한 설명",
+    "factionSizePlaceholder": "파벌 크기",
+    "hasFactions": "파벌 사용",
+    "factionsEnabled": "파벌 포함",
+    "startPath": "학습 경로 시작",
+    "pathError": "학습 경로를 만들 수 없습니다.",
+    "hideForm": "양식 숨기기",
+    "hideQueue": "대기열 숨기기",
+    "hideTemplates": "템플릿 숨기기",
+    "templates": "템플릿",
+    "templatesHint": "큐레이션된 템플릿에서 시작하면 AI가 그것으로 전체 프로그램을 만듭니다.",
+    "noTemplates": "아직 템플릿이 없습니다.",
+    "useTemplate": "템플릿 사용",
+    "newTemplate": "새 템플릿",
+    "saveTemplate": "템플릿 저장",
+    "deleteTemplate": "템플릿 삭제",
+    "templateDeletePrompt": "이 템플릿을 삭제하는 이유(필수):",
+    "templateNamePlaceholder": "템플릿 이름",
+    "templateDescPlaceholder": "템플릿 설명",
+    "templateError": "템플릿을 저장할 수 없습니다.",
+    "archiveReasonPrompt": "이 프로그램을 보관하는 이유(필수):",
+    "batchReviewDone": "일괄 검토가 적용되었습니다.",
+    "filter": {
+      "active": "전체",
+      "mine": "내 것",
+      "suggested": "제안됨"
+    },
+    "status": {
+      "active": "활성",
+      "suggested": "제안됨",
+      "building": "만드는 중",
+      "rejected": "거부됨",
+      "archived": "보관됨"
+    },
+    "kind": {
+      "custom": "사용자 지정",
+      "revision_centre": "복습 센터",
+      "competency_testing": "역량 기반 평가",
+      "exam_sprint": "시험 스프린트"
+    }
+  },
+  "admin": {
+    "title": "관리",
+    "subtitle": "Nightmare 슈퍼 관리자 콘솔",
+    "users": {
+      "create": "사용자 만들기",
+      "createBtn": "사용자 만들기",
+      "createError": "사용자를 만들 수 없습니다.",
+      "edit": "편집",
+      "editUser": "사용자 편집",
+      "loadError": "사용자를 불러올 수 없습니다.",
+      "none": "사용자를 찾을 수 없습니다.",
+      "searchPlaceholder": "이름, 이메일 또는 사용자 이름으로 검색",
+      "namePlaceholder": "전체 이름",
+      "emailPlaceholder": "이메일(선택)",
+      "usernamePlaceholder": "사용자 이름(선택)",
+      "passwordPlaceholder": "비밀번호",
+      "reasonPlaceholder": "이유(필수)",
+      "role": {
+        "admin": "관리자",
+        "teacher": "교사",
+        "user": "사용자"
+      },
+      "activeLabel": "활성",
+      "disabled": "비활성",
+      "reset": "비밀번호 재설정",
+      "resetBtn": "재설정",
+      "resetError": "비밀번호를 재설정할 수 없습니다.",
+      "resetPassword": "비밀번호 재설정",
+      "newPasswordPlaceholder": "새 비밀번호",
+      "updateError": "사용자를 업데이트할 수 없습니다.",
+      "hideForm": "양식 숨기기",
+      "noIdentifier": "이메일 또는 사용자 이름이 필요합니다"
+    },
+    "audit": {
+      "title": "감사 로그",
+      "export": "내보내기",
+      "none": "감사 항목이 없습니다.",
+      "reason": "이유",
+      "target": "대상",
+      "loadError": "감사 로그를 불러올 수 없습니다.",
+      "purge": "오래된 항목 정리",
+      "purgeError": "감사 로그를 정리할 수 없습니다.",
+      "retentionPlaceholder": "보관 일수",
+      "retentionReason": "이유(필수)",
+      "retentionNow": "보관",
+      "setRetention": "보관 설정",
+      "retentionError": "보관을 업데이트할 수 없습니다.",
+      "days": "일",
+      "system": "시스템"
+    },
+    "notes": {
+      "deleteError": "메모를 삭제할 수 없습니다.",
+      "deleteReasonPrompt": "이 메모를 삭제하는 이유(필수):",
+      "hideForm": "양식 숨기기",
+      "hint": "PDF를 업로드하거나 공용 메모를 작성하세요. 선택한 페이지가 RAG 검색에 색인됩니다.",
+      "loadError": "메모를 불러올 수 없습니다.",
+      "none": "아직 관리자 메모가 없습니다.",
+      "pages": "페이지",
+      "selectedPages": "선택한 페이지",
+      "subjectPlaceholder": "과목(선택)",
+      "textNote": "텍스트 메모 작성",
+      "titlePlaceholder": "메모 제목",
+      "upload": "업로드",
+      "uploadBtn": "메모 업로드",
+      "uploadError": "메모를 업로드할 수 없습니다."
+    },
+    "syllabus": {
+      "add": "교육과정 항목 추가",
+      "boardPlaceholder": "교육위원회(예: CBSE)",
+      "chaptersPlaceholder": "장 JSON(이름 + 주제)",
+      "deleteError": "교육과정 항목을 삭제할 수 없습니다.",
+      "deleteReasonPrompt": "이 교육과정 항목을 삭제하는 이유(필수):",
+      "gradePlaceholder": "학년(예: 9)",
+      "hideForm": "양식 숨기기",
+      "hint": "학생들이 학습하는 공식 교육과정을 게시하세요.",
+      "loadError": "교육과정을 불러올 수 없습니다.",
+      "none": "아직 교육과정 항목이 없습니다.",
+      "reasonPlaceholder": "이유(필수)",
+      "save": "교육과정 저장",
+      "saveError": "교육과정을 저장할 수 없습니다.",
+      "subjectPlaceholder": "과목"
+    },
+    "system": {
+      "users": "역할별 사용자",
+      "auditCount": "감사 항목",
+      "activeEvents": "활성 이벤트",
+      "activeFactions": "활성 파벌",
+      "queue": "큐(기본)",
+      "queueWaiting": "대기 중",
+      "queueActive": "실행 중",
+      "queueCompleted": "완료",
+      "queueFailed": "실패",
+      "queueDelayed": "지연",
+      "loadError": "시스템 상태를 불러올 수 없습니다.",
+      "health": {
+        "title": "서비스 상태",
+        "database": "데이터베이스",
+        "redis": "Redis",
+        "qdrant": "Qdrant",
+        "queue": "큐",
+        "ok": "정상",
+        "down": "중단됨"
+      }
+    }
+  },
+  "factions": {
+    "title": "파벌",
+    "subtitle": "팀 리더 한 명이 이끄는 학습 그룹. 약한 진영은 강한 진영의 도움을 받습니다 — 서로 돕는 학습.",
+    "loadError": "파벌을 불러올 수 없습니다.",
+    "none": "아직 파벌이 없습니다.",
+    "myFaction": "내 파벌",
+    "noFaction": "아직 파벌에 속해 있지 않습니다.",
+    "joinDefault": "기본 파벌에 참여",
+    "members": "구성원",
+    "viewMembers": "구성원 보기",
+    "score": "점수",
+    "leader": "리더",
+    "election": "선거",
+    "vote": "투표",
+    "voteError": "투표를 제출할 수 없습니다.",
+    "noVotes": "이 기간에 아직 투표가 없습니다.",
+    "leaderboard": "리더보드",
+    "period": "기간",
+    "targetSize": "목표 크기",
+    "helpPledges": "도움 약속",
+    "pledgesTo": "약속 대상",
+    "pledgeStatus": {
+      "open": "열림",
+      "completed": "완료"
+    },
+    "recordHelp": "도움 기록",
+    "recordHelpBtn": "도움 활동 기록",
+    "recordHelpHint": "이 기간에 약한 파벌을 도왔음을 기록하세요.",
+    "helpActivities": "도움 활동",
+    "helpNotePrompt": "메모(선택):",
+    "helpError": "도움 활동을 기록할 수 없습니다.",
+    "promoteLeaders": "상위 2명 승격",
+    "promoteError": "리더를 승격할 수 없습니다.",
+    "assignError": "파벌에 참여할 수 없습니다."
+  },
+  "social": {
+    "title": "소셜",
+    "subtitle": "친구와 직접 메시지 — 자체 호스팅, 중재, 속도 제한 적용.",
+    "loadError": "소셜을 불러올 수 없습니다.",
+    "friends": "친구",
+    "noFriends": "아직 친구가 없습니다. 공부 친구를 찾아보세요!",
+    "findFriends": "친구 찾기",
+    "searchPlaceholder": "이름, 사용자 이름 또는 이메일로 검색",
+    "add": "추가",
+    "pending": "대기 중",
+    "requests": "요청",
+    "selectFriend": "친구 선택",
+    "selectFriendHint": "목록에서 친구를 선택하여 채팅을 시작하세요.",
+    "noMessages": "아직 메시지가 없습니다. 인사해 보세요!",
+    "messagePlaceholder": "메시지 입력…",
+    "sendError": "메시지를 보낼 수 없습니다.",
+    "requestError": "친구 요청을 보낼 수 없습니다.",
+    "block": "차단",
+    "blockConfirm": "이 사용자를 차단할까요?",
+    "status": {
+      "pending": "대기 중",
+      "accepted": "친구",
+      "blocked": "차단됨"
+    }
+  },
+  "accepted": "승인됨",
+  "rejected": "거부됨",
+  "campfire": {
+    "title": "캠프파이어 — 메타인지 점검",
+    "subtitle": "보상을 받기 전에, 공부한 것을 진정으로 이해했는지 증명하세요.",
+    "checkTitle": "캠프파이어 점검: 이해도를 확인하세요",
+    "checkSubtitle": "튜터의 단일 종합 질문에 답해 보상을 확정하세요 — 이해의 깊이에 따라 최대 1.5배까지 올라갑니다.",
+    "checkSubtitleBattle": "튜터의 종합 질문에 답해 다음 승리의 보상을 최대 1.5배까지 높이세요.",
+    "reflectBoost": "성찰하고 강화",
+    "answeredLabel": "성찰이 기록되었습니다",
+    "tutorQuestion": "튜터의 질문",
+    "answerPlaceholder": "자신의 말로 아이디어를 종합하세요 — 어떻게 작동하는지, 왜 중요한지, 이미 아는 것과 어떻게 연결되는지…",
+    "submit": "성찰 제출",
+    "skip": "건너뛰기 (기본 배율 1.0배)",
+    "depthLabel": "이해의 깊이",
+    "multiplierApplied": "보상 배율 적용됨",
+    "masteryFrame": "당신의 실제 인지 능력과 집중 지구력이 향상되었습니다. 깊어진 스킬: {{skill}}.",
+    "reflectionLogged": "성찰이 기록되었습니다",
+    "done": "계속",
+    "error": "지금은 캠프파이어를 켤 수 없습니다. 잠시 후 다시 시도하세요.",
+    "tooShort": "성찰이 너무 짧습니다 — 아이디어를 종합할 시간을 진짜로 가져보세요.",
+    "limitReached": "오늘 충분히 성찰했습니다 (하루 3회). 현재 배율은 계속 적용됩니다.",
+    "boostActive": "보상 부스트 ×{{mult}}",
+    "yourSubject": "당신의 학습 세션"
   }
 }

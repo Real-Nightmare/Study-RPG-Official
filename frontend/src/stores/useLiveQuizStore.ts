@@ -123,8 +123,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
       const wsUrl = url.origin + '/live-quiz';
       const token = localStorage.getItem('accessToken');
 
-      console.log('[LiveQuiz] Connecting to:', wsUrl);
-
       if (!token) {
         console.error('[LiveQuiz] No access token found!');
         set({ error: 'Not authenticated' });
@@ -138,7 +136,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
       });
 
       socket.on('connect', () => {
-        console.log('[LiveQuiz] Socket connected:', socket.id);
         set({ socket, error: null });
       });
 
@@ -150,13 +147,11 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
       });
 
       socket.on('disconnect', (reason) => {
-        console.log('[LiveQuiz] Socket disconnected:', reason);
         set({ error: reason === 'io server disconnect' ? 'Disconnected by server' : null });
       });
 
       // Room events
       socket.on('room:created', (room: { code: string; hostId: string; players?: Array<{ id: string; name: string; avatarUrl?: string; score?: number; correctAnswers?: number; answers?: number }> }) => {
-        console.log('[LiveQuiz] room:created:', room);
         roomHostId = room.hostId;
         set({
           roomCode: room.code,
@@ -168,7 +163,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
       });
 
       socket.on('room:joined', (room: { code: string; hostId: string; players?: Array<{ id: string; name: string; avatarUrl?: string; score?: number; correctAnswers?: number; answers?: number }> }) => {
-        console.log('[LiveQuiz] room:joined:', room);
         roomHostId = room.hostId;
         set({
           roomCode: room.code,
@@ -185,7 +179,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
       // Game countdown (3 seconds before first question)
       socket.on('game:countdown', (data: { countdown: number }) => {
-        console.log('[LiveQuiz] game:countdown:', data);
         set({ phase: 'countdown', countdownValue: data.countdown });
         clearCountdown();
         let count = data.countdown;
@@ -198,7 +191,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
       // Question start
       socket.on('question:start', (data: { index: number; question: string; options?: string[]; timeLimit?: number; total: number }) => {
-        console.log('[LiveQuiz] question:start:', data);
         clearCountdown();
         clearTimer();
 
@@ -234,8 +226,7 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
       });
 
       // Answer locked confirmation
-      socket.on('answer:locked', (data: { questionIndex: number; answerIndex: number; correct: boolean; score: number }) => {
-        console.log('[LiveQuiz] answer:locked:', data);
+      socket.on('answer:locked', () => {
         set({ myAnswerLocked: true });
       });
 
@@ -246,7 +237,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
       // Question result with all player answers
       socket.on('question:result', (data: QuestionResult) => {
-        console.log('[LiveQuiz] question:result:', data);
         clearTimer();
         set({
           questionResult: data,
@@ -257,7 +247,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
       // Next question countdown
       socket.on('question:next', (data: { nextIndex: number; countdown: number }) => {
-        console.log('[LiveQuiz] question:next:', data);
         set({ countdownValue: data.countdown, phase: 'countdown' });
         clearCountdown();
         let count = data.countdown;
@@ -270,7 +259,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
       // Game finished
       socket.on('game:finished', (data: { leaderboard: Array<{ id: string; name: string; avatarUrl?: string; score?: number; correctAnswers?: number; answers?: number }>; totalQuestions: number }) => {
-        console.log('[LiveQuiz] game:finished:', data);
         clearTimer();
         clearCountdown();
         const rankings = mapPlayers(data.leaderboard || [], roomHostId || '');
@@ -306,7 +294,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
     createRoom: (studySetId: string) => {
       const socket = get().socket;
-      console.log('[LiveQuiz] createRoom:', { connected: socket?.connected, studySetId });
       if (!socket?.connected) {
         set({ error: 'Not connected to server' });
         return;
@@ -316,7 +303,6 @@ export const useLiveQuizStore = create<LiveQuizState>((set, get) => {
 
     joinRoom: (code: string, name?: string) => {
       const socket = get().socket;
-      console.log('[LiveQuiz] joinRoom:', { code, name });
       if (!socket?.connected) {
         set({ error: 'Not connected to server' });
         return;

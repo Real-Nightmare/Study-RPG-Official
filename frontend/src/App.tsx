@@ -79,6 +79,19 @@ import {
   AppearanceSettingsPage,
   ChatPage,
   ChatHistoryPage,
+  TasksPage,
+  AcademicsPage,
+  FocusSessionsPage,
+  MistakesPage,
+  PuzzlesPage,
+  ExamCentrePage,
+  RpgPage,
+  EconomyPage,
+  EventsPage,
+  AdminPage,
+  ProgrammesPage,
+  FactionsPage,
+  SocialPage,
 } from '@/pages/dashboard';
 import { PublicLayout } from '@/layouts/PublicLayout';
 import { Button } from '@/components/ui/button';
@@ -237,6 +250,110 @@ function App() {
         element={
           <ProtectedRoute>
             <DashboardHomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/tasks"
+        element={
+          <ProtectedRoute>
+            <TasksPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/academics"
+        element={
+          <ProtectedRoute>
+            <AcademicsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/focus"
+        element={
+          <ProtectedRoute>
+            <FocusSessionsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/mistakes"
+        element={
+          <ProtectedRoute>
+            <MistakesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/puzzles"
+        element={
+          <ProtectedRoute>
+            <PuzzlesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/exam-centre"
+        element={
+          <ProtectedRoute>
+            <ExamCentrePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/rpg"
+        element={
+          <ProtectedRoute>
+            <RpgPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/economy"
+        element={
+          <ProtectedRoute>
+            <EconomyPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/events"
+        element={
+          <ProtectedRoute>
+            <EventsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/programmes"
+        element={
+          <ProtectedRoute>
+            <ProgrammesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/factions"
+        element={
+          <ProtectedRoute>
+            <FactionsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/social"
+        element={
+          <ProtectedRoute>
+            <SocialPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/admin"
+        element={
+          <ProtectedRoute>
+            <AdminPage />
           </ProtectedRoute>
         }
       />

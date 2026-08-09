@@ -4,6 +4,7 @@ export { HeroSection } from './HeroSection';
 export { TrustedBySection } from './TrustedBySection';
 export { FeaturesSection } from './FeaturesSection';
 export { HowItWorksSection } from './HowItWorksSection';
+export { PhilosophySection } from './PhilosophySection';
 export { TestimonialsSection } from './TestimonialsSection';
 export { FAQSection } from './FAQSection';
 export { CTASection } from './CTASection';

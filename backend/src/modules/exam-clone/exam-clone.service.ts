@@ -5,6 +5,12 @@ import { AiService } from '../ai/ai.service';
 import { StorageService } from '../storage/storage.service';
 import { QueueService } from '../queue/queue.service';
 import pdfParse from 'pdf-parse';
+import { PlayerService } from '../rpg/player.service';
+import { WalletService } from '../rpg/wallet.service';
+import { CampfireService } from '../integrity/campfire.service';
+import { getIntegrityConfig } from '../integrity/integrity-config';
+import { answerTimeSanity, computeReward, passesPremiumThreshold } from '../integrity';
+import type { MaterialDifficulty } from '../integrity';
 
 export interface ExamClone {
   id: string;
@@ -65,6 +71,9 @@ export class ExamCloneService {
     private readonly aiService: AiService,
     private readonly storageService: StorageService,
     private readonly queueService: QueueService,
+    private readonly player?: PlayerService,
+    private readonly wallet?: WalletService,
+    private readonly campfire?: CampfireService,
   ) {}
 
   async create(userId: string, dto: CreateExamCloneDto): Promise<ExamClone> {
@@ -637,8 +646,10 @@ Be concise and helpful.`;
     }>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     newBadges: any[];
+    rewardXp?: number;
+    rewardStp?: number;
   }> {
-    await this.findByIdWithAccess(examCloneId, userId);
+    const examClone = await this.findByIdWithAccess(examCloneId, userId);
 
     const questions = await this.getQuestions(examCloneId);
     const questionMap = new Map(questions.map((q) => [q.id, q]));
@@ -714,8 +725,22 @@ Be concise and helpful.`;
     // Check and award badges
     const newBadges = await this.checkAndAwardBadges(userId, examCloneId);
 
+    // ── Integrity rewards (spec 014, US1/US2) ──────────────────────────────
+    // Accuracy-scaled XP + daily-capped STP for a practice-exam pass,
+    // gated by a per-day attempt cap and answer-time sanity.
+    const reward = await this.awardIntegrityRewards(
+      userId,
+      examCloneId,
+      attemptId,
+      correct,
+      totalQuestions,
+      totalTime,
+      examClone,
+    );
+
     this.logger.log(
-      `Attempt submitted for exam ${examCloneId}: ${score}% (${correct}/${totalQuestions})`,
+      `Attempt submitted for exam ${examCloneId}: ${score}% (${correct}/${totalQuestions})` +
+        (reward ? `, +${reward.xp} XP, +${reward.stp} STP` : ''),
     );
 
     return {
@@ -728,7 +753,82 @@ Be concise and helpful.`;
       timeSpent: totalTime,
       results,
       newBadges,
+      ...(reward ? { rewardXp: reward.xp, rewardStp: reward.stp } : {}),
     };
+  }
+
+  /**
+   * Integrity reward pipeline for a practice-exam attempt: per-day attempt
+   * cap → answer-time sanity → exponential accuracy scaling → daily-capped
+   * STP when the exam is passed (≥ stpPassThreshold).
+   */
+  private async awardIntegrityRewards(
+    userId: string,
+    examCloneId: string,
+    attemptId: string,
+    correct: number,
+    totalQuestions: number,
+    totalTime: number,
+    examClone: ExamClone,
+  ): Promise<{ xp: number; stp: number } | null> {
+    if (!this.player || !this.wallet || totalQuestions === 0) return null;
+    const config = await getIntegrityConfig(this.db);
+    const accuracy = correct / totalQuestions;
+
+    const attemptsToday = await this.db.queryOne<{ count: number }>(
+      `SELECT COUNT(*)::int AS count FROM exam_attempts
+       WHERE user_id = $1 AND created_at >= CURRENT_DATE`,
+      [userId],
+    );
+    const overDailyCap = Number(attemptsToday?.count ?? 0) >= config.guards.examAttemptsPerDay;
+    const timeOk = answerTimeSanity(totalTime, totalQuestions, config.guards.minMsPerQuestion);
+    if (overDailyCap || !timeOk) return null;
+
+    const multiplier = this.campfire
+      ? await this.campfire.latestMultiplier(userId)
+      : config.campfire.baseMultiplier;
+    const xp = computeReward(config.rewards.exam.baseXp, {
+      accuracy,
+      difficulty: this.deriveDifficulty(examClone.extractedStyle),
+      campfireMultiplier: multiplier,
+    });
+    if (xp > 0) {
+      await this.player.addXp(userId, xp, 'exam_accuracy');
+    }
+
+    let stp = 0;
+    if (passesPremiumThreshold(accuracy, config.rewards.exam.stpPassThreshold)) {
+      const today = await this.db.queryOne<{ total: number }>(
+        `SELECT COALESCE(SUM(amount), 0)::int AS total FROM wallet_ledger
+         WHERE user_id = $1 AND transaction_type = 'exam_pass' AND created_at >= CURRENT_DATE`,
+        [userId],
+      );
+      const used = Number(today?.total ?? 0);
+      if (used < config.rewards.exam.dailyStpCap) {
+        const granted = Math.min(
+          config.rewards.exam.stpOnPass,
+          config.rewards.exam.dailyStpCap - used,
+        );
+        await this.wallet.applyChange(userId, {
+          amount: granted,
+          transactionType: 'exam_pass',
+          reason: `Practice exam passed: ${examCloneId}`,
+          relatedEntityId: attemptId,
+          idempotencyKey: `integrity:exam_pass:${attemptId}`,
+        });
+        stp = granted;
+      }
+    }
+    return { xp, stp };
+  }
+
+  private deriveDifficulty(style: ExamStyle | null): MaterialDifficulty {
+    if (!style?.difficultyDistribution) return 'medium';
+    const d = style.difficultyDistribution;
+    const max = Math.max(d.easy ?? 0, d.medium ?? 0, d.hard ?? 0);
+    if (max === (d.hard ?? 0) && (d.hard ?? 0) > 0) return 'hard';
+    if (max === (d.easy ?? 0) && (d.easy ?? 0) > 0 && (d.hard ?? 0) === 0) return 'easy';
+    return 'medium';
   }
 
   /**

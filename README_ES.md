@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://studyield.com"><img src="https://img.shields.io/badge/live-studyield.com-brightgreen?logo=vercel&logoColor=white" alt="Live Site"></a>
-  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License"></a>
   <a href="https://github.com/studyield/studyield/stargazers"><img src="https://img.shields.io/github/stars/studyield/studyield?style=social" alt="GitHub Stars"></a>
   <a href="https://github.com/studyield/studyield/issues"><img src="https://img.shields.io/github/issues/studyield/studyield" alt="Issues"></a>
   <a href="https://github.com/studyield/studyield/pulls"><img src="https://img.shields.io/github/issues-pr/studyield/studyield" alt="Pull Requests"></a>
@@ -126,7 +126,7 @@ Los estudiantes de hoy se están ahogando en información pero muriendo de hambr
 | **Rutas de aprendizaje** | ✅ Generado por IA | ❌ | ❌ | ❌ | ✅ Pre-construido |
 | **Análisis de progreso** | ✅ | ✅ | ⚠️ Básico | ❌ | ✅ |
 | **Auto-alojado** | ✅ | ❌ | ✅ | ❌ | ❌ |
-| **Código abierto** | ✅ Apache 2.0 | ❌ | ✅ AGPL | ❌ | ❌ |
+| **Código abierto** | ✅ AGPL-3.0 | ❌ | ✅ AGPL | ❌ | ❌ |
 | **Multiplataforma** | ✅ Web + Móvil | ✅ | ✅ | ✅ | ✅ |
 | **Curva de aprendizaje** | 🟢 Baja | 🟢 Baja | 🟡 Media | 🟢 Baja | 🟢 Baja |
 
@@ -529,7 +529,7 @@ Por favor, informa las vulnerabilidades de seguridad de manera responsable. Cons
 
 ## Licencia
 
-Este proyecto está licenciado bajo la [Licencia Apache 2.0](LICENSE).
+Este proyecto está licenciado bajo la [Licencia GNU Affero General Public v3.0](LICENSE).
 
 Copyright 2025 Studyield Contributors.
 

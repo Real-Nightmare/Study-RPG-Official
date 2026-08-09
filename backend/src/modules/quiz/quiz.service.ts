@@ -1,8 +1,15 @@
 import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../database/database.service';
+import { StudyEventsService } from '../events/events.service';
 import { QuizGeneratorService, QuestionType } from './quiz-generator.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { PlayerService } from '../rpg/player.service';
+import { WalletService } from '../rpg/wallet.service';
+import { CampfireService } from '../integrity/campfire.service';
+import { getIntegrityConfig } from '../integrity/integrity-config';
+import { answerTimeSanity, computeReward, passesPremiumThreshold, rateLimited } from '../integrity';
+import type { MaterialDifficulty } from '../integrity';
 
 export interface Quiz {
   id: string;
@@ -38,6 +45,9 @@ export interface QuizAttempt {
   timeSpent: number;
   completedAt: Date;
   createdAt: Date;
+  /** Integrity rewards granted for this attempt (spec 014). */
+  rewardXp?: number;
+  rewardStp?: number;
 }
 
 export interface QuizAttemptAnswer {
@@ -91,6 +101,10 @@ export class QuizService {
     private readonly db: DatabaseService,
     private readonly quizGenerator: QuizGeneratorService,
     private readonly notificationsService: NotificationsService,
+    private readonly events?: StudyEventsService,
+    private readonly player?: PlayerService,
+    private readonly wallet?: WalletService,
+    private readonly campfire?: CampfireService,
   ) {}
 
   async create(userId: string, dto: CreateQuizDto): Promise<Quiz> {
@@ -262,11 +276,137 @@ export class QuizService {
       [attemptId],
     );
 
-    // Send notification based on score
-    await this.sendQuizCompletionNotification(userId, score, correctCount, questions.length);
+    if (this.events) {
+      await this.events
+        .recordStudyActivity(userId, { type: 'quiz_attempt' })
+        .catch(() => undefined);
+    }
 
-    this.logger.log(`Quiz attempt submitted: ${attemptId}, score: ${score.toFixed(1)}%`);
-    return this.mapAttempt(attempt!);
+    // ── Integrity rewards (spec 014, US1/US2) ──────────────────────────────
+    // Accuracy-scaled XP/STP with exponential reward math, gated by an
+    // hourly attempt rate limit and answer-time sanity so spam-farming
+    // (rapid wrong answers) earns nothing.
+    const reward = await this.awardIntegrityRewards(
+      userId,
+      quizId,
+      attemptId,
+      correctCount,
+      questions.length,
+      dto.totalTimeSpent,
+      questions,
+    );
+
+    const mapped = this.mapAttempt(attempt!);
+    if (reward) {
+      mapped.rewardXp = reward.xp;
+      mapped.rewardStp = reward.stp;
+    }
+
+    // Send notification based on score
+    await this.sendQuizCompletionNotification(
+      userId,
+      score,
+      correctCount,
+      questions.length,
+      quizId,
+    );
+
+    this.logger.log(
+      `Quiz attempt submitted: ${attemptId}, score: ${score.toFixed(1)}%` +
+        (reward ? `, +${reward.xp} XP, +${reward.stp} STP` : ''),
+    );
+    return mapped;
+  }
+
+  /**
+   * Integrity reward pipeline for a quiz attempt: rate limit → answer-time
+   * sanity → exponential accuracy scaling → daily-capped STP on mastery.
+   */
+  private async awardIntegrityRewards(
+    userId: string,
+    quizId: string,
+    attemptId: string,
+    correctCount: number,
+    totalQuestions: number,
+    totalTimeSpent: number,
+    questions: QuizQuestion[],
+  ): Promise<{ xp: number; stp: number } | null> {
+    if (!this.player || !this.wallet || totalQuestions === 0) return null;
+    const config = await getIntegrityConfig(this.db);
+    const accuracy = correctCount / totalQuestions;
+
+    const recent = await this.db.queryMany<{ created_at: string }>(
+      `SELECT created_at FROM quiz_attempts
+       WHERE user_id = $1 AND created_at > NOW() - INTERVAL '1 hour'`,
+      [userId],
+    );
+    const overRateLimit = rateLimited(
+      recent.map((r) => ({ at: new Date(r.created_at).getTime() })),
+      config.guards.quizAttemptsPerHour,
+      60 * 60 * 1000,
+    );
+    const timeOk = answerTimeSanity(totalTimeSpent, totalQuestions, config.guards.minMsPerQuestion);
+    if (overRateLimit || !timeOk) return null;
+
+    const multiplier = this.campfire
+      ? await this.campfire.latestMultiplier(userId)
+      : config.campfire.baseMultiplier;
+    const xp = computeReward(config.rewards.quiz.baseXp, {
+      accuracy,
+      difficulty: this.deriveDifficulty(questions),
+      campfireMultiplier: multiplier,
+    });
+    if (xp > 0) {
+      await this.player.addXp(userId, xp, 'quiz_accuracy');
+    }
+
+    let stp = 0;
+    if (passesPremiumThreshold(accuracy, config.rewards.quiz.stpPassThreshold)) {
+      stp = await this.grantCappedStp(
+        userId,
+        'quiz_pass',
+        config.rewards.quiz.stpOnPass,
+        config.rewards.quiz.dailyStpCap,
+        `Quiz mastery: ${quizId}`,
+        `integrity:quiz_pass:${attemptId}`,
+      );
+    }
+    return { xp, stp };
+  }
+
+  /** Daily-capped STP grant for a premium study pass (idempotent per attempt). */
+  private async grantCappedStp(
+    userId: string,
+    transactionType: string,
+    amount: number,
+    dailyCap: number,
+    reason: string,
+    idempotencyKey: string,
+  ): Promise<number> {
+    if (!this.wallet || amount <= 0) return 0;
+    const today = await this.db.queryOne<{ total: number }>(
+      `SELECT COALESCE(SUM(amount), 0)::int AS total FROM wallet_ledger
+       WHERE user_id = $1 AND transaction_type = $2 AND created_at >= CURRENT_DATE`,
+      [userId, transactionType],
+    );
+    const used = Number(today?.total ?? 0);
+    if (used >= dailyCap) return 0;
+    const granted = Math.min(amount, dailyCap - used);
+    await this.wallet.applyChange(userId, {
+      amount: granted,
+      transactionType,
+      reason,
+      relatedEntityId: idempotencyKey.split(':').slice(-1)[0],
+      idempotencyKey,
+    });
+    return granted;
+  }
+
+  private deriveDifficulty(questions: QuizQuestion[]): MaterialDifficulty {
+    if (questions.length === 0) return 'easy';
+    if (questions.some((q) => q.difficulty === 'hard')) return 'hard';
+    if (questions.every((q) => q.difficulty === 'easy')) return 'easy';
+    return 'medium';
   }
 
   async getAttempts(quizId: string, userId: string): Promise<QuizAttempt[]> {
@@ -356,33 +496,40 @@ export class QuizService {
     );
   }
 
+  /**
+   * Mastery-oriented notification copy (US4 / FR-010): every message bridges
+   * the quiz outcome to a real-world cognitive outcome — recall strength,
+   * retention checkpoint, retrieval practice — never detached cheerleading.
+   */
   private async sendQuizCompletionNotification(
     userId: string,
     score: number,
     correctCount: number,
     totalQuestions: number,
+    quizId: string,
   ): Promise<void> {
     try {
       let title: string;
       let message: string;
       let type: 'success' | 'info' | 'warning' | 'reminder';
+      const pct = score.toFixed(0);
 
       if (score >= 90) {
         type = 'success';
-        title = '🎉 Perfect Score!';
-        message = `Amazing! You scored ${score.toFixed(0)}% (${correctCount}/${totalQuestions} correct). Keep up the great work!`;
+        title = 'Retention checkpoint passed';
+        message = `Your recall on this material is strong (${pct}%, ${correctCount}/${totalQuestions}). This level of accurate retrieval is what consolidates long-term memory — the mastery bonus has been applied.`;
       } else if (score >= 70) {
         type = 'success';
-        title = '✅ Great Job!';
-        message = `Well done! You scored ${score.toFixed(0)}% (${correctCount}/${totalQuestions} correct). You're making progress!`;
+        title = 'Solid recall — keep strengthening it';
+        message = `You accurately retrieved ${correctCount}/${totalQuestions} (${pct}%). Spaced repetition of the missed items will move this into reliable long-term memory.`;
       } else if (score >= 50) {
         type = 'info';
-        title = '📚 Good Effort!';
-        message = `You scored ${score.toFixed(0)}% (${correctCount}/${totalQuestions} correct). Review the material and try again!`;
+        title = 'Retrieval practice logged';
+        message = `You recalled ${correctCount}/${totalQuestions} (${pct}%). The gaps you found here are exactly what your review queue will target next.`;
       } else {
         type = 'warning';
-        title = '💪 Keep Practicing!';
-        message = `You scored ${score.toFixed(0)}% (${correctCount}/${totalQuestions} correct). Don't give up, practice makes perfect!`;
+        title = 'Review window identified';
+        message = `You recalled ${correctCount}/${totalQuestions} (${pct}%). Re-study the material and try again — each honest retrieval attempt strengthens the memory trace.`;
       }
 
       await this.notificationsService.create({
@@ -390,7 +537,7 @@ export class QuizService {
         type,
         title,
         message,
-        link: '/quiz/history',
+        link: `/dashboard/quiz/${quizId}`,
       });
     } catch (error) {
       this.logger.error(`Failed to send quiz completion notification: ${error.message}`);

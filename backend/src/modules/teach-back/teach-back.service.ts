@@ -8,6 +8,12 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../database/database.service';
 import { AiService } from '../ai/ai.service';
+import { withPhilosophy } from '../ai/study-rpg-philosophy';
+import { PlayerService } from '../rpg/player.service';
+import { WalletService } from '../rpg/wallet.service';
+import { CampfireService } from '../integrity/campfire.service';
+import { getIntegrityConfig } from '../integrity/integrity-config';
+import { computeReward, passesPremiumThreshold } from '../integrity';
 
 export interface ChallengeMessage {
   role: 'ai' | 'user';
@@ -75,6 +81,9 @@ export class TeachBackService {
   constructor(
     private readonly db: DatabaseService,
     private readonly aiService: AiService,
+    private readonly player?: PlayerService,
+    private readonly wallet?: WalletService,
+    private readonly campfire?: CampfireService,
   ) {}
 
   async create(userId: string, dto: CreateTeachBackDto): Promise<TeachBackSession> {
@@ -139,6 +148,15 @@ export class TeachBackService {
       throw new Error('No explanation submitted yet');
     }
 
+    // Anti-slop guard (US2 / FR-007): a teach-back must contain a real
+    // explanation — empty or one-line answers are rejected before the AI call.
+    const config = await getIntegrityConfig(this.db);
+    if (session.userExplanation.trim().length < config.rewards.teachBack.minExplanationChars) {
+      throw new BadRequestException(
+        `Your explanation is too brief (min ${config.rewards.teachBack.minExplanationChars} characters). Teach the topic properly — that is where the learning happens.`,
+      );
+    }
+
     const evaluationPrompt = `You are the Feynman Technique evaluator. Evaluate how well the student explains the topic as if teaching it to someone else.
 
 Topic: ${session.topic}
@@ -169,17 +187,28 @@ Return in this JSON format:
       [
         {
           role: 'system',
-          content: 'You are an expert educational evaluator using the Feynman Technique.',
+          content: withPhilosophy(
+            'You are an expert educational evaluator using the Feynman Technique. Judge understanding, not effort or length: a short, accurate, connected explanation beats a long memorised one. If the explanation is honest but incomplete, say so kindly and precisely — never flatter. Where the student shows real understanding, name the specific idea they mastered in real-world terms.',
+          ),
         },
         { role: 'user', content: evaluationPrompt },
       ],
       { maxTokens: 2048 },
     );
 
-    // Award XP based on score
-    let xp = 15;
-    if (evaluation.overallScore >= 90) xp = 50;
-    else if (evaluation.overallScore >= 70) xp = 30;
+    // Award XP based on score — through the level-aware progression path
+    // (spec 014, US1/FR-007), scaled by the exponential accuracy curve and
+    // any active campfire multiplier.
+    const multiplier = this.campfire
+      ? await this.campfire.latestMultiplier(userId)
+      : config.campfire.baseMultiplier;
+    const accuracy = Math.max(0, Math.min(1, evaluation.overallScore / 100));
+    let xp = computeReward(config.rewards.teachBack.baseXp, {
+      accuracy,
+      difficulty: 'medium',
+      campfireMultiplier: multiplier,
+    });
+    if (xp <= 0) xp = 10; // honest attempt still logs base effort
 
     await this.db.query(
       `UPDATE teach_back_sessions SET evaluation = $1, status = 'evaluated', updated_at = $2 WHERE id = $3`,
@@ -196,18 +225,54 @@ Return in this JSON format:
       this.logger.warn(`xp_awarded column not available`);
     }
 
-    // Record XP event
-    try {
-      await this.db.query(
-        `INSERT INTO user_xp_events (id, user_id, type, xp, created_at) VALUES ($1, $2, $3, $4, $5)`,
-        [uuidv4(), userId, 'teach_back', xp, new Date()],
+    if (this.player) {
+      try {
+        await this.player.addXp(userId, xp, 'teach_back');
+      } catch (err) {
+        this.logger.warn(`Failed to award teach-back XP via player service: ${err}`);
+      }
+    } else {
+      // Fallback: legacy direct insert when PlayerService is unavailable.
+      try {
+        await this.db.query(
+          `INSERT INTO user_xp_events (id, user_id, type, xp, created_at) VALUES ($1, $2, $3, $4, $5)`,
+          [uuidv4(), userId, 'teach_back', xp, new Date()],
+        );
+      } catch (err) {
+        this.logger.warn(`Failed to award XP: ${err}`);
+      }
+    }
+
+    // STP for a passing Teach-Back evaluation (daily-capped).
+    let stpGranted = 0;
+    if (
+      this.wallet &&
+      passesPremiumThreshold(accuracy, config.rewards.teachBack.stpPassThreshold)
+    ) {
+      const today = await this.db.queryOne<{ total: number }>(
+        `SELECT COALESCE(SUM(amount), 0)::int AS total FROM wallet_ledger
+         WHERE user_id = $1 AND transaction_type = 'teach_back_pass' AND created_at >= CURRENT_DATE`,
+        [userId],
       );
-    } catch (err) {
-      this.logger.warn(`Failed to award XP: ${err}`);
+      const used = Number(today?.total ?? 0);
+      if (used < config.rewards.teachBack.dailyStpCap) {
+        const granted = Math.min(
+          config.rewards.teachBack.stpOnPass,
+          config.rewards.teachBack.dailyStpCap - used,
+        );
+        await this.wallet.applyChange(userId, {
+          amount: granted,
+          transactionType: 'teach_back_pass',
+          reason: `Teach-Back passed: ${session.topic}`,
+          relatedEntityId: sessionId,
+          idempotencyKey: `integrity:teach_back_pass:${sessionId}`,
+        });
+        stpGranted = granted;
+      }
     }
 
     this.logger.log(
-      `Teach-back evaluated: ${sessionId}, score: ${evaluation.overallScore}, xp: ${xp}`,
+      `Teach-back evaluated: ${sessionId}, score: ${evaluation.overallScore}, xp: ${xp}, stp: ${stpGranted}`,
     );
     return this.findById(sessionId) as Promise<TeachBackSession>;
   }
@@ -242,8 +307,9 @@ Return in this JSON format:
       [
         {
           role: 'system',
-          content:
-            'You are a study coach preparing a student to explain a topic using the Feynman Technique. Generate a concise primer.',
+          content: withPhilosophy(
+            'You are a study coach preparing a student to explain a topic using the Feynman Technique. Generate a concise primer that pushes active recall and connection — never encourage reading the material repeatedly as a substitute for explaining it.',
+          ),
         },
         {
           role: 'user',
@@ -272,7 +338,9 @@ Return in this JSON format:
       [
         {
           role: 'system',
-          content: `You are a skeptical but friendly student. The user just explained "${session.topic}" to you. Ask a probing question that tests their understanding. Be specific, challenge assumptions, and ask "why" or "how". Return JSON: { "question": "your question" }`,
+          content: `${withPhilosophy(
+            `You are a skeptical but friendly student. The user just explained "${session.topic}" to you. Ask a probing question that tests their understanding. Be specific, challenge assumptions, and ask "why" or "how" — never ask a recall question they can answer by memory alone. Return JSON: { "question": "your question" }`,
+          )}`,
         },
         { role: 'user', content: `Here is my explanation:\n\n${session.userExplanation}` },
       ],
@@ -319,15 +387,17 @@ Return in this JSON format:
       [
         {
           role: 'system',
-          content: `You are a skeptical student learning about "${session.topic}". The user is trying to convince you they understand the topic by answering your probing questions.
+          content: `${withPhilosophy(
+            `You are a skeptical student learning about "${session.topic}". The user is trying to convince you they understand the topic by answering your probing questions.
 
 Rules:
-- If the user's response demonstrates deep understanding, set convinced=true and give an encouraging response
+- If the user's response demonstrates deep understanding, set convinced=true and give an encouraging response tied to a specific idea they explained well
 - If there are gaps or vague answers, set convinced=false and ask a follow-up question that digs deeper
 - Be fair — don't be impossible to convince. 3-5 good exchanges should suffice.
-- Keep questions specific and focused
+- Keep questions specific and focused; never accept memorised-sounding answers as understanding
 
 Return JSON: { "response": "your reply or next question", "convinced": true/false, "reason": "brief reason for your decision" }`,
+          )}`,
         },
         ...chatHistory,
       ],
@@ -349,13 +419,10 @@ Return JSON: { "response": "your reply or next question", "convinced": true/fals
       this.logger.warn(`challenge_messages column not available`);
     }
 
-    // Award bonus XP if convinced
-    if (aiResponse.convinced) {
+    // Award bonus XP if convinced (level-aware progression path).
+    if (aiResponse.convinced && this.player) {
       try {
-        await this.db.query(
-          `INSERT INTO user_xp_events (id, user_id, type, xp, created_at) VALUES ($1, $2, $3, $4, $5)`,
-          [uuidv4(), userId, 'teach_back_challenge', 20, new Date()],
-        );
+        await this.player.addXp(userId, 20, 'teach_back_challenge');
       } catch (err) {
         this.logger.warn(`Failed to award challenge XP: ${err}`);
       }

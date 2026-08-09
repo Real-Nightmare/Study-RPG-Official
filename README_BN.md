@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://studyield.com"><img src="https://img.shields.io/badge/live-studyield.com-brightgreen?logo=vercel&logoColor=white" alt="Live Site"></a>
-  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License"></a>
   <a href="https://github.com/studyield/studyield/stargazers"><img src="https://img.shields.io/github/stars/studyield/studyield?style=social" alt="GitHub Stars"></a>
   <a href="https://github.com/studyield/studyield/issues"><img src="https://img.shields.io/github/issues/studyield/studyield" alt="Issues"></a>
   <a href="https://github.com/studyield/studyield/pulls"><img src="https://img.shields.io/github/issues-pr/studyield/studyield" alt="Pull Requests"></a>
@@ -126,7 +126,7 @@ Studyield হল একটি **ওপেন-সোর্স AI-চালিত 
 | **শেখার পথ** | ✅ AI-জেনারেটেড | ❌ | ❌ | ❌ | ✅ প্রি-বিল্ট |
 | **অগ্রগতি বিশ্লেষণ** | ✅ | ✅ | ⚠️ বেসিক | ❌ | ✅ |
 | **সেলফ-হোস্টেড** | ✅ | ❌ | ✅ | ❌ | ❌ |
-| **ওপেন সোর্স** | ✅ Apache 2.0 | ❌ | ✅ AGPL | ❌ | ❌ |
+| **ওপেন সোর্স** | ✅ AGPL-3.0 | ❌ | ✅ AGPL | ❌ | ❌ |
 | **মাল্টি-প্ল্যাটফর্ম** | ✅ ওয়েব + মোবাইল | ✅ | ✅ | ✅ | ✅ |
 | **শেখার বক্ররেখা** | 🟢 নিম্ন | 🟢 নিম্ন | 🟡 মাঝারি | 🟢 নিম্ন | 🟢 নিম্ন |
 
@@ -309,7 +309,7 @@ Studyield-এ অবদান রেখেছেন এমন সকল আশ�
 
 ## লাইসেন্স
 
-এই প্রকল্পটি [Apache License 2.0](LICENSE) এর অধীনে লাইসেন্সপ্রাপ্ত।
+এই প্রকল্পটি [GNU Affero General Public License v3.0](LICENSE) এর অধীনে লাইসেন্সপ্রাপ্ত।
 
 Copyright 2025 Studyield Contributors.
 

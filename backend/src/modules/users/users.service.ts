@@ -4,7 +4,8 @@ import { DatabaseService } from '../database/database.service';
 
 export interface User {
   id: string;
-  email: string;
+  email: string | null;
+  username: string | null;
   password: string | null;
   name: string;
   avatarUrl: string | null;
@@ -16,15 +17,18 @@ export interface User {
   subjects: string[];
   profileCompleted: boolean;
   preferences: Record<string, unknown>;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   lastLoginAt: Date | null;
 }
 
 export interface CreateUserDto {
-  email: string;
+  email?: string;
+  username?: string;
   password?: string;
   name: string;
+  role?: string;
   googleId?: string;
   appleId?: string;
   avatarUrl?: string;
@@ -33,6 +37,8 @@ export interface CreateUserDto {
 
 export interface UpdateUserDto {
   name?: string;
+  username?: string;
+  email?: string;
   avatarUrl?: string;
   educationLevel?: string;
   subjects?: string[];
@@ -51,14 +57,16 @@ export class UsersService {
     const now = new Date();
 
     const result = await this.db.queryOne<User>(
-      `INSERT INTO users (id, email, password, name, avatar_url, google_id, apple_id, email_verified, preferences, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      `INSERT INTO users (id, email, username, password, name, role, avatar_url, google_id, apple_id, email_verified, preferences, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING *`,
       [
         id,
-        dto.email.toLowerCase(),
+        dto.email ? dto.email.toLowerCase() : null,
+        dto.username || null,
         dto.password || null,
         dto.name,
+        dto.role || 'user',
         dto.avatarUrl || null,
         dto.googleId || null,
         dto.appleId || null,
@@ -82,6 +90,23 @@ export class UsersService {
     const result = await this.db.queryOne<User>('SELECT * FROM users WHERE email = $1', [
       email.toLowerCase(),
     ]);
+    return result ? this.mapUser(result) : null;
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    const result = await this.db.queryOne<User>('SELECT * FROM users WHERE username = $1', [
+      username.toLowerCase(),
+    ]);
+    return result ? this.mapUser(result) : null;
+  }
+
+  /** Login by email OR username. */
+  async findByIdentifier(identifier: string): Promise<User | null> {
+    const value = identifier.toLowerCase();
+    const result = await this.db.queryOne<User>(
+      'SELECT * FROM users WHERE email = $1 OR username = $1',
+      [value],
+    );
     return result ? this.mapUser(result) : null;
   }
 
@@ -112,6 +137,14 @@ export class UsersService {
     if (dto.name !== undefined) {
       updates.push(`name = $${paramIndex++}`);
       values.push(dto.name);
+    }
+    if (dto.username !== undefined) {
+      updates.push(`username = $${paramIndex++}`);
+      values.push(dto.username.toLowerCase());
+    }
+    if (dto.email !== undefined) {
+      updates.push(`email = $${paramIndex++}`);
+      values.push(dto.email.toLowerCase());
     }
     if (dto.avatarUrl !== undefined) {
       updates.push(`avatar_url = $${paramIndex++}`);
@@ -283,8 +316,48 @@ export class UsersService {
         `INSERT INTO user_xp_events (id, user_id, type, xp, created_at) VALUES ($1, $2, $3, $4, $5)`,
         [uuidv4(), id, type, xp, new Date()],
       );
+      // Phase 6: every study-XP event contributes to the user's faction score.
+      // Battles earn xp too, but study-driven events carry the bulk of points.
+      await this.creditFactionScore(id, type, xp);
     } catch (error) {
       this.logger.warn(`Failed to record XP event: ${error}`);
+    }
+  }
+
+  /**
+   * Credits a user's faction with points for study activity (Phase 6).
+   * Study events (tasks, quizzes, sessions) score higher than battle xp so
+   * studying — not grinding RPG — is what wins faction rewards.
+   */
+  private async creditFactionScore(userId: string, type: string, xp: number): Promise<void> {
+    try {
+      if (!xp || xp <= 0) return;
+
+      const faction = await this.db.queryOne<{ faction_id: string }>(
+        `SELECT faction_id FROM faction_members WHERE user_id = $1 LIMIT 1`,
+        [userId],
+      );
+      if (!faction) return;
+
+      const studyTypes = ['task_completed', 'quiz_attempt', 'study_session', 'focus_session'];
+      const isStudy = studyTypes.some((t) => type.includes(t));
+      // Study activity counts double vs battle/duel xp.
+      const points = isStudy ? xp * 2 : Math.ceil(xp / 2);
+
+      await this.db.query(
+        `INSERT INTO faction_score_events (id, faction_id, user_id, event_type, points, period_key)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          uuidv4(),
+          faction.faction_id,
+          userId,
+          type,
+          points,
+          currentIstPeriodKey(),
+        ],
+      );
+    } catch (error) {
+      this.logger.warn(`Failed to credit faction score: ${(error as Error).message}`);
     }
   }
 
@@ -358,7 +431,8 @@ export class UsersService {
 
     return {
       id: r.id as string,
-      email: r.email as string,
+      email: (r.email as string | null) || null,
+      username: (r.username as string | null) || null,
       password: r.password as string | null,
       name: r.name as string,
       avatarUrl: r.avatar_url as string | null,
@@ -373,9 +447,18 @@ export class UsersService {
         typeof r.preferences === 'string'
           ? JSON.parse(r.preferences)
           : (r.preferences as Record<string, unknown>) || {},
+      isActive: (r.is_active as boolean) ?? true,
       createdAt: new Date(r.created_at as string),
       updatedAt: new Date(r.updated_at as string),
       lastLoginAt: r.last_login_at ? new Date(r.last_login_at as string) : null,
     };
   }
+}
+
+/** Current month as 'YYYY-MM' in IST (Asia/Kolkata) — faction period key. */
+function currentIstPeriodKey(): string {
+  const ist = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
+  );
+  return `${ist.getFullYear()}-${String(ist.getMonth() + 1).padStart(2, '0')}`;
 }

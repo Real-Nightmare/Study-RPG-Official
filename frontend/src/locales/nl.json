@@ -1,6 +1,41 @@
 {
+  "philosophy": {
+    "badge": "De Study RPG-manier",
+    "title": "Meesterschap boven",
+    "titleHighlight": "memoriseren",
+    "description": "Study RPG is geen simpel leermiddel — het stimuleert echt en diep leren. Dagelijks studeren met actief ophalen, beloningen die studeren als speeltijd laten voelen, en AI-tutoren voor quizzen, herhalingstoetsen, oefenexamens, teach-back en samenwerkende examens — zodat je onderwerpen beheerst, niet alleen memoriseert.",
+    "learnMore": "Meer weten",
+    "goalTitle": "Het doel",
+    "goal": "Leren door meesterschap en echt begrip van onderwerpen — niet door simpel memoriseren. Banen vereisen meesterschap van studeren, en memoriseren verslaat de vaardigheid van echt leren niet.",
+    "healthTitle": "Studiegezondheid",
+    "health": "We geven prioriteit aan de gezondheid van de student met een goed rooster. Gemiste studietijd wordt efficiënt ingehaald — terwijl evenementen eenheid en nieuwe ideeën bevorderen.",
+    "freeToWin": "100% gratis om te winnen — geen shortcuts, geen pay-to-win",
+    "start": "Begin je reis",
+    "pillars": {
+      "missions": {
+        "title": "Missies",
+        "description": "Elke taak — huiswerk, opdrachten, projecten — is een missie met lage beloningen die het memoriseren opbouwt dat geheugenvaardigheden nodig hebben."
+      },
+      "revisionCentre": {
+        "title": "Herhalingscentrum",
+        "description": "Diepte boven lengte. Schrijf je in, herhaal grondig en bewijs het: pas een idee toe in een ander scenario voor gemiddelde beloningen."
+      },
+      "competencyTesting": {
+        "title": "Competentiegericht toetsen",
+        "description": "Kies een vak en beantwoord competentievragen die denkvaardigheden verbeteren — met inzicht in waarom punten verloren gingen en hoe je verbetert."
+      },
+      "programmes": {
+        "title": "Programma’s",
+        "description": "Optionele kaders die je trainen om systemen te bedenken en te maken die echte studieproblemen oplossen. Jouw keuze is het belangrijkst."
+      },
+      "factions": {
+        "title": "Fracties",
+        "description": "Studiegroepen met één teamleider die de fractie naar beter studeren en hogere scores leidt. Zwakkere fracties krijgen hulp van sterkere — studeren door elkaar te helpen."
+      }
+    }
+  },
   "common": {
-    "appName": "Studyield",
+    "appName": "Study RPG",
     "loading": "Laden...",
     "save": "Opslaan",
     "cancel": "Annuleren",
@@ -54,6 +89,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "tasks": "Missies",
     "studySets": "Studiesets",
     "aiChat": "AI Chat",
     "problemSolver": "Probleemoplosser",
@@ -70,7 +106,52 @@
     "tutorial": "Tutorial",
     "about": "Over ons",
     "contact": "Contact",
-    "viewAllFeatures": "Alle functies bekijken"
+    "viewAllFeatures": "Alle functies bekijken",
+    "academics": "Academisch",
+    "focus": "Focus",
+    "mistakes": "Mistakes",
+    "puzzles": "Puzzles",
+    "examCentre": "Exam Centre",
+    "rpg": "Study RPG",
+    "economy": "Economie",
+    "events": "Evenementen"
+  },
+  "tasks": {
+    "title": "Missies",
+    "subtitle": "Huiswerk, opdrachten en projecten zijn missies. Voltooi ze om geheugenvaardigheden op te bouwen en beloningen te verdienen.",
+    "dueToday": "vandaag vervalt",
+    "completedCount": "voltooid",
+    "addTask": "Taak toevoegen",
+    "titlePlaceholder": "Wat moet je studeren?",
+    "subjectPlaceholder": "Vak (optioneel)",
+    "descriptionPlaceholder": "Details, links of notities…",
+    "create": "Taak maken",
+    "openTasks": "Open taken",
+    "noOpenTasks": "Nog geen open taken. Geniet van je focustijd!",
+    "completedTasks": "Voltooid",
+    "noCompletedTasks": "Nog niets voltooid. Je kunt het!",
+    "complete": "Markeer als voltooid",
+    "reopen": "Taak heropenen",
+    "type": {
+      "homework": "Huiswerk",
+      "revision": "Herhaling",
+      "exam_prep": "Examen voorbereiding",
+      "project": "Project",
+      "reading": "Lezen",
+      "practice": "Oefening"
+    },
+    "priority": {
+      "low": "Laag",
+      "medium": "Gemiddeld",
+      "high": "Hoog",
+      "urgent": "Dringend"
+    },
+    "recurrence": {
+      "none": "Eenmalig",
+      "daily": "Dagelijks",
+      "weekly": "Wekelijks",
+      "monthly": "Maandelijks"
+    }
   },
   "header": {
     "features": {
@@ -95,11 +176,11 @@
     "changeLanguage": "Taal wijzigen"
   },
   "hero": {
-    "badge": "AI-gestuurd studieplatform",
-    "titleLine1": "Upload notities,",
-    "titleLine2": "Haal topscores.",
-    "description": "Upload PDF's, documenten of handgeschreven notities — AI genereert <strong>flashcards, quizzen & conceptkaarten</strong> in seconden. Herhaal met spaced repetition, los problemen stap voor stap op en level up met XP.",
-    "startLearningFree": "Gratis beginnen met leren",
+    "badge": "Study RPG · Meesterschap, geen memoriseren",
+    "titleLine1": "Studieer om te beheersen,",
+    "titleLine2": "niet alleen memoriseren.",
+    "description": "Upload notities en AI maakt in seconden <strong>flashcards, quizzen & oefenexamens</strong>. Studieer dagelijks met actief ophalen, verdien speeltijd-beloningen en bewijs diepte met teach-back — meesterschap boven memoriseren, gratis om te winnen.",
+    "startLearningFree": "Begin gratis met studeren",
     "watchDemo": "Bekijk hoe het werkt",
     "highlights": {
       "flashcardGeneration": "Standaard, cloze & image occlusion kaarten",
@@ -160,18 +241,18 @@
     "badge": "Studentenreviews",
     "title": "Geliefd bij",
     "titleHighlight": "studenten wereldwijd",
-    "description": "Bekijk wat studenten zeggen over hun leerervaring met Studyield.",
+    "description": "Bekijk wat studenten zeggen over hun leerervaring met Study RPG.",
     "t1": {
       "name": "Sarah Chen",
       "role": "Pre-med student",
       "university": "Stanford University",
-      "text": "Studyield heeft mijn studie organische chemie compleet veranderd. De AI-gegenereerde flashcards bespaarden me uren voorbereidingstijd, en het spaced repetition systeem hielp me alles te onthouden voor mijn MCAT."
+      "text": "Study RPG heeft mijn studie organische chemie compleet veranderd. De AI-gegenereerde flashcards bespaarden me uren voorbereidingstijd, en het spaced repetition systeem hielp me alles te onthouden voor mijn MCAT."
     },
     "t2": {
       "name": "James Williams",
       "role": "Informatica student",
       "university": "MIT",
-      "text": "De documentanalysefunctie is ongelooflijk. Ik upload mijn college-PDF's en heb binnen seconden flashcards en quizzen klaar. Mijn cijfers gingen van een 7 naar een 9 sinds ik Studyield gebruik."
+      "text": "De documentanalysefunctie is ongelooflijk. Ik upload mijn college-PDF's en heb binnen seconden flashcards en quizzen klaar. Mijn cijfers gingen van een 7 naar een 9 sinds ik Study RPG gebruik."
     },
     "t3": {
       "name": "Aiko Tanaka",
@@ -189,20 +270,20 @@
       "name": "Emma Rodriguez",
       "role": "Geneeskundestudent",
       "university": "Johns Hopkins",
-      "text": "Ik had moeite met anatomie totdat ik Studyield ontdekte. De image occlusion flashcards maakten het leren van anatomische structuren zoveel makkelijker. Een echte aanrader voor elke geneeskundestudent!"
+      "text": "Ik had moeite met anatomie totdat ik Study RPG ontdekte. De image occlusion flashcards maakten het leren van anatomische structuren zoveel makkelijker. Een echte aanrader voor elke geneeskundestudent!"
     },
     "t6": {
       "name": "David Kim",
       "role": "MBA-student",
       "university": "Wharton School",
-      "text": "Onze studiegroep gebruikt de live quiz-functie van Studyield voor casestudie-voorbereiding. Realtime quizzen maken onze studiesessies ongelooflijk leuk en productief."
+      "text": "Onze studiegroep gebruikt de live quiz-functie van Study RPG voor casestudie-voorbereiding. Realtime quizzen maken onze studiesessies ongelooflijk leuk en productief."
     }
   },
   "howItWorks": {
     "badge": "Hoe het werkt",
     "title": "Begin met leren in",
     "titleHighlight": "4 eenvoudige stappen",
-    "description": "Importeer uit 9 verschillende bronnen, laat AI je studiekit samenstellen en beheers elk onderwerp met spaced repetition en realtime statistieken.",
+    "description": "Importeer van overal, laat AI je studiekit bouwen en bewijs daarna diepte boven lengte — beheers elk vak met actief ophalen en realtime statistieken.",
     "steps": {
       "upload": {
         "title": "Importeer overal vandaan",
@@ -247,9 +328,9 @@
   },
   "cta": {
     "badge": "Begin vandaag met je leertraject",
-    "title": "Klaar om",
-    "titleHighlight": "slimmer te leren?",
-    "description": "Beheers elk onderwerp sneller met AI-gestuurde studietools. Begin gratis, upgrade wanneer je wilt.",
+    "title": "Klaar om te beheersen,",
+    "titleHighlight": "niet alleen memoriseren?",
+    "description": "Elke missie, herhalingsquiz en oefenexamen levert beloningen op — want echt studeren is de enige manier om te winnen. Altijd gratis om te winnen.",
     "getStartedFree": "Gratis beginnen",
     "talkToSales": "Neem contact op",
     "benefits": {
@@ -296,11 +377,13 @@
       "cookiePolicy": "Cookiebeleid",
       "dataDeletion": "Gegevens verwijderen"
     },
-    "copyright": "{{year}} Studyield. Alle rechten voorbehouden.",
+    "copyright": "{{year}} Study RPG. Alle rechten voorbehouden.",
     "madeWith": "Gemaakt met",
     "andAI": "en AI voor beter leren",
     "sitemap": "Sitemap",
     "accessibility": "Toegankelijkheid",
+    "license": "AGPL-3.0-licentie",
+    "sourceCode": "Broncode",
     "backToTop": "Terug naar boven"
   },
   "auth": {
@@ -431,7 +514,39 @@
     },
     "userMenu": {
       "user": "Gebruiker"
-    }
+    },
+    "summaryUnavailable": "Live summary unavailable right now.",
+    "hideGameStats": "Hide game stats",
+    "gameStatsHidden": "Game stats hidden",
+    "recommendedNext": "Recommended next",
+    "recommend": {
+      "examToday": "Exam today: {name}",
+      "examIn": "Exam in {days} days: {name}",
+      "flashcards": "{count} flashcards due",
+      "tasks": "{count} overdue tasks",
+      "mistakes": "{count} mistakes to review",
+      "puzzle": "Keep your puzzle streak going",
+      "relax": "All caught up — take a break!"
+    },
+    "todaysPlan": "Today's plan",
+    "tasksDueToday": "Tasks due today",
+    "overdue": "Overdue",
+    "nextUp": "Next up",
+    "examPortions": "{count} exam portions coming up",
+    "noUpcomingExams": "No upcoming exams",
+    "focusThisWeek": "Focus time",
+    "focusTodayMsg": "{minutes} minutes focused today",
+    "noFocusYet": "No focus time yet today",
+    "recentMistakes": "Recent mistakes",
+    "noMistakes": "No open mistakes — great job!",
+    "weakTopics": "Weak topics",
+    "noWeakTopics": "No weak-topic data yet",
+    "studyStreak": "Study streak",
+    "puzzleBest": "Best puzzle streak",
+    "gameStats": "Game stats",
+    "playerXp": "Player XP",
+    "eventExp": "Event EXP",
+    "stpToday": "STP today"
   },
   "studySets": {
     "title": "Mijn studiesets",
@@ -784,7 +899,12 @@
     "productUpdatesDesc": "Nieuws over nieuwe functies en verbeteringen",
     "saving": "Opslaan...",
     "saved": "Opgeslagen!",
-    "savePreferences": "Voorkeuren opslaan"
+    "savePreferences": "Voorkeuren opslaan",
+    "webPush": "Browser meldingen",
+    "webPushDesc": "Ontvang pushmeldingen in je browser (geen app nodig).",
+    "webPushEnable": "Browser meldingen inschakelen",
+    "webPushEnabled": "Browser meldingen ingeschakeld",
+    "webPushDenied": "Browser toestemming geweigerd"
   },
   "subscription": {
     "title": "Abonnement",
@@ -878,15 +998,15 @@
     "badge": "FAQ",
     "title": "Veelgestelde",
     "titleHighlight": "vragen",
-    "description": "Alles wat je moet weten over Studyield. Kun je niet vinden wat je zoekt? Neem contact op met ons supportteam.",
+    "description": "Alles wat je moet weten over Study RPG. Kun je niet vinden wat je zoekt? Neem contact op met ons supportteam.",
     "stillHaveQuestions": "Heb je nog vragen?",
     "contactSupport": "Contact opnemen",
     "q1": "Welke soorten documenten kan ik uploaden?",
-    "a1": "Studyield ondersteunt een grote verscheidenheid aan documentformaten, waaronder PDF's, Word-documenten (.docx, .doc), platte tekstbestanden, markdown-bestanden en afbeeldingen (PNG, JPEG). Onze AI verwerkt deze documenten om tekst te extraheren en leermateriaal te maken.",
+    "a1": "Study RPG ondersteunt een grote verscheidenheid aan documentformaten, waaronder PDF's, Word-documenten (.docx, .doc), platte tekstbestanden, markdown-bestanden en afbeeldingen (PNG, JPEG). Onze AI verwerkt deze documenten om tekst te extraheren en leermateriaal te maken.",
     "q2": "Hoe werkt het spaced repetition systeem?",
     "a2": "Ons flashcardsysteem gebruikt het SM-2 spaced repetition algoritme om je leerproces te optimaliseren. Op basis van hoe goed je elke kaart onthoudt, berekent het systeem het optimale moment voor je volgende herhaling. Kaarten waar je moeite mee hebt verschijnen vaker, terwijl beheerste kaarten minder vaak getoond worden.",
-    "q3": "Kan ik Studyield offline gebruiken?",
-    "a3": "Momenteel vereist Studyield een internetverbinding voor de meeste functies, omdat onze AI-verwerking in de cloud plaatsvindt. We werken echter aan offlineondersteuning voor het herhalen van flashcards in toekomstige updates.",
+    "q3": "Kan ik Study RPG offline gebruiken?",
+    "a3": "Momenteel vereist Study RPG een internetverbinding voor de meeste functies, omdat onze AI-verwerking in de cloud plaatsvindt. We werken echter aan offlineondersteuning voor het herhalen van flashcards in toekomstige updates.",
     "q4": "Hoe nauwkeurig is de AI-gegenereerde inhoud?",
     "a4": "Onze AI genereert inhoud van hoge kwaliteit op basis van je geüploade materiaal. We raden echter altijd aan om gegenereerde flashcards en quizzen te controleren op nauwkeurigheid. Je kunt alle gegenereerde inhoud eenvoudig bewerken naar je voorkeur.",
     "q5": "Zijn mijn gegevens veilig en privé?",
@@ -895,14 +1015,14 @@
     "a6": "Ja! Je kunt je studiesets openbaar maken zodat iedereen ze kan bekijken, of privélinks delen met specifieke personen. Al je studiemateriaal is standaard privé en jij bepaalt wie het kan zien.",
     "q7": "Wat is de Examen klonen-functie?",
     "a7": "Examen klonen analyseert de stijl, het formaat en de moeilijkheidsgraad van je oude examens of oefentoetsen. Vervolgens genereert het nieuwe vragen die exact bij die stijl passen, zodat je kunt oefenen met relevant materiaal.",
-    "q8": "Is Studyield betaalbaar voor studenten?",
+    "q8": "Is Study RPG betaalbaar voor studenten?",
     "a8": "Absoluut! Onze prijzen zijn ontworpen met studenten in gedachten. Begin met een gratis proefperiode van 7 dagen en kies daarna tussen maandelijkse of jaarlijkse abonnementen — beide budgetvriendelijk voor studenten.",
     "q9": "Kan ik mijn abonnement op elk moment opzeggen?",
     "a9": "Absoluut! Je kunt je abonnement op elk moment opzeggen via Accountinstellingen. Je behoudt toegang tot premiumfuncties tot het einde van je facturatieperiode. Geen opzegkosten.",
     "q10": "Wat gebeurt er als ik mijn abonnement downgrade?",
     "a10": "Bij een downgrade behoud je toegang tot premiumfuncties tot het einde van je huidige facturatiecyclus. Daarna schakelt je account over naar het nieuwe abonnement. Je studiemateriaal blijft bewaard, maar je hebt mogelijk beperkte toegang tot sommige functies.",
     "q11": "Welke browsers en apparaten worden ondersteund?",
-    "a11": "Studyield werkt op alle moderne browsers, waaronder Chrome, Firefox, Safari en Edge. Het is volledig responsief en werkt uitstekend op desktop, tablet en mobiel. Eigen mobiele apps voor iOS en Android komen binnenkort.",
+    "a11": "Study RPG werkt op alle moderne browsers, waaronder Chrome, Firefox, Safari en Edge. Het is volledig responsief en werkt uitstekend op desktop, tablet en mobiel. Eigen mobiele apps voor iOS en Android komen binnenkort.",
     "q12": "Wat is de Teruguitleg-functie?",
     "a12": "Teruguitleg is een Pro-functie die je leerproces versterkt door concepten terug uit te leggen aan de AI. De AI evalueert je uitleg, identificeert kennishiaten en geeft gerichte feedback om je kennis te versterken.",
     "searchPlaceholder": "Zoek in FAQ's...",
@@ -1062,10 +1182,10 @@
     }
   },
   "about": {
-    "badge": "Over Studyield",
+    "badge": "Over Study RPG",
     "title": "Slimmer studeren,",
     "titleHighlight": "aangedreven door AI",
-    "description": "Studyield helpt studenten effectiever te studeren door documenten om te zetten in flashcards, quizzen en interactieve leertools — allemaal aangedreven door AI.",
+    "description": "Study RPG helpt studenten effectiever te studeren door documenten om te zetten in flashcards, quizzen en interactieve leertools — allemaal aangedreven door AI.",
     "stats": {
       "featuresCount": "10+",
       "featuresLabel": "Leertools",
@@ -1076,10 +1196,10 @@
       "uptime": "Gratis",
       "uptimeLabel": "Om te beginnen"
     },
-    "ourStory": "Waarom we Studyield hebben gebouwd",
-    "storyP1": "We hebben Studyield gebouwd omdat we het zat waren om uren te besteden aan het handmatig maken van flashcards en studieaantekeningen. Als studenten wisten we dat AI het zware werk kon doen — kernconcepten uit documenten extraheren, quizzen genereren en herhalingen plannen — zodat wij ons konden concentreren op daadwerkelijk leren.",
-    "storyP2": "Studyield gebruikt bewezen technieken zoals spaced repetition en active recall, gecombineerd met AI die je documenten begrijpt. Upload een PDF en binnen seconden heb je flashcards, quizzen en een AI-tutor die vragen over je materiaal kan beantwoorden.",
-    "storyP3": "We zijn een klein team dat de studietool bouwt die we altijd al wilden. Studyield is gratis om te beginnen en we blijven het verbeteren op basis van feedback van echte studenten die het elke dag gebruiken.",
+    "ourStory": "Waarom we Study RPG hebben gebouwd",
+    "storyP1": "We hebben Study RPG gebouwd omdat we het zat waren om uren te besteden aan het handmatig maken van flashcards en studieaantekeningen. Als studenten wisten we dat AI het zware werk kon doen — kernconcepten uit documenten extraheren, quizzen genereren en herhalingen plannen — zodat wij ons konden concentreren op daadwerkelijk leren.",
+    "storyP2": "Study RPG gebruikt bewezen technieken zoals spaced repetition en active recall, gecombineerd met AI die je documenten begrijpt. Upload een PDF en binnen seconden heb je flashcards, quizzen en een AI-tutor die vragen over je materiaal kan beantwoorden.",
+    "storyP3": "We zijn een klein team dat de studietool bouwt die we altijd al wilden. Study RPG is gratis om te beginnen en we blijven het verbeteren op basis van feedback van echte studenten die het elke dag gebruiken.",
     "whatWeOffer": "Wat je kunt doen",
     "features": {
       "studySets": "Studiesets & flashcards",
@@ -1090,12 +1210,12 @@
       "examClone": "Examen klonen"
     },
     "ourValues": "Waar we om geven",
-    "valuesDescription": "De principes achter hoe we Studyield bouwen.",
+    "valuesDescription": "De principes achter hoe we Study RPG bouwen.",
     "values": {
       "missionDriven": "Toegankelijk leren",
-      "missionDrivenDesc": "Goede studietools hoeven geen fortuin te kosten. Studyield biedt een gratis proefperiode van 7 dagen zodat elke student AI-gestuurd leren kan ervaren.",
+      "missionDrivenDesc": "Goede studietools hoeven geen fortuin te kosten. Study RPG biedt een gratis proefperiode van 7 dagen zodat elke student AI-gestuurd leren kan ervaren.",
       "userCentric": "Gebouwd voor studenten",
-      "userCentricDesc": "We gebruiken Studyield zelf. Elke functie is ontworpen voor hoe studenten echt studeren — niet hoe wij denken dat ze zouden moeten studeren.",
+      "userCentricDesc": "We gebruiken Study RPG zelf. Elke functie is ontworpen voor hoe studenten echt studeren — niet hoe wij denken dat ze zouden moeten studeren.",
       "innovationFirst": "AI die echt helpt",
       "innovationFirstDesc": "We voegen geen AI toe omwille van AI. Elke AI-functie lost een echt probleem op — flashcards genereren, concepten uitleggen of oefenexamens maken.",
       "communityFocused": "Samen leren",
@@ -1109,7 +1229,7 @@
     "badge": "We helpen je graag",
     "title": "Neem",
     "titleHighlight": "contact op",
-    "description": "Heb je vragen over Studyield? We helpen je graag. Neem contact op via een van de onderstaande methoden of vul het contactformulier in.",
+    "description": "Heb je vragen over Study RPG? We helpen je graag. Neem contact op via een van de onderstaande methoden of vul het contactformulier in.",
     "methods": {
       "emailSupport": "E-mailondersteuning",
       "emailSupportDesc": "Hulp bij vragen of problemen",
@@ -1230,7 +1350,7 @@
       "a1": "Ja, je kunt je abonnement op elk moment upgraden of downgraden. Bij een upgrade krijg je direct toegang tot nieuwe functies. Bij een downgrade gaat de wijziging in aan het einde van je facturatiecyclus.",
       "q2": "Wat gebeurt er als ik downgrade naar Gratis?",
       "a2": "Je studiemateriaal blijft bewaard, maar je hebt beperkte toegang tot premiumfuncties. Je kunt op elk moment weer upgraden naar Pro om volledige toegang terug te krijgen.",
-      "q3": "Is Studyield betaalbaar voor studenten?",
+      "q3": "Is Study RPG betaalbaar voor studenten?",
       "a3": "Absoluut! Onze prijzen zijn ontworpen met studenten in gedachten. Begin met een gratis proefperiode van 7 dagen en kies daarna tussen maandelijkse ($7,99/maand) of jaarlijkse ($47,88/jaar) abonnementen — beide budgetvriendelijk voor studenten.",
       "q4": "Welke betaalmethoden accepteren jullie?",
       "a4": "We accepteren alle gangbare creditcards (Visa, Mastercard, American Express), PayPal en in sommige regio's lokale betaalmethoden. Alle betalingen worden veilig verwerkt via Stripe.",
@@ -1240,11 +1360,11 @@
       "a6": "Een AI-verzoek omvat het genereren van flashcards uit documenten, quizzen aanmaken, de AI-tutor chat gebruiken, probleemoplossing en examen klonen. Basishandelingen zoals flashcards herhalen tellen niet mee.",
       "q7": "Welke factureringscycli bieden jullie aan?",
       "a7": "We bieden maandelijkse ($7,99/maand) en jaarlijkse ($47,88/jaar) factureringscycli. Het jaarlijkse abonnement bespaart je ongeveer 50% vergeleken met maandelijks betalen.",
-      "q8": "Is Studyield betaalbaar voor studenten?",
+      "q8": "Is Study RPG betaalbaar voor studenten?",
       "a8": "Absoluut! Onze prijzen zijn ontworpen met studenten in gedachten. Begin met een gratis proefperiode van 7 dagen en kies daarna tussen maandelijks ($7,99/maand) of jaarlijks ($47,88/jaar) — beide zijn budgetvriendelijk voor studenten."
     },
     "ctaTitle": "Klaar om je leerervaring te transformeren?",
-    "ctaDescription": "Sluit je aan bij duizenden studenten die al slimmer leren met Studyield. Begin vandaag gratis.",
+    "ctaDescription": "Sluit je aan bij duizenden studenten die al slimmer leren met Study RPG. Begin vandaag gratis.",
     "startFree": "Gratis beginnen",
     "talkToSales": "Neem contact op"
   },
@@ -1252,7 +1372,7 @@
     "badge": "FAQ",
     "title": "Veelgestelde",
     "titleHighlight": "vragen",
-    "description": "Vind antwoorden op de meest gestelde vragen over Studyield. Kun je niet vinden wat je zoekt? Neem contact op met ons supportteam.",
+    "description": "Vind antwoorden op de meest gestelde vragen over Study RPG. Kun je niet vinden wat je zoekt? Neem contact op met ons supportteam.",
     "searchPlaceholder": "Zoek in FAQ's...",
     "questionsCount": "{{count}} vragen",
     "categories": {
@@ -1264,18 +1384,18 @@
       "technical": "Technisch"
     },
     "general": {
-      "q1": "Wat is Studyield?",
-      "a1": "Studyield is een AI-gestuurd leerplatform dat je helpt slimmer te studeren. Upload documenten, genereer flashcards, maak quizzen en chat met een AI-tutor — alles ontworpen om je elk onderwerp sneller te laten beheersen met bewezen leertechnieken zoals spaced repetition.",
-      "q2": "Is Studyield gratis te gebruiken?",
-      "a2": "Ja! Studyield biedt een gratis proefperiode van 7 dagen inclusief 3 studiesets, 50 flashcards en 10 AI-verzoeken. Na de proefperiode kun je upgraden naar Pro voor onbeperkte toegang en geavanceerde functies zoals Probleemoplosser, Examen klonen en Diepgaand onderzoek.",
-      "q3": "Op welke apparaten kan ik Studyield gebruiken?",
-      "a3": "Studyield werkt op elk apparaat met een moderne webbrowser — computers, tablets en smartphones. De webapp is volledig responsief en geoptimaliseerd voor mobiele schermen.",
-      "q4": "Moet ik een account aanmaken om Studyield te gebruiken?",
+      "q1": "Wat is Study RPG?",
+      "a1": "Study RPG is een AI-gestuurd leerplatform dat je helpt slimmer te studeren. Upload documenten, genereer flashcards, maak quizzen en chat met een AI-tutor — alles ontworpen om je elk onderwerp sneller te laten beheersen met bewezen leertechnieken zoals spaced repetition.",
+      "q2": "Is Study RPG gratis te gebruiken?",
+      "a2": "Ja! Study RPG biedt een gratis proefperiode van 7 dagen inclusief 3 studiesets, 50 flashcards en 10 AI-verzoeken. Na de proefperiode kun je upgraden naar Pro voor onbeperkte toegang en geavanceerde functies zoals Probleemoplosser, Examen klonen en Diepgaand onderzoek.",
+      "q3": "Op welke apparaten kan ik Study RPG gebruiken?",
+      "a3": "Study RPG werkt op elk apparaat met een moderne webbrowser — computers, tablets en smartphones. De webapp is volledig responsief en geoptimaliseerd voor mobiele schermen.",
+      "q4": "Moet ik een account aanmaken om Study RPG te gebruiken?",
       "a4": "Ja, je hebt een gratis account nodig om je studiemateriaal op te slaan en je voortgang bij te houden. Je kunt je registreren met je e-mailadres."
     },
     "features": {
       "q1": "Welke soorten documenten kan ik uploaden?",
-      "a1": "Studyield ondersteunt PDF, Word-documenten (.docx, .doc), platte tekstbestanden, markdown-bestanden en afbeeldingen (PNG, JPEG). Onze AI extraheert tekst uit deze documenten om leermateriaal te maken.",
+      "a1": "Study RPG ondersteunt PDF, Word-documenten (.docx, .doc), platte tekstbestanden, markdown-bestanden en afbeeldingen (PNG, JPEG). Onze AI extraheert tekst uit deze documenten om leermateriaal te maken.",
       "q2": "Hoe genereert de AI flashcards?",
       "a2": "Onze AI analyseert je geüploade documenten om kernconcepten, definities en belangrijke informatie te identificeren. Vervolgens maakt het vraag-antwoord-paren die geoptimaliseerd zijn voor leren en onthouden.",
       "q3": "Hoe nauwkeurig is de AI-gegenereerde inhoud?",
@@ -1302,7 +1422,7 @@
       "a2": "Ja, je kunt op elk moment upgraden of downgraden. Bij een upgrade krijg je direct toegang tot nieuwe functies. Bij een downgrade gaat de wijziging in aan het einde van je facturatiecyclus.",
       "q3": "Is er een gratis proefperiode?",
       "a3": "Ja! De 7-daagse gratis proefperiode geeft je toegang tot kernfuncties inclusief studiesets, flashcards, quizzen en spaced repetition — geen creditcard nodig. Na de proefperiode kun je abonneren op Pro voor onbeperkte toegang.",
-      "q4": "Is Studyield betaalbaar voor studenten?",
+      "q4": "Is Study RPG betaalbaar voor studenten?",
       "a4": "Absoluut! Onze prijzen zijn ontworpen met studenten in gedachten. Begin met een gratis proefperiode van 7 dagen en kies daarna tussen maandelijkse of jaarlijkse abonnementen — beide budgetvriendelijk voor studenten.",
       "q5": "Hoe zeg ik mijn abonnement op?",
       "a5": "Je kunt op elk moment opzeggen via Accountinstellingen > Facturering > Abonnement beheren. Je behoudt toegang tot premiumfuncties tot het einde van je facturatieperiode.",
@@ -1320,10 +1440,10 @@
       "a4": "Standaard is je studiemateriaal privé en alleen zichtbaar voor jou. Jij bepaalt het delen — je kunt sets openbaar maken, delen met specifieke personen, of volledig privé houden."
     },
     "technical": {
-      "q1": "Kan ik Studyield offline gebruiken?",
+      "q1": "Kan ik Study RPG offline gebruiken?",
       "a1": "Momenteel vereisen de meeste functies een internetverbinding omdat AI-verwerking in de cloud plaatsvindt. We werken aan offlineondersteuning voor het herhalen van flashcards in toekomstige updates.",
       "q2": "Welke browsers worden ondersteund?",
-      "a2": "Studyield werkt op alle moderne browsers, waaronder Chrome, Firefox, Safari en Edge. We raden aan je browser up-to-date te houden voor de beste ervaring.",
+      "a2": "Study RPG werkt op alle moderne browsers, waaronder Chrome, Firefox, Safari en Edge. We raden aan je browser up-to-date te houden voor de beste ervaring.",
       "q3": "Wat is de Probleemoplosser-functie?",
       "a3": "De Probleemoplosser is een Pro-functie die je helpt complexe problemen stap voor stap op te lossen. Je kunt wiskunde-, wetenschap- of andere problemen invoeren en de AI biedt gedetailleerde oplossingen met uitleg. Batchoplosser laat je meerdere problemen tegelijk oplossen.",
       "q4": "Wat telt als een AI-verzoek?",
@@ -1345,146 +1465,167 @@
     "visitHelpCenter": "Bezoek helpcentrum"
   },
   "featuresFullPage": {
-    "badge": "Platformfuncties",
-    "title": "Alles wat je nodig hebt voor",
-    "titleHighlight": "effectief leren",
-    "description": "AI-flashcards met cloze deletion en image occlusion, SM-2 spaced repetition, examen klonen, probleemoplossing, handschrift-OCR en een AI-studiebuddy — ontdek elke tool die je leerervaring aandrijft.",
+    "badge": "Krachtige functies",
+    "title": "Alles wat je nodig hebt om",
+    "titleHighlight": "slimmer te studeren",
+    "description": "AI-gegenereerde flashcards met cloze deletion en image occlusion, spaced repetition, examen klonen, probleemoplossing en een persoonlijke AI-tutor — alles in één platform.",
     "startLearningFree": "Gratis beginnen met leren",
+    "viewPricing": "Prijzen bekijken",
+    "highlightsTitle": "Kernfuncties",
+    "highlightsDescription": "De krachtigste tools om je leerervaring te superchargen.",
+    "allFeaturesTitle": "Alle functies verkennen",
+    "allFeaturesDescription": "Ontdek elke tool die ontworpen is om je sneller te laten leren en meer te onthouden.",
+    "learnMore": "Meer informatie",
+    "viewBenefits": "Voordelen bekijken",
+    "tryItNow": "Nu proberen",
+    "categories": {
+      "all": "Alles",
+      "study": "Studietools",
+      "ai": "AI-gestuurd",
+      "assessment": "Toetsing",
+      "tracking": "Bijhouden"
+    },
+    "stats": {
+      "features": "Krachtige functies",
+      "cardTypes": "Flashcardtypes",
+      "aiAvailable": "AI beschikbaar",
+      "fileFormats": "Bestandsformaten"
+    },
     "studySets": {
       "title": "Studiesets",
       "subtitle": "Organiseer je leerervaring",
-      "description": "Maak collecties van leermateriaal georganiseerd per vak, cursus of onderwerp. Upload documenten, voeg notities toe en houd alles op één plek.",
+      "description": "Maak en organiseer studiesets met AI-gestuurde inhoudextractie. Upload documenten en laat AI automatisch uitgebreid studiemateriaal genereren.",
       "benefits": [
-        "Onbeperkte organisatieflexibiliteit",
-        "Deel met klasgenoten of houd privé",
-        "Dupliceer en remix bestaande sets",
-        "Tagsysteem voor makkelijk filteren"
+        "AI-gestuurde inhoudextractie",
+        "Organiseer per vak en onderwerp",
+        "Deel en werk samen met medestudenten",
+        "Importeer uit meerdere formaten"
       ]
     },
     "flashcards": {
-      "title": "AI-flashcards met spaced repetition",
-      "subtitle": "Drie kaarttypes, één slim systeem",
-      "description": "Genereer standaard, cloze deletion en image occlusion flashcards uit je documenten. Het SM-2 spaced repetition algoritme plant herhalingen op het optimale moment voor langetermijnretentie.",
+      "title": "Slimme flashcards",
+      "subtitle": "AI-gegenereerde kaarten",
+      "description": "Genereer automatisch standaard, cloze deletion en image occlusion flashcards uit elk document. SM-2 spaced repetition plant herhalingen op het perfecte moment.",
       "benefits": [
-        "Standaard, cloze deletion & image occlusion kaarten",
-        "SM-2 algoritme optimaliseert herhalingsintervallen",
-        "Volg moeilijkheidsfactor en beheersing per kaart",
-        "Bulk importeren uit CSV, ook handmatig aanmaken"
+        "3 kaarttypes: standaard, cloze, image occlusion",
+        "SM-2 spaced repetition algoritme",
+        "AI-gegenereerd uit je documenten",
+        "Volg beheersing per kaart"
       ]
     },
     "documents": {
-      "title": "Documentverwerking",
-      "subtitle": "Haal kennis uit elk bestand",
-      "description": "Upload PDF's, Word-documenten (.docx, .doc), afbeeldingen (PNG, JPEG), markdown of platte tekst. Onze AI extraheert kernconcepten, definities en formules — met handschrift-OCR voor gescande notities.",
+      "title": "Documentanalyse",
+      "subtitle": "Uploaden & extraheren",
+      "description": "Upload PDF's, Word-documenten, afbeeldingen of markdown-bestanden. Onze AI extraheert kernconcepten, definities en formules — zelfs uit handgeschreven notities via OCR.",
       "benefits": [
-        "PDF, Word, afbeeldingen, markdown & tekstbestanden",
-        "Handschrift-OCR via AI-visionmodel",
-        "Bouw kennisbanken van documenten",
-        "10MB gratis, 100MB per bestand bij Pro"
+        "Ondersteuning voor 6+ bestandsformaten",
+        "AI-conceptextractie",
+        "Handschriftherkenning (OCR)",
+        "Automatisch flashcards genereren uit documenten"
       ]
     },
     "chat": {
       "title": "AI Studiebuddy",
-      "subtitle": "Chat met je studiemateriaal",
-      "description": "Stel vragen over elk onderwerp en krijg directe, contextuele antwoorden uit je studiemateriaal. De AI-tutor kan concepten uitleggen, flashcards genereren en je helpen bij examenvoorbereiding.",
+      "subtitle": "Chat met je materiaal",
+      "description": "Chat met je studiemateriaal. Stel vragen over elk onderwerp, krijg directe uitleg en laat de AI flashcards en quizzen genereren uit je documenten.",
       "benefits": [
-        "Natuurlijke gespreksinterface",
-        "Contextbewuste antwoorden uit je materiaal",
-        "Genereer flashcards en quizzen vanuit chat",
-        "Streaming-antwoorden voor gedetailleerde uitleg"
+        "Stel vragen over elk onderwerp",
+        "Krijg directe uitleg",
+        "Genereer flashcards vanuit chat",
+        "24/7 beschikbaar"
       ]
     },
     "quizzes": {
       "title": "Quizzen & live quiz",
-      "subtitle": "Test alleen of competeer live",
-      "description": "AI genereert meerkeuze-, waar/onwaar- en korte antwoordquizzen uit je materiaal. Plus, organiseer realtime multiplayer live quizzen met klasgenoten via Socket.IO-kamers.",
+      "subtitle": "Test je kennis",
+      "description": "AI-gegenereerde quizzen uit je studiemateriaal plus realtime multiplayer live quizzen. Competeer met klasgenoten en volg je voortgang.",
       "benefits": [
-        "AI genereert gevarieerde vraagtypes",
-        "Realtime multiplayer live quizzen",
-        "Gedetailleerde uitleg bij elk antwoord",
-        "Volg pogingen, scores & ranglijsten"
+        "AI-gegenereerde quizvragen",
+        "Realtime multiplayermodus",
+        "Meerdere vraagtypes",
+        "Gedetailleerde prestatiestatistieken"
       ]
     },
     "examClone": {
       "title": "Examen klonen",
       "subtitle": "Oefen zoals het echte examen",
-      "description": "Upload oude examens en onze AI analyseert de stijl, het formaat en de moeilijkheidsgraad. Genereer onbeperkt nieuwe vragen die exact overeenkomen met wat je te wachten staat.",
+      "description": "Analyseer oude examens en genereer overeenkomstige oefenvragen. Simuleer echte examencondities met getimede sessies en scoring.",
       "benefits": [
-        "Stijlanalyse van voorbeeldexamens",
-        "Genereer onbeperkt oefenvragen",
-        "Evenaar exact de moeilijkheidsgraad en het formaat",
-        "Perfect voor voorbereiding op gestandaardiseerde toetsen"
+        "Analyseer patronen van oude examens",
+        "Genereer vergelijkbare vragen",
+        "Getimede examensimulatie",
+        "Prestatiescore en review"
       ]
     },
     "problemSolver": {
-      "title": "Probleemoplosser & batchmodus",
+      "title": "Probleemoplosser",
       "subtitle": "Stapsgewijze oplossingen",
-      "description": "Voer wiskunde-, wetenschap- of andere problemen in en krijg gedetailleerde stapsgewijze oplossingen. Batchoplosser laat je meerdere problemen tegelijk oplossen. Ondersteunt afbeeldingsgebaseerde probleeminvoer via camerascan.",
+      "description": "Krijg stapsgewijze oplossingen voor wiskunde, wetenschap en meer. Upload een foto of typ je probleem — AI splitst het op in duidelijke, begrijpelijke stappen.",
       "benefits": [
-        "Stapsgewijze oplossing met uitleg",
-        "Batchmodus voor meerdere problemen",
-        "Camerascan voor afbeeldingsgebaseerde problemen",
-        "Vergelijkbare problemen voor extra oefening"
+        "Stapsgewijze uitleg",
+        "Wiskunde, wetenschap en meer",
+        "Foto-upload ondersteuning",
+        "Batchmodus voor meerdere problemen"
       ]
     },
     "handwritingOcr": {
       "title": "Handschrift-OCR",
-      "subtitle": "Scan handgeschreven notities",
-      "description": "Maak een foto van je handgeschreven notities en ons AI-visionmodel zet ze om naar digitale tekst. Maak direct flashcards en studiemateriaal van je handschrift.",
+      "subtitle": "Scan je notities",
+      "description": "Scan handgeschreven notities en zet ze om naar digitale tekst. Perfect om collegeaantekeningen om te zetten naar flashcards en studiemateriaal.",
       "benefits": [
-        "AI-gestuurde handschriftherkenning",
-        "Zet notities om naar digitale flashcards",
-        "Werkt met elk handschrift",
-        "Camerascan of afbeelding uploaden"
+        "Nauwkeurige handschriftherkenning",
+        "Zet notities om naar flashcards",
+        "Ondersteuning voor meerdere talen",
+        "Werkt met foto's en scans"
       ]
     },
     "learningPaths": {
-      "title": "AI-leerpaden",
-      "subtitle": "Gepersonaliseerde studieroutes",
-      "description": "Laat AI een op maat gemaakt leerpad genereren voor elk onderwerp. Volg je voortgang door gestructureerde stappen en blijf op koers om je doelen te bereiken.",
+      "title": "Leerpaden",
+      "subtitle": "Gepersonaliseerde routekaarten",
+      "description": "AI maakt gepersonaliseerde studieroutekaarten op basis van je doelen en huidige kennis. Volg gestructureerde paden om elk onderwerp efficiënt te beheersen.",
       "benefits": [
-        "AI-gegenereerd curriculum",
-        "Aanpasbaar aan jouw niveau",
-        "Voortgang bijhouden",
-        "Geschatte tijd tot voltooiing"
+        "AI-gegenereerde studieplannen",
+        "Aanpasbaar aan je voortgang",
+        "Doelgebaseerde mijlpalen",
+        "Volg voltooiingspercentage"
       ]
     },
     "analytics": {
       "title": "Statistieken & gamificatie",
-      "subtitle": "Volg, verdien en level up",
-      "description": "Studie-heatmaps, streak-kalenders en gedetailleerde voortgangsgrafieken houden je op koers. Verdien XP voor elke studieactie, level up door 12 niveaus en behoud dagelijkse streaks.",
+      "subtitle": "Volg je voortgang",
+      "description": "Volg voortgang met studie-heatmaps en streak-kalenders. Verdien XP, level up, behoud dagelijkse streaks en stel examencountdowns in om op schema te blijven.",
       "benefits": [
-        "Studie-heatmap en streak-kalender",
-        "XP-systeem met 12 levels",
-        "Dagelijkse streak-tracking met beloningen",
-        "Examencountdown en studieschema"
+        "Studie-heatmaps en kalenders",
+        "XP en levelingsysteem",
+        "Dagelijkse streak-tracking",
+        "Examencountdown-timers"
       ]
     },
     "teachBack": {
-      "title": "Teruguitleg-sessies",
-      "subtitle": "Feynman-techniek",
-      "description": "Leg concepten in eigen woorden uit en krijg AI-feedback op je begrip. Gebaseerd op de bewezen Feynman-techniek voor diepgaand leren.",
+      "title": "Teruguitleg",
+      "subtitle": "Leer door te onderwijzen",
+      "description": "Leg concepten terug uit aan de AI en krijg feedback op je begrip. Onderwijzen is een van de meest effectieve manieren om kennis te verankeren.",
       "benefits": [
-        "Leg uit om begrip te bewijzen",
-        "AI evalueert je uitleg",
-        "Identificeert kennishiaten",
-        "Verbetert retentie aanzienlijk"
+        "Leg concepten uit aan AI",
+        "Krijg directe feedback",
+        "Identificeer kennishiaten",
+        "Versterk je begrip"
       ]
     },
     "conceptMaps": {
       "title": "Conceptkaarten",
       "subtitle": "Visualiseer verbanden",
-      "description": "Genereer interactieve conceptkaarten van je studiemateriaal. Zie hoe onderwerpen verbonden zijn, identificeer relaties en bouw een visueel begrip van elk onderwerp.",
+      "description": "Visualiseer hoe onderwerpen en concepten met elkaar verbonden zijn. AI genereert interactieve mindmaps uit je studiemateriaal om het grote geheel te zien.",
       "benefits": [
         "AI-gegenereerde conceptkaarten",
-        "Interactieve knooppuntverkenning",
-        "Visualiseer onderwerprelaties",
-        "Exporteer en deel je kaarten"
+        "Interactieve visualisatie",
+        "Bekijk onderwerprelaties",
+        "Exporteer en deel kaarten"
       ]
     }
   },
   "onboarding": {
-    "title": "Welkom bij Studyield",
+    "title": "Welkom bij Study RPG",
     "skipForNow": "Nu overslaan",
     "stepOf": "Stap {{current}} van {{total}}",
     "welcome": {
@@ -1653,7 +1794,7 @@
     },
     "features": {
       "title": "Dit kun je allemaal doen",
-      "description": "Studyield zit vol tools om studeren sneller en effectiever te maken",
+      "description": "Study RPG zit vol tools om studeren sneller en effectiever te maken",
       "studySets": "Studiesets",
       "studySetsDesc": "Maak flashcards handmatig of genereer ze uit documenten met AI",
       "aiChat": "AI Chat Tutor",
@@ -1679,7 +1820,7 @@
       "deepResearch": "Diepgaand onderzoek",
       "deepResearchDesc": "AI-gestuurde diepgaande verkenning van elk onderwerp",
       "adFreeTitle": "100% reclamevrij, altijd",
-      "adFreeDesc": "Geen advertenties, geen afleidingen. Alleen jij en je studie. Studyield zal nooit reclame tonen."
+      "adFreeDesc": "Geen advertenties, geen afleidingen. Alleen jij en je studie. Study RPG zal nooit reclame tonen."
     },
     "done": {
       "title": "Je bent helemaal klaar!",
@@ -1778,7 +1919,7 @@
     "articles": "{{count}} artikelen",
     "categories": {
       "gettingStarted": "Aan de slag",
-      "gettingStartedDesc": "Leer de basis van Studyield en kom snel op gang",
+      "gettingStartedDesc": "Leer de basis van Study RPG en kom snel op gang",
       "studySets": "Studiesets & flashcards",
       "studySetsDesc": "Maak, beheer en beheers je leermateriaal",
       "documents": "Documentverwerking",
@@ -1818,24 +1959,24 @@
     "faqSubtitle": "Snelle antwoorden op de meest gestelde vragen",
     "faqs": {
       "q1": "Welke soorten documenten kan ik uploaden?",
-      "a1": "Studyield ondersteunt een grote verscheidenheid aan documentformaten, waaronder PDF's, Word-documenten (.docx, .doc), platte tekstbestanden, markdown-bestanden en afbeeldingen (PNG, JPEG). Onze AI verwerkt deze documenten om tekst te extraheren en leermateriaal te maken.",
+      "a1": "Study RPG ondersteunt een grote verscheidenheid aan documentformaten, waaronder PDF's, Word-documenten (.docx, .doc), platte tekstbestanden, markdown-bestanden en afbeeldingen (PNG, JPEG). Onze AI verwerkt deze documenten om tekst te extraheren en leermateriaal te maken.",
       "q2": "Hoe werkt het spaced repetition systeem?",
       "a2": "Ons flashcardsysteem gebruikt het SM-2 spaced repetition algoritme om je leerproces te optimaliseren. Op basis van hoe goed je elke kaart onthoudt, berekent het systeem het optimale moment voor je volgende herhaling. Kaarten waar je moeite mee hebt verschijnen vaker, terwijl beheerste kaarten minder vaak getoond worden.",
-      "q3": "Kan ik Studyield offline gebruiken?",
-      "a3": "Momenteel vereist Studyield een internetverbinding voor de meeste functies, omdat onze AI-verwerking in de cloud plaatsvindt. We werken echter aan offlineondersteuning voor het herhalen van flashcards in toekomstige updates.",
+      "q3": "Kan ik Study RPG offline gebruiken?",
+      "a3": "Momenteel vereist Study RPG een internetverbinding voor de meeste functies, omdat onze AI-verwerking in de cloud plaatsvindt. We werken echter aan offlineondersteuning voor het herhalen van flashcards in toekomstige updates.",
       "q4": "Hoe nauwkeurig is de AI-gegenereerde inhoud?",
       "a4": "Onze AI genereert inhoud van hoge kwaliteit op basis van je geüploade materiaal. We raden echter altijd aan om gegenereerde flashcards en quizzen te controleren op nauwkeurigheid. Je kunt alle gegenereerde inhoud eenvoudig bewerken naar je voorkeur.",
       "q5": "Zijn mijn gegevens veilig en privé?",
       "a5": "Ja, we nemen gegevensbeveiliging serieus. Alle documenten worden versleuteld in rust en tijdens verzending. Je studiemateriaal wordt nooit gedeeld met andere gebruikers of gebruikt om AI-modellen te trainen. Je kunt je gegevens op elk moment verwijderen via je accountinstellingen.",
       "q6": "Wat is de Examen klonen-functie?",
       "a6": "Examen klonen analyseert de stijl, het formaat en de moeilijkheidsgraad van je oude examens of oefentoetsen. Vervolgens genereert het nieuwe vragen die bij die exacte stijl passen, zodat je kunt oefenen met relevant materiaal.",
-      "q7": "Is Studyield betaalbaar voor studenten?",
+      "q7": "Is Study RPG betaalbaar voor studenten?",
       "a7": "Absoluut! Onze prijzen zijn ontworpen met studenten in gedachten. Begin met een gratis proefperiode van 7 dagen en kies daarna tussen maandelijkse of jaarlijkse abonnementen — beide budgetvriendelijk voor studenten.",
       "q8": "Hoe zeg ik mijn abonnement op?",
       "a8": "Je kunt je abonnement op elk moment opzeggen via je Accountinstellingen. Ga naar Instellingen > Facturering > Abonnement beheren en klik op \"Abonnement opzeggen\". Je behoudt toegang tot premiumfuncties tot het einde van je facturatieperiode."
     },
     "videoTutorials": "Videotutorials",
-    "videoTutorialsDesc": "Leer Studyield te gebruiken met onze stapsgewijze videogidsen. Van aan de slag tot geavanceerde functies.",
+    "videoTutorialsDesc": "Leer Study RPG te gebruiken met onze stapsgewijze videogidsen. Van aan de slag tot geavanceerde functies.",
     "watchTutorials": "Tutorials bekijken",
     "ctaTitle": "Heb je nog hulp nodig?",
     "ctaDescription": "Ons supportteam staat klaar om je te helpen bij al je vragen. We reageren doorgaans binnen 24 uur.",
@@ -1864,7 +2005,7 @@
     },
     "introduction": {
       "title": "Inleiding",
-      "p1": "Bij Studyield nemen we je privacy serieus. Dit privacybeleid legt uit hoe we je gegevens verzamelen, gebruiken, openbaar maken en beschermen wanneer je ons AI-gestuurd leerplatform gebruikt.",
+      "p1": "Bij Study RPG nemen we je privacy serieus. Dit privacybeleid legt uit hoe we je gegevens verzamelen, gebruiken, openbaar maken en beschermen wanneer je ons AI-gestuurd leerplatform gebruikt.",
       "p2": "Lees dit privacybeleid zorgvuldig door. Als je niet akkoord gaat met de voorwaarden van dit privacybeleid, gebruik dan het platform niet."
     },
     "informationCollected": {
@@ -1878,7 +2019,7 @@
         "Communicatievoorkeuren"
       ],
       "studyContent": "Studie-inhoud",
-      "studyContentDesc": "Wanneer je Studyield gebruikt, slaan we het volgende op:",
+      "studyContentDesc": "Wanneer je Study RPG gebruikt, slaan we het volgende op:",
       "studyItems": [
         "Documenten die je uploadt (PDF's, afbeeldingen)",
         "Flashcards en studiesets",
@@ -1961,7 +2102,7 @@
     "badge": "Juridische overeenkomst",
     "title": "Algemene",
     "titleHighlight": "voorwaarden",
-    "description": "Lees deze voorwaarden zorgvuldig door voordat je Studyield gebruikt. Door ons platform te gebruiken, ga je akkoord met deze voorwaarden.",
+    "description": "Lees deze voorwaarden zorgvuldig door voordat je Study RPG gebruikt. Door ons platform te gebruiken, ga je akkoord met deze voorwaarden.",
     "lastUpdated": "Laatst bijgewerkt: 14 februari 2026",
     "contents": "Inhoud",
     "toc": {
@@ -1981,11 +2122,11 @@
     },
     "acceptance": {
       "title": "1. Aanvaarding van voorwaarden",
-      "content": "Door Studyield te gebruiken of er toegang toe te krijgen, ga je akkoord met deze Algemene voorwaarden en alle toepasselijke wet- en regelgeving. Als je niet akkoord gaat met deze voorwaarden, is het niet toegestaan het platform te gebruiken."
+      "content": "Door Study RPG te gebruiken of er toegang toe te krijgen, ga je akkoord met deze Algemene voorwaarden en alle toepasselijke wet- en regelgeving. Als je niet akkoord gaat met deze voorwaarden, is het niet toegestaan het platform te gebruiken."
     },
     "descriptionOfService": {
       "title": "2. Beschrijving van de dienst",
-      "intro": "Studyield is een AI-gestuurd leerplatform dat het volgende biedt:",
+      "intro": "Study RPG is een AI-gestuurd leerplatform dat het volgende biedt:",
       "items": [
         "Studiesets met document-upload en -analyse",
         "AI-gegenereerde flashcards met spaced repetition",
@@ -2021,7 +2162,7 @@
     "contentOwnership": {
       "title": "5. Eigendom van inhoud",
       "yourContent": "Jouw inhoud",
-      "yourContentDesc": "Je behoudt het eigendom van alle inhoud die je uploadt naar Studyield, inclusief documenten, notities en studiemateriaal. Door inhoud te uploaden, verleen je ons een beperkte licentie om het te verwerken, op te slaan en weer te geven voor het leveren van onze diensten.",
+      "yourContentDesc": "Je behoudt het eigendom van alle inhoud die je uploadt naar Study RPG, inclusief documenten, notities en studiemateriaal. Door inhoud te uploaden, verleen je ons een beperkte licentie om het te verwerken, op te slaan en weer te geven voor het leveren van onze diensten.",
       "aiGenerated": "AI-gegenereerde inhoud",
       "aiGeneratedDesc": "Inhoud gegenereerd door onze AI (flashcards, quizzen, samenvattingen) op basis van jouw materiaal behoort aan jou. Je kunt deze inhoud vrij gebruiken, wijzigen en delen."
     },
@@ -2037,11 +2178,11 @@
     },
     "aiDisclaimer": {
       "title": "7. AI-disclaimer",
-      "content": "Onze AI genereert inhoud om je leerproces te ondersteunen. Hoewel we streven naar nauwkeurigheid, kan AI-gegenereerde inhoud fouten bevatten. Je dient al het gegenereerde materiaal te controleren en niet uitsluitend op AI te vertrouwen voor kritieke beslissingen. Studyield is niet verantwoordelijk voor fouten in AI-gegenereerde inhoud."
+      "content": "Onze AI genereert inhoud om je leerproces te ondersteunen. Hoewel we streven naar nauwkeurigheid, kan AI-gegenereerde inhoud fouten bevatten. Je dient al het gegenereerde materiaal te controleren en niet uitsluitend op AI te vertrouwen voor kritieke beslissingen. Study RPG is niet verantwoordelijk voor fouten in AI-gegenereerde inhoud."
     },
     "liability": {
       "title": "8. Beperking van aansprakelijkheid",
-      "content": "Voor zover maximaal toegestaan door de wet, is Studyield niet aansprakelijk voor indirecte, incidentele, bijzondere, gevolgschade of punitieve schade, inclusief verlies van gegevens, winst of goodwill, voortvloeiend uit je gebruik van de dienst."
+      "content": "Voor zover maximaal toegestaan door de wet, is Study RPG niet aansprakelijk voor indirecte, incidentele, bijzondere, gevolgschade of punitieve schade, inclusief verlies van gegevens, winst of goodwill, voortvloeiend uit je gebruik van de dienst."
     },
     "availability": {
       "title": "9. Beschikbaarheid van de dienst",
@@ -2057,7 +2198,7 @@
     },
     "governingLaw": {
       "title": "12. Toepasselijk recht",
-      "content": "Deze voorwaarden worden beheerst door en uitgelegd in overeenstemming met het toepasselijke recht. Geschillen voortvloeiend uit deze voorwaarden of het gebruik van Studyield worden opgelost via goede trouw onderhandeling of, indien nodig, via bindende arbitrage."
+      "content": "Deze voorwaarden worden beheerst door en uitgelegd in overeenstemming met het toepasselijke recht. Geschillen voortvloeiend uit deze voorwaarden of het gebruik van Study RPG worden opgelost via goede trouw onderhandeling of, indien nodig, via bindende arbitrage."
     },
     "contact": {
       "title": "13. Contact",
@@ -2075,7 +2216,7 @@
     "badge": "Cookiebeleid",
     "title": "Cookie",
     "titleHighlight": "beleid",
-    "description": "Lees hoe we cookies en vergelijkbare technologieën gebruiken om je ervaring op Studyield te verbeteren.",
+    "description": "Lees hoe we cookies en vergelijkbare technologieën gebruiken om je ervaring op Study RPG te verbeteren.",
     "lastUpdated": "Laatst bijgewerkt: 14 februari 2026",
     "contents": "Inhoud",
     "toc": {
@@ -2091,7 +2232,7 @@
     "whatAreCookies": {
       "title": "Wat zijn cookies",
       "content": "Cookies zijn kleine tekstbestanden die op je apparaat worden geplaatst wanneer je een website bezoekt. Ze worden veel gebruikt om websites beter te laten werken, een betere gebruikerservaring te bieden en website-eigenaren nuttige informatie te geven over hoe hun site wordt gebruikt.",
-      "note": "Door Studyield te gebruiken, stem je in met het gebruik van cookies in overeenstemming met dit cookiebeleid. Je kunt je cookievoorkeuren op elk moment beheren.",
+      "note": "Door Study RPG te gebruiken, stem je in met het gebruik van cookies in overeenstemming met dit cookiebeleid. Je kunt je cookievoorkeuren op elk moment beheren.",
       "noteLabel": "Opmerking:"
     },
     "typesOfCookies": {
@@ -2149,7 +2290,7 @@
     },
     "howWeUse": {
       "title": "Hoe we cookies gebruiken",
-      "description": "We gebruiken cookies voor verschillende doeleinden om je ervaring op Studyield te verbeteren:",
+      "description": "We gebruiken cookies voor verschillende doeleinden om je ervaring op Study RPG te verbeteren:",
       "items": [
         {
           "title": "Authenticatie",
@@ -2217,11 +2358,11 @@
         }
       ],
       "warningLabel": "Waarschuwing:",
-      "warning": "Het uitschakelen van essentiële cookies kan de functionaliteit van Studyield beïnvloeden en voorkomen dat je bepaalde functies kunt gebruiken."
+      "warning": "Het uitschakelen van essentiële cookies kan de functionaliteit van Study RPG beïnvloeden en voorkomen dat je bepaalde functies kunt gebruiken."
     },
     "cookieSettings": {
       "title": "Cookie-instellingen",
-      "description": "Je kunt je cookievoorkeuren voor Studyield op elk moment aanpassen. Klik op de onderstaande knop om te beheren welke soorten cookies je toestaat.",
+      "description": "Je kunt je cookievoorkeuren voor Study RPG op elk moment aanpassen. Klik op de onderstaande knop om te beheren welke soorten cookies je toestaat.",
       "managePreferences": "Cookievoorkeuren beheren"
     },
     "policyUpdates": {
@@ -2242,7 +2383,7 @@
     "badge": "AVG-conform",
     "title": "Account &",
     "titleHighlight": "gegevensverwijdering",
-    "description": "We respecteren je recht om vergeten te worden. Lees hoe je je Studyield-account en alle bijbehorende gegevens permanent kunt verwijderen. Dit proces is onomkeerbaar.",
+    "description": "We respecteren je recht om vergeten te worden. Lees hoe je je Study RPG-account en alle bijbehorende gegevens permanent kunt verwijderen. Dit proces is onomkeerbaar.",
     "importantNotice": {
       "title": "Belangrijk: deze actie kan niet ongedaan worden gemaakt",
       "description": "Zodra je je account verwijdert, worden al je gegevens permanent van onze servers verwijderd. Zorg ervoor dat je eventueel belangrijk studiemateriaal exporteert voordat je verdergaat.",
@@ -2294,7 +2435,7 @@
       "steps": [
         {
           "title": "Log in op je account",
-          "description": "Log in op Studyield met je e-mail en wachtwoord om toegang te krijgen tot je accountinstellingen."
+          "description": "Log in op Study RPG met je e-mail en wachtwoord om toegang te krijgen tot je accountinstellingen."
         },
         {
           "title": "Ga naar Accountinstellingen",
@@ -2335,7 +2476,7 @@
     "badge": "Sitenavigatie",
     "title": "Site",
     "titleHighlight": "map",
-    "description": "Volledig overzicht van alle pagina's op Studyield. Vind precies wat je zoekt.",
+    "description": "Volledig overzicht van alle pagina's op Study RPG. Vind precies wat je zoekt.",
     "quickAccess": "Snelle toegang",
     "sections": {
       "mainPages": "Hoofdpagina's",
@@ -2346,7 +2487,7 @@
     },
     "links": {
       "home": "Home",
-      "homeDesc": "Welkom bij Studyield",
+      "homeDesc": "Welkom bij Study RPG",
       "aboutUs": "Over ons",
       "aboutUsDesc": "Lees over onze missie",
       "features": "Functies",
@@ -2397,7 +2538,7 @@
     "xmlSitemapDesc": "Voor zoekmachines en ontwikkelaars",
     "viewSitemapXml": "Bekijk sitemap.xml",
     "ctaTitle": "Kun je niet vinden wat je zoekt?",
-    "ctaDescription": "Ons supportteam staat klaar om je door Studyield te navigeren.",
+    "ctaDescription": "Ons supportteam staat klaar om je door Study RPG te navigeren.",
     "contactUs": "Contact opnemen",
     "helpCenterBtn": "Helpcentrum"
   },
@@ -4002,108 +4143,718 @@
       ]
     },
     "faq": {
-      "studentQuestion": "Is Studyield betaalbaar voor studenten?",
+      "studentQuestion": "Is Study RPG betaalbaar voor studenten?",
       "studentAnswer": "Absoluut! Onze prijzen zijn ontworpen met studenten in gedachten. Begin met een gratis proefperiode van 7 dagen en kies daarna tussen maandelijkse ($7,99/mnd) of jaarlijkse ($47,88/jr) abonnementen — beide budgetvriendelijk voor studenten."
     }
   },
-  "featuresFullPage": {
-    "badge": "Krachtige functies",
-    "title": "Alles wat je nodig hebt om",
-    "titleHighlight": "slimmer te studeren",
-    "description": "AI-gegenereerde flashcards met cloze deletion en image occlusion, spaced repetition, examen klonen, probleemoplossing en een persoonlijke AI-tutor — alles in één platform.",
-    "startLearningFree": "Gratis beginnen met leren",
-    "viewPricing": "Prijzen bekijken",
-    "highlightsTitle": "Kernfuncties",
-    "highlightsDescription": "De krachtigste tools om je leerervaring te superchargen.",
-    "allFeaturesTitle": "Alle functies verkennen",
-    "allFeaturesDescription": "Ontdek elke tool die ontworpen is om je sneller te laten leren en meer te onthouden.",
-    "learnMore": "Meer informatie",
-    "viewBenefits": "Voordelen bekijken",
-    "tryItNow": "Nu proberen",
-    "categories": {
-      "all": "Alles",
-      "study": "Studietools",
-      "ai": "AI-gestuurd",
-      "assessment": "Toetsing",
-      "tracking": "Bijhouden"
+  "academics": {
+    "title": "Academische structuur",
+    "subtitle": "Organiseer je vakken, hoofdstukken, onderwerpen, examens en schoolprofiel op één plek.",
+    "profileTab": "Profiel",
+    "subjectsTab": "Vakken",
+    "examsTab": "Examens",
+    "profileTitle": "Schoolprofiel",
+    "profileSubtitle": "Help Study RPG je studieplan aan te passen door iets over je school te vertellen.",
+    "country": "Land",
+    "board": "Schoolbestuur",
+    "school": "School",
+    "grade": "Klas",
+    "academicYear": "Schooljaar",
+    "saveProfile": "Profiel opslaan",
+    "profileSaved": "Profiel opgeslagen",
+    "addSubject": "Vak toevoegen",
+    "subjectNamePlaceholder": "Vaknaam (bijv. Wiskunde)",
+    "chapters_one": "{{count}} hoofdstuk",
+    "chapters_other": "{{count}} hoofdstukken",
+    "topics": "onderwerpen",
+    "noSubjects": "Nog geen vakken. Voeg je eerste vak toe om te beginnen.",
+    "noChapters": "Nog geen hoofdstukken — voeg hieronder het eerste toe.",
+    "addChapter": "Hoofdstuk toevoegen",
+    "chapterNamePlaceholder": "Naam van het hoofdstuk",
+    "addTopic": "Onderwerp toevoegen",
+    "topicNamePlaceholder": "Naam van het onderwerp",
+    "learningObjective": "Leerdoel",
+    "deleteSubject": "Vak verwijderen",
+    "deleteSubjectConfirm": "Dit vak verwijderen? De hoofdstukken en onderwerpen worden ook verwijderd.",
+    "deleteChapterConfirm": "Dit hoofdstuk verwijderen? De onderwerpen worden ook verwijderd.",
+    "deleteTopicConfirm": "Dit onderwerp verwijderen?",
+    "deleteExamConfirm": "Dit examen verwijderen? De onderdelen worden ook verwijderd.",
+    "addExam": "Examen toevoegen",
+    "examNamePlaceholder": "Examennaam (bijv. Tussentijds examen)",
+    "examDate": "Examendatum",
+    "subjectLabel": "Vak",
+    "noExams": "Nog geen examens gepland. Voeg een examen toe om de onderdelen te volgen.",
+    "portions": "Examenonderdelen",
+    "noPortions": "Nog geen hoofdstukken in dit onderdeel.",
+    "addPortion": "Hoofdstuk aan onderdeel toevoegen",
+    "removePortion": "Verwijder uit onderdeel",
+    "create": "Maken",
+    "add": "Toevoegen",
+    "cancel": "Annuleren",
+    "error": "Er ging iets mis. Probeer het opnieuw."
+  },
+"wellbeing": {
+    "title": "Studiegezondheid",
+    "today": "Focus vandaag",
+    "optimal": "Gezond optimum: {{min}} min/dag",
+    "budget": "{{min}} min over vóór de daglimiet",
+    "band": {
+      "fresh": "Fris",
+      "focused": "Gefocust",
+      "draining": "Afnemend",
+      "depleted": "Uitgeput"
     },
-    "stats": {
-      "features": "Krachtige functies",
-      "cardTypes": "Flashcardtypes",
-      "aiAvailable": "AI beschikbaar",
-      "fileFormats": "Bestandsformaten"
+    "cooldownTitle": "Rustvenster actief",
+    "cooldownBody": "Je laatste focusblok was lang. Neem een echte pauze ({{min}} min over) — je brein consolideert wat je hebt bestudeerd tijdens rust.",
+    "nightTitle": "Het is laat",
+    "nightBody": "Leren wordt geconsolideerd tijdens de slaap. Overweeg om af te ronden — de sessie van morgen telt meer dan nog een uur vanavond.",
+    "diminishingTitle": "Afnemende meerwaarde",
+    "diminishingBody": "Je hebt je gezonde optimum overschreden — extra minuten vandaag leveren slechts ×{{mult}} van de normale beloning op. Rust maakt wat je hebt gestudeerd waardevoller."
+  },
+  "focusSessions": {
+    "title": "Focus Sessions",
+    "subtitle": "Record your study time, subject by subject.",
+    "startFocus": "Ready to focus?",
+    "nowFocusing": "In a focus session",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "complete": "Complete",
+    "paused": "Paused",
+    "today": "Focus today",
+    "history": "Session history",
+    "minutes": "min",
+    "general": "General study",
+    "noSessions": "No sessions yet. Start one above!",
+    "subjectPlaceholder": "Subject (optional)",
+    "deleteConfirm": "Delete this session?",
+    "alreadyActive": "A session is already running or paused. Complete it first.",
+    "error": "Could not load focus sessions."
+  },
+  "mistakes": {
+    "title": "Mistake Notebook",
+    "subtitle": "Turn every mistake into a lesson.",
+    "addMistake": "Add mistake",
+    "save": "Save",
+    "cancel": "Cancel",
+    "questionLabel": "Question",
+    "questionPlaceholder": "What question did you get wrong?",
+    "subject": "Subject",
+    "chapter": "Chapter",
+    "correctAnswer": "Correct answer",
+    "wrongAnswer": "Your answer",
+    "category": "Category",
+    "category_concept": "Concept",
+    "category_careless": "Careless",
+    "category_time": "Time pressure",
+    "category_guess": "Guessed",
+    "category_other": "Other",
+    "cause": "Why it happened",
+    "correctionNote": "Correction note",
+    "status_open": "Open",
+    "status_resolved": "Resolved",
+    "status_reopened": "Reopened",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "resolvePrompt": "Correction note (optional):",
+    "search": "Search mistakes…",
+    "empty": "No mistakes match.",
+    "deleteConfirm": "Delete this mistake?",
+    "error": "Could not load mistakes."
+  },
+  "puzzles": {
+    "title": "Subject Puzzles",
+    "subtitle": "Ranked streaks and practice for every subject.",
+    "mode_ranked": "Ranked",
+    "mode_practice": "Practice",
+    "total": "puzzles",
+    "rankedToday": "ranked today",
+    "best": "best {best}",
+    "pickSubject": "Pick a subject to start puzzling.",
+    "noSubjects": "No puzzles yet. Create original puzzles for your subjects.",
+    "dailyLimit": "Daily ranked limit reached",
+    "dailyLimitHint": "Come back tomorrow, or keep practicing!",
+    "noneLeft": "No puzzles left for this subject.",
+    "retry": "Try again",
+    "submit": "Submit answer",
+    "correct": "Correct!",
+    "incorrect": "Not quite.",
+    "answer": "Answer",
+    "next": "Next puzzle",
+    "history": "Recent attempts",
+    "error": "Could not load puzzles."
+  },
+  "examCentre": {
+    "title": "Exam Centre",
+    "subtitle": "Competentiegericht toetsen — kies een vak, scherp je denkvaardigheden aan en ontdek waarom punten verloren gingen en hoe je verbetert.",
+    "addPeriod": "Add period",
+    "periodName": "Period name",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "notes": "Notes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "status_upcoming": "Upcoming",
+    "status_live": "Live",
+    "status_ended": "Ended",
+    "noPeriods": "No exam periods yet. Add one to plan your exams.",
+    "noExamsInPeriod": "No exams attached to this period.",
+    "recordResult": "Record result: {exam}",
+    "recordResultTitle": "Record exam result",
+    "marksObtained": "Marks obtained",
+    "marksTotal": "Total marks",
+    "mistakeAnalysis": "Mistake analysis",
+    "revisionPlan": "Revision plan",
+    "saveResult": "Save result",
+    "results": "Results",
+    "deleteConfirm": "Delete this exam period?",
+    "error": "Could not load the exam centre."
+  },
+  "rpg": {
+    "title": "Study RPG",
+    "subtitle": "Defeat the monsters of distraction with knowledge and original cards.",
+    "stp": "STP",
+    "error": "Failed to load Study RPG data.",
+    "deckError": "Could not create the deck — check card restrictions.",
+    "battleError": "Could not start a battle.",
+    "actionError": "That move was rejected by the server.",
+    "tab": {
+      "character": "Character",
+      "decks": "Decks",
+      "battle": "Battle",
+      "duel": "Duels"
     },
-    "studySets": {
-      "title": "Studiesets",
-      "subtitle": "Organiseer je leerervaring",
-      "description": "Maak en organiseer studiesets met AI-gestuurde inhoudextractie. Upload documenten en laat AI automatisch uitgebreid studiemateriaal genereren.",
-      "benefits": ["AI-gestuurde inhoudextractie", "Organiseer per vak en onderwerp", "Deel en werk samen met medestudenten", "Importeer uit meerdere formaten"]
+    "level": "Level",
+    "xp": "XP",
+    "studyStreak": "Study streak",
+    "bestPuzzleStreak": "Best puzzle streak",
+    "eventExp": "Event XP",
+    "equippedDeck": "Equipped deck",
+    "noDeck": "No deck yet",
+    "startBattle": "Start battle",
+    "collectionCount": "Cards owned",
+    "manageDecks": "Manage decks",
+    "cardLibrary": "Card library",
+    "libraryHint": "Original cards only — no third-party content.",
+    "balance": "Wallet balance",
+    "ledgerHint": "Every STP/SLC change is recorded on an immutable ledger.",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "legendary": "Legendary"
     },
-    "flashcards": {
-      "title": "Slimme flashcards",
-      "subtitle": "AI-gegenereerde kaarten",
-      "description": "Genereer automatisch standaard, cloze deletion en image occlusion flashcards uit elk document. SM-2 spaced repetition plant herhalingen op het perfecte moment.",
-      "benefits": ["3 kaarttypes: standaard, cloze, image occlusion", "SM-2 spaced repetition algoritme", "AI-gegenereerd uit je documenten", "Volg beheersing per kaart"]
+    "buildDeck": "Build a deck",
+    "deckNamePlaceholder": "Deck name",
+    "deckHint": "five cards, max one Poison, one Decay and one Shield",
+    "saveDeck": "Save deck",
+    "collection": "Collection",
+    "active": "Active",
+    "equip": "Equip",
+    "deckValid": "Valid deck",
+    "deckInvalid": "Invalid deck",
+    "defaultDeckName": "My Deck",
+    "noBattle": "No battle in progress",
+    "noBattleHint": "Equip a validated deck, then challenge a monster.",
+    "turn": "Turn",
+    "shield": "Shield",
+    "forfeit": "Forfeit",
+    "done": "Done",
+    "victory": "Victory!",
+    "defeat": "Defeated…",
+    "forfeited": "Forfeited",
+    "pendingReward": "Reward on victory",
+    "log": {
+      "start": "Battle starts —",
+      "action": "plays",
+      "damage": "deals",
+      "dot": "damage over time",
+      "heal": "heals",
+      "shield": "shield from",
+      "status": "status",
+      "mana": "mana",
+      "quiz": "quiz restores",
+      "challengeWin": "Damage challenge: perfect! +10",
+      "challengeFail": "Damage challenge missed.",
+      "defeatWin": "Monster defeated!",
+      "defeatLoss": "You were defeated.",
+      "end": "Turn ends."
     },
-    "documents": {
-      "title": "Documentanalyse",
-      "subtitle": "Uploaden & extraheren",
-      "description": "Upload PDF's, Word-documenten, afbeeldingen of markdown-bestanden. Onze AI extraheert kernconcepten, definities en formules — zelfs uit handgeschreven notities via OCR.",
-      "benefits": ["Ondersteuning voor 6+ bestandsformaten", "AI-conceptextractie", "Handschriftherkenning (OCR)", "Automatisch flashcards genereren uit documenten"]
-    },
-    "chat": {
-      "title": "AI Studiebuddy",
-      "subtitle": "Chat met je materiaal",
-      "description": "Chat met je studiemateriaal. Stel vragen over elk onderwerp, krijg directe uitleg en laat de AI flashcards en quizzen genereren uit je documenten.",
-      "benefits": ["Stel vragen over elk onderwerp", "Krijg directe uitleg", "Genereer flashcards vanuit chat", "24/7 beschikbaar"]
-    },
-    "quizzes": {
-      "title": "Quizzen & live quiz",
-      "subtitle": "Test je kennis",
-      "description": "AI-gegenereerde quizzen uit je studiemateriaal plus realtime multiplayer live quizzen. Competeer met klasgenoten en volg je voortgang.",
-      "benefits": ["AI-gegenereerde quizvragen", "Realtime multiplayermodus", "Meerdere vraagtypes", "Gedetailleerde prestatiestatistieken"]
-    },
-    "examClone": {
-      "title": "Examen klonen",
-      "subtitle": "Oefen zoals het echte examen",
-      "description": "Analyseer oude examens en genereer overeenkomstige oefenvragen. Simuleer echte examencondities met getimede sessies en scoring.",
-      "benefits": ["Analyseer patronen van oude examens", "Genereer vergelijkbare vragen", "Getimede examensimulatie", "Prestatiescore en review"]
-    },
-    "problemSolver": {
-      "title": "Probleemoplosser",
-      "subtitle": "Stapsgewijze oplossingen",
-      "description": "Krijg stapsgewijze oplossingen voor wiskunde, wetenschap en meer. Upload een foto of typ je probleem — AI splitst het op in duidelijke, begrijpelijke stappen.",
-      "benefits": ["Stapsgewijze uitleg", "Wiskunde, wetenschap en meer", "Foto-upload ondersteuning", "Batchmodus voor meerdere problemen"]
-    },
-    "handwritingOcr": {
-      "title": "Handschrift-OCR",
-      "subtitle": "Scan je notities",
-      "description": "Scan handgeschreven notities en zet ze om naar digitale tekst. Perfect om collegeaantekeningen om te zetten naar flashcards en studiemateriaal.",
-      "benefits": ["Nauwkeurige handschriftherkenning", "Zet notities om naar flashcards", "Ondersteuning voor meerdere talen", "Werkt met foto's en scans"]
-    },
-    "learningPaths": {
-      "title": "Leerpaden",
-      "subtitle": "Gepersonaliseerde routekaarten",
-      "description": "AI maakt gepersonaliseerde studieroutekaarten op basis van je doelen en huidige kennis. Volg gestructureerde paden om elk onderwerp efficiënt te beheersen.",
-      "benefits": ["AI-gegenereerde studieplannen", "Aanpasbaar aan je voortgang", "Doelgebaseerde mijlpalen", "Volg voltooiingspercentage"]
-    },
-    "analytics": {
-      "title": "Statistieken & gamificatie",
-      "subtitle": "Volg je voortgang",
-      "description": "Volg voortgang met studie-heatmaps en streak-kalenders. Verdien XP, level up, behoud dagelijkse streaks en stel examencountdowns in om op schema te blijven.",
-      "benefits": ["Studie-heatmaps en kalenders", "XP en levelingsysteem", "Dagelijkse streak-tracking", "Examencountdown-timers"]
-    },
-    "teachBack": {
-      "title": "Teruguitleg",
-      "subtitle": "Leer door te onderwijzen",
-      "description": "Leg concepten terug uit aan de AI en krijg feedback op je begrip. Onderwijzen is een van de meest effectieve manieren om kennis te verankeren.",
-      "benefits": ["Leg concepten uit aan AI", "Krijg directe feedback", "Identificeer kennishiaten", "Versterk je begrip"]
-    },
-    "conceptMaps": {
-      "title": "Conceptkaarten",
-      "subtitle": "Visualiseer verbanden",
-      "description": "Visualiseer hoe onderwerpen en concepten met elkaar verbonden zijn. AI genereert interactieve mindmaps uit je studiemateriaal om het grote geheel te zien.",
-      "benefits": ["AI-gegenereerde conceptkaarten", "Interactieve visualisatie", "Bekijk onderwerprelaties", "Exporteer en deel kaarten"]
+    "pvp": {
+      "challengeByEmail": "Challenge by email",
+      "emailPlaceholder": "friend@example.com",
+      "challengeBtn": "Challenge",
+      "randomMatchmaking": "Random matchmaking",
+      "needDeck": "You need a validated, equipped deck to duel.",
+      "leaderboard": "Leaderboard",
+      "noDuels": "No duels yet",
+      "level": "Level",
+      "yourDuels": "Your duels",
+      "rating": "Rating",
+      "vs": "vs",
+      "you": "you",
+      "status": {
+        "challenged": "Challenged",
+        "in_progress": "In progress",
+        "settled": "Settled",
+        "expired": "Expired"
+      },
+      "youWon": "You won the duel!",
+      "youLost": "You lost the duel.",
+      "draw": "The duel was a draw.",
+      "ratingChange": "Rating change",
+      "limited": "daily limit reached",
+      "expires": "Expires",
+      "continue": "Continue battle",
+      "fight": "Fight",
+      "duelError": "Could not create the duel.",
+      "battleError": "Could not start the duel battle."
     }
+  },
+  "economy": {
+    "title": "Kaartenmarkt",
+    "subtitle": "Koop, verkoop, schroot en verbrand originele kaarten — elke STP-beweging staat in het onveranderlijke grootboek.",
+    "error": "Er ging iets mis met de markt.",
+    "loading": "Markt wordt geopend…",
+    "tab": {
+      "marketplace": "Marktplaats",
+      "collection": "Mijn kaarten",
+      "supply": "Voorraad"
+    },
+    "rarity": {
+      "all": "Alle",
+      "common": "Gewoon",
+      "rare": "Zeldzaam",
+      "legendary": "Legendarisch",
+      "supply": "Zeldzaamheid"
+    },
+    "officialValue": "Officiële waarde",
+    "seller": "Verkoper",
+    "buy": "Kopen",
+    "offer": "Bieden",
+    "sendOffer": "Versturen",
+    "offerPlaceholder": "Jouw bod in STP",
+    "offerMade": "Bod verstuurd — wachtend op antwoord van de verkoper.",
+    "pendingOffers": "Lopende biedingen",
+    "from": "van",
+    "to": "aan",
+    "accept": "Accepteren",
+    "decline": "Afwijzen",
+    "cancelOffer": "Intrekken",
+    "myListings": "Mijn advertenties",
+    "noListings": "Er staan nu geen kaarten op de markt.",
+    "owned": "In bezit",
+    "location": {
+      "inventory": "Inventaris",
+      "vault": "Kluis"
+    },
+    "inDeck": "In deck",
+    "listedBadge": "Te koop",
+    "sell": "Verkopen",
+    "confirmList": "Adverteren",
+    "pricePlaceholder": "Prijs in STP",
+    "listed": "Kaart op de marktplaats gezet.",
+    "toVault": "Naar kluis",
+    "toInventory": "Naar inventaris",
+    "scrape": "Slopen",
+    "scrapeTitle": "Deze kaart slopen?",
+    "scrapeWarning": "De kaart wordt permanent verwijderd en je krijgt direct de officiële waarde uitbetaald. Dit kan niet ongedaan worden gemaakt.",
+    "confirmScrape": "Slopen voor STP",
+    "burn": "Verbranden",
+    "burnTitle": "Deze kaart verbranden?",
+    "burnWarning": "De kaart wordt permanent verwijderd. Je wordt in termijnen uitbetaald — de eerste nu, de rest later. Dit kan niet ongedaan worden gemaakt.",
+    "confirmBurn": "Verbranden in termijnen",
+    "cancel": "Annuleren",
+    "burnActive": "Verbranding loopt",
+    "instalments": "termijnen",
+    "nextInstalment": "Volgende betaling",
+    "noCards": "Je hebt nog geen kaarten. Win gevechten en open pakjes om je verzameling uit te breiden.",
+    "card": "Kaart",
+    "original": "Origineel",
+    "active": "Actief",
+    "burned": "Verbrand",
+    "scraped": "Gesloopt",
+    "listedShort": "Te koop",
+    "statusCol": "Status",
+    "extinct": "Uitgestorven",
+    "replacement": "Echo",
+    "activeBadge": "Live",
+    "retired": "Gepensioneerd",
+    "priceHistory": "Geschiedenis officiële waarde",
+    "noHistory": "Nog geen waarde-aanpassingen geregistreerd.",
+    "supplyHint": "Het voorraadgrootboek volgt elke print, verbranding, sloop en uitsterving — de officiële waarde volgt het aanbod.",
+    "adminReconcile": "Vereffenen",
+    "adminInstalments": "Termijnen betalen"
+  },
+  "events": {
+    "title": "Studie-evenementen",
+    "subtitle": "Er is altijd een evenement actief. Studie, verdien evenement-EXP, klim in je Study Pass en claim beloningen — het spel leidt nooit af van het studeren.",
+    "loadError": "Het huidige evenement kon niet worden geladen.",
+    "none": "Er is nu geen evenement actief — de planner start er automatisch een.",
+    "daysLeft": "eindigt over {count} dag(en)",
+    "startsOn": "Start",
+    "endsOn": "Eindigt",
+    "fallbackBadge": "Noodplan",
+    "status": {
+      "scheduled": "Gepland",
+      "active": "Actief",
+      "ended": "Beëindigd"
+    },
+    "studyPass": {
+      "title": "Study Pass",
+      "hint": "Evenement-EXP komt alleen van echt studeren — taken, focus, quizzes, puzzels en gevechten.",
+      "level": "Niveau {level}",
+      "exp": "{exp} / {next} EXP",
+      "maxed": "Maximaal niveau bereikt",
+      "trackNone": "Kies je pad",
+      "trackLocked": "Pad vergrendeld",
+      "free": "Gratis pas",
+      "gold": "Gouden pas",
+      "goldCost": "Gouden pas · {cost} STP",
+      "chooseFree": "Kies Gratis",
+      "chooseGold": "Kies Goud",
+      "goldConfirmTitle": "Gouden pas kopen?",
+      "goldConfirmBody": "Dit kost {cost} STP uit je portemonnee en vergrendelt je pad voor het hele evenement. De keuze kan niet worden gewijzigd.",
+      "claim": "Claim",
+      "claimed": "Geclaimd",
+      "locked": "Vergrendeld",
+      "claimHint": "{count} beloning(en) klaar"
+    },
+    "quests": {
+      "title": "Quests",
+      "subtitle": "Voltooi echte studie-activiteiten om STP, evenement-EXP en items te verdienen.",
+      "category": {
+        "daily": "Dagelijks",
+        "weekly": "Wekelijks",
+        "study": "Studie",
+        "puzzle": "Puzzel"
+      },
+      "claim": "Claim",
+      "claimed": "Geclaimd",
+      "none": "Er zijn nog geen actieve quests voor dit evenement."
+    },
+    "items": {
+      "title": "Evenement-items",
+      "subtitle": "Abstracted-fouten, fragmenten en extinctie-zegels.",
+      "none": "Je hebt nog geen evenement-items.",
+      "transfer": "Zegel versturen",
+      "transferHint": "Stuur extinctie-zegels naar een vriend (gebruikers-ID + aantal).",
+      "friendId": "Gebruikers-ID van vriend",
+      "quantity": "Aantal",
+      "send": "Verstuur",
+      "transferred": "Zegels verstuurd.",
+      "transferError": "Zegels konden niet worden verstuurd.",
+      "redeemLimbo": "Limbo inwisselen",
+      "limboTitle": "Limbo inwisselen?",
+      "limboBody": "Verbruik alle 7 Abstracted-fouten om de onverhandelbare Limbo-legendarische te ontvangen. Dit kan maar één keer.",
+      "limboDone": "Limbo toegekend!",
+      "errorsHave": "Je hebt {count} Abstracted-fout(en)."
+    },
+    "abstracted": {
+      "title": "Abstracted-kaarten",
+      "subtitle": "De-abstracten zet een Abstracted-kaart permanent om in een legendarische.",
+      "none": "Je hebt geen Abstracted-kaarten om te de-abstracten.",
+      "unabstract": "De-abstract",
+      "unabstractTitle": "{name} de-abstracten?",
+      "unabstractBody": "De kaart wordt permanent omgezet in {result}, en je ontvangt {stp} STP en 1 Abstracted-fout. Dit kan niet ongedaan worden gemaakt.",
+      "reason": "Reden (zichtbaar in auditlogs)",
+      "confirm": "Bevestig",
+      "done": "Kaart gede-abstracteerd — {result} toegevoegd aan je verzameling."
+    },
+    "extinction": {
+      "title": "De Grote Uitsterving",
+      "subtitle": "Deze kaartlijnen vervagen. Verbrand een doelwit voor een extinctie-zegel, of gebruik zegels om een favoriet te behouden.",
+      "targets": "Doelwitten",
+      "value": "Waarde",
+      "milestone": "Wereldwijde brandstapel",
+      "milestoneProgress": "{progress} / {target} gerichte verbrandingen",
+      "claimMilestone": "Zegel claimen",
+      "milestoneClaimed": "Geclaimd",
+      "none": "Nog geen doelwitten geselecteerd."
+    },
+    "admin": {
+      "title": "Evenementbeheer",
+      "subtitle": "Plan evenementen, activeer ze en beheer de uitsterving. Elke actie wordt gecontroleerd met een reden.",
+      "slug": "Slug",
+      "name": "Naam",
+      "story": "Verhaal",
+      "startsAt": "Start om",
+      "endsAt": "Eindigt om",
+      "graceHours": "Gratie-uren",
+      "reason": "Reden",
+      "create": "Evenement plannen",
+      "created": "Evenement gepland.",
+      "createError": "Evenement kon niet worden gepland.",
+      "activate": "Nu activeren",
+      "activated": "Evenement geactiveerd.",
+      "activateError": "Evenement kon niet worden geactiveerd.",
+      "seedTargets": "Extinctie-doelwitten herselecteren",
+      "cardKeys": "Kaartsleutels (gescheiden door komma's)",
+      "seeded": "Extinctie-doelwitten bijgewerkt.",
+      "seedError": "Extinctie-doelwitten konden niet worden bijgewerkt."
+    }
+  },
+  "programmes": {
+    "title": "Programma's",
+    "subtitle": "Optionele kaders die je denken trainen — ontwerp systemen die echte studieproblemen oplossen. Alle programma’s zijn optioneel; jouw keuze is het belangrijkst.",
+    "suggest": "Een programma voorstellen",
+    "suggestBtn": "Programma voorstellen",
+    "suggestHint": "Beschrijf een programma-idee (bijv. \"Revisiecentrum voor Natuurwetenschappen klas 10\").",
+    "suggestError": "Het programma kon niet worden voorgesteld.",
+    "loadError": "Programma's konden niet worden geladen.",
+    "join": "Deelnemen",
+    "leave": "Verlaten",
+    "review": "Beoordelen",
+    "reviewBtn": "Beoordeling verzenden",
+    "reviewError": "De beoordeling kon niet worden opgeslagen.",
+    "reviewAccepted": "Goedgekeurd",
+    "reviewRejected": "Afgewezen",
+    "reviewReasonPlaceholder": "Reden voor deze beoordeling (verplicht)",
+    "reviewHistory": "Beoordelingsgeschiedenis",
+    "reviewQueue": "Beoordelingswachtrij",
+    "reviewQueueError": "De beoordelingswachtrij kon niet worden geladen.",
+    "queueHint": "Programma's die nog wachten op een menselijk oordeel (nog geen AI-beoordeling of lage score).",
+    "queueEmpty": "De beoordelingswachtrij is leeg.",
+    "applyVerdicts": "Oordelen toepassen",
+    "accept": "Accepteren",
+    "reject": "Afwijzen",
+    "by": "door",
+    "none": "Nog geen programma's — wees de eerste om er een voor te stellen.",
+    "score": "Score",
+    "reward": "Beloning",
+    "objectives": "Doelstellingen",
+    "weeks": "wkn",
+    "hoursWeek": "uur/wk",
+    "reasonPlaceholder": "Reden (verplicht)",
+    "namePlaceholder": "Programmanaam",
+    "descriptionPlaceholder": "Korte beschrijving",
+    "factionSizePlaceholder": "Fractiegrootte",
+    "hasFactions": "Fracties ingeschakeld",
+    "factionsEnabled": "Met fracties",
+    "startPath": "Leerpad starten",
+    "pathError": "Het leerpad kon niet worden gemaakt.",
+    "hideForm": "Formulier verbergen",
+    "hideQueue": "Wachtrij verbergen",
+    "hideTemplates": "Sjablonen verbergen",
+    "templates": "Sjablonen",
+    "templatesHint": "Start vanaf een samengesteld sjabloon — de AI bouwt er het volledige programma uit.",
+    "noTemplates": "Nog geen sjablonen.",
+    "useTemplate": "Sjabloon gebruiken",
+    "newTemplate": "Nieuw sjabloon",
+    "saveTemplate": "Sjabloon opslaan",
+    "deleteTemplate": "Sjabloon verwijderen",
+    "templateDeletePrompt": "Reden voor het verwijderen van dit sjabloon (verplicht):",
+    "templateNamePlaceholder": "Sjabloonnaam",
+    "templateDescPlaceholder": "Sjabloonbeschrijving",
+    "templateError": "Het sjabloon kon niet worden opgeslagen.",
+    "archiveReasonPrompt": "Reden voor het archiveren van dit programma (verplicht):",
+    "batchReviewDone": "Batchbeoordeling toegepast.",
+    "filter": {
+      "active": "Alle",
+      "mine": "Mijn",
+      "suggested": "Voorgesteld"
+    },
+    "status": {
+      "active": "Actief",
+      "suggested": "Voorgesteld",
+      "building": "Wordt gebouwd",
+      "rejected": "Afgewezen",
+      "archived": "Gearchiveerd"
+    },
+    "kind": {
+      "custom": "Aangepast",
+      "revision_centre": "Revisiecentrum",
+      "competency_testing": "Competentiegericht toetsen",
+      "exam_sprint": "Examen-sprint"
+    }
+  },
+  "admin": {
+    "title": "Beheer",
+    "subtitle": "Nightmare super-admin console",
+    "users": {
+      "create": "Gebruiker maken",
+      "createBtn": "Gebruiker maken",
+      "createError": "De gebruiker kon niet worden gemaakt.",
+      "edit": "Bewerken",
+      "editUser": "Gebruiker bewerken",
+      "loadError": "Gebruikers konden niet worden geladen.",
+      "none": "Geen gebruikers gevonden.",
+      "searchPlaceholder": "Zoeken op naam, e-mail of gebruikersnaam",
+      "namePlaceholder": "Volledige naam",
+      "emailPlaceholder": "E-mail (optioneel)",
+      "usernamePlaceholder": "Gebruikersnaam (optioneel)",
+      "passwordPlaceholder": "Wachtwoord",
+      "reasonPlaceholder": "Reden (verplicht)",
+      "role": {
+        "admin": "Admin",
+        "teacher": "Docent",
+        "user": "Gebruiker"
+      },
+      "activeLabel": "Actief",
+      "disabled": "Uitgeschakeld",
+      "reset": "Wachtwoord resetten",
+      "resetBtn": "Resetten",
+      "resetError": "Het wachtwoord kon niet worden gereset.",
+      "resetPassword": "Wachtwoord resetten",
+      "newPasswordPlaceholder": "Nieuw wachtwoord",
+      "updateError": "De gebruiker kon niet worden bijgewerkt.",
+      "hideForm": "Formulier verbergen",
+      "noIdentifier": "E-mail of gebruikersnaam vereist"
+    },
+    "audit": {
+      "title": "Auditlogboek",
+      "export": "Exporteren",
+      "none": "Geen auditregels.",
+      "reason": "Reden",
+      "target": "Doel",
+      "loadError": "Het auditlogboek kon niet worden geladen.",
+      "purge": "Oude regels opschonen",
+      "purgeError": "Het auditlogboek kon niet worden opgeschoond.",
+      "retentionPlaceholder": "Bewaartijd (dagen)",
+      "retentionReason": "Reden (verplicht)",
+      "retentionNow": "Bewaring",
+      "setRetention": "Bewaring instellen",
+      "retentionError": "De bewaring kon niet worden bijgewerkt.",
+      "days": "dagen",
+      "system": "Systeem"
+    },
+    "notes": {
+      "deleteError": "De notitie kon niet worden verwijderd.",
+      "deleteReasonPrompt": "Reden voor het verwijderen van deze notitie (verplicht):",
+      "hideForm": "Formulier verbergen",
+      "hint": "Upload een PDF of schrijf een universele notitie. Geselecteerde pagina's worden geïndexeerd in de RAG-zoekopdracht.",
+      "loadError": "Notities konden niet worden geladen.",
+      "none": "Nog geen beheerdersnotities.",
+      "pages": "Pagina's",
+      "selectedPages": "Geselecteerde pagina's",
+      "subjectPlaceholder": "Vak (optioneel)",
+      "textNote": "Tekstnotitie schrijven",
+      "titlePlaceholder": "Notitietitel",
+      "upload": "Uploaden",
+      "uploadBtn": "Notitie uploaden",
+      "uploadError": "De notitie kon niet worden geüpload."
+    },
+    "syllabus": {
+      "add": "Syllabus-item toevoegen",
+      "boardPlaceholder": "Raad (bijv. CBSE)",
+      "chaptersPlaceholder": "Hoofdstuk-JSON (naam + onderwerpen)",
+      "deleteError": "Het syllabus-item kon niet worden verwijderd.",
+      "deleteReasonPrompt": "Reden voor het verwijderen van dit item (verplicht):",
+      "gradePlaceholder": "Klas (bijv. 9)",
+      "hideForm": "Formulier verbergen",
+      "hint": "Publiceer de officiële leerstof die studenten bestuderen.",
+      "loadError": "De syllabus kon niet worden geladen.",
+      "none": "Nog geen syllabus-items.",
+      "reasonPlaceholder": "Reden (verplicht)",
+      "save": "Syllabus opslaan",
+      "saveError": "De syllabus kon niet worden opgeslagen.",
+      "subjectPlaceholder": "Vak"
+    },
+    "system": {
+      "users": "Gebruikers per rol",
+      "auditCount": "Auditregels",
+      "activeEvents": "Actieve events",
+      "activeFactions": "Actieve fracties",
+      "queue": "Wachtrij (standaard)",
+      "queueWaiting": "Wachtend",
+      "queueActive": "Actief",
+      "queueCompleted": "Voltooid",
+      "queueFailed": "Mislukt",
+      "queueDelayed": "Uitgesteld",
+      "loadError": "Systeemstatus kon niet worden geladen.",
+      "health": {
+        "title": "Servicestatus",
+        "database": "Database",
+        "redis": "Redis",
+        "qdrant": "Qdrant",
+        "queue": "Wachtrij",
+        "ok": "OK",
+        "down": "Buiten"
+      }
+    }
+  },
+  "factions": {
+    "title": "Fracties",
+    "subtitle": "Studiegroepen met één teamleider. Zwakkere fracties krijgen hulp van sterkere — studeren door elkaar te helpen.",
+    "loadError": "Fracties konden niet worden geladen.",
+    "none": "Nog geen fracties.",
+    "myFaction": "Mijn fractie",
+    "noFaction": "Je zit nog in geen enkele fractie.",
+    "joinDefault": "Deel uitmaken van de standaardfractie",
+    "members": "Leden",
+    "viewMembers": "Leden bekijken",
+    "score": "Score",
+    "leader": "Leider",
+    "election": "Verkiezingen",
+    "vote": "Stemmen",
+    "voteError": "De stem kon niet worden verzonden.",
+    "noVotes": "Nog geen stemmen in deze periode.",
+    "leaderboard": "Klassement",
+    "period": "Periode",
+    "targetSize": "Doelgrootte",
+    "helpPledges": "Hulpbeloften",
+    "pledgesTo": "Beloften aan",
+    "pledgeStatus": {
+      "open": "Open",
+      "completed": "Voltooid"
+    },
+    "recordHelp": "Hulp registreren",
+    "recordHelpBtn": "Hulpactiviteit registreren",
+    "recordHelpHint": "Registreer dat je een zwakkere fractie in deze periode hebt geholpen.",
+    "helpActivities": "Hulpactiviteiten",
+    "helpNotePrompt": "Notitie (optioneel):",
+    "helpError": "De hulpactiviteit kon niet worden geregistreerd.",
+    "promoteLeaders": "Top 2 promoveren",
+    "promoteError": "Leiders konden niet worden gepromoveerd.",
+    "assignError": "Deelname aan een fractie mislukt."
+  },
+  "social": {
+    "title": "Sociaal",
+    "subtitle": "Vrienden en directe berichten — self-hosted, gemodereerd, begrensd.",
+    "loadError": "Je sociale contacten konden niet worden geladen.",
+    "friends": "Vrienden",
+    "noFriends": "Nog geen vrienden. Zoek studiegenoten!",
+    "findFriends": "Vrienden zoeken",
+    "searchPlaceholder": "Zoeken op naam, gebruikersnaam of e-mail",
+    "add": "Toevoegen",
+    "pending": "In afwachting",
+    "requests": "Verzoeken",
+    "selectFriend": "Selecteer een vriend",
+    "selectFriendHint": "Kies een vriend uit de lijst om te chatten.",
+    "noMessages": "Nog geen berichten. Zeg hallo!",
+    "messagePlaceholder": "Typ een bericht…",
+    "sendError": "Het bericht kon niet worden verzonden.",
+    "requestError": "Het vriendschapsverzoek kon niet worden verzonden.",
+    "block": "Blokkeren",
+    "blockConfirm": "Deze gebruiker blokkeren?",
+    "status": {
+      "pending": "In afwachting",
+      "accepted": "Vrienden",
+      "blocked": "Geblokkeerd"
+    }
+  },
+  "accepted": "Goedgekeurd",
+  "rejected": "Afgewezen",
+  "campfire": {
+    "title": "Het Kampvuur — Metacognitieve Check",
+    "subtitle": "Bewijs vóór je beloningen verzilvert dat je echt begrijpt wat je hebt bestudeerd.",
+    "checkTitle": "Kampvuurcheck: verifieer je begrip",
+    "checkSubtitle": "Beantwoord de ene synthesevraag van de tutor om je beloningen vast te zetten — diepgang kan ze tot 1,5× verhogen.",
+    "checkSubtitleBattle": "Beantwoord de synthesevraag van de tutor om de beloningen van je volgende overwinning tot 1,5× te verhogen.",
+    "reflectBoost": "Reflecteer & boost",
+    "answeredLabel": "Reflectie vastgelegd",
+    "tutorQuestion": "Je tutor vraagt",
+    "answerPlaceholder": "Synthetiseer het idee in je eigen woorden — hoe het werkt, waarom het ertoe doet en hoe het verbindt met wat je al wist…",
+    "submit": "Reflectie indienen",
+    "skip": "Overslaan (basisfactor 1,0×)",
+    "depthLabel": "Diepte van begrip",
+    "multiplierApplied": "Beloningsfactor toegepast",
+    "masteryFrame": "Je echte cognitieve capaciteit en focusuithoudingsvermogen zijn toegenomen. Vaardigheid verdiept: {{skill}}.",
+    "reflectionLogged": "Reflectie opgeslagen",
+    "done": "Doorgaan",
+    "error": "Het kampvuur kan nu niet worden ontstoken. Probeer het zo opnieuw.",
+    "tooShort": "Je reflectie is te kort — neem een echt moment om het idee te synthetiseren.",
+    "limitReached": "Je hebt vandaag genoeg gereflecteerd (3/dag). Je huidige factor blijft actief.",
+    "boostActive": "Beloningen geboost ×{{mult}}",
+    "yourSubject": "je studiesessie"
   }
 }

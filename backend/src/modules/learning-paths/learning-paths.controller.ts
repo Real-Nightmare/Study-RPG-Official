@@ -38,6 +38,13 @@ export class LearningPathsController {
     return this.learningPathsService.generate(user.sub, dto);
   }
 
+  /** Phase 8: generate a personal path from an active AI-built programme. */
+  @Post('from-programme')
+  @ApiOperation({ summary: 'Generate a personal learning path from a programme' })
+  async fromProgramme(@CurrentUser() user: JwtPayload, @Body() body: { programmeId: string }) {
+    return this.learningPathsService.generateFromProgramme(user.sub, body.programmeId);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all learning paths' })
   async findAll(@CurrentUser() user: JwtPayload) {

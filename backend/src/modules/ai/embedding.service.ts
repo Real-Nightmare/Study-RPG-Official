@@ -1,13 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EmbeddingProvider, EmbeddingResult } from './embedding-provider.interface';
 
-export interface EmbeddingResult {
-  vector: number[];
-  tokens: number;
-}
+export { EmbeddingResult } from './embedding-provider.interface';
 
 @Injectable()
-export class EmbeddingService {
+export class EmbeddingService implements EmbeddingProvider {
   private readonly logger = new Logger(EmbeddingService.name);
   private readonly apiKey: string;
   private readonly baseUrl: string;
@@ -29,6 +27,14 @@ export class EmbeddingService {
 
   getVectorDimension(): number {
     return this.vectorDimension;
+  }
+
+  getModel(): string {
+    return this.embeddingModel;
+  }
+
+  getVersion(): string {
+    return `${this.embeddingModel}@${this.vectorDimension}`;
   }
 
   async embed(text: string): Promise<EmbeddingResult> {

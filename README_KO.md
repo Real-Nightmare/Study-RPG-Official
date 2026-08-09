@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://studyield.com"><img src="https://img.shields.io/badge/live-studyield.com-brightgreen?logo=vercel&logoColor=white" alt="Live Site"></a>
-  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License"></a>
   <a href="https://github.com/studyield/studyield/stargazers"><img src="https://img.shields.io/github/stars/studyield/studyield?style=social" alt="GitHub Stars"></a>
   <a href="https://github.com/studyield/studyield/issues"><img src="https://img.shields.io/github/issues/studyield/studyield" alt="Issues"></a>
   <a href="https://github.com/studyield/studyield/pulls"><img src="https://img.shields.io/github/issues-pr/studyield/studyield" alt="Pull Requests"></a>
@@ -126,7 +126,7 @@ Studyield는 개인화된 콘텐츠, 지능형 튜터링, 적응형 평가를 �
 | **학습 경로** | ✅ AI 생성 | ❌ | ❌ | ❌ | ✅ 사전 구축 |
 | **진행 상황 분석** | ✅ | ✅ | ⚠️ 기본 | ❌ | ✅ |
 | **자체 호스팅** | ✅ | ❌ | ✅ | ❌ | ❌ |
-| **오픈 소스** | ✅ Apache 2.0 | ❌ | ✅ AGPL | ❌ | ❌ |
+| **오픈 소스** | ✅ AGPL-3.0 | ❌ | ✅ AGPL | ❌ | ❌ |
 | **멀티 플랫폼** | ✅ Web + 모바일 | ✅ | ✅ | ✅ | ✅ |
 | **학습 곡선** | 🟢 낮음 | 🟢 낮음 | 🟡 중간 | 🟢 낮음 | 🟢 낮음 |
 
@@ -530,7 +530,7 @@ Studyield에 기여해 주신 모든 멋진 분들께 감사드립니다! 🎉
 
 ## 라이선스
 
-이 프로젝트는 [Apache License 2.0](LICENSE)에 따라 라이선스가 부여됩니다.
+이 프로젝트는 [GNU Affero General Public License v3.0](LICENSE)에 따라 라이선스가 부여됩니다.
 
 Copyright 2025 Studyield Contributors.
 

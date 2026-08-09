@@ -25,6 +25,18 @@ import {
   Search,
   Crown,
   CreditCard,
+  ListTodo,
+  BookOpen,
+  Timer,
+  NotebookPen,
+  Puzzle,
+  CalendarClock,
+  Swords,
+  Coins,
+  CalendarDays,
+  Users2,
+  MessagesSquare,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -33,6 +45,19 @@ interface DashboardLayoutProps {
 
 const sidebarItems = [
   { labelKey: 'nav.dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { labelKey: 'nav.tasks', icon: ListTodo, href: '/dashboard/tasks' },
+  { labelKey: 'nav.focus', icon: Timer, href: '/dashboard/focus' },
+  { labelKey: 'nav.mistakes', icon: NotebookPen, href: '/dashboard/mistakes' },
+  { labelKey: 'nav.puzzles', icon: Puzzle, href: '/dashboard/puzzles' },
+  { labelKey: 'nav.academics', icon: BookOpen, href: '/dashboard/academics' },
+  { labelKey: 'nav.examCentre', icon: CalendarClock, href: '/dashboard/exam-centre' },
+  { labelKey: 'nav.rpg', icon: Swords, href: '/dashboard/rpg' },
+  { labelKey: 'nav.economy', icon: Coins, href: '/dashboard/economy' },
+  { labelKey: 'nav.events', icon: CalendarDays, href: '/dashboard/events' },
+  { labelKey: 'nav.programmes', icon: Sparkles, href: '/dashboard/programmes' },
+  { labelKey: 'nav.factions', icon: Users2, href: '/dashboard/factions' },
+  { labelKey: 'nav.social', icon: MessagesSquare, href: '/dashboard/social' },
+  { labelKey: 'nav.admin', icon: ShieldCheck, href: '/dashboard/admin' },
   { labelKey: 'nav.studySets', icon: Library, href: '/dashboard/study-sets' },
   { labelKey: 'nav.aiChat', icon: MessageSquare, href: '/dashboard/chat' },
   { labelKey: 'nav.problemSolver', icon: Lightbulb, href: '/dashboard/problem-solver' },
@@ -78,8 +103,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Logo */}
         <div className="h-16 flex-shrink-0 flex items-center justify-between px-4 border-b border-border">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logos/studyield-logo.png" alt="Studyield" className="w-8 h-8 object-contain" />
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Studyield</span>
+            <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-8 h-8 object-contain" />
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Study RPG</span>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -94,6 +119,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
             {sidebarItems.map((item) => {
+              // Admin tools are only shown to admins and teachers.
+              if (item.href === '/dashboard/admin' && user?.role !== 'admin' && user?.role !== 'teacher') {
+                return null;
+              }
               const isActive = location.pathname === item.href;
               return (
                 <Link

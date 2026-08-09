@@ -50,7 +50,7 @@ export function PomodoroTimer({ onSessionComplete, className, compact = false }:
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.5);
     } catch {
-      console.log('Audio not supported');
+      // Audio API unsupported — silence is acceptable, timer still works
     }
   }, [soundEnabled]);
 

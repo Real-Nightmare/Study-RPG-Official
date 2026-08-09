@@ -55,7 +55,7 @@ const tutorialCategories: TutorialCategory[] = [
         gradient: 'from-green-500 to-emerald-600',
       },
       {
-        title: 'Navigating Studyield',
+        title: 'Navigating Study RPG',
         description: 'A complete walkthrough of the dashboard, sidebar, and all key sections.',
         duration: '4:15',
         icon: BookOpen,
@@ -323,7 +323,7 @@ export function TutorialPage() {
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-10">
-                Watch step-by-step video tutorials to master every feature of Studyield.
+                Watch step-by-step video tutorials to master every feature of Study RPG.
                 From creating your first study set to advanced AI-powered tools — we've got you covered.
               </p>
 

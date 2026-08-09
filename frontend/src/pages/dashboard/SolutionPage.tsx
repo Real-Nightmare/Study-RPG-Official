@@ -408,12 +408,11 @@ export function SolutionPage() {
     setTimeout(() => setCopiedStep(null), 2000);
   };
 
-  const runCode = async (code: string) => {
+  const runCode = async () => {
     setIsRunning(true);
     setCodeOutput(null);
     try {
       // In production, this would call the code sandbox API
-      console.log('Code to run:', code);
       setCodeOutput('Code execution requires a running sandbox server.\nOutput will appear here.');
     } finally {
       setIsRunning(false);
@@ -808,7 +807,7 @@ export function SolutionPage() {
                           {t('solution.copy')}
                         </button>
                         <button
-                          onClick={() => runCode(block.code)}
+                          onClick={() => runCode()}
                           disabled={isRunning}
                           className="flex items-center gap-1 text-xs text-green-500 hover:text-green-600 font-medium"
                         >

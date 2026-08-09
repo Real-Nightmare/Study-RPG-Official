@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationsService, NotificationPreferences } from './notifications.service';
+import { WebPushService, WebPushSubscriptionInput } from './web-push.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from '../../common';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -21,7 +22,10 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly webPush: WebPushService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get notifications' })
@@ -87,6 +91,28 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Unregister FCM token' })
   async unregisterDevice(@CurrentUser() user: JwtPayload, @Body() body: { fcmToken: string }) {
     await this.notificationsService.unregisterFCMToken(user.sub, body.fcmToken);
+  }
+
+  // ---------------- Phase 9: standards-based Web Push (VAPID) ----------------
+
+  @Get('web-push/public-key')
+  @ApiOperation({ summary: 'VAPID public key for browser push, or null when unconfigured' })
+  async webPushPublicKey() {
+    return { publicKey: this.webPush.getPublicKey() };
+  }
+
+  @Post('web-push/subscribe')
+  @ApiOperation({ summary: 'Store a browser Web Push subscription' })
+  async webPushSubscribe(@CurrentUser() user: JwtPayload, @Body() body: WebPushSubscriptionInput) {
+    await this.webPush.subscribe(user.sub, body);
+    return { subscribed: true };
+  }
+
+  @Post('web-push/unsubscribe')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Remove a browser Web Push subscription' })
+  async webPushUnsubscribe(@CurrentUser() user: JwtPayload, @Body() body: { endpoint: string }) {
+    await this.webPush.unsubscribe(user.sub, body.endpoint);
   }
 
   @Post('test-push')

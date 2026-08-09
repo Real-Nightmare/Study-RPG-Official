@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://studyield.com"><img src="https://img.shields.io/badge/live-studyield.com-brightgreen?logo=vercel&logoColor=white" alt="Live Site"></a>
-  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/studyield/studyield/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="License"></a>
   <a href="https://github.com/studyield/studyield/stargazers"><img src="https://img.shields.io/github/stars/studyield/studyield?style=social" alt="GitHub Stars"></a>
   <a href="https://github.com/studyield/studyield/issues"><img src="https://img.shields.io/github/issues/studyield/studyield" alt="Issues"></a>
   <a href="https://github.com/studyield/studyield/pulls"><img src="https://img.shields.io/github/issues-pr/studyield/studyield" alt="Pull Requests"></a>
@@ -126,7 +126,7 @@ Studyield - это **образовательная платформа с отк
 | **Траектории обучения** | ✅ Созданные ИИ | ❌ | ❌ | ❌ | ✅ Предварительно созданные |
 | **Аналитика прогресса** | ✅ | ✅ | ⚠️ Базовая | ❌ | ✅ |
 | **Самостоятельное размещение** | ✅ | ❌ | ✅ | ❌ | ❌ |
-| **Открытый исходный код** | ✅ Apache 2.0 | ❌ | ✅ AGPL | ❌ | ❌ |
+| **Открытый исходный код** | ✅ AGPL-3.0 | ❌ | ✅ AGPL | ❌ | ❌ |
 | **Многоплатформенность** | ✅ Веб + Мобильное | ✅ | ✅ | ✅ | ✅ |
 | **Кривая обучения** | 🟢 Низкая | 🟢 Низкая | 🟡 Средняя | 🟢 Низкая | 🟢 Низкая |
 
@@ -309,7 +309,7 @@ docker compose --env-file .env.docker up -d
 
 ## Лицензия
 
-Этот проект лицензирован под [Apache License 2.0](LICENSE).
+Этот проект лицензирован под [GNU Affero General Public License v3.0](LICENSE).
 
 Copyright 2025 Studyield Contributors.
 

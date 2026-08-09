@@ -4,9 +4,11 @@ import { ExamCloneController } from './exam-clone.controller';
 import { ExamCloneGateway } from './exam-clone.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { QueueService } from '../queue/queue.service';
+import { RpgModule } from '../rpg/rpg.module';
+import { IntegrityModule } from '../integrity/integrity.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, RpgModule, IntegrityModule],
   controllers: [ExamCloneController],
   providers: [ExamCloneService, ExamCloneGateway],
   exports: [ExamCloneService],

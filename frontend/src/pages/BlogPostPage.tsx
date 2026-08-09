@@ -431,7 +431,7 @@ export function BlogPostPage() {
                     )}
                     <div>
                       <p className="font-semibold text-sm">{post.authorName}</p>
-                      <p className="text-xs font-semibold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Studyield</p>
+                      <p className="text-xs font-semibold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Study RPG</p>
                     </div>
                   </div>
                   <Button

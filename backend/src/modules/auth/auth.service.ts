@@ -58,50 +58,67 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto): Promise<{
-    user: { id: string; email: string };
+    user: { id: string; email: string | null; username: string | null };
     tokens: TokenPair;
     subscription: SubscriptionDto;
   }> {
-    const existingUser = await this.usersService.findByEmail(dto.email);
-    if (existingUser) {
-      throw new ConflictException('Email already registered');
+    if (!dto.email && !dto.username) {
+      throw new BadRequestException('Provide an email or a username to register');
+    }
+
+    if (dto.email) {
+      const existing = await this.usersService.findByEmail(dto.email);
+      if (existing) {
+        throw new ConflictException('Email already registered');
+      }
+    }
+    if (dto.username) {
+      const existing = await this.usersService.findByUsername(dto.username);
+      if (existing) {
+        throw new ConflictException('Username already taken');
+      }
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 12);
     const user = await this.usersService.create({
       email: dto.email,
+      username: dto.username,
       password: hashedPassword,
       name: dto.name,
     });
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user.id, user.email || '', user.role);
 
-    // Send verification email
-    const verifyToken = uuidv4();
-    await this.redisService.set(`email-verify:${verifyToken}`, user.id, 24 * 60 * 60);
-    await this.emailService.sendVerificationEmail(user.email, verifyToken);
-
-    // Send welcome email
-    await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
+    // Emails are optional (Phase 6): only send verification/welcome when an
+    // email exists; otherwise website notifications are the channel.
+    if (user.email) {
+      const verifyToken = uuidv4();
+      await this.redisService.set(`email-verify:${verifyToken}`, user.id, 24 * 60 * 60);
+      await this.emailService.sendVerificationEmail(user.email, verifyToken);
+      await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
+    }
 
     // Get subscription details
-    const subscription = await this.getSubscriptionDto(user.id, user.email);
+    const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
     return {
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, username: user.username },
       tokens,
       subscription,
     };
   }
 
   async login(dto: LoginDto): Promise<{
-    user: { id: string; email: string };
+    user: { id: string; email: string | null; username: string | null };
     tokens: TokenPair;
     subscription: SubscriptionDto;
   }> {
-    const user = await this.usersService.findByEmail(dto.email);
+    const user = await this.usersService.findByIdentifier(dto.identifier);
     if (!user || !user.password) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account disabled — contact an administrator');
     }
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
@@ -109,15 +126,15 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user.id, user.email || '', user.role);
 
     await this.usersService.updateLastLogin(user.id);
 
     // Get subscription details
-    const subscription = await this.getSubscriptionDto(user.id, user.email);
+    const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
     return {
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, username: user.username },
       tokens,
       subscription,
     };
@@ -141,7 +158,7 @@ export class AuthService {
 
       await this.blacklistToken(dto.refreshToken);
 
-      return this.generateTokens(user.id, user.email, user.role);
+      return this.generateTokens(user.id, user.email || '', user.role);
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -155,7 +172,7 @@ export class AuthService {
   }
 
   async googleAuth(dto: OAuthDto): Promise<{
-    user: { id: string; email: string };
+    user: { id: string; email: string | null; username: string | null };
     tokens: TokenPair;
     subscription: SubscriptionDto;
   }> {
@@ -186,19 +203,19 @@ export class AuthService {
         await this.usersService.linkGoogleAccount(user.id, payload.sub);
       }
 
-      const tokens = await this.generateTokens(user.id, user.email, user.role);
+      const tokens = await this.generateTokens(user.id, user.email || '', user.role);
       await this.usersService.updateLastLogin(user.id);
 
       // Send welcome email for new users
-      if (isNewUser) {
+      if (isNewUser && user.email) {
         await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
       }
 
       // Get subscription details
-      const subscription = await this.getSubscriptionDto(user.id, user.email);
+      const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
       return {
-        user: { id: user.id, email: user.email },
+        user: { id: user.id, email: user.email, username: user.username },
         tokens,
         subscription,
       };
@@ -209,7 +226,7 @@ export class AuthService {
   }
 
   async appleAuth(dto: OAuthDto): Promise<{
-    user: { id: string; email: string };
+    user: { id: string; email: string | null; username: string | null };
     tokens: TokenPair;
     subscription: SubscriptionDto;
   }> {
@@ -249,20 +266,22 @@ export class AuthService {
         });
 
         // Send welcome email
-        await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
+        if (user.email) {
+          await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
+        }
       } else if (!user.appleId) {
         // Link Apple account to existing user
         await this.usersService.linkAppleAccount(user.id, payload.sub!);
       }
 
-      const tokens = await this.generateTokens(user.id, user.email, user.role);
+      const tokens = await this.generateTokens(user.id, user.email || '', user.role);
       await this.usersService.updateLastLogin(user.id);
 
       // Get subscription details
-      const subscription = await this.getSubscriptionDto(user.id, user.email);
+      const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
       return {
-        user: { id: user.id, email: user.email },
+        user: { id: user.id, email: user.email, username: user.username },
         tokens,
         subscription,
       };
@@ -336,6 +355,9 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
+    }
+    if (!user.email) {
+      throw new BadRequestException('No email on this account — website notifications are used instead');
     }
 
     if (user.emailVerified) {

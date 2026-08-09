@@ -3,6 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 export enum Role {
   USER = 'user',
   PREMIUM = 'premium',
+  TEACHER = 'teacher',
   ADMIN = 'admin',
 }
 

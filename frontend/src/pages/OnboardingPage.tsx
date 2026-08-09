@@ -49,7 +49,7 @@ function WelcomeVisual() {
         animate={{ scale: [0.9, 1.05, 0.9] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <img src="/logos/studyield-logo.png" alt="Studyield" className="w-20 h-20 object-contain drop-shadow-2xl" />
+        <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-20 h-20 object-contain drop-shadow-2xl" />
       </motion.div>
       {icons.map((Icon, i) => {
         const baseAngle = (i / icons.length) * 360;
@@ -574,8 +574,8 @@ function FeatureSlideshow({ onFinish }: { onFinish: () => void }) {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 relative z-10">
         <div className="flex items-center gap-2">
-          <img src="/logos/studyield-logo.png" alt="Studyield" className="w-11 h-11 object-contain" />
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Studyield</span>
+          <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-11 h-11 object-contain" />
+          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Study RPG</span>
         </div>
         <button onClick={onFinish} className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
           {t('onboarding.slides.skip')}
@@ -839,8 +839,8 @@ function SetupWizard() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <img src="/logos/studyield-logo.png" alt="Studyield" className="w-11 h-11 object-contain" />
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Studyield</span>
+          <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-11 h-11 object-contain" />
+          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Study RPG</span>
         </div>
         {step !== 'done' && (
           <button

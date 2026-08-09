@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
 import { FirebaseService } from '../firebase/firebase.service';
+import { WebPushService } from './web-push.service';
 import { AppGateway } from '../../common/gateways/app.gateway';
 
 export interface Notification {
@@ -43,6 +44,7 @@ export class NotificationsService {
     private readonly db: DatabaseService,
     private readonly redis: RedisService,
     private readonly firebase: FirebaseService,
+    private readonly webPush: WebPushService,
     private readonly appGateway: AppGateway,
   ) {}
 
@@ -270,6 +272,16 @@ export class NotificationsService {
       this.logger.debug(
         `Sent push notification to ${successCount}/${tokens.length} devices for user ${userId}`,
       );
+
+      // Phase 9: standards-based Web Push (VAPID) — additive, silent no-op when unconfigured.
+      try {
+        const webSent = await this.webPush.sendToUser(userId, title, body, data);
+        if (webSent > 0) {
+          this.logger.debug(`Sent ${webSent} web-push notification(s) for user ${userId}`);
+        }
+      } catch (error) {
+        this.logger.warn(`Web push send failed: ${(error as Error).message}`);
+      }
     } catch (error) {
       this.logger.error(`Error sending push notification: ${error.message}`);
     }

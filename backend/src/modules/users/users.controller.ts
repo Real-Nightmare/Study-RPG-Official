@@ -46,7 +46,7 @@ export class UsersController {
     try {
       const subscription = await this.subscriptionService.getOrCreateSubscription(
         user.sub,
-        profile.email,
+        profile.email || '',
       );
       plan = subscription?.plan || 'free';
 
@@ -104,7 +104,7 @@ export class UsersController {
     try {
       const subscription = await this.subscriptionService.getOrCreateSubscription(
         user.sub,
-        profile.email,
+        profile.email || '',
       );
       plan = subscription?.plan || 'free';
 

@@ -23,10 +23,18 @@ export class AppleUserData {
 }
 
 export class RegisterDto {
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiPropertyOptional({ example: 'user@example.com' })
+  @IsOptional()
   @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  email?: string;
+
+  @ApiPropertyOptional({ example: 'study_star' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-zA-Z0-9_]{3,30}$/, {
+    message: 'Username must be 3-30 characters: letters, numbers, underscores',
+  })
+  username?: string;
 
   @ApiProperty({ example: 'SecureP@ss123' })
   @IsString()
@@ -45,9 +53,9 @@ export class RegisterDto {
 
 export class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
-  email: string;
+  identifier: string;
 
   @ApiProperty({ example: 'SecureP@ss123' })
   @IsString()
@@ -148,7 +156,8 @@ export class AuthResponseDto {
   @ApiProperty()
   user: {
     id: string;
-    email: string;
+    email: string | null;
+    username: string | null;
   };
 
   @ApiProperty()

@@ -3,3 +3,7 @@ export * from './knowledge-base.service';
 export * from './knowledge-base.controller';
 export * from './chunking.service';
 export * from './document-processor.service';
+export * from './hybrid-retriever.service';
+export * from './hybrid-rank';
+export * from './content-hash';
+export * from './rag-ingestion-state';

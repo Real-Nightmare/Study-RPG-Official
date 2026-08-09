@@ -181,7 +181,7 @@ export function SettingsPage() {
           transition={{ delay: 0.35 }}
           className="text-center text-xs text-muted-foreground mt-6"
         >
-          Studyield v1.0.0
+          Study RPG v1.0.0
         </motion.p>
       </div>
     </DashboardLayout>

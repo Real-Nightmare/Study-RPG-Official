@@ -9,8 +9,10 @@ import { v4 as uuidv4 } from 'uuid';
 import pdf = require('pdf-parse');
 import { DatabaseService } from '../database/database.service';
 import { AiService, ChatMessage } from '../ai/ai.service';
+import { withPhilosophy } from '../ai/study-rpg-philosophy';
 import { KnowledgeBaseService } from '../knowledge-base/knowledge-base.service';
 import { StorageService } from '../storage/storage.service';
+import { AdminNotesService } from '../admin-notes/admin-notes.service';
 
 export interface Conversation {
   id: string;
@@ -72,6 +74,7 @@ export class ChatService {
     private readonly aiService: AiService,
     private readonly knowledgeBaseService: KnowledgeBaseService,
     private readonly storageService: StorageService,
+    private readonly adminNotes: AdminNotesService,
   ) {}
 
   async createConversation(userId: string, dto: CreateConversationDto): Promise<Conversation> {
@@ -489,10 +492,33 @@ Now analyze this image and describe what you see:`,
   ): Promise<ChatMessage[]> {
     const messages: ChatMessage[] = [];
 
-    let systemPrompt = `You are a helpful AI learning assistant for Studyield, an AI-powered study platform.
+    let systemPrompt = withPhilosophy(
+      `You are a helpful AI learning assistant for Studyield, an AI-powered study platform.
 Your goal is to help students learn and understand their study materials.
 Be concise, accurate, and educational in your responses.
-When explaining concepts, use clear examples and break down complex ideas.`;
+When explaining concepts, use clear examples and break down complex ideas.
+You are also an anti-overstudy guardian: if the student mentions studying for many hours, feeling exhausted, or the time being very late, gently but firmly recommend a break or sleep and explain that rest makes learning consolidate — never encourage "one more hour" or cramming.`,
+    );
+
+    // Phase 6: universal admin notes are a trusted source the AI may cite.
+    // Only the pages the admin selected are searchable (no wrong-page quotes).
+    try {
+      const hint = context ? context.substring(0, 300) : '';
+      if (hint) {
+        const universal = await this.adminNotes.searchUniversal(hint, 3);
+        if (universal.length > 0) {
+          const trusted = universal
+            .map(
+              (n, i) =>
+                `[ADMIN NOTE ${i + 1}] ${n.title}${n.subject ? ` (${n.subject})` : ''}: ${n.content.substring(0, 800)}`,
+            )
+            .join('\n\n');
+          systemPrompt += `\n\nVERIFIED SOURCE (admin-uploaded, pages pre-selected):\n${trusted}\n\nPrefer these verified sources over user-uploaded files when they conflict. Never quote content from pages outside the admin's selection.`;
+        }
+      }
+    } catch (error) {
+      this.logger.warn(`Universal admin notes unavailable: ${(error as Error).message}`);
+    }
 
     if (context) {
       systemPrompt += `

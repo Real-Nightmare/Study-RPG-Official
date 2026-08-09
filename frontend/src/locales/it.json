@@ -1,6 +1,41 @@
 {
+  "philosophy": {
+    "badge": "La via di Study RPG",
+    "title": "Padronanza prima della",
+    "titleHighlight": "memorizzazione",
+    "description": "Study RPG non è un semplice strumento di studio: incoraggia un apprendimento profondo e vero. Studio quotidiano con richiamo attivo, ricompense che rendono lo studio piacevole come il gioco, e tutor IA per quiz, test di ripasso, esami di pratica, teach-back ed esami collaborativi — per padroneggiare i temi, non solo memorizzarli.",
+    "learnMore": "Scopri di più",
+    "goalTitle": "L’obiettivo",
+    "goal": "Imparare con la padronanza e la comprensione vera dei temi — non con la semplice memorizzazione. I lavori richiedono padronanza dello studio, e la memorizzazione non batte l’abilità dell’apprendimento vero.",
+    "healthTitle": "Salute di studio",
+    "health": "Diamo priorità alla salute dello studente con un programma adeguato. Il tempo di studio perso viene riprogrammato in modo efficiente — mentre gli eventi favoriscono unità e nuove idee.",
+    "freeToWin": "100% gratis per vincere — niente scorciatoie, niente pay-to-win",
+    "start": "Inizia il tuo viaggio",
+    "pillars": {
+      "missions": {
+        "title": "Missioni",
+        "description": "Ogni compito — compiti a casa, progetti — è una missione con ricompense basse che costruisce la memorizzazione necessaria alle abilità di memoria."
+      },
+      "revisionCentre": {
+        "title": "Centro di ripasso",
+        "description": "Profondità prima della lunghezza. Iscriviti, ripassa sul serio e dimostralo: applica un’idea in uno scenario diverso per ottenere ricompense medie."
+      },
+      "competencyTesting": {
+        "title": "Valutazione per competenze",
+        "description": "Scegli una materia e affronta domande di competenza che migliorano il pensiero — con indicazioni sul perché hai perso punti e come migliorare."
+      },
+      "programmes": {
+        "title": "Programmi",
+        "description": "Strutture facoltative che ti addestrano a pensare e creare sistemi che risolvono veri problemi di studio. La tua scelta è ciò che conta di più."
+      },
+      "factions": {
+        "title": "Fazioni",
+        "description": "Gruppi di studio con un caposquadra che guida la fazione verso uno studio migliore e punteggi più alti. Le fazioni più deboli ricevono aiuto dalle più forti: studiare aiutandosi a vicenda."
+      }
+    }
+  },
   "common": {
-    "appName": "Studyield",
+    "appName": "Study RPG",
     "loading": "Caricamento...",
     "save": "Salva",
     "cancel": "Annulla",
@@ -54,6 +89,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "tasks": "Missioni",
     "studySets": "Set di studio",
     "aiChat": "Chat IA",
     "problemSolver": "Risolutore di problemi",
@@ -70,7 +106,52 @@
     "tutorial": "Tutorial",
     "about": "Chi siamo",
     "contact": "Contatti",
-    "viewAllFeatures": "Vedi tutte le funzionalità"
+    "viewAllFeatures": "Vedi tutte le funzionalità",
+    "academics": "Accademici",
+    "focus": "Focus",
+    "mistakes": "Mistakes",
+    "puzzles": "Puzzles",
+    "examCentre": "Exam Centre",
+    "rpg": "Study RPG",
+    "economy": "Economia",
+    "events": "Eventi"
+  },
+  "tasks": {
+    "title": "Missioni",
+    "subtitle": "Compiti, lavori e progetti sono missioni. Completali per sviluppare abilità di memoria e guadagnare ricompense.",
+    "dueToday": "in scadenza oggi",
+    "completedCount": "completate",
+    "addTask": "Aggiungi attività",
+    "titlePlaceholder": "Cosa devi studiare?",
+    "subjectPlaceholder": "Materia (facoltativa)",
+    "descriptionPlaceholder": "Dettagli, link o note…",
+    "create": "Crea attività",
+    "openTasks": "Attività aperte",
+    "noOpenTasks": "Nessuna attività aperta. Goditi il tuo tempo di concentrazione!",
+    "completedTasks": "Completate",
+    "noCompletedTasks": "Non hai ancora completato nulla. Ce la puoi fare!",
+    "complete": "Segna come completata",
+    "reopen": "Riapri attività",
+    "type": {
+      "homework": "Compiti",
+      "revision": "Ripasso",
+      "exam_prep": "Preparazione esame",
+      "project": "Progetto",
+      "reading": "Lettura",
+      "practice": "Pratica"
+    },
+    "priority": {
+      "low": "Bassa",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "recurrence": {
+      "none": "Una tantum",
+      "daily": "Giornaliera",
+      "weekly": "Settimanale",
+      "monthly": "Mensile"
+    }
   },
   "header": {
     "features": {
@@ -95,10 +176,10 @@
     "changeLanguage": "Cambia lingua"
   },
   "hero": {
-    "badge": "Piattaforma di studio con IA",
-    "titleLine1": "Carica gli appunti,",
-    "titleLine2": "supera ogni esame.",
-    "description": "Carica PDF, documenti o appunti scritti a mano — l'IA genera <strong>flashcard, quiz e mappe concettuali</strong> in pochi secondi. Ripassa con la ripetizione dilazionata, risolvi problemi passo dopo passo e sali di livello con gli XP.",
+    "badge": "Study RPG · Padronanza, non memorizzazione",
+    "titleLine1": "Studia per padroneggiare,",
+    "titleLine2": "non solo memorizzare.",
+    "description": "Carica gli appunti e l’IA crea in pochi secondi <strong>flashcard, quiz ed esami di pratica</strong>. Studia ogni giorno con richiamo attivo, guadagna ricompense di tempo di gioco e dimostra profondità con teach-back — padronanza, non memorizzazione, gratis per vincere.",
     "startLearningFree": "Inizia a studiare gratis",
     "watchDemo": "Scopri come funziona",
     "highlights": {
@@ -160,18 +241,18 @@
     "badge": "Recensioni degli studenti",
     "title": "Amato dagli",
     "titleHighlight": "studenti di tutto il mondo",
-    "description": "Scopri cosa dicono gli studenti della loro esperienza di apprendimento con Studyield.",
+    "description": "Scopri cosa dicono gli studenti della loro esperienza di apprendimento con Study RPG.",
     "t1": {
       "name": "Sarah Chen",
       "role": "Studentessa di medicina",
       "university": "Stanford University",
-      "text": "Studyield ha completamente trasformato il mio modo di studiare chimica organica. Le flashcard generate dall'IA mi hanno fatto risparmiare ore di preparazione, e il sistema di ripetizione dilazionata mi ha aiutato a memorizzare tutto per il MCAT."
+      "text": "Study RPG ha completamente trasformato il mio modo di studiare chimica organica. Le flashcard generate dall'IA mi hanno fatto risparmiare ore di preparazione, e il sistema di ripetizione dilazionata mi ha aiutato a memorizzare tutto per il MCAT."
     },
     "t2": {
       "name": "James Williams",
       "role": "Studente di informatica",
       "university": "MIT",
-      "text": "La funzione di analisi documenti è incredibile. Carico i PDF delle lezioni e ho flashcard e quiz pronti in pochi secondi. I miei voti sono passati da B+ ad A da quando uso Studyield."
+      "text": "La funzione di analisi documenti è incredibile. Carico i PDF delle lezioni e ho flashcard e quiz pronti in pochi secondi. I miei voti sono passati da B+ ad A da quando uso Study RPG."
     },
     "t3": {
       "name": "Aiko Tanaka",
@@ -189,20 +270,20 @@
       "name": "Emma Rodriguez",
       "role": "Studentessa di medicina",
       "university": "Johns Hopkins",
-      "text": "Avevo difficoltà con l'anatomia fino a quando ho scoperto Studyield. Le flashcard con occlusione immagine hanno reso l'apprendimento delle strutture anatomiche molto più semplice. Consigliatissimo per qualsiasi studente di medicina!"
+      "text": "Avevo difficoltà con l'anatomia fino a quando ho scoperto Study RPG. Le flashcard con occlusione immagine hanno reso l'apprendimento delle strutture anatomiche molto più semplice. Consigliatissimo per qualsiasi studente di medicina!"
     },
     "t6": {
       "name": "David Kim",
       "role": "Studente MBA",
       "university": "Wharton School",
-      "text": "Il nostro gruppo di studio usa la funzione quiz dal vivo di Studyield per la preparazione dei casi studio. Competere nei quiz in tempo reale rende le nostre sessioni di ripasso incredibilmente coinvolgenti e produttive."
+      "text": "Il nostro gruppo di studio usa la funzione quiz dal vivo di Study RPG per la preparazione dei casi studio. Competere nei quiz in tempo reale rende le nostre sessioni di ripasso incredibilmente coinvolgenti e produttive."
     }
   },
   "howItWorks": {
     "badge": "Come funziona",
     "title": "Inizia a studiare in",
     "titleHighlight": "4 semplici passaggi",
-    "description": "Importa da 9 fonti diverse, lascia che l'IA costruisca il tuo kit di studio e padroneggia qualsiasi materia con la ripetizione dilazionata e le statistiche in tempo reale.",
+    "description": "Importa da ovunque, lascia che l’IA costruisca il tuo kit di studio e poi dimostra profondità prima della lunghezza — padroneggia qualsiasi materia con richiamo attivo e statistiche in tempo reale.",
     "steps": {
       "upload": {
         "title": "Importa da qualsiasi fonte",
@@ -247,9 +328,9 @@
   },
   "cta": {
     "badge": "Inizia il tuo percorso di apprendimento oggi",
-    "title": "Pronto a studiare in modo",
-    "titleHighlight": "più intelligente?",
-    "description": "Padroneggia qualsiasi materia più velocemente con strumenti di studio basati sull'IA. Inizia gratis, aggiorna quando vuoi.",
+    "title": "Pronto a padroneggiare,",
+    "titleHighlight": "non solo memorizzare?",
+    "description": "Ogni missione, quiz di ripasso ed esame di pratica porta ricompense — perché lo studio vero è l’unico modo per vincere. Sempre gratis per vincere.",
     "getStartedFree": "Inizia gratis",
     "talkToSales": "Parla con il team vendite",
     "benefits": {
@@ -296,11 +377,13 @@
       "cookiePolicy": "Informativa sui cookie",
       "dataDeletion": "Cancellazione dati"
     },
-    "copyright": "{{year}} Studyield. Tutti i diritti riservati.",
+    "copyright": "{{year}} Study RPG. Tutti i diritti riservati.",
     "madeWith": "Fatto con",
     "andAI": "e IA per un apprendimento migliore",
     "sitemap": "Mappa del sito",
     "accessibility": "Accessibilità",
+    "license": "Licenza AGPL-3.0",
+    "sourceCode": "Codice sorgente",
     "backToTop": "Torna in alto"
   },
   "auth": {
@@ -431,7 +514,39 @@
     },
     "userMenu": {
       "user": "Utente"
-    }
+    },
+    "summaryUnavailable": "Live summary unavailable right now.",
+    "hideGameStats": "Hide game stats",
+    "gameStatsHidden": "Game stats hidden",
+    "recommendedNext": "Recommended next",
+    "recommend": {
+      "examToday": "Exam today: {name}",
+      "examIn": "Exam in {days} days: {name}",
+      "flashcards": "{count} flashcards due",
+      "tasks": "{count} overdue tasks",
+      "mistakes": "{count} mistakes to review",
+      "puzzle": "Keep your puzzle streak going",
+      "relax": "All caught up — take a break!"
+    },
+    "todaysPlan": "Today's plan",
+    "tasksDueToday": "Tasks due today",
+    "overdue": "Overdue",
+    "nextUp": "Next up",
+    "examPortions": "{count} exam portions coming up",
+    "noUpcomingExams": "No upcoming exams",
+    "focusThisWeek": "Focus time",
+    "focusTodayMsg": "{minutes} minutes focused today",
+    "noFocusYet": "No focus time yet today",
+    "recentMistakes": "Recent mistakes",
+    "noMistakes": "No open mistakes — great job!",
+    "weakTopics": "Weak topics",
+    "noWeakTopics": "No weak-topic data yet",
+    "studyStreak": "Study streak",
+    "puzzleBest": "Best puzzle streak",
+    "gameStats": "Game stats",
+    "playerXp": "Player XP",
+    "eventExp": "Event EXP",
+    "stpToday": "STP today"
   },
   "studySets": {
     "title": "I miei set di studio",
@@ -784,7 +899,12 @@
     "productUpdatesDesc": "Novità su nuove funzionalità e miglioramenti",
     "saving": "Salvataggio...",
     "saved": "Salvato!",
-    "savePreferences": "Salva preferenze"
+    "savePreferences": "Salva preferenze",
+    "webPush": "Notifiche del browser",
+    "webPushDesc": "Ricevi notifiche push nel browser (nessuna app necessaria).",
+    "webPushEnable": "Attiva notifiche del browser",
+    "webPushEnabled": "Notifiche del browser attivate",
+    "webPushDenied": "Permesso del browser negato"
   },
   "subscription": {
     "title": "Abbonamento",
@@ -878,15 +998,15 @@
     "badge": "FAQ",
     "title": "Domande",
     "titleHighlight": "frequenti",
-    "description": "Tutto quello che devi sapere su Studyield. Non trovi quello che cerchi? Contatta il nostro team di supporto.",
+    "description": "Tutto quello che devi sapere su Study RPG. Non trovi quello che cerchi? Contatta il nostro team di supporto.",
     "stillHaveQuestions": "Hai ancora domande?",
     "contactSupport": "Contatta il supporto",
     "q1": "Quali tipi di documenti posso caricare?",
-    "a1": "Studyield supporta un'ampia varietà di formati di documenti inclusi PDF, documenti Word (.docx, .doc), file di testo semplice, file markdown e immagini (PNG, JPEG). La nostra IA elabora questi documenti per estrarre il testo e creare materiali di apprendimento.",
+    "a1": "Study RPG supporta un'ampia varietà di formati di documenti inclusi PDF, documenti Word (.docx, .doc), file di testo semplice, file markdown e immagini (PNG, JPEG). La nostra IA elabora questi documenti per estrarre il testo e creare materiali di apprendimento.",
     "q2": "Come funziona il sistema di ripetizione dilazionata?",
     "a2": "Il nostro sistema di flashcard utilizza l'algoritmo di ripetizione dilazionata SM-2 per ottimizzare il tuo apprendimento. In base a quanto ricordi ogni scheda, il sistema calcola il momento ottimale per il prossimo ripasso. Le schede su cui hai difficoltà appaiono più frequentemente, mentre quelle padroneggiate vengono mostrate meno spesso.",
-    "q3": "Posso usare Studyield offline?",
-    "a3": "Attualmente, Studyield richiede una connessione internet per la maggior parte delle funzionalità poiché l'elaborazione IA avviene nel cloud. Tuttavia, stiamo lavorando al supporto offline per il ripasso delle flashcard nei futuri aggiornamenti.",
+    "q3": "Posso usare Study RPG offline?",
+    "a3": "Attualmente, Study RPG richiede una connessione internet per la maggior parte delle funzionalità poiché l'elaborazione IA avviene nel cloud. Tuttavia, stiamo lavorando al supporto offline per il ripasso delle flashcard nei futuri aggiornamenti.",
     "q4": "Quanto sono accurati i contenuti generati dall'IA?",
     "a4": "La nostra IA genera contenuti di alta qualità basati sui tuoi materiali caricati. Tuttavia, raccomandiamo sempre di rivedere le flashcard e i quiz generati per garantire l'accuratezza. Puoi facilmente modificare qualsiasi contenuto generato secondo le tue preferenze.",
     "q5": "I miei dati sono sicuri e privati?",
@@ -895,14 +1015,14 @@
     "a6": "Sì! Puoi rendere i tuoi set di studio pubblici perché chiunque possa accedervi, oppure condividere link privati con persone specifiche. Tutti i tuoi materiali di studio sono privati per impostazione predefinita e sei tu a decidere chi può vederli.",
     "q7": "Cos'è la funzione di clonazione esame?",
     "a7": "La clonazione esame analizza lo stile, il formato e la difficoltà dei tuoi esami passati o test di pratica. Poi genera nuove domande che corrispondono esattamente a quello stile, aiutandoti a prepararti con materiale di pratica pertinente.",
-    "q8": "Studyield è conveniente per gli studenti?",
+    "q8": "Study RPG è conveniente per gli studenti?",
     "a8": "Assolutamente! I nostri prezzi sono pensati per gli studenti. Inizia con una prova gratuita di 7 giorni, poi scegli tra piani mensili o annuali — entrambi accessibili per gli studenti.",
     "q9": "Posso annullare il mio abbonamento in qualsiasi momento?",
     "a9": "Assolutamente! Puoi annullare il tuo abbonamento in qualsiasi momento dalle impostazioni dell'account. Continuerai ad avere accesso alle funzionalità premium fino alla fine del periodo di fatturazione. Nessuna penale di cancellazione.",
     "q10": "Cosa succede se faccio il downgrade del mio piano?",
     "a10": "Quando fai il downgrade, mantieni l'accesso alle funzionalità premium fino alla fine del ciclo di fatturazione corrente. Dopo, il tuo account passa al nuovo piano. I tuoi materiali di studio vengono conservati, ma potresti avere accesso limitato ad alcune funzionalità.",
     "q11": "Quali browser e dispositivi sono supportati?",
-    "a11": "Studyield funziona su tutti i browser moderni inclusi Chrome, Firefox, Safari e Edge. È completamente responsive e funziona benissimo su desktop, tablet e dispositivi mobili. Le app native per iOS e Android saranno disponibili presto.",
+    "a11": "Study RPG funziona su tutti i browser moderni inclusi Chrome, Firefox, Safari e Edge. È completamente responsive e funziona benissimo su desktop, tablet e dispositivi mobili. Le app native per iOS e Android saranno disponibili presto.",
     "q12": "Cos'è la funzione Teach Back?",
     "a12": "Teach Back è una funzione Pro che aiuta a rafforzare il tuo apprendimento facendoti spiegare i concetti all'IA. L'IA valuta la tua spiegazione, identifica le lacune nella comprensione e fornisce feedback mirati per rafforzare le tue conoscenze.",
     "searchPlaceholder": "Cerca nelle FAQ...",
@@ -1062,10 +1182,10 @@
     }
   },
   "about": {
-    "badge": "Informazioni su Studyield",
+    "badge": "Informazioni su Study RPG",
     "title": "Studio più intelligente,",
     "titleHighlight": "alimentato dall'IA",
-    "description": "Studyield aiuta gli studenti a studiare in modo più efficace trasformando documenti in flashcard, quiz e strumenti di apprendimento interattivi — tutto alimentato dall'IA.",
+    "description": "Study RPG aiuta gli studenti a studiare in modo più efficace trasformando documenti in flashcard, quiz e strumenti di apprendimento interattivi — tutto alimentato dall'IA.",
     "stats": {
       "featuresCount": "10+",
       "featuresLabel": "Strumenti di apprendimento",
@@ -1076,10 +1196,10 @@
       "uptime": "Gratuito",
       "uptimeLabel": "Per iniziare"
     },
-    "ourStory": "Perché abbiamo creato Studyield",
-    "storyP1": "Abbiamo creato Studyield perché eravamo stanchi di passare ore a fare flashcard e appunti a mano. Come studenti, sapevamo che l'IA poteva fare il lavoro pesante — estrarre concetti chiave dai documenti, generare quiz e programmare i ripassi — così da poterci concentrare sull'apprendimento vero e proprio.",
-    "storyP2": "Studyield utilizza tecniche collaudate come la ripetizione dilazionata e il richiamo attivo, combinate con un'IA che comprende i tuoi documenti. Carica un PDF e in pochi secondi avrai flashcard, quiz e un tutor IA che può rispondere a domande sul tuo materiale.",
-    "storyP3": "Siamo un piccolo team che costruisce lo strumento di studio che abbiamo sempre desiderato. Studyield è gratuito per iniziare e lo miglioriamo continuamente basandoci sui feedback degli studenti che lo usano ogni giorno.",
+    "ourStory": "Perché abbiamo creato Study RPG",
+    "storyP1": "Abbiamo creato Study RPG perché eravamo stanchi di passare ore a fare flashcard e appunti a mano. Come studenti, sapevamo che l'IA poteva fare il lavoro pesante — estrarre concetti chiave dai documenti, generare quiz e programmare i ripassi — così da poterci concentrare sull'apprendimento vero e proprio.",
+    "storyP2": "Study RPG utilizza tecniche collaudate come la ripetizione dilazionata e il richiamo attivo, combinate con un'IA che comprende i tuoi documenti. Carica un PDF e in pochi secondi avrai flashcard, quiz e un tutor IA che può rispondere a domande sul tuo materiale.",
+    "storyP3": "Siamo un piccolo team che costruisce lo strumento di studio che abbiamo sempre desiderato. Study RPG è gratuito per iniziare e lo miglioriamo continuamente basandoci sui feedback degli studenti che lo usano ogni giorno.",
     "whatWeOffer": "Cosa puoi fare",
     "features": {
       "studySets": "Set di studio e flashcard",
@@ -1090,12 +1210,12 @@
       "examClone": "Clonazione esame"
     },
     "ourValues": "I nostri valori",
-    "valuesDescription": "I principi alla base di come costruiamo Studyield.",
+    "valuesDescription": "I principi alla base di come costruiamo Study RPG.",
     "values": {
       "missionDriven": "Apprendimento accessibile",
-      "missionDrivenDesc": "Gli strumenti di studio di qualità non dovrebbero costare una fortuna. Studyield offre una prova gratuita di 7 giorni per permettere a ogni studente di sperimentare l'apprendimento con l'IA.",
+      "missionDrivenDesc": "Gli strumenti di studio di qualità non dovrebbero costare una fortuna. Study RPG offre una prova gratuita di 7 giorni per permettere a ogni studente di sperimentare l'apprendimento con l'IA.",
       "userCentric": "Creato per gli studenti",
-      "userCentricDesc": "Usiamo Studyield noi stessi. Ogni funzionalità è progettata per come gli studenti studiano realmente — non per come pensiamo che dovrebbero.",
+      "userCentricDesc": "Usiamo Study RPG noi stessi. Ogni funzionalità è progettata per come gli studenti studiano realmente — non per come pensiamo che dovrebbero.",
       "innovationFirst": "IA che aiuta davvero",
       "innovationFirstDesc": "Non aggiungiamo l'IA per il gusto di farlo. Ogni funzionalità IA risolve un problema reale — generare flashcard, spiegare concetti o creare esami di pratica.",
       "communityFocused": "Imparare insieme",
@@ -1109,7 +1229,7 @@
     "badge": "Siamo qui per aiutarti",
     "title": "Mettiti in",
     "titleHighlight": "contatto",
-    "description": "Hai domande su Studyield? Siamo qui per aiutarti. Contattaci attraverso uno dei metodi qui sotto o compila il modulo di contatto.",
+    "description": "Hai domande su Study RPG? Siamo qui per aiutarti. Contattaci attraverso uno dei metodi qui sotto o compila il modulo di contatto.",
     "methods": {
       "emailSupport": "Supporto email",
       "emailSupportDesc": "Ricevi aiuto per qualsiasi domanda o problema",
@@ -1230,7 +1350,7 @@
       "a1": "Sì, puoi aggiornare o fare il downgrade del tuo piano in qualsiasi momento. Quando aggiorni, ottieni accesso immediato alle nuove funzionalità. Quando fai il downgrade, il cambiamento ha effetto alla fine del ciclo di fatturazione.",
       "q2": "Cosa succede se faccio il downgrade al piano gratuito?",
       "a2": "I tuoi materiali di studio saranno conservati, ma avrai accesso limitato alle funzionalità premium. Puoi tornare a Pro in qualsiasi momento per riottenere l'accesso completo.",
-      "q3": "Studyield è conveniente per gli studenti?",
+      "q3": "Study RPG è conveniente per gli studenti?",
       "a3": "Assolutamente! I nostri prezzi sono pensati per gli studenti. Inizia con una prova gratuita di 7 giorni, poi scegli tra piani mensili (7,99 $/mese) o annuali (47,88 $/anno) — entrambi accessibili per gli studenti.",
       "q4": "Quali metodi di pagamento accettate?",
       "a4": "Accettiamo tutte le principali carte di credito (Visa, Mastercard, American Express), PayPal e, in alcune regioni, metodi di pagamento locali. Tutti i pagamenti sono elaborati in sicurezza tramite Stripe.",
@@ -1240,11 +1360,11 @@
       "a6": "Una richiesta IA include la generazione di flashcard dai documenti, la creazione di quiz, l'uso del tutor IA in chat, la risoluzione di problemi e la clonazione esame. Le operazioni di base come il ripasso delle flashcard non contano.",
       "q7": "Quali cicli di fatturazione offrite?",
       "a7": "Offriamo cicli di fatturazione mensili (7,99 $/mese) e annuali (47,88 $/anno). Il piano annuale ti fa risparmiare circa il 50% rispetto al pagamento mensile.",
-      "q8": "Studyield è conveniente per gli studenti?",
+      "q8": "Study RPG è conveniente per gli studenti?",
       "a8": "Assolutamente! I nostri prezzi sono pensati per gli studenti. Inizia con una prova gratuita di 7 giorni, poi scegli tra mensile (7,99 $/mese) o annuale (47,88 $/anno) — entrambi sono accessibili per gli studenti."
     },
     "ctaTitle": "Pronto a trasformare il tuo apprendimento?",
-    "ctaDescription": "Unisciti a migliaia di studenti che stanno già studiando in modo più intelligente con Studyield. Inizia gratis oggi.",
+    "ctaDescription": "Unisciti a migliaia di studenti che stanno già studiando in modo più intelligente con Study RPG. Inizia gratis oggi.",
     "startFree": "Inizia gratis",
     "talkToSales": "Parla con le vendite"
   },
@@ -1252,7 +1372,7 @@
     "badge": "FAQ",
     "title": "Domande",
     "titleHighlight": "frequenti",
-    "description": "Trova le risposte alle domande più comuni su Studyield. Non trovi quello che cerchi? Contatta il nostro team di supporto.",
+    "description": "Trova le risposte alle domande più comuni su Study RPG. Non trovi quello che cerchi? Contatta il nostro team di supporto.",
     "searchPlaceholder": "Cerca nelle FAQ...",
     "questionsCount": "{{count}} domande",
     "categories": {
@@ -1264,18 +1384,18 @@
       "technical": "Tecnico"
     },
     "general": {
-      "q1": "Cos'è Studyield?",
-      "a1": "Studyield è una piattaforma di apprendimento con IA che ti aiuta a studiare in modo più intelligente. Carica documenti, genera flashcard, fai quiz e chatta con un tutor IA — tutto progettato per aiutarti a padroneggiare qualsiasi materia più velocemente usando tecniche di apprendimento collaudate come la ripetizione dilazionata.",
-      "q2": "Studyield è gratuito?",
-      "a2": "Sì! Studyield offre una prova gratuita di 7 giorni che include 3 set di studio, 50 flashcard e 10 richieste IA. Dopo la prova, passa a Pro per accesso illimitato e funzionalità avanzate come Risolutore di problemi, Clonazione esame e Ricerca approfondita.",
-      "q3": "Su quali dispositivi posso usare Studyield?",
-      "a3": "Studyield funziona su qualsiasi dispositivo con un browser moderno — computer, tablet e smartphone. L'app web è completamente responsive e ottimizzata per schermi mobili.",
-      "q4": "Devo creare un account per usare Studyield?",
+      "q1": "Cos'è Study RPG?",
+      "a1": "Study RPG è una piattaforma di apprendimento con IA che ti aiuta a studiare in modo più intelligente. Carica documenti, genera flashcard, fai quiz e chatta con un tutor IA — tutto progettato per aiutarti a padroneggiare qualsiasi materia più velocemente usando tecniche di apprendimento collaudate come la ripetizione dilazionata.",
+      "q2": "Study RPG è gratuito?",
+      "a2": "Sì! Study RPG offre una prova gratuita di 7 giorni che include 3 set di studio, 50 flashcard e 10 richieste IA. Dopo la prova, passa a Pro per accesso illimitato e funzionalità avanzate come Risolutore di problemi, Clonazione esame e Ricerca approfondita.",
+      "q3": "Su quali dispositivi posso usare Study RPG?",
+      "a3": "Study RPG funziona su qualsiasi dispositivo con un browser moderno — computer, tablet e smartphone. L'app web è completamente responsive e ottimizzata per schermi mobili.",
+      "q4": "Devo creare un account per usare Study RPG?",
       "a4": "Sì, hai bisogno di un account gratuito per salvare i tuoi materiali di studio e monitorare i tuoi progressi. Puoi registrarti con il tuo indirizzo email."
     },
     "features": {
       "q1": "Quali tipi di documenti posso caricare?",
-      "a1": "Studyield supporta PDF, documenti Word (.docx, .doc), file di testo semplice, file markdown e immagini (PNG, JPEG). La nostra IA estrae il testo da questi documenti per creare materiali di apprendimento.",
+      "a1": "Study RPG supporta PDF, documenti Word (.docx, .doc), file di testo semplice, file markdown e immagini (PNG, JPEG). La nostra IA estrae il testo da questi documenti per creare materiali di apprendimento.",
       "q2": "Come genera le flashcard l'IA?",
       "a2": "La nostra IA analizza i documenti caricati per identificare concetti chiave, definizioni e informazioni importanti. Poi crea coppie domanda-risposta ottimizzate per l'apprendimento e la ritenzione.",
       "q3": "Quanto sono accurati i contenuti generati dall'IA?",
@@ -1302,7 +1422,7 @@
       "a2": "Sì, puoi aggiornare o fare il downgrade in qualsiasi momento. Quando aggiorni, ottieni accesso immediato alle nuove funzionalità. Quando fai il downgrade, il cambiamento ha effetto alla fine del ciclo di fatturazione.",
       "q3": "C'è una prova gratuita?",
       "a3": "Sì! La prova gratuita di 7 giorni ti dà accesso alle funzionalità principali inclusi set di studio, flashcard, quiz e ripetizione dilazionata — nessuna carta di credito richiesta. Dopo la prova, abbonati a Pro per accesso illimitato.",
-      "q4": "Studyield è conveniente per gli studenti?",
+      "q4": "Study RPG è conveniente per gli studenti?",
       "a4": "Assolutamente! I nostri prezzi sono pensati per gli studenti. Inizia con una prova gratuita di 7 giorni, poi scegli tra piani mensili o annuali — entrambi accessibili per gli studenti.",
       "q5": "Come annullo il mio abbonamento?",
       "a5": "Puoi annullare in qualsiasi momento da Impostazioni account > Fatturazione > Gestisci abbonamento. Manterrai l'accesso alle funzionalità premium fino alla fine del periodo di fatturazione.",
@@ -1320,10 +1440,10 @@
       "a4": "Per impostazione predefinita, i tuoi materiali di studio sono privati e visibili solo a te. Sei tu a controllare la condivisione — puoi rendere i set pubblici, condividerli con persone specifiche o mantenerli completamente privati."
     },
     "technical": {
-      "q1": "Posso usare Studyield offline?",
+      "q1": "Posso usare Study RPG offline?",
       "a1": "Attualmente, la maggior parte delle funzionalità richiede una connessione internet poiché l'elaborazione IA avviene nel cloud. Stiamo lavorando al supporto offline per il ripasso delle flashcard nei futuri aggiornamenti.",
       "q2": "Quali browser sono supportati?",
-      "a2": "Studyield funziona su tutti i browser moderni inclusi Chrome, Firefox, Safari e Edge. Raccomandiamo di mantenere il browser aggiornato per la migliore esperienza.",
+      "a2": "Study RPG funziona su tutti i browser moderni inclusi Chrome, Firefox, Safari e Edge. Raccomandiamo di mantenere il browser aggiornato per la migliore esperienza.",
       "q3": "Cos'è il Risolutore di problemi?",
       "a3": "Il Risolutore di problemi è una funzione Pro che ti aiuta a risolvere problemi complessi passo dopo passo. Puoi inserire problemi di matematica, scienze o altro e l'IA fornisce soluzioni dettagliate con spiegazioni. Il Risolutore multiplo ti permette di risolvere più problemi contemporaneamente.",
       "q4": "Cosa conta come richiesta IA?",
@@ -1345,146 +1465,167 @@
     "visitHelpCenter": "Visita il centro assistenza"
   },
   "featuresFullPage": {
-    "badge": "Funzionalità della piattaforma",
-    "title": "Tutto ciò di cui hai bisogno per un",
-    "titleHighlight": "apprendimento efficace",
-    "description": "Flashcard IA con cloze e occlusione immagine, ripetizione dilazionata SM-2, clonazione esame, risoluzione problemi, OCR scrittura a mano e un compagno di studio IA — esplora ogni strumento che alimenta il tuo apprendimento.",
+    "badge": "Funzionalità potenti",
+    "title": "Tutto ciò di cui hai bisogno per",
+    "titleHighlight": "studiare meglio",
+    "description": "Flashcard generate dall'IA con cloze e occlusione immagine, ripetizione dilazionata, clonazione esame, risoluzione problemi e un tutor IA personale — tutto in un'unica piattaforma.",
     "startLearningFree": "Inizia a studiare gratis",
+    "viewPricing": "Vedi i prezzi",
+    "highlightsTitle": "Funzionalità principali",
+    "highlightsDescription": "Gli strumenti più potenti per potenziare il tuo percorso di apprendimento.",
+    "allFeaturesTitle": "Esplora tutte le funzionalità",
+    "allFeaturesDescription": "Scopri ogni strumento progettato per aiutarti a imparare più velocemente e trattenere di più.",
+    "learnMore": "Scopri di più",
+    "viewBenefits": "Vedi i vantaggi",
+    "tryItNow": "Provalo ora",
+    "categories": {
+      "all": "Tutte",
+      "study": "Strumenti di studio",
+      "ai": "Con IA",
+      "assessment": "Valutazione",
+      "tracking": "Monitoraggio"
+    },
+    "stats": {
+      "features": "Funzionalità potenti",
+      "cardTypes": "Tipi di flashcard",
+      "aiAvailable": "IA disponibile",
+      "fileFormats": "Formati file"
+    },
     "studySets": {
       "title": "Set di studio",
       "subtitle": "Organizza il tuo apprendimento",
-      "description": "Crea raccolte di materiali di apprendimento organizzate per materia, corso o argomento. Carica documenti, aggiungi appunti e tieni tutto in un unico posto.",
+      "description": "Crea e organizza set di studio con estrazione di contenuti con IA. Carica documenti e lascia che l'IA generi materiali di studio completi automaticamente.",
       "benefits": [
-        "Flessibilità organizzativa illimitata",
-        "Condividi con i compagni o mantieni privato",
-        "Duplica e remixa set esistenti",
-        "Sistema di tag per filtrare facilmente"
+        "Estrazione contenuti con IA",
+        "Organizza per materie e argomenti",
+        "Condividi e collabora con i compagni",
+        "Importa da formati multipli"
       ]
     },
     "flashcards": {
-      "title": "Flashcard IA con ripetizione dilazionata",
-      "subtitle": "Tre tipi di schede, un sistema intelligente",
-      "description": "Genera flashcard standard, cloze e con occlusione immagine dai tuoi documenti. L'algoritmo di ripetizione dilazionata SM-2 programma i ripassi al momento ottimale per la ritenzione a lungo termine.",
+      "title": "Flashcard intelligenti",
+      "subtitle": "Schede generate dall'IA",
+      "description": "Genera automaticamente flashcard standard, cloze e con occlusione immagine da qualsiasi documento. L'algoritmo di ripetizione dilazionata SM-2 programma i ripassi al momento perfetto.",
       "benefits": [
-        "Schede standard, cloze e con occlusione immagine",
-        "L'algoritmo SM-2 ottimizza gli intervalli di ripasso",
-        "Monitora il fattore di facilità e la padronanza per scheda",
-        "Importazione massiva da CSV, creazione manuale inclusa"
+        "3 tipi di schede: standard, cloze, occlusione immagine",
+        "Algoritmo di ripetizione dilazionata SM-2",
+        "Generate dall'IA dai tuoi documenti",
+        "Monitora la padronanza per scheda"
       ]
     },
     "documents": {
-      "title": "Elaborazione documenti",
-      "subtitle": "Estrai conoscenza da qualsiasi file",
-      "description": "Carica PDF, documenti Word (.docx, .doc), immagini (PNG, JPEG), markdown o testo semplice. La nostra IA estrae concetti chiave, definizioni e formule — con OCR per appunti scritti a mano.",
+      "title": "Analisi documenti",
+      "subtitle": "Carica ed estrai",
+      "description": "Carica PDF, documenti Word, immagini o file markdown. La nostra IA estrae concetti chiave, definizioni e formule — anche da appunti scritti a mano tramite OCR.",
       "benefits": [
-        "PDF, Word, immagini, markdown e file di testo",
-        "OCR scrittura a mano tramite modello di visione IA",
-        "Costruisci basi di conoscenza dai documenti",
-        "10MB gratuiti, 100MB per file con Pro"
+        "Supporto per 6+ formati file",
+        "Estrazione concetti con IA",
+        "Riconoscimento scrittura a mano (OCR)",
+        "Genera automaticamente flashcard dai documenti"
       ]
     },
     "chat": {
       "title": "Compagno di studio IA",
-      "subtitle": "Chatta con i tuoi materiali di studio",
-      "description": "Fai domande su qualsiasi argomento e ottieni risposte istantanee e contestuali dai tuoi materiali di studio. Il tutor IA può spiegare concetti, generare flashcard e aiutarti a prepararti per gli esami.",
+      "subtitle": "Chatta con i tuoi materiali",
+      "description": "Chatta con i tuoi materiali di studio. Fai domande su qualsiasi argomento, ottieni spiegazioni istantanee e lascia che l'IA generi flashcard e quiz dai tuoi documenti.",
       "benefits": [
-        "Interfaccia di conversazione naturale",
-        "Risposte contestuali dai tuoi materiali",
-        "Genera flashcard e quiz dalla chat",
-        "Risposte in streaming per spiegazioni dettagliate"
+        "Fai domande su qualsiasi argomento",
+        "Ottieni spiegazioni istantanee",
+        "Genera flashcard dalla chat",
+        "Disponibile 24/7"
       ]
     },
     "quizzes": {
       "title": "Quiz e quiz dal vivo",
-      "subtitle": "Testati da solo o competi dal vivo",
-      "description": "L'IA genera quiz a scelta multipla, vero/falso e a risposta breve dai tuoi materiali. Inoltre, organizza quiz multiplayer in tempo reale con i compagni tramite stanze Socket.IO.",
+      "subtitle": "Testa le tue conoscenze",
+      "description": "Quiz generati dall'IA dai tuoi materiali di studio più quiz multiplayer in tempo reale. Competi con i compagni e monitora i tuoi progressi.",
       "benefits": [
-        "L'IA genera vari tipi di domande",
-        "Quiz multiplayer in tempo reale",
-        "Spiegazioni dettagliate per ogni risposta",
-        "Monitora tentativi, punteggi e classifiche"
+        "Domande quiz generate dall'IA",
+        "Modalità multiplayer in tempo reale",
+        "Tipi di domande multipli",
+        "Analisi dettagliate delle prestazioni"
       ]
     },
     "examClone": {
       "title": "Clonazione esame",
       "subtitle": "Esercitati come nella realtà",
-      "description": "Carica esami passati e la nostra IA analizza lo stile, il formato e la difficoltà. Genera domande di pratica illimitate che corrispondono esattamente a ciò che affronterai.",
+      "description": "Analizza esami passati e genera domande di pratica corrispondenti. Simula condizioni d'esame reali con sessioni a tempo e punteggio.",
       "benefits": [
-        "Analisi dello stile dagli esami campione",
-        "Genera domande di pratica illimitate",
-        "Corrisponde esattamente a difficoltà e formato",
-        "Perfetto per la preparazione di test standardizzati"
+        "Analizza i modelli degli esami passati",
+        "Genera domande simili",
+        "Simulazione d'esame a tempo",
+        "Punteggio e revisione delle prestazioni"
       ]
     },
     "problemSolver": {
-      "title": "Risolutore di problemi e modalità batch",
+      "title": "Risolutore di problemi",
       "subtitle": "Soluzioni passo dopo passo",
-      "description": "Inserisci problemi di matematica, scienze o altro e ottieni soluzioni dettagliate passo dopo passo. Il Risolutore multiplo ti permette di risolvere più problemi contemporaneamente. Supporta l'input di problemi da immagine tramite scansione fotocamera.",
+      "description": "Ottieni soluzioni passo dopo passo per matematica, scienze e altro. Carica una foto o digita il tuo problema — l'IA lo scompone in passaggi chiari e comprensibili.",
       "benefits": [
-        "Soluzione passo dopo passo con spiegazione",
-        "Modalità batch per problemi multipli",
-        "Scansione fotocamera per problemi da immagine",
-        "Problemi simili per pratica extra"
+        "Spiegazioni passo dopo passo",
+        "Matematica, scienze e altro",
+        "Supporto caricamento foto",
+        "Modalità batch per problemi multipli"
       ]
     },
     "handwritingOcr": {
       "title": "OCR scrittura a mano",
-      "subtitle": "Scansiona appunti scritti a mano",
-      "description": "Scatta una foto dei tuoi appunti scritti a mano e il nostro modello di visione IA li converte in testo digitale. Crea flashcard e materiali di studio dalla tua scrittura istantaneamente.",
+      "subtitle": "Scansiona i tuoi appunti",
+      "description": "Scansiona appunti scritti a mano e convertili in testo digitale. Perfetto per convertire appunti delle lezioni in flashcard e materiali di studio.",
       "benefits": [
-        "Riconoscimento scrittura a mano con IA",
-        "Converti appunti in flashcard digitali",
-        "Funziona con qualsiasi stile di scrittura",
-        "Scansione fotocamera o caricamento immagine"
+        "Riconoscimento accurato della scrittura a mano",
+        "Converti appunti in flashcard",
+        "Supporto per più lingue",
+        "Funziona con foto e scansioni"
       ]
     },
     "learningPaths": {
-      "title": "Percorsi di apprendimento IA",
-      "subtitle": "Percorsi di studio personalizzati",
-      "description": "Lascia che l'IA generi un percorso di apprendimento personalizzato per qualsiasi materia. Monitora i progressi attraverso passaggi strutturati e resta in carreggiata per raggiungere i tuoi obiettivi.",
+      "title": "Percorsi di apprendimento",
+      "subtitle": "Roadmap personalizzate",
+      "description": "L'IA crea roadmap di studio personalizzate in base ai tuoi obiettivi e alle conoscenze attuali. Segui percorsi strutturati per padroneggiare qualsiasi materia in modo efficiente.",
       "benefits": [
-        "Curriculum generato dall'IA",
-        "Adattabile al tuo livello",
-        "Monitoraggio dei progressi",
-        "Tempo stimato per il completamento"
+        "Piani di studio generati dall'IA",
+        "Si adattano ai tuoi progressi",
+        "Traguardi basati sugli obiettivi",
+        "Monitora la percentuale di completamento"
       ]
     },
     "analytics": {
       "title": "Statistiche e gamification",
-      "subtitle": "Monitora, guadagna e sali di livello",
-      "description": "Heatmap di studio, calendari delle serie e grafici di progresso dettagliati ti tengono sulla giusta strada. Guadagna XP per ogni azione di studio, sali di livello attraverso 12 gradi e mantieni le serie giornaliere.",
+      "subtitle": "Monitora i tuoi progressi",
+      "description": "Monitora i progressi con heatmap di studio e calendari delle serie. Guadagna XP, sali di livello, mantieni le serie giornaliere e imposta conti alla rovescia per gli esami.",
       "benefits": [
-        "Heatmap di studio e calendario delle serie",
-        "Sistema XP con 12 livelli",
-        "Monitoraggio serie giornaliere con premi",
-        "Conto alla rovescia esami e programma di studio"
+        "Heatmap e calendari di studio",
+        "Sistema XP e livelli",
+        "Monitoraggio serie giornaliere",
+        "Timer conto alla rovescia esami"
       ]
     },
     "teachBack": {
-      "title": "Sessioni Teach-Back",
-      "subtitle": "Tecnica di Feynman",
-      "description": "Spiega i concetti con parole tue e ottieni feedback dall'IA sulla tua comprensione. Basato sulla collaudata tecnica di Feynman per l'apprendimento profondo.",
+      "title": "Teach Back",
+      "subtitle": "Impara insegnando",
+      "description": "Spiega i concetti all'IA e ottieni feedback sulla tua comprensione. Insegnare è uno dei modi più efficaci per consolidare le conoscenze.",
       "benefits": [
-        "Spiega per dimostrare la comprensione",
-        "L'IA valuta la tua spiegazione",
-        "Identifica le lacune nella conoscenza",
-        "Migliora significativamente la ritenzione"
+        "Spiega concetti all'IA",
+        "Ottieni feedback istantaneo",
+        "Identifica le lacune",
+        "Rafforza la comprensione"
       ]
     },
     "conceptMaps": {
       "title": "Mappe concettuali",
       "subtitle": "Visualizza le connessioni",
-      "description": "Genera mappe concettuali interattive dai tuoi materiali di studio. Vedi come gli argomenti si collegano, identifica le relazioni e costruisci una comprensione visiva di qualsiasi materia.",
+      "description": "Visualizza come argomenti e concetti si collegano tra loro. L'IA genera mappe mentali interattive dai tuoi materiali di studio per vedere il quadro d'insieme.",
       "benefits": [
         "Mappe concettuali generate dall'IA",
-        "Esplorazione interattiva dei nodi",
-        "Visualizza le relazioni tra argomenti",
-        "Esporta e condividi le tue mappe"
+        "Visualizzazione interattiva",
+        "Vedi le relazioni tra argomenti",
+        "Esporta e condividi le mappe"
       ]
     }
   },
   "onboarding": {
-    "title": "Benvenuto su Studyield",
+    "title": "Benvenuto su Study RPG",
     "skipForNow": "Salta per ora",
     "stepOf": "Passo {{current}} di {{total}}",
     "welcome": {
@@ -1653,7 +1794,7 @@
     },
     "features": {
       "title": "Ecco cosa puoi fare",
-      "description": "Studyield è ricco di strumenti per rendere lo studio più veloce e più efficace",
+      "description": "Study RPG è ricco di strumenti per rendere lo studio più veloce e più efficace",
       "studySets": "Set di studio",
       "studySetsDesc": "Crea flashcard manualmente o generale dai documenti con l'IA",
       "aiChat": "Tutor IA in chat",
@@ -1679,7 +1820,7 @@
       "deepResearch": "Ricerca approfondita",
       "deepResearchDesc": "Esplorazione approfondita di qualsiasi argomento con l'IA",
       "adFreeTitle": "100% senza pubblicità, sempre",
-      "adFreeDesc": "Nessuna pubblicità, nessuna distrazione. Solo tu e i tuoi studi. Studyield non mostrerà mai pubblicità."
+      "adFreeDesc": "Nessuna pubblicità, nessuna distrazione. Solo tu e i tuoi studi. Study RPG non mostrerà mai pubblicità."
     },
     "done": {
       "title": "Tutto pronto!",
@@ -1778,7 +1919,7 @@
     "articles": "{{count}} articoli",
     "categories": {
       "gettingStarted": "Per iniziare",
-      "gettingStartedDesc": "Impara le basi di Studyield e inizia rapidamente",
+      "gettingStartedDesc": "Impara le basi di Study RPG e inizia rapidamente",
       "studySets": "Set di studio e flashcard",
       "studySetsDesc": "Crea, gestisci e padroneggia i tuoi materiali di apprendimento",
       "documents": "Elaborazione documenti",
@@ -1818,24 +1959,24 @@
     "faqSubtitle": "Risposte rapide alle domande più comuni",
     "faqs": {
       "q1": "Quali tipi di documenti posso caricare?",
-      "a1": "Studyield supporta un'ampia varietà di formati di documenti inclusi PDF, documenti Word (.docx, .doc), file di testo semplice, file markdown e immagini (PNG, JPEG). La nostra IA elabora questi documenti per estrarre il testo e creare materiali di apprendimento.",
+      "a1": "Study RPG supporta un'ampia varietà di formati di documenti inclusi PDF, documenti Word (.docx, .doc), file di testo semplice, file markdown e immagini (PNG, JPEG). La nostra IA elabora questi documenti per estrarre il testo e creare materiali di apprendimento.",
       "q2": "Come funziona il sistema di ripetizione dilazionata?",
       "a2": "Il nostro sistema di flashcard utilizza l'algoritmo di ripetizione dilazionata SM-2 per ottimizzare il tuo apprendimento. In base a quanto ricordi ogni scheda, il sistema calcola il momento ottimale per il prossimo ripasso. Le schede su cui hai difficoltà appaiono più frequentemente, mentre quelle padroneggiate vengono mostrate meno spesso.",
-      "q3": "Posso usare Studyield offline?",
-      "a3": "Attualmente, Studyield richiede una connessione internet per la maggior parte delle funzionalità poiché l'elaborazione IA avviene nel cloud. Tuttavia, stiamo lavorando al supporto offline per il ripasso delle flashcard nei futuri aggiornamenti.",
+      "q3": "Posso usare Study RPG offline?",
+      "a3": "Attualmente, Study RPG richiede una connessione internet per la maggior parte delle funzionalità poiché l'elaborazione IA avviene nel cloud. Tuttavia, stiamo lavorando al supporto offline per il ripasso delle flashcard nei futuri aggiornamenti.",
       "q4": "Quanto sono accurati i contenuti generati dall'IA?",
       "a4": "La nostra IA genera contenuti di alta qualità basati sui tuoi materiali caricati. Tuttavia, raccomandiamo sempre di rivedere flashcard e quiz generati per garantire l'accuratezza. Puoi facilmente modificare qualsiasi contenuto generato secondo le tue preferenze.",
       "q5": "I miei dati sono sicuri e privati?",
       "a5": "Sì, prendiamo la sicurezza dei dati molto seriamente. Tutti i documenti sono crittografati a riposo e in transito. I tuoi materiali di studio non vengono mai condivisi con altri utenti né usati per addestrare modelli IA. Puoi eliminare i tuoi dati in qualsiasi momento dalle impostazioni dell'account.",
       "q6": "Cos'è la funzione di clonazione esame?",
       "a6": "La clonazione esame analizza lo stile, il formato e la difficoltà dei tuoi esami passati o test di pratica. Poi genera nuove domande che corrispondono esattamente a quello stile, aiutandoti a prepararti con materiale di pratica pertinente.",
-      "q7": "Studyield è conveniente per gli studenti?",
+      "q7": "Study RPG è conveniente per gli studenti?",
       "a7": "Assolutamente! I nostri prezzi sono pensati per gli studenti. Inizia con una prova gratuita di 7 giorni, poi scegli tra piani mensili o annuali — entrambi accessibili per gli studenti.",
       "q8": "Come annullo il mio abbonamento?",
       "a8": "Puoi annullare il tuo abbonamento in qualsiasi momento dalle impostazioni dell'account. Vai su Impostazioni > Fatturazione > Gestisci abbonamento e clicca \"Annulla piano\". Manterrai l'accesso alle funzionalità premium fino alla fine del periodo di fatturazione."
     },
     "videoTutorials": "Video tutorial",
-    "videoTutorialsDesc": "Impara a usare Studyield con le nostre guide video passo dopo passo. Dalle basi alle funzionalità avanzate.",
+    "videoTutorialsDesc": "Impara a usare Study RPG con le nostre guide video passo dopo passo. Dalle basi alle funzionalità avanzate.",
     "watchTutorials": "Guarda i tutorial",
     "ctaTitle": "Hai ancora bisogno di aiuto?",
     "ctaDescription": "Il nostro team di supporto è pronto ad assisterti con qualsiasi domanda. Rispondiamo di solito entro 24 ore.",
@@ -1864,7 +2005,7 @@
     },
     "introduction": {
       "title": "Introduzione",
-      "p1": "In Studyield, prendiamo la tua privacy seriamente. Questa informativa sulla privacy spiega come raccogliamo, utilizziamo, divulghiamo e proteggiamo le tue informazioni quando utilizzi la nostra piattaforma di apprendimento con IA.",
+      "p1": "In Study RPG, prendiamo la tua privacy seriamente. Questa informativa sulla privacy spiega come raccogliamo, utilizziamo, divulghiamo e proteggiamo le tue informazioni quando utilizzi la nostra piattaforma di apprendimento con IA.",
       "p2": "Ti preghiamo di leggere attentamente questa informativa sulla privacy. Se non sei d'accordo con i termini di questa informativa, ti preghiamo di non accedere alla piattaforma."
     },
     "informationCollected": {
@@ -1878,7 +2019,7 @@
         "Preferenze di comunicazione"
       ],
       "studyContent": "Contenuto di studio",
-      "studyContentDesc": "Quando utilizzi Studyield, memorizziamo:",
+      "studyContentDesc": "Quando utilizzi Study RPG, memorizziamo:",
       "studyItems": [
         "Documenti caricati (PDF, immagini)",
         "Flashcard e set di studio",
@@ -1961,7 +2102,7 @@
     "badge": "Accordo legale",
     "title": "Termini di",
     "titleHighlight": "servizio",
-    "description": "Leggi attentamente questi termini prima di utilizzare Studyield. Accedendo alla nostra piattaforma, accetti di essere vincolato da questi termini.",
+    "description": "Leggi attentamente questi termini prima di utilizzare Study RPG. Accedendo alla nostra piattaforma, accetti di essere vincolato da questi termini.",
     "lastUpdated": "Ultimo aggiornamento: 14 febbraio 2026",
     "contents": "Indice",
     "toc": {
@@ -1981,11 +2122,11 @@
     },
     "acceptance": {
       "title": "1. Accettazione dei termini",
-      "content": "Accedendo o utilizzando Studyield, accetti di essere vincolato da questi Termini di servizio e da tutte le leggi e i regolamenti applicabili. Se non sei d'accordo con uno qualsiasi di questi termini, ti è vietato utilizzare o accedere a questa piattaforma."
+      "content": "Accedendo o utilizzando Study RPG, accetti di essere vincolato da questi Termini di servizio e da tutte le leggi e i regolamenti applicabili. Se non sei d'accordo con uno qualsiasi di questi termini, ti è vietato utilizzare o accedere a questa piattaforma."
     },
     "descriptionOfService": {
       "title": "2. Descrizione del servizio",
-      "intro": "Studyield è una piattaforma di apprendimento con IA che fornisce:",
+      "intro": "Study RPG è una piattaforma di apprendimento con IA che fornisce:",
       "items": [
         "Set di studio con caricamento e analisi di documenti",
         "Flashcard generate dall'IA con ripetizione dilazionata",
@@ -2021,7 +2162,7 @@
     "contentOwnership": {
       "title": "5. Proprietà dei contenuti",
       "yourContent": "I tuoi contenuti",
-      "yourContentDesc": "Mantieni la proprietà di tutti i contenuti che carichi su Studyield, inclusi documenti, appunti e materiali di studio. Caricando contenuti, ci concedi una licenza limitata per elaborarli, memorizzarli e visualizzarli per fornire i nostri servizi.",
+      "yourContentDesc": "Mantieni la proprietà di tutti i contenuti che carichi su Study RPG, inclusi documenti, appunti e materiali di studio. Caricando contenuti, ci concedi una licenza limitata per elaborarli, memorizzarli e visualizzarli per fornire i nostri servizi.",
       "aiGenerated": "Contenuti generati dall'IA",
       "aiGeneratedDesc": "I contenuti generati dalla nostra IA (flashcard, quiz, riassunti) basati sui tuoi materiali ti appartengono. Puoi usare, modificare e condividere liberamente questi contenuti."
     },
@@ -2037,11 +2178,11 @@
     },
     "aiDisclaimer": {
       "title": "7. Disclaimer sull'IA",
-      "content": "La nostra IA genera contenuti per assistere il tuo apprendimento. Sebbene ci impegniamo per l'accuratezza, i contenuti generati dall'IA possono contenere errori. Dovresti rivedere tutti i materiali generati e non fare affidamento esclusivamente sull'IA per decisioni critiche. Studyield non è responsabile per errori nei contenuti generati dall'IA."
+      "content": "La nostra IA genera contenuti per assistere il tuo apprendimento. Sebbene ci impegniamo per l'accuratezza, i contenuti generati dall'IA possono contenere errori. Dovresti rivedere tutti i materiali generati e non fare affidamento esclusivamente sull'IA per decisioni critiche. Study RPG non è responsabile per errori nei contenuti generati dall'IA."
     },
     "liability": {
       "title": "8. Limitazione di responsabilità",
-      "content": "Nella misura massima consentita dalla legge, Studyield non sarà responsabile per danni indiretti, incidentali, speciali, consequenziali o punitivi, inclusa la perdita di dati, profitti o avviamento, derivanti dall'utilizzo del servizio."
+      "content": "Nella misura massima consentita dalla legge, Study RPG non sarà responsabile per danni indiretti, incidentali, speciali, consequenziali o punitivi, inclusa la perdita di dati, profitti o avviamento, derivanti dall'utilizzo del servizio."
     },
     "availability": {
       "title": "9. Disponibilità del servizio",
@@ -2057,7 +2198,7 @@
     },
     "governingLaw": {
       "title": "12. Legge applicabile",
-      "content": "Questi termini sono regolati e interpretati secondo le leggi applicabili. Qualsiasi controversia derivante da questi termini o dall'uso di Studyield sarà risolta attraverso negoziazione in buona fede o, se necessario, attraverso arbitrato vincolante."
+      "content": "Questi termini sono regolati e interpretati secondo le leggi applicabili. Qualsiasi controversia derivante da questi termini o dall'uso di Study RPG sarà risolta attraverso negoziazione in buona fede o, se necessario, attraverso arbitrato vincolante."
     },
     "contact": {
       "title": "13. Contatto",
@@ -2075,7 +2216,7 @@
     "badge": "Informativa sui cookie",
     "title": "Informativa sui",
     "titleHighlight": "cookie",
-    "description": "Scopri come utilizziamo i cookie e tecnologie simili per migliorare la tua esperienza su Studyield.",
+    "description": "Scopri come utilizziamo i cookie e tecnologie simili per migliorare la tua esperienza su Study RPG.",
     "lastUpdated": "Ultimo aggiornamento: 14 febbraio 2026",
     "contents": "Indice",
     "toc": {
@@ -2091,7 +2232,7 @@
     "whatAreCookies": {
       "title": "Cosa sono i cookie",
       "content": "I cookie sono piccoli file di testo che vengono salvati sul tuo dispositivo quando visiti un sito web. Sono ampiamente utilizzati per far funzionare i siti web in modo più efficiente, fornire una migliore esperienza utente e dare ai proprietari dei siti informazioni utili su come viene utilizzato il loro sito.",
-      "note": "Utilizzando Studyield, acconsenti all'uso dei cookie in conformità con questa informativa sui cookie. Puoi gestire le tue preferenze sui cookie in qualsiasi momento.",
+      "note": "Utilizzando Study RPG, acconsenti all'uso dei cookie in conformità con questa informativa sui cookie. Puoi gestire le tue preferenze sui cookie in qualsiasi momento.",
       "noteLabel": "Nota:"
     },
     "typesOfCookies": {
@@ -2149,7 +2290,7 @@
     },
     "howWeUse": {
       "title": "Come utilizziamo i cookie",
-      "description": "Utilizziamo i cookie per vari scopi per migliorare la tua esperienza su Studyield:",
+      "description": "Utilizziamo i cookie per vari scopi per migliorare la tua esperienza su Study RPG:",
       "items": [
         {
           "title": "Autenticazione",
@@ -2217,11 +2358,11 @@
         }
       ],
       "warningLabel": "Attenzione:",
-      "warning": "Disabilitare i cookie essenziali può influire sul funzionamento di Studyield e impedirti di utilizzare alcune funzionalità."
+      "warning": "Disabilitare i cookie essenziali può influire sul funzionamento di Study RPG e impedirti di utilizzare alcune funzionalità."
     },
     "cookieSettings": {
       "title": "Impostazioni cookie",
-      "description": "Puoi personalizzare le tue preferenze sui cookie per Studyield in qualsiasi momento. Clicca il pulsante qui sotto per gestire i tipi di cookie che consenti.",
+      "description": "Puoi personalizzare le tue preferenze sui cookie per Study RPG in qualsiasi momento. Clicca il pulsante qui sotto per gestire i tipi di cookie che consenti.",
       "managePreferences": "Gestisci preferenze cookie"
     },
     "policyUpdates": {
@@ -2242,7 +2383,7 @@
     "badge": "Conforme al GDPR",
     "title": "Account e",
     "titleHighlight": "cancellazione dati",
-    "description": "Rispettiamo il tuo diritto all'oblio. Scopri come eliminare permanentemente il tuo account Studyield e tutti i dati associati. Questo processo è irreversibile.",
+    "description": "Rispettiamo il tuo diritto all'oblio. Scopri come eliminare permanentemente il tuo account Study RPG e tutti i dati associati. Questo processo è irreversibile.",
     "importantNotice": {
       "title": "Importante: questa azione non può essere annullata",
       "description": "Una volta eliminato il tuo account, tutti i tuoi dati saranno rimossi permanentemente dai nostri server. Assicurati di esportare eventuali materiali di studio importanti prima di procedere.",
@@ -2294,7 +2435,7 @@
       "steps": [
         {
           "title": "Accedi al tuo account",
-          "description": "Accedi a Studyield con la tua email e password per accedere alle impostazioni dell'account."
+          "description": "Accedi a Study RPG con la tua email e password per accedere alle impostazioni dell'account."
         },
         {
           "title": "Vai alle impostazioni account",
@@ -2335,7 +2476,7 @@
     "badge": "Navigazione del sito",
     "title": "Mappa del",
     "titleHighlight": "sito",
-    "description": "Panoramica completa di tutte le pagine su Studyield. Trova esattamente ciò che cerchi.",
+    "description": "Panoramica completa di tutte le pagine su Study RPG. Trova esattamente ciò che cerchi.",
     "quickAccess": "Accesso rapido",
     "sections": {
       "mainPages": "Pagine principali",
@@ -2346,7 +2487,7 @@
     },
     "links": {
       "home": "Home",
-      "homeDesc": "Benvenuto su Studyield",
+      "homeDesc": "Benvenuto su Study RPG",
       "aboutUs": "Chi siamo",
       "aboutUsDesc": "Scopri la nostra missione",
       "features": "Funzionalità",
@@ -2397,7 +2538,7 @@
     "xmlSitemapDesc": "Per motori di ricerca e sviluppatori",
     "viewSitemapXml": "Vedi sitemap.xml",
     "ctaTitle": "Non trovi quello che cerchi?",
-    "ctaDescription": "Il nostro team di supporto è qui per aiutarti a navigare Studyield.",
+    "ctaDescription": "Il nostro team di supporto è qui per aiutarti a navigare Study RPG.",
     "contactUs": "Contattaci",
     "helpCenterBtn": "Centro assistenza"
   },
@@ -4002,108 +4143,718 @@
       ]
     },
     "faq": {
-      "studentQuestion": "Studyield è conveniente per gli studenti?",
+      "studentQuestion": "Study RPG è conveniente per gli studenti?",
       "studentAnswer": "Assolutamente! I nostri prezzi sono pensati per gli studenti. Inizia con una prova gratuita di 7 giorni, poi scegli tra piani mensili (7,99 $/mese) o annuali (47,88 $/anno) — entrambi accessibili per gli studenti."
     }
   },
-  "featuresFullPage": {
-    "badge": "Funzionalità potenti",
-    "title": "Tutto ciò di cui hai bisogno per",
-    "titleHighlight": "studiare meglio",
-    "description": "Flashcard generate dall'IA con cloze e occlusione immagine, ripetizione dilazionata, clonazione esame, risoluzione problemi e un tutor IA personale — tutto in un'unica piattaforma.",
-    "startLearningFree": "Inizia a studiare gratis",
-    "viewPricing": "Vedi i prezzi",
-    "highlightsTitle": "Funzionalità principali",
-    "highlightsDescription": "Gli strumenti più potenti per potenziare il tuo percorso di apprendimento.",
-    "allFeaturesTitle": "Esplora tutte le funzionalità",
-    "allFeaturesDescription": "Scopri ogni strumento progettato per aiutarti a imparare più velocemente e trattenere di più.",
-    "learnMore": "Scopri di più",
-    "viewBenefits": "Vedi i vantaggi",
-    "tryItNow": "Provalo ora",
-    "categories": {
-      "all": "Tutte",
-      "study": "Strumenti di studio",
-      "ai": "Con IA",
-      "assessment": "Valutazione",
-      "tracking": "Monitoraggio"
+  "academics": {
+    "title": "Struttura accademica",
+    "subtitle": "Organizza materie, capitoli, argomenti, esami e profilo scolastico in un unico posto.",
+    "profileTab": "Profilo",
+    "subjectsTab": "Materie",
+    "examsTab": "Esami",
+    "profileTitle": "Profilo scolastico",
+    "profileSubtitle": "Aiuta Study RPG a personalizzare il tuo piano di studio raccontandoci il tuo contesto scolastico.",
+    "country": "Paese",
+    "board": "Consiglio scolastico",
+    "school": "Scuola",
+    "grade": "Classe",
+    "academicYear": "Anno scolastico",
+    "saveProfile": "Salva profilo",
+    "profileSaved": "Profilo salvato",
+    "addSubject": "Aggiungi materia",
+    "subjectNamePlaceholder": "Nome della materia (es. Matematica)",
+    "chapters_one": "{{count}} capitolo",
+    "chapters_other": "{{count}} capitoli",
+    "topics": "argomenti",
+    "noSubjects": "Nessuna materia ancora. Aggiungi la tua prima materia.",
+    "noChapters": "Nessun capitolo ancora — aggiungi il primo qui sotto.",
+    "addChapter": "Aggiungi capitolo",
+    "chapterNamePlaceholder": "Nome del capitolo",
+    "addTopic": "Aggiungi argomento",
+    "topicNamePlaceholder": "Nome dell’argomento",
+    "learningObjective": "Obiettivo di apprendimento",
+    "deleteSubject": "Elimina materia",
+    "deleteSubjectConfirm": "Eliminare questa materia? Verranno eliminati anche capitoli e argomenti.",
+    "deleteChapterConfirm": "Eliminare questo capitolo? Verranno eliminati anche gli argomenti.",
+    "deleteTopicConfirm": "Eliminare questo argomento?",
+    "deleteExamConfirm": "Eliminare questo esame? Verranno rimosse anche le sue parti.",
+    "addExam": "Aggiungi esame",
+    "examNamePlaceholder": "Nome dell’esame (es. Esame intermedio)",
+    "examDate": "Data dell’esame",
+    "subjectLabel": "Materia",
+    "noExams": "Nessun esame pianificato. Aggiungi un esame per seguirne le parti.",
+    "portions": "Parti dell’esame",
+    "noPortions": "Nessun capitolo in questa parte per ora.",
+    "addPortion": "Aggiungi capitolo alla parte",
+    "removePortion": "Rimuovi dalla parte",
+    "create": "Crea",
+    "add": "Aggiungi",
+    "cancel": "Annulla",
+    "error": "Qualcosa è andato storto. Riprova."
+  },
+"wellbeing": {
+    "title": "Salute dello studio",
+    "today": "Focus di oggi",
+    "optimal": "Ottimo sano: {{min}} min/giorno",
+    "budget": "{{min}} min rimasti prima del limite giornaliero",
+    "band": {
+      "fresh": "Riposato",
+      "focused": "Concentrato",
+      "draining": "In calo",
+      "depleted": "Esaurito"
     },
-    "stats": {
-      "features": "Funzionalità potenti",
-      "cardTypes": "Tipi di flashcard",
-      "aiAvailable": "IA disponibile",
-      "fileFormats": "Formati file"
+    "cooldownTitle": "Finestra di riposo attiva",
+    "cooldownBody": "Il tuo ultimo blocco di focus è stato lungo. Fai una vera pausa ({{min}} min rimasti) — il tuo cervello consolida ciò che hai studiato durante il riposo.",
+    "nightTitle": "È tardi",
+    "nightBody": "L'apprendimento si consolida durante il sonno. Considera di concludere: la sessione di domani conta più di un'altra ora stasera.",
+    "diminishingTitle": "Rendimenti decrescenti",
+    "diminishingBody": "Hai superato il tuo ottimo sano: i minuti extra di oggi valgono solo ×{{mult}} della ricompensa normale. Riposare fa contare di più ciò che hai studiato."
+  },
+  "focusSessions": {
+    "title": "Focus Sessions",
+    "subtitle": "Record your study time, subject by subject.",
+    "startFocus": "Ready to focus?",
+    "nowFocusing": "In a focus session",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "complete": "Complete",
+    "paused": "Paused",
+    "today": "Focus today",
+    "history": "Session history",
+    "minutes": "min",
+    "general": "General study",
+    "noSessions": "No sessions yet. Start one above!",
+    "subjectPlaceholder": "Subject (optional)",
+    "deleteConfirm": "Delete this session?",
+    "alreadyActive": "A session is already running or paused. Complete it first.",
+    "error": "Could not load focus sessions."
+  },
+  "mistakes": {
+    "title": "Mistake Notebook",
+    "subtitle": "Turn every mistake into a lesson.",
+    "addMistake": "Add mistake",
+    "save": "Save",
+    "cancel": "Cancel",
+    "questionLabel": "Question",
+    "questionPlaceholder": "What question did you get wrong?",
+    "subject": "Subject",
+    "chapter": "Chapter",
+    "correctAnswer": "Correct answer",
+    "wrongAnswer": "Your answer",
+    "category": "Category",
+    "category_concept": "Concept",
+    "category_careless": "Careless",
+    "category_time": "Time pressure",
+    "category_guess": "Guessed",
+    "category_other": "Other",
+    "cause": "Why it happened",
+    "correctionNote": "Correction note",
+    "status_open": "Open",
+    "status_resolved": "Resolved",
+    "status_reopened": "Reopened",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "resolvePrompt": "Correction note (optional):",
+    "search": "Search mistakes…",
+    "empty": "No mistakes match.",
+    "deleteConfirm": "Delete this mistake?",
+    "error": "Could not load mistakes."
+  },
+  "puzzles": {
+    "title": "Subject Puzzles",
+    "subtitle": "Ranked streaks and practice for every subject.",
+    "mode_ranked": "Ranked",
+    "mode_practice": "Practice",
+    "total": "puzzles",
+    "rankedToday": "ranked today",
+    "best": "best {best}",
+    "pickSubject": "Pick a subject to start puzzling.",
+    "noSubjects": "No puzzles yet. Create original puzzles for your subjects.",
+    "dailyLimit": "Daily ranked limit reached",
+    "dailyLimitHint": "Come back tomorrow, or keep practicing!",
+    "noneLeft": "No puzzles left for this subject.",
+    "retry": "Try again",
+    "submit": "Submit answer",
+    "correct": "Correct!",
+    "incorrect": "Not quite.",
+    "answer": "Answer",
+    "next": "Next puzzle",
+    "history": "Recent attempts",
+    "error": "Could not load puzzles."
+  },
+  "examCentre": {
+    "title": "Exam Centre",
+    "subtitle": "Valutazione per competenze — scegli una materia, affina il pensiero e scopri perché hai perso punti e come migliorare.",
+    "addPeriod": "Add period",
+    "periodName": "Period name",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "notes": "Notes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "status_upcoming": "Upcoming",
+    "status_live": "Live",
+    "status_ended": "Ended",
+    "noPeriods": "No exam periods yet. Add one to plan your exams.",
+    "noExamsInPeriod": "No exams attached to this period.",
+    "recordResult": "Record result: {exam}",
+    "recordResultTitle": "Record exam result",
+    "marksObtained": "Marks obtained",
+    "marksTotal": "Total marks",
+    "mistakeAnalysis": "Mistake analysis",
+    "revisionPlan": "Revision plan",
+    "saveResult": "Save result",
+    "results": "Results",
+    "deleteConfirm": "Delete this exam period?",
+    "error": "Could not load the exam centre."
+  },
+  "rpg": {
+    "title": "Study RPG",
+    "subtitle": "Defeat the monsters of distraction with knowledge and original cards.",
+    "stp": "STP",
+    "error": "Failed to load Study RPG data.",
+    "deckError": "Could not create the deck — check card restrictions.",
+    "battleError": "Could not start a battle.",
+    "actionError": "That move was rejected by the server.",
+    "tab": {
+      "character": "Character",
+      "decks": "Decks",
+      "battle": "Battle",
+      "duel": "Duels"
     },
-    "studySets": {
-      "title": "Set di studio",
-      "subtitle": "Organizza il tuo apprendimento",
-      "description": "Crea e organizza set di studio con estrazione di contenuti con IA. Carica documenti e lascia che l'IA generi materiali di studio completi automaticamente.",
-      "benefits": ["Estrazione contenuti con IA", "Organizza per materie e argomenti", "Condividi e collabora con i compagni", "Importa da formati multipli"]
+    "level": "Level",
+    "xp": "XP",
+    "studyStreak": "Study streak",
+    "bestPuzzleStreak": "Best puzzle streak",
+    "eventExp": "Event XP",
+    "equippedDeck": "Equipped deck",
+    "noDeck": "No deck yet",
+    "startBattle": "Start battle",
+    "collectionCount": "Cards owned",
+    "manageDecks": "Manage decks",
+    "cardLibrary": "Card library",
+    "libraryHint": "Original cards only — no third-party content.",
+    "balance": "Wallet balance",
+    "ledgerHint": "Every STP/SLC change is recorded on an immutable ledger.",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "legendary": "Legendary"
     },
-    "flashcards": {
-      "title": "Flashcard intelligenti",
-      "subtitle": "Schede generate dall'IA",
-      "description": "Genera automaticamente flashcard standard, cloze e con occlusione immagine da qualsiasi documento. L'algoritmo di ripetizione dilazionata SM-2 programma i ripassi al momento perfetto.",
-      "benefits": ["3 tipi di schede: standard, cloze, occlusione immagine", "Algoritmo di ripetizione dilazionata SM-2", "Generate dall'IA dai tuoi documenti", "Monitora la padronanza per scheda"]
+    "buildDeck": "Build a deck",
+    "deckNamePlaceholder": "Deck name",
+    "deckHint": "five cards, max one Poison, one Decay and one Shield",
+    "saveDeck": "Save deck",
+    "collection": "Collection",
+    "active": "Active",
+    "equip": "Equip",
+    "deckValid": "Valid deck",
+    "deckInvalid": "Invalid deck",
+    "defaultDeckName": "My Deck",
+    "noBattle": "No battle in progress",
+    "noBattleHint": "Equip a validated deck, then challenge a monster.",
+    "turn": "Turn",
+    "shield": "Shield",
+    "forfeit": "Forfeit",
+    "done": "Done",
+    "victory": "Victory!",
+    "defeat": "Defeated…",
+    "forfeited": "Forfeited",
+    "pendingReward": "Reward on victory",
+    "log": {
+      "start": "Battle starts —",
+      "action": "plays",
+      "damage": "deals",
+      "dot": "damage over time",
+      "heal": "heals",
+      "shield": "shield from",
+      "status": "status",
+      "mana": "mana",
+      "quiz": "quiz restores",
+      "challengeWin": "Damage challenge: perfect! +10",
+      "challengeFail": "Damage challenge missed.",
+      "defeatWin": "Monster defeated!",
+      "defeatLoss": "You were defeated.",
+      "end": "Turn ends."
     },
-    "documents": {
-      "title": "Analisi documenti",
-      "subtitle": "Carica ed estrai",
-      "description": "Carica PDF, documenti Word, immagini o file markdown. La nostra IA estrae concetti chiave, definizioni e formule — anche da appunti scritti a mano tramite OCR.",
-      "benefits": ["Supporto per 6+ formati file", "Estrazione concetti con IA", "Riconoscimento scrittura a mano (OCR)", "Genera automaticamente flashcard dai documenti"]
-    },
-    "chat": {
-      "title": "Compagno di studio IA",
-      "subtitle": "Chatta con i tuoi materiali",
-      "description": "Chatta con i tuoi materiali di studio. Fai domande su qualsiasi argomento, ottieni spiegazioni istantanee e lascia che l'IA generi flashcard e quiz dai tuoi documenti.",
-      "benefits": ["Fai domande su qualsiasi argomento", "Ottieni spiegazioni istantanee", "Genera flashcard dalla chat", "Disponibile 24/7"]
-    },
-    "quizzes": {
-      "title": "Quiz e quiz dal vivo",
-      "subtitle": "Testa le tue conoscenze",
-      "description": "Quiz generati dall'IA dai tuoi materiali di studio più quiz multiplayer in tempo reale. Competi con i compagni e monitora i tuoi progressi.",
-      "benefits": ["Domande quiz generate dall'IA", "Modalità multiplayer in tempo reale", "Tipi di domande multipli", "Analisi dettagliate delle prestazioni"]
-    },
-    "examClone": {
-      "title": "Clonazione esame",
-      "subtitle": "Esercitati come nella realtà",
-      "description": "Analizza esami passati e genera domande di pratica corrispondenti. Simula condizioni d'esame reali con sessioni a tempo e punteggio.",
-      "benefits": ["Analizza i modelli degli esami passati", "Genera domande simili", "Simulazione d'esame a tempo", "Punteggio e revisione delle prestazioni"]
-    },
-    "problemSolver": {
-      "title": "Risolutore di problemi",
-      "subtitle": "Soluzioni passo dopo passo",
-      "description": "Ottieni soluzioni passo dopo passo per matematica, scienze e altro. Carica una foto o digita il tuo problema — l'IA lo scompone in passaggi chiari e comprensibili.",
-      "benefits": ["Spiegazioni passo dopo passo", "Matematica, scienze e altro", "Supporto caricamento foto", "Modalità batch per problemi multipli"]
-    },
-    "handwritingOcr": {
-      "title": "OCR scrittura a mano",
-      "subtitle": "Scansiona i tuoi appunti",
-      "description": "Scansiona appunti scritti a mano e convertili in testo digitale. Perfetto per convertire appunti delle lezioni in flashcard e materiali di studio.",
-      "benefits": ["Riconoscimento accurato della scrittura a mano", "Converti appunti in flashcard", "Supporto per più lingue", "Funziona con foto e scansioni"]
-    },
-    "learningPaths": {
-      "title": "Percorsi di apprendimento",
-      "subtitle": "Roadmap personalizzate",
-      "description": "L'IA crea roadmap di studio personalizzate in base ai tuoi obiettivi e alle conoscenze attuali. Segui percorsi strutturati per padroneggiare qualsiasi materia in modo efficiente.",
-      "benefits": ["Piani di studio generati dall'IA", "Si adattano ai tuoi progressi", "Traguardi basati sugli obiettivi", "Monitora la percentuale di completamento"]
-    },
-    "analytics": {
-      "title": "Statistiche e gamification",
-      "subtitle": "Monitora i tuoi progressi",
-      "description": "Monitora i progressi con heatmap di studio e calendari delle serie. Guadagna XP, sali di livello, mantieni le serie giornaliere e imposta conti alla rovescia per gli esami.",
-      "benefits": ["Heatmap e calendari di studio", "Sistema XP e livelli", "Monitoraggio serie giornaliere", "Timer conto alla rovescia esami"]
-    },
-    "teachBack": {
-      "title": "Teach Back",
-      "subtitle": "Impara insegnando",
-      "description": "Spiega i concetti all'IA e ottieni feedback sulla tua comprensione. Insegnare è uno dei modi più efficaci per consolidare le conoscenze.",
-      "benefits": ["Spiega concetti all'IA", "Ottieni feedback istantaneo", "Identifica le lacune", "Rafforza la comprensione"]
-    },
-    "conceptMaps": {
-      "title": "Mappe concettuali",
-      "subtitle": "Visualizza le connessioni",
-      "description": "Visualizza come argomenti e concetti si collegano tra loro. L'IA genera mappe mentali interattive dai tuoi materiali di studio per vedere il quadro d'insieme.",
-      "benefits": ["Mappe concettuali generate dall'IA", "Visualizzazione interattiva", "Vedi le relazioni tra argomenti", "Esporta e condividi le mappe"]
+    "pvp": {
+      "challengeByEmail": "Challenge by email",
+      "emailPlaceholder": "friend@example.com",
+      "challengeBtn": "Challenge",
+      "randomMatchmaking": "Random matchmaking",
+      "needDeck": "You need a validated, equipped deck to duel.",
+      "leaderboard": "Leaderboard",
+      "noDuels": "No duels yet",
+      "level": "Level",
+      "yourDuels": "Your duels",
+      "rating": "Rating",
+      "vs": "vs",
+      "you": "you",
+      "status": {
+        "challenged": "Challenged",
+        "in_progress": "In progress",
+        "settled": "Settled",
+        "expired": "Expired"
+      },
+      "youWon": "You won the duel!",
+      "youLost": "You lost the duel.",
+      "draw": "The duel was a draw.",
+      "ratingChange": "Rating change",
+      "limited": "daily limit reached",
+      "expires": "Expires",
+      "continue": "Continue battle",
+      "fight": "Fight",
+      "duelError": "Could not create the duel.",
+      "battleError": "Could not start the duel battle."
     }
+  },
+  "economy": {
+    "title": "Mercato delle carte",
+    "subtitle": "Compra, vendi, rottama e brucia carte originali — ogni movimento di STP finisce nel registro immutabile.",
+    "error": "Qualcosa è andato storto con il mercato.",
+    "loading": "Apertura del mercato…",
+    "tab": {
+      "marketplace": "Mercato",
+      "collection": "Le mie carte",
+      "supply": "Offerta"
+    },
+    "rarity": {
+      "all": "Tutte",
+      "common": "Comune",
+      "rare": "Rara",
+      "legendary": "Leggendaria",
+      "supply": "Rarità"
+    },
+    "officialValue": "Valore ufficiale",
+    "seller": "Venditore",
+    "buy": "Compra",
+    "offer": "Offri",
+    "sendOffer": "Invia",
+    "offerPlaceholder": "La tua offerta in STP",
+    "offerMade": "Offerta inviata — in attesa della risposta del venditore.",
+    "pendingOffers": "Offerte in sospeso",
+    "from": "da",
+    "to": "a",
+    "accept": "Accetta",
+    "decline": "Rifiuta",
+    "cancelOffer": "Ritira",
+    "myListings": "I miei annunci",
+    "noListings": "Nessuna carta sul mercato al momento.",
+    "owned": "Possedute",
+    "location": {
+      "inventory": "Inventario",
+      "vault": "Volta"
+    },
+    "inDeck": "Nel mazzo",
+    "listedBadge": "In vendita",
+    "sell": "Vendi",
+    "confirmList": "Pubblica",
+    "pricePlaceholder": "Prezzo in STP",
+    "listed": "Carta pubblicata sul mercato.",
+    "toVault": "Alla volta",
+    "toInventory": "All'inventario",
+    "scrape": "Rottama",
+    "scrapeTitle": "Rottamare questa carta?",
+    "scrapeWarning": "La carta viene rimossa definitivamente e ricevi subito il suo valore ufficiale. Non si può annullare.",
+    "confirmScrape": "Rottama per STP",
+    "burn": "Brucia",
+    "burnTitle": "Bruciare questa carta?",
+    "burnWarning": "La carta viene rimossa definitivamente. Sei pagato a rate — la prima subito, le altre nel tempo. Non si può annullare.",
+    "confirmBurn": "Brucia a rate",
+    "cancel": "Annulla",
+    "burnActive": "Combustione in corso",
+    "instalments": "rate",
+    "nextInstalment": "Prossimo pagamento",
+    "noCards": "Non possiedi ancora carte. Vinci battaglie e apri pacchetti per ampliare la collezione.",
+    "card": "Carta",
+    "original": "Originale",
+    "active": "Attiva",
+    "burned": "Bruciate",
+    "scraped": "Rottamate",
+    "listedShort": "In vendita",
+    "statusCol": "Stato",
+    "extinct": "Estinta",
+    "replacement": "Eco",
+    "activeBadge": "Viva",
+    "retired": "Ritirata",
+    "priceHistory": "Storico del valore ufficiale",
+    "noHistory": "Nessuna variazione di valore registrata finora.",
+    "supplyHint": "Il registro dell'offerta traccia ogni stampa, combustione, rottamazione ed estinzione — il valore ufficiale segue l'offerta.",
+    "adminReconcile": "Concilia",
+    "adminInstalments": "Paga le rate"
+  },
+  "events": {
+    "title": "Eventi di studio",
+    "subtitle": "C'è sempre un evento attivo. Studia, guadagna EXP evento, sali nel tuo Study Pass e ritira le ricompense: il gioco non distrae mai dallo studio.",
+    "loadError": "Impossibile caricare l'evento attuale.",
+    "none": "Nessun evento attivo al momento: il pianificatore ne avvia uno automaticamente.",
+    "daysLeft": "termina tra {count} giorno/i",
+    "startsOn": "Inizia",
+    "endsOn": "Termina",
+    "fallbackBadge": "Fallback",
+    "status": {
+      "scheduled": "Programmato",
+      "active": "Attivo",
+      "ended": "Terminato"
+    },
+    "studyPass": {
+      "title": "Study Pass",
+      "hint": "L'EXP evento arriva solo dallo studio reale: compiti, focus, quiz, puzzle e battaglie.",
+      "level": "Livello {level}",
+      "exp": "{exp} / {next} EXP",
+      "maxed": "Livello massimo raggiunto",
+      "trackNone": "Scegli il tuo percorso",
+      "trackLocked": "Percorso bloccato",
+      "free": "Pass gratuito",
+      "gold": "Pass Oro",
+      "goldCost": "Pass Oro · {cost} STP",
+      "chooseFree": "Scegli Gratuito",
+      "chooseGold": "Scegli Oro",
+      "goldConfirmTitle": "Acquistare il Pass Oro?",
+      "goldConfirmBody": "Costa {cost} STP dal tuo portafoglio e blocca il percorso per tutto l'evento. La scelta non può essere cambiata.",
+      "claim": "Ritira",
+      "claimed": "Ritirato",
+      "locked": "Bloccato",
+      "claimHint": "{count} ricompensa/e pronta/e"
+    },
+    "quests": {
+      "title": "Missioni",
+      "subtitle": "Completa attività di studio reali per guadagnare STP, EXP evento e oggetti.",
+      "category": {
+        "daily": "Giornaliera",
+        "weekly": "Settimanale",
+        "study": "Studio",
+        "puzzle": "Puzzle"
+      },
+      "claim": "Ritira",
+      "claimed": "Ritirata",
+      "none": "Nessuna missione attiva per questo evento al momento."
+    },
+    "items": {
+      "title": "Oggetti evento",
+      "subtitle": "Errori Abstracted, Frammenti e Sigilli di Estinzione.",
+      "none": "Non possiedi ancora oggetti evento.",
+      "transfer": "Invia Sigillo",
+      "transferHint": "Invia Sigilli di Estinzione a un amico (ID utente + quantità).",
+      "friendId": "ID utente dell'amico",
+      "quantity": "Quantità",
+      "send": "Invia",
+      "transferred": "Sigilli inviati.",
+      "transferError": "Impossibile inviare i Sigilli.",
+      "redeemLimbo": "Riscatta Limbo",
+      "limboTitle": "Riscattare Limbo?",
+      "limboBody": "Consuma tutti i 7 Errori Abstracted per ricevere la Leggendaria Limbo non commerciabile. Si può fare una sola volta.",
+      "limboDone": "Limbo concesso!",
+      "errorsHave": "Hai {count} Errore/i Abstracted."
+    },
+    "abstracted": {
+      "title": "Carte Abstracted",
+      "subtitle": "De-astrarre converte permanentemente una carta Abstracted in una Leggendaria.",
+      "none": "Non hai carte Abstracted da de-astrarre.",
+      "unabstract": "De-astra",
+      "unabstractTitle": "De-astrarre {name}?",
+      "unabstractBody": "La carta viene convertita permanentemente in {result}, e ricevi {stp} STP e 1 Errore Abstracted. Non si può annullare.",
+      "reason": "Motivo (visibile nei log di audit)",
+      "confirm": "Conferma",
+      "done": "Carta de-astratta — {result} aggiunta alla tua collezione."
+    },
+    "extinction": {
+      "title": "La Grande Estinzione",
+      "subtitle": "Queste linee di carte stanno svanendo. Brucia un obiettivo per guadagnare un Sigillo di Estinzione, o usa i Sigilli per preservare un favorito.",
+      "targets": "Obiettivi",
+      "value": "Valore",
+      "milestone": "Pira globale",
+      "milestoneProgress": "{progress} / {target} bruciature mirate",
+      "claimMilestone": "Ritira Sigillo",
+      "milestoneClaimed": "Ritirato",
+      "none": "Nessun obiettivo ancora definito."
+    },
+    "admin": {
+      "title": "Amministrazione eventi",
+      "subtitle": "Programma eventi, attivali e gestisci l'estinzione. Ogni azione viene registrata con un motivo.",
+      "slug": "Slug",
+      "name": "Nome",
+      "story": "Storia",
+      "startsAt": "Inizia alle",
+      "endsAt": "Termina alle",
+      "graceHours": "Ore di grazia",
+      "reason": "Motivo",
+      "create": "Programma evento",
+      "created": "Evento programmato.",
+      "createError": "Impossibile programmare l'evento.",
+      "activate": "Attiva ora",
+      "activated": "Evento attivato.",
+      "activateError": "Impossibile attivare l'evento.",
+      "seedTargets": "Ripopola gli obiettivi di estinzione",
+      "cardKeys": "Chiavi carta (separate da virgole)",
+      "seeded": "Obiettivi di estinzione aggiornati.",
+      "seedError": "Impossibile aggiornare gli obiettivi di estinzione."
+    }
+  },
+  "programmes": {
+    "title": "Programmi",
+    "subtitle": "Strutture facoltative che allenano il tuo pensiero — progetta sistemi che risolvono veri problemi di studio. Tutti i programmi sono facoltativi; la tua scelta conta più di tutto.",
+    "suggest": "Suggerisci un programma",
+    "suggestBtn": "Suggerisci programma",
+    "suggestHint": "Descrivi un'idea di programma (es. «Centro di ripasso per Scienze di 10ª»).",
+    "suggestError": "Impossibile suggerire il programma.",
+    "loadError": "Impossibile caricare i programmi.",
+    "join": "Unisciti",
+    "leave": "Esci",
+    "review": "Revisiona",
+    "reviewBtn": "Invia revisione",
+    "reviewError": "Impossibile salvare la revisione.",
+    "reviewAccepted": "Accettato",
+    "reviewRejected": "Rifiutato",
+    "reviewReasonPlaceholder": "Motivo di questa revisione (obbligatorio)",
+    "reviewHistory": "Cronologia revisioni",
+    "reviewQueue": "Coda di revisione",
+    "reviewQueueError": "Impossibile caricare la coda di revisione.",
+    "queueHint": "Programmi in attesa di un verdetto umano (nessuna revisione IA o punteggio basso).",
+    "queueEmpty": "La coda di revisione è vuota.",
+    "applyVerdicts": "Applica verdetti",
+    "accept": "Accetta",
+    "reject": "Rifiuta",
+    "by": "di",
+    "none": "Ancora nessun programma: suggerisci tu il primo.",
+    "score": "Punteggio",
+    "reward": "Ricompensa",
+    "objectives": "Obiettivi",
+    "weeks": "sett",
+    "hoursWeek": "ore/sett",
+    "reasonPlaceholder": "Motivo (obbligatorio)",
+    "namePlaceholder": "Nome del programma",
+    "descriptionPlaceholder": "Breve descrizione",
+    "factionSizePlaceholder": "Dimensione fazione",
+    "hasFactions": "Fazioni attive",
+    "factionsEnabled": "Con fazioni",
+    "startPath": "Avvia percorso di apprendimento",
+    "pathError": "Impossibile creare il percorso di apprendimento.",
+    "hideForm": "Nascondi modulo",
+    "hideQueue": "Nascondi coda",
+    "hideTemplates": "Nascondi modelli",
+    "templates": "Modelli",
+    "templatesHint": "Parti da un modello curato: l'IA costruisce il programma completo a partire da esso.",
+    "noTemplates": "Ancora nessun modello.",
+    "useTemplate": "Usa modello",
+    "newTemplate": "Nuovo modello",
+    "saveTemplate": "Salva modello",
+    "deleteTemplate": "Elimina modello",
+    "templateDeletePrompt": "Motivo per eliminare questo modello (obbligatorio):",
+    "templateNamePlaceholder": "Nome del modello",
+    "templateDescPlaceholder": "Descrizione del modello",
+    "templateError": "Impossibile salvare il modello.",
+    "archiveReasonPrompt": "Motivo per archiviare questo programma (obbligatorio):",
+    "batchReviewDone": "Revisione batch applicata.",
+    "filter": {
+      "active": "Tutti",
+      "mine": "Miei",
+      "suggested": "Suggeriti"
+    },
+    "status": {
+      "active": "Attivo",
+      "suggested": "Suggerito",
+      "building": "In creazione",
+      "rejected": "Rifiutato",
+      "archived": "Archiviato"
+    },
+    "kind": {
+      "custom": "Personalizzato",
+      "revision_centre": "Centro di ripasso",
+      "competency_testing": "Valutazione per competenze",
+      "exam_sprint": "Sprint d'esame"
+    }
+  },
+  "admin": {
+    "title": "Amministrazione",
+    "subtitle": "Console super-admin Nightmare",
+    "users": {
+      "create": "Crea utente",
+      "createBtn": "Crea utente",
+      "createError": "Impossibile creare l'utente.",
+      "edit": "Modifica",
+      "editUser": "Modifica utente",
+      "loadError": "Impossibile caricare gli utenti.",
+      "none": "Nessun utente trovato.",
+      "searchPlaceholder": "Cerca per nome, email o nome utente",
+      "namePlaceholder": "Nome completo",
+      "emailPlaceholder": "Email (facoltativa)",
+      "usernamePlaceholder": "Nome utente (facoltativo)",
+      "passwordPlaceholder": "Password",
+      "reasonPlaceholder": "Motivo (obbligatorio)",
+      "role": {
+        "admin": "Admin",
+        "teacher": "Insegnante",
+        "user": "Utente"
+      },
+      "activeLabel": "Attivo",
+      "disabled": "Disattivato",
+      "reset": "Reimposta password",
+      "resetBtn": "Reimposta",
+      "resetError": "Impossibile reimpostare la password.",
+      "resetPassword": "Reimposta password",
+      "newPasswordPlaceholder": "Nuova password",
+      "updateError": "Impossibile aggiornare l'utente.",
+      "hideForm": "Nascondi modulo",
+      "noIdentifier": "Email o nome utente obbligatorio"
+    },
+    "audit": {
+      "title": "Registro di controllo",
+      "export": "Esporta",
+      "none": "Nessuna voce di controllo.",
+      "reason": "Motivo",
+      "target": "Destinatario",
+      "loadError": "Impossibile caricare il registro di controllo.",
+      "purge": "Elimina vecchie voci",
+      "purgeError": "Impossibile eliminare le voci del registro.",
+      "retentionPlaceholder": "Giorni di conservazione",
+      "retentionReason": "Motivo (obbligatorio)",
+      "retentionNow": "Conservazione",
+      "setRetention": "Imposta conservazione",
+      "retentionError": "Impossibile aggiornare la conservazione.",
+      "days": "giorni",
+      "system": "Sistema"
+    },
+    "notes": {
+      "deleteError": "Impossibile eliminare la nota.",
+      "deleteReasonPrompt": "Motivo per eliminare questa nota (obbligatorio):",
+      "hideForm": "Nascondi modulo",
+      "hint": "Carica un PDF o scrivi una nota universale. Le pagine selezionate vengono indicizzate nella ricerca RAG.",
+      "loadError": "Impossibile caricare le note.",
+      "none": "Ancora nessuna nota admin.",
+      "pages": "Pagine",
+      "selectedPages": "Pagine selezionate",
+      "subjectPlaceholder": "Materia (facoltativa)",
+      "textNote": "Scrivi una nota di testo",
+      "titlePlaceholder": "Titolo della nota",
+      "upload": "Carica",
+      "uploadBtn": "Carica nota",
+      "uploadError": "Impossibile caricare la nota."
+    },
+    "syllabus": {
+      "add": "Aggiungi voce al programma",
+      "boardPlaceholder": "Consiglio (es. CBSE)",
+      "chaptersPlaceholder": "JSON dei capitoli (nome + argomenti)",
+      "deleteError": "Impossibile eliminare la voce del programma.",
+      "deleteReasonPrompt": "Motivo per eliminare questa voce (obbligatorio):",
+      "gradePlaceholder": "Classe (es. 9)",
+      "hideForm": "Nascondi modulo",
+      "hint": "Pubblica il programma ufficiale che gli studenti seguono.",
+      "loadError": "Impossibile caricare il programma.",
+      "none": "Ancora nessuna voce.",
+      "reasonPlaceholder": "Motivo (obbligatorio)",
+      "save": "Salva programma",
+      "saveError": "Impossibile salvare il programma.",
+      "subjectPlaceholder": "Materia"
+    },
+    "system": {
+      "users": "Utenti per ruolo",
+      "auditCount": "Voci di controllo",
+      "activeEvents": "Eventi attivi",
+      "activeFactions": "Fazioni attive",
+      "queue": "Coda (predefinita)",
+      "queueWaiting": "In attesa",
+      "queueActive": "Attive",
+      "queueCompleted": "Completate",
+      "queueFailed": "Fallite",
+      "queueDelayed": "Ritardate",
+      "loadError": "Impossibile caricare lo stato del sistema.",
+      "health": {
+        "title": "Salute del servizio",
+        "database": "Database",
+        "redis": "Redis",
+        "qdrant": "Qdrant",
+        "queue": "Coda",
+        "ok": "OK",
+        "down": "Giù"
+      }
+    }
+  },
+  "factions": {
+    "title": "Fazioni",
+    "subtitle": "Gruppi di studio con un caposquadra. Le fazioni più deboli ricevono aiuto dalle più forti: studiare aiutandosi a vicenda.",
+    "loadError": "Impossibile caricare le fazioni.",
+    "none": "Ancora nessuna fazione.",
+    "myFaction": "La mia fazione",
+    "noFaction": "Non sei ancora in una fazione.",
+    "joinDefault": "Unisciti alla fazione predefinita",
+    "members": "Membri",
+    "viewMembers": "Vedi membri",
+    "score": "Punteggio",
+    "leader": "Leader",
+    "election": "Elezioni",
+    "vote": "Vota",
+    "voteError": "Impossibile inviare il voto.",
+    "noVotes": "Nessun voto in questo periodo.",
+    "leaderboard": "Classifica",
+    "period": "Periodo",
+    "targetSize": "Dimensione obiettivo",
+    "helpPledges": "Impegni di aiuto",
+    "pledgesTo": "Impegni verso",
+    "pledgeStatus": {
+      "open": "Aperto",
+      "completed": "Completato"
+    },
+    "recordHelp": "Registra aiuto",
+    "recordHelpBtn": "Registra attività di aiuto",
+    "recordHelpHint": "Registra di aver aiutato una fazione più debole in questo periodo.",
+    "helpActivities": "Attività di aiuto",
+    "helpNotePrompt": "Nota (facoltativa):",
+    "helpError": "Impossibile registrare l'attività di aiuto.",
+    "promoteLeaders": "Promuovi top 2",
+    "promoteError": "Impossibile promuovere i leader.",
+    "assignError": "Impossibile unirsi a una fazione."
+  },
+  "social": {
+    "title": "Social",
+    "subtitle": "Amici e messaggi diretti: self-hosted, moderati, con limiti.",
+    "loadError": "Impossibile caricare i tuoi contatti.",
+    "friends": "Amici",
+    "noFriends": "Ancora nessun amico. Cerca compagni di studio!",
+    "findFriends": "Trova amici",
+    "searchPlaceholder": "Cerca per nome, nome utente o email",
+    "add": "Aggiungi",
+    "pending": "In attesa",
+    "requests": "Richieste",
+    "selectFriend": "Seleziona un amico",
+    "selectFriendHint": "Scegli un amico dalla lista per iniziare a chattare.",
+    "noMessages": "Ancora nessun messaggio. Saluta!",
+    "messagePlaceholder": "Scrivi un messaggio…",
+    "sendError": "Impossibile inviare il messaggio.",
+    "requestError": "Impossibile inviare la richiesta di amicizia.",
+    "block": "Blocca",
+    "blockConfirm": "Bloccare questo utente?",
+    "status": {
+      "pending": "In attesa",
+      "accepted": "Amici",
+      "blocked": "Bloccato"
+    }
+  },
+  "accepted": "Accettato",
+  "rejected": "Rifiutato",
+  "campfire": {
+    "title": "Il Falò — Verifica Metacognitiva",
+    "subtitle": "Prima di incassare le ricompense, dimostra di aver davvero capito ciò che hai studiato.",
+    "checkTitle": "Check del falò: verifica la tua comprensione",
+    "checkSubtitle": "Rispondi all’unica domanda di sintesi del tutor per assicurarti le ricompense: la profondità può aumentarle fino a 1,5×.",
+    "checkSubtitleBattle": "Rispondi alla domanda di sintesi del tutor per aumentare fino a 1,5× le ricompense della tua prossima vittoria.",
+    "reflectBoost": "Rifletti e potenzia",
+    "answeredLabel": "Riflessione registrata",
+    "tutorQuestion": "Il tuo tutor chiede",
+    "answerPlaceholder": "Sintetizza l’idea con parole tue: come funziona, perché conta e come si collega a ciò che già sapevi…",
+    "submit": "Invia riflessione",
+    "skip": "Salta (moltiplicatore base 1,0×)",
+    "depthLabel": "Profondità di comprensione",
+    "multiplierApplied": "Moltiplicatore ricompensa applicato",
+    "masteryFrame": "La tua capacità cognitiva reale e la tua resistenza alla concentrazione sono aumentate. Competenza approfondita: {{skill}}.",
+    "reflectionLogged": "Riflessione registrata",
+    "done": "Continua",
+    "error": "Il falò non può essere acceso in questo momento. Riprova tra poco.",
+    "tooShort": "La tua riflessione è troppo breve: prenditi un momento vero per sintetizzare l’idea.",
+    "limitReached": "Hai riflettuto abbastanza oggi (3/giorno). Il tuo moltiplicatore attuale resta attivo.",
+    "boostActive": "Ricompense potenziate ×{{mult}}",
+    "yourSubject": "la tua sessione di studio"
   }
 }

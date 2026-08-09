@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { ClozeRenderer } from '@/components/ClozeRenderer';
 import { ImageOcclusionViewer } from '@/components/ImageOcclusionViewer';
+import { CampfireReflectionModal } from '@/components/rpg/CampfireReflectionModal';
 import { cn } from '@/lib/utils';
 import type { OcclusionRegion } from '@/types';
 import { hasClozeMarkers } from '@/types';
@@ -23,6 +24,7 @@ import {
   Trophy,
   Target,
   Brain,
+  Flame,
   ChevronLeft,
   SkipForward,
   Zap,
@@ -110,6 +112,8 @@ function SessionComplete({
   xpEarned: number;
 }) {
   const { t } = useTranslation();
+  const [showCampfire, setShowCampfire] = useState(false);
+  const [boostMultiplier, setBoostMultiplier] = useState<number | null>(null);
   const accuracy = stats.reviewed > 0 ? Math.round((stats.correct / stats.reviewed) * 100) : 0;
 
   return (
@@ -168,6 +172,35 @@ function SessionComplete({
         <p className="text-4xl font-bold">{accuracy}%</p>
       </div>
 
+      {/* Metacognitive campfire check (spec 014, US5) */}
+      <div className="mb-6 rounded-xl border border-amber-500/25 bg-gradient-to-br from-amber-500/10 via-transparent to-orange-500/5 p-5 text-left">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-500">
+            <Flame className="h-4 w-4" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold">{t('campfire.checkTitle')}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t('campfire.checkSubtitle')}</p>
+            {boostMultiplier !== null && boostMultiplier > 1 && (
+              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600 dark:text-green-400">
+                <Sparkles className="h-3.5 w-3.5" />
+                {t('campfire.boostActive', { mult: boostMultiplier.toFixed(2) })}
+              </p>
+            )}
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowCampfire(true)}
+            className="shrink-0 border-amber-500/40 text-amber-600 hover:bg-amber-500/10 dark:text-amber-400"
+          >
+            {boostMultiplier !== null && boostMultiplier > 1
+              ? t('campfire.answeredLabel')
+              : t('campfire.reflectBoost')}
+          </Button>
+        </div>
+      </div>
+
       <div className="flex gap-3">
         <Button variant="outline" className="flex-1" asChild>
           <Link to={`/dashboard/study-sets/${studySetId}`}>{t('studySession.backToSet')}</Link>
@@ -177,6 +210,13 @@ function SessionComplete({
           {t('studySession.studyAgain')}
         </Button>
       </div>
+
+      <CampfireReflectionModal
+        open={showCampfire}
+        onClose={() => setShowCampfire(false)}
+        source={{ kind: 'session', id: studySetId, subject: undefined }}
+        onResolved={(mult) => setBoostMultiplier(mult)}
+      />
     </motion.div>
   );
 }

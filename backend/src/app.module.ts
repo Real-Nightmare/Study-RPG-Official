@@ -32,10 +32,26 @@ import { SubscriptionModule } from './modules/subscription';
 import { AnalyticsModule } from './modules/analytics';
 import { NotificationsModule } from './modules/notifications';
 import { BlogModule } from './modules/blog';
+import { PlannerModule } from './modules/planner';
+import { AcademicsModule } from './modules/academics';
+import { FocusSessionsModule } from './modules/focus-sessions';
+import { MistakesModule } from './modules/mistakes';
+import { PuzzlesModule } from './modules/puzzles';
+import { ExamPeriodsModule } from './modules/exam-periods';
+import { DashboardModule } from './modules/dashboard';
+import { RpgModule } from './modules/rpg';
+import { RagModule } from './modules/rag';
+import { AdminModule } from './modules/admin';
+import { ProgrammesModule } from './modules/programmes';
+import { FactionsModule } from './modules/factions';
+import { SocialModule } from './modules/social';
+import { AdminNotesModule } from './modules/admin-notes';
+import { EconomyModule } from './modules/economy';
+import { EventsModule } from './modules/events';
+import { IntegrityModule } from './modules/integrity';
 
 // Common
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-// import { PlanGuard } from './common/guards/plan.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { CamelCaseInterceptor } from './common/interceptors/camel-case.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -97,6 +113,23 @@ import { HealthController } from './health.controller';
     AnalyticsModule,
     NotificationsModule,
     BlogModule,
+    PlannerModule,
+    AcademicsModule,
+    FocusSessionsModule,
+    MistakesModule,
+    PuzzlesModule,
+    ExamPeriodsModule,
+    DashboardModule,
+    RagModule,
+    RpgModule,
+    AdminModule,
+    ProgrammesModule,
+    FactionsModule,
+    SocialModule,
+    AdminNotesModule,
+    EconomyModule,
+    EventsModule,
+    IntegrityModule,
   ],
   controllers: [HealthController],
   providers: [
@@ -110,11 +143,10 @@ import { HealthController } from './health.controller';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    // Global Plan Guard (Pro feature gating) - COMMENTED OUT
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: PlanGuard,
-    // },
+    // Note: PlanGuard (subscription feature gating) is intentionally NOT registered
+    // globally. Study RPG is 100% Free-to-Win — the subscription tier gates platform
+    // infrastructure only, never game progress, rewards, or study content. If per-route
+    // plan gating is ever needed, apply it explicitly with RolesGuard-style guards.
     // Global Rate Limiting Guard
     {
       provide: APP_GUARD,

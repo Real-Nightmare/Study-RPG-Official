@@ -1,11 +1,14 @@
 import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../database/database.service';
-import { QdrantService } from '../qdrant/qdrant.service';
+import { QdrantService, CollectionResolver } from '../qdrant';
 import { EmbeddingService } from '../ai/embedding.service';
 import { QueueService } from '../queue/queue.service';
 import { ChunkingService } from './chunking.service';
 import { DocumentProcessorService } from './document-processor.service';
+import { HybridRetrieverService, RetrievalMode } from './hybrid-retriever.service';
+import { DocumentDeletionService } from './document-deletion.service';
+import { hashChunks, hashNormalizedText } from './content-hash';
 
 export interface KnowledgeBase {
   id: string;
@@ -55,6 +58,9 @@ export class KnowledgeBaseService {
     private readonly queueService: QueueService,
     private readonly chunkingService: ChunkingService,
     private readonly documentProcessor: DocumentProcessorService,
+    private readonly hybridRetriever: HybridRetrieverService,
+    private readonly collectionResolver: CollectionResolver,
+    private readonly documentDeletion: DocumentDeletionService,
   ) {
     this.vectorDimension = this.embeddingService.getVectorDimension();
   }
@@ -63,7 +69,9 @@ export class KnowledgeBaseService {
     // Wait for Qdrant to initialize (non-blocking if it fails)
     const qdrantReady = await this.qdrantService.waitForInit(5000);
     if (qdrantReady) {
-      await this.qdrantService.createCollection(this.collectionName, this.vectorDimension);
+      const collection = await this.collectionResolver.activeCollectionName();
+      await this.qdrantService.createCollection(collection, this.vectorDimension);
+      this.logger.log(`Active vector collection: ${collection}`);
     } else {
       this.logger.warn('Qdrant not available - knowledge base vector features will be limited');
     }
@@ -146,25 +154,43 @@ export class KnowledgeBaseService {
   ): Promise<void> {
     try {
       await this.updateStatus(knowledgeBaseId, 'processing');
+      await this.updateDocumentIngestion(documentId, 'parsing');
 
       const processed = await this.documentProcessor.processDocument(fileKey, mimeType);
       const cleanedText = this.documentProcessor.cleanText(processed.text);
       const chunks = this.chunkingService.chunk(cleanedText);
 
+      await this.updateDocumentIngestion(documentId, 'chunking');
+
+      // Content hashing (master prompt §8.4) — skip chunks already indexed
+      // for this knowledge base so identical content is never re-embedded.
+      const hashes = hashChunks(chunks);
+      const existing = await this.db.queryMany<{ content_hash: string }>(
+        `SELECT content_hash FROM kb_chunks WHERE knowledge_base_id = $1 AND content_hash = ANY($2)`,
+        [knowledgeBaseId, hashes.chunks.map((c) => c.hash)],
+      );
+      const existingHashes = new Set(existing.map((r) => r.content_hash));
+
+      const uniqueChunks = chunks.filter((chunk, index) => {
+        return !existingHashes.has(hashes.chunks[index].hash);
+      });
+
       const chunkIds: string[] = [];
-      for (const chunk of chunks) {
+      for (const chunk of uniqueChunks) {
         const chunkId = uuidv4();
         chunkIds.push(chunkId);
+        const hash = hashes.chunks[chunks.indexOf(chunk)].hash;
 
         await this.db.query(
-          `INSERT INTO kb_chunks (id, knowledge_base_id, document_id, content, chunk_index, metadata, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          `INSERT INTO kb_chunks (id, knowledge_base_id, document_id, content, chunk_index, content_hash, metadata, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
           [
             chunkId,
             knowledgeBaseId,
             documentId,
             chunk.content,
             chunk.index,
+            hash,
             JSON.stringify({
               startOffset: chunk.startOffset,
               endOffset: chunk.endOffset,
@@ -174,27 +200,56 @@ export class KnowledgeBaseService {
         );
       }
 
-      const embeddings = await this.embeddingService.embedWithChunking(
-        chunks.map((c) => c.content),
-      );
+      if (uniqueChunks.length > 0) {
+        await this.updateDocumentIngestion(documentId, 'embedding');
+        const embeddings = await this.embeddingService.embedWithChunking(
+          uniqueChunks.map((c) => c.content),
+        );
 
-      const points = chunkIds.map((id, index) => ({
-        id,
-        vector: embeddings[index].vector,
-        payload: {
-          knowledgeBaseId,
-          documentId,
-          chunkIndex: chunks[index].index,
-        },
-      }));
+        await this.updateDocumentIngestion(documentId, 'indexing');
+        const collection = await this.collectionResolver.activeCollectionName();
+        const points = chunkIds.map((id, index) => ({
+          id,
+          vector: embeddings[index].vector,
+          payload: {
+            knowledgeBaseId,
+            documentId,
+            chunkIndex: uniqueChunks[index].index,
+            contentHash: hashes.chunks[chunks.indexOf(uniqueChunks[index])].hash,
+            embeddingModel: this.embeddingService.getModel(),
+            embeddingVersion: this.embeddingService.getVersion(),
+            contentType: this.collectionResolver.slugifyVersion(this.embeddingService.getVersion()),
+          },
+        }));
 
-      await this.qdrantService.upsertBatch(this.collectionName, points);
+        await this.qdrantService.upsertBatch(collection, points);
+      }
 
       await this.updateStatus(knowledgeBaseId, 'active');
-      this.logger.log(`Document ${documentId} processed: ${chunks.length} chunks`);
+      await this.db.query(
+        `UPDATE documents
+         SET ingestion_state = 'ready', content_hash = $2, chunk_count = $3,
+             embedding_model = $4, embedding_version = $5, last_error = NULL, updated_at = NOW()
+         WHERE id = $1`,
+        [
+          documentId,
+          hashes.documentHash,
+          uniqueChunks.length,
+          this.embeddingService.getModel(),
+          this.embeddingService.getVersion(),
+        ],
+      );
+      this.logger.log(
+        `Document ${documentId} processed: ${chunks.length} chunks (${uniqueChunks.length} new)`,
+      );
     } catch (error) {
       this.logger.error(`Failed to process document ${documentId}`, error);
       await this.updateStatus(knowledgeBaseId, 'error');
+      await this.updateDocumentIngestion(
+        documentId,
+        'failed',
+        error instanceof Error ? error.message : String(error),
+      );
       throw error;
     }
   }
@@ -209,6 +264,7 @@ export class KnowledgeBaseService {
 
     const cleanedText = this.documentProcessor.cleanText(text);
     const chunks = this.chunkingService.chunk(cleanedText);
+    const hashes = hashChunks(chunks);
 
     const chunkIds: string[] = [];
     for (const chunk of chunks) {
@@ -216,13 +272,14 @@ export class KnowledgeBaseService {
       chunkIds.push(chunkId);
 
       await this.db.query(
-        `INSERT INTO kb_chunks (id, knowledge_base_id, document_id, content, chunk_index, metadata, created_at)
-         VALUES ($1, $2, NULL, $3, $4, $5, $6)`,
+        `INSERT INTO kb_chunks (id, knowledge_base_id, document_id, content, chunk_index, content_hash, metadata, created_at)
+         VALUES ($1, $2, NULL, $3, $4, $5, $6, $7)`,
         [
           chunkId,
           knowledgeBaseId,
           chunk.content,
           chunk.index,
+          hashes.chunks[chunks.indexOf(chunk)].hash,
           JSON.stringify({
             ...metadata,
             startOffset: chunk.startOffset,
@@ -234,6 +291,7 @@ export class KnowledgeBaseService {
     }
 
     const embeddings = await this.embeddingService.embedWithChunking(chunks.map((c) => c.content));
+    const collection = await this.collectionResolver.activeCollectionName();
 
     const points = chunkIds.map((id, index) => ({
       id,
@@ -241,11 +299,15 @@ export class KnowledgeBaseService {
       payload: {
         knowledgeBaseId,
         chunkIndex: chunks[index].index,
+        contentHash: hashes.chunks[index].hash,
+        embeddingModel: this.embeddingService.getModel(),
+        embeddingVersion: this.embeddingService.getVersion(),
+        contentType: this.collectionResolver.slugifyVersion(this.embeddingService.getVersion()),
         ...metadata,
       },
     }));
 
-    await this.qdrantService.upsertBatch(this.collectionName, points);
+    await this.qdrantService.upsertBatch(collection, points);
 
     this.logger.log(`Added ${chunks.length} text chunks to KB ${knowledgeBaseId}`);
     return chunks.length;
@@ -256,39 +318,35 @@ export class KnowledgeBaseService {
     userId: string,
     query: string,
     limit = 5,
-  ): Promise<SearchResult[]> {
+    options: {
+      mode?: RetrievalMode;
+      minScore?: number;
+      maxPerDocument?: number;
+      rerank?: boolean;
+      rerankTopK?: number;
+    } = {},
+  ): Promise<{ results: SearchResult[]; reranked: boolean }> {
     await this.findByIdWithAccess(knowledgeBaseId, userId);
 
-    const queryEmbedding = await this.embeddingService.embed(query);
-
-    const results = await this.qdrantService.searchWithPayloadFilter(
-      this.collectionName,
-      queryEmbedding.vector,
+    const outcome = await this.hybridRetriever.retrieveWithMeta(knowledgeBaseId, userId, query, {
+      mode: options.mode,
       limit,
-      [{ key: 'knowledgeBaseId', match: { value: knowledgeBaseId } }],
-    );
-
-    const chunkIds = results.map((r) => r.id);
-    if (chunkIds.length === 0) {
-      return [];
-    }
-
-    const chunks = await this.db.queryMany<KBChunk>(`SELECT * FROM kb_chunks WHERE id = ANY($1)`, [
-      chunkIds,
-    ]);
-
-    const chunkMap = new Map(chunks.map((c) => [c.id, c]));
-
-    return results.map((r) => {
-      const chunk = chunkMap.get(r.id);
-      return {
-        chunkId: r.id,
-        content: chunk?.content || '',
-        score: r.score,
-        documentId: chunk?.documentId || null,
-        metadata: r.payload || {},
-      };
+      minDenseScore: options.minScore,
+      maxPerDocument: options.maxPerDocument,
+      rerank: options.rerank,
+      rerankTopK: options.rerankTopK,
     });
+
+    return {
+      results: outcome.chunks.map((r) => ({
+        chunkId: r.chunkId,
+        content: r.content,
+        score: r.score,
+        documentId: r.documentId,
+        metadata: r.metadata,
+      })),
+      reranked: outcome.reranked,
+    };
   }
 
   async searchMultiple(
@@ -338,14 +396,16 @@ export class KnowledgeBaseService {
     return allResults.sort((a, b) => b.score - a.score).slice(0, limit);
   }
 
+  /** Per-document delete (deletion pipeline): clears chunks + vectors, then marks deleted. */
+  async deleteDocument(knowledgeBaseId: string, documentId: string, userId: string): Promise<void> {
+    await this.findByIdWithAccess(knowledgeBaseId, userId);
+    await this.documentDeletion.deleteDocument(knowledgeBaseId, documentId, { removeRow: true });
+  }
+
   async delete(id: string, userId: string): Promise<void> {
     await this.findByIdWithAccess(id, userId);
 
-    await this.qdrantService.deleteByFilter(this.collectionName, {
-      must: [{ key: 'knowledgeBaseId', match: { value: id } }],
-    });
-
-    await this.db.query('DELETE FROM kb_chunks WHERE knowledge_base_id = $1', [id]);
+    await this.documentDeletion.deleteAllForKnowledgeBase(id);
     await this.db.query('DELETE FROM knowledge_bases WHERE id = $1', [id]);
 
     this.logger.log(`Knowledge base deleted: ${id}`);
@@ -357,6 +417,51 @@ export class KnowledgeBaseService {
       new Date(),
       id,
     ]);
+  }
+
+  /**
+   * Persists the per-document ingestion state (master prompt §8.3) plus
+   * failure details and a bounded retry history.
+   */
+  private async updateDocumentIngestion(
+    documentId: string,
+    state: string,
+    error?: string,
+  ): Promise<void> {
+    if (error) {
+      await this.db.query(
+        `UPDATE documents
+         SET ingestion_state = $1, last_error = $2,
+             retry_history = retry_history || $3::jsonb, updated_at = NOW()
+         WHERE id = $4`,
+        [
+          state,
+          error,
+          JSON.stringify([
+            {
+              at: new Date().toISOString(),
+              from: 'processing',
+              reason: error,
+            },
+          ]),
+          documentId,
+        ],
+      );
+    } else {
+      await this.db.query(
+        `UPDATE documents SET ingestion_state = $1, last_error = NULL, updated_at = NOW()
+         WHERE id = $2`,
+        [state, documentId],
+      );
+    }
+  }
+
+  /**
+   * Hashing helper for callers that need a quick per-text hash
+   * (e.g. duplicate upload detection in the documents flow).
+   */
+  hashText(text: string): string {
+    return hashNormalizedText(text);
   }
 
   private mapKnowledgeBase(row: unknown): KnowledgeBase {

@@ -290,7 +290,7 @@ export function BlogPage() {
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-10">
                 Tips, guides, and deep dives on study techniques, AI-powered learning,
-                and getting the most out of Studyield.
+                and getting the most out of Study RPG.
               </p>
 
               {/* Search Bar */}

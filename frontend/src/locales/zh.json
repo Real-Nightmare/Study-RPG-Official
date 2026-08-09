@@ -1,6 +1,41 @@
 {
+  "philosophy": {
+    "badge": "Study RPG 之道",
+    "title": "掌握胜过",
+    "titleHighlight": "死记硬背",
+    "description": "Study RPG 不是简单的学习工具——它鼓励真正的深度学习。通过主动回忆坚持每日学习，用奖励让学习像游戏时间一样愉悦，还有 AI 导师提供测验、复习测试、模拟考试、教回授和协作考试——让你掌握主题，而不是死记硬背。",
+    "learnMore": "了解更多",
+    "goalTitle": "目标",
+    "goal": "通过掌握和真正理解主题来学习，而不是简单死记硬背。工作需要的正是学习的掌握，而死记硬背赢不了真正学习的能力。",
+    "healthTitle": "学习健康",
+    "health": "我们用合理的时间表把学生的健康放在首位。错过的学习时间会被高效地重新安排——同时活动促进团结与新想法。",
+    "freeToWin": "100% 免费取胜——没有捷径，没有付费取胜",
+    "start": "开始你的旅程",
+    "pillars": {
+      "missions": {
+        "title": "任务",
+        "description": "任何任务——作业、项目——都是低奖励的任务，锻炼记忆技能所需的背诵能力。"
+      },
+      "revisionCentre": {
+        "title": "复习中心",
+        "description": "深度优先于长度。报名、认真复习，然后证明——在另一个场景中运用学到的想法，赢取中等奖励。"
+      },
+      "competencyTesting": {
+        "title": "能力测评",
+        "description": "选择一门科目，面对提升思维能力的能力题——同时了解为什么丢分以及如何改进。"
+      },
+      "programmes": {
+        "title": "计划",
+        "description": "可选的框架，训练你思考并创造解决真实学习问题的系统。你的选择最为重要。"
+      },
+      "factions": {
+        "title": "阵营",
+        "description": "由一名队长带领的学习小组，带领阵营走向更好的学习和更高的分数。较弱的阵营会得到较强阵营的帮助——互相帮助，一起学习。"
+      }
+    }
+  },
   "common": {
-    "appName": "Studyield",
+    "appName": "Study RPG",
     "loading": "加载中...",
     "save": "保存",
     "cancel": "取消",
@@ -54,6 +89,7 @@
   },
   "nav": {
     "dashboard": "仪表盘",
+    "tasks": "任务",
     "studySets": "学习集",
     "aiChat": "AI 对话",
     "problemSolver": "问题求解器",
@@ -70,7 +106,52 @@
     "tutorial": "教程",
     "about": "关于",
     "contact": "联系我们",
-    "viewAllFeatures": "查看所有功能"
+    "viewAllFeatures": "查看所有功能",
+    "academics": "学业结构",
+    "focus": "Focus",
+    "mistakes": "Mistakes",
+    "puzzles": "Puzzles",
+    "examCentre": "Exam Centre",
+    "rpg": "Study RPG",
+    "economy": "经济",
+    "events": "活动"
+  },
+  "tasks": {
+    "title": "任务",
+    "subtitle": "作业、任务和项目都是任务。完成它们，锻炼记忆能力并获得奖励。",
+    "dueToday": "今天到期",
+    "completedCount": "已完成",
+    "addTask": "添加任务",
+    "titlePlaceholder": "你需要学习什么？",
+    "subjectPlaceholder": "科目（可选）",
+    "descriptionPlaceholder": "详情、链接或笔记…",
+    "create": "创建任务",
+    "openTasks": "进行中的任务",
+    "noOpenTasks": "暂无进行中的任务。享受你的专注时光！",
+    "completedTasks": "已完成",
+    "noCompletedTasks": "还没有完成任何任务。你可以的！",
+    "complete": "标记为完成",
+    "reopen": "重新打开任务",
+    "type": {
+      "homework": "家庭作业",
+      "revision": "复习",
+      "exam_prep": "备考",
+      "project": "项目",
+      "reading": "阅读",
+      "practice": "练习"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "紧急"
+    },
+    "recurrence": {
+      "none": "一次性",
+      "daily": "每天",
+      "weekly": "每周",
+      "monthly": "每月"
+    }
   },
   "header": {
     "features": {
@@ -95,10 +176,10 @@
     "changeLanguage": "切换语言"
   },
   "hero": {
-    "badge": "AI 驱动的学习平台",
-    "titleLine1": "上传笔记，",
-    "titleLine2": "轻松通过考试。",
-    "description": "上传 PDF、文档或手写笔记——AI 在几秒内生成<strong>闪卡、测验和概念图</strong>。通过间隔重复复习，分步解题，赚取经验值提升等级。",
+    "badge": "Study RPG · 掌握胜过死记硬背",
+    "titleLine1": "为掌握而学习，",
+    "titleLine2": "而不只是死记硬背。",
+    "description": "上传笔记，AI 几秒内生成<strong>闪卡、测验和模拟考试</strong>。通过主动回忆每日学习，赢取游戏时间奖励，用教回授证明深度——掌握胜过死记硬背，免费取胜。",
     "startLearningFree": "免费开始学习",
     "watchDemo": "看看它是怎么工作的",
     "highlights": {
@@ -160,18 +241,18 @@
     "badge": "学生评价",
     "title": "深受",
     "titleHighlight": "全球学生喜爱",
-    "description": "看看学生们对 Studyield 学习体验的评价。",
+    "description": "看看学生们对 Study RPG 学习体验的评价。",
     "t1": {
       "name": "Sarah Chen",
       "role": "医学预科生",
       "university": "斯坦福大学",
-      "text": "Studyield 彻底改变了我学习有机化学的方式。AI 生成的闪卡帮我节省了数小时的准备时间，间隔重复系统帮助我为 MCAT 考试记住了所有内容。"
+      "text": "Study RPG 彻底改变了我学习有机化学的方式。AI 生成的闪卡帮我节省了数小时的准备时间，间隔重复系统帮助我为 MCAT 考试记住了所有内容。"
     },
     "t2": {
       "name": "James Williams",
       "role": "计算机科学专业",
       "university": "MIT",
-      "text": "文档分析功能太强了。我上传课堂 PDF，几秒钟就有了闪卡和测验。自从用了 Studyield，我的成绩从 B+ 提升到了 A。"
+      "text": "文档分析功能太强了。我上传课堂 PDF，几秒钟就有了闪卡和测验。自从用了 Study RPG，我的成绩从 B+ 提升到了 A。"
     },
     "t3": {
       "name": "Aiko Tanaka",
@@ -189,20 +270,20 @@
       "name": "Emma Rodriguez",
       "role": "医学生",
       "university": "约翰霍普金斯大学",
-      "text": "我学解剖学很吃力，直到发现了 Studyield。图片遮挡闪卡让学习人体结构变得容易多了。强烈推荐给所有医学生！"
+      "text": "我学解剖学很吃力，直到发现了 Study RPG。图片遮挡闪卡让学习人体结构变得容易多了。强烈推荐给所有医学生！"
     },
     "t6": {
       "name": "David Kim",
       "role": "MBA 学生",
       "university": "沃顿商学院",
-      "text": "我们的学习小组用 Studyield 的实时测验功能准备案例分析。实时竞赛让我们的复习非常有趣且高效。"
+      "text": "我们的学习小组用 Study RPG 的实时测验功能准备案例分析。实时竞赛让我们的复习非常有趣且高效。"
     }
   },
   "howItWorks": {
     "badge": "使用方法",
     "title": "只需",
     "titleHighlight": "4个简单步骤",
-    "description": "从 9 种不同来源导入，让 AI 构建你的学习工具包，通过间隔重复和实时数据分析掌握任何学科。",
+    "description": "从任何地方导入，让 AI 打造你的学习工具包，然后证明深度优先于长度——通过主动回忆和实时分析掌握任何学科。",
     "steps": {
       "upload": {
         "title": "从任何地方导入",
@@ -247,9 +328,9 @@
   },
   "cta": {
     "badge": "今天就开始你的学习之旅",
-    "title": "准备好",
-    "titleHighlight": "更聪明地学习了吗？",
-    "description": "用 AI 学习工具更快地掌握任何学科。免费开始，随时升级。",
+    "title": "准备好掌握，",
+    "titleHighlight": "而不只是死记硬背？",
+    "description": "每个任务、复习测验和模拟考试都会带来奖励——因为真正的学习才是唯一获胜之道。永远免费取胜。",
     "getStartedFree": "免费开始",
     "talkToSales": "联系销售",
     "benefits": {
@@ -296,11 +377,13 @@
       "cookiePolicy": "Cookie 政策",
       "dataDeletion": "数据删除"
     },
-    "copyright": "{{year}} Studyield. 版权所有。",
+    "copyright": "{{year}} Study RPG. 版权所有。",
     "madeWith": "用",
     "andAI": "和 AI 打造更好的学习",
     "sitemap": "网站地图",
     "accessibility": "无障碍",
+    "license": "AGPL-3.0 许可证",
+    "sourceCode": "源代码",
     "backToTop": "返回顶部"
   },
   "auth": {
@@ -431,7 +514,39 @@
     },
     "userMenu": {
       "user": "用户"
-    }
+    },
+    "summaryUnavailable": "Live summary unavailable right now.",
+    "hideGameStats": "Hide game stats",
+    "gameStatsHidden": "Game stats hidden",
+    "recommendedNext": "Recommended next",
+    "recommend": {
+      "examToday": "Exam today: {name}",
+      "examIn": "Exam in {days} days: {name}",
+      "flashcards": "{count} flashcards due",
+      "tasks": "{count} overdue tasks",
+      "mistakes": "{count} mistakes to review",
+      "puzzle": "Keep your puzzle streak going",
+      "relax": "All caught up — take a break!"
+    },
+    "todaysPlan": "Today's plan",
+    "tasksDueToday": "Tasks due today",
+    "overdue": "Overdue",
+    "nextUp": "Next up",
+    "examPortions": "{count} exam portions coming up",
+    "noUpcomingExams": "No upcoming exams",
+    "focusThisWeek": "Focus time",
+    "focusTodayMsg": "{minutes} minutes focused today",
+    "noFocusYet": "No focus time yet today",
+    "recentMistakes": "Recent mistakes",
+    "noMistakes": "No open mistakes — great job!",
+    "weakTopics": "Weak topics",
+    "noWeakTopics": "No weak-topic data yet",
+    "studyStreak": "Study streak",
+    "puzzleBest": "Best puzzle streak",
+    "gameStats": "Game stats",
+    "playerXp": "Player XP",
+    "eventExp": "Event EXP",
+    "stpToday": "STP today"
   },
   "studySets": {
     "title": "我的学习集",
@@ -784,7 +899,12 @@
     "productUpdatesDesc": "新功能和改进的消息",
     "saving": "保存中...",
     "saved": "已保存！",
-    "savePreferences": "保存偏好"
+    "savePreferences": "保存偏好",
+    "webPush": "浏览器通知",
+    "webPushDesc": "在浏览器中接收推送通知（无需应用）。",
+    "webPushEnable": "启用浏览器通知",
+    "webPushEnabled": "浏览器通知已启用",
+    "webPushDenied": "浏览器权限被拒绝"
   },
   "subscription": {
     "title": "订阅",
@@ -878,15 +998,15 @@
     "badge": "常见问题",
     "title": "常见",
     "titleHighlight": "问题",
-    "description": "关于 Studyield 你需要知道的一切。找不到答案？联系我们的支持团队。",
+    "description": "关于 Study RPG 你需要知道的一切。找不到答案？联系我们的支持团队。",
     "stillHaveQuestions": "还有问题？",
     "contactSupport": "联系支持",
     "q1": "我可以上传哪些类型的文档？",
-    "a1": "Studyield 支持多种文档格式，包括 PDF、Word 文档（.docx, .doc）、纯文本文件、Markdown 文件和图片（PNG, JPEG）。我们的 AI 会处理这些文档，提取文本并创建学习材料。",
+    "a1": "Study RPG 支持多种文档格式，包括 PDF、Word 文档（.docx, .doc）、纯文本文件、Markdown 文件和图片（PNG, JPEG）。我们的 AI 会处理这些文档，提取文本并创建学习材料。",
     "q2": "间隔重复系统是如何工作的？",
     "a2": "我们的闪卡系统使用 SM-2 间隔重复算法来优化你的学习。根据你对每张卡片的记忆程度，系统会计算下次复习的最佳时间。你觉得困难的卡片会更频繁出现，而已掌握的卡片出现频率会降低。",
-    "q3": "Studyield 可以离线使用吗？",
-    "a3": "目前，Studyield 的大部分功能需要网络连接，因为我们的 AI 处理在云端进行。不过，我们正在开发离线复习闪卡的功能。",
+    "q3": "Study RPG 可以离线使用吗？",
+    "a3": "目前，Study RPG 的大部分功能需要网络连接，因为我们的 AI 处理在云端进行。不过，我们正在开发离线复习闪卡的功能。",
     "q4": "AI 生成的内容准确吗？",
     "a4": "我们的 AI 基于你上传的材料生成高质量内容。但我们建议始终检查生成的闪卡和测验以确保准确性。你可以轻松编辑任何生成的内容。",
     "q5": "我的数据安全和隐私有保障吗？",
@@ -895,14 +1015,14 @@
     "a6": "可以！你可以将学习集设为公开，让任何人访问，或通过私密链接与特定的人分享。默认情况下，你的所有学习材料都是私密的，由你控制谁可以查看。",
     "q7": "考试克隆功能是什么？",
     "a7": "考试克隆分析你往年考试的风格、格式和难度，然后生成完全匹配该风格的新题目，帮助你用相关的练习材料备考。",
-    "q8": "Studyield 对学生来说价格实惠吗？",
+    "q8": "Study RPG 对学生来说价格实惠吗？",
     "a8": "当然！我们的定价是为学生设计的。先享受 7 天免费试用，然后选择月付或年付方案——都是学生负担得起的价格。",
     "q9": "我可以随时取消订阅吗？",
     "a9": "当然可以！你可以随时从账号设置中取消订阅。你将继续使用高级功能直到当前计费周期结束。没有取消费用。",
     "q10": "如果我降级方案会怎样？",
     "a10": "降级后，你将继续使用高级功能直到当前计费周期结束。之后，你的账号将转为新方案。你的学习材料会保留，但某些功能的访问可能会受限。",
     "q11": "支持哪些浏览器和设备？",
-    "a11": "Studyield 适用于所有现代浏览器，包括 Chrome、Firefox、Safari 和 Edge。完全响应式设计，在桌面、平板和手机上都能良好运行。iOS 和 Android 原生应用即将推出。",
+    "a11": "Study RPG 适用于所有现代浏览器，包括 Chrome、Firefox、Safari 和 Edge。完全响应式设计，在桌面、平板和手机上都能良好运行。iOS 和 Android 原生应用即将推出。",
     "q12": "教学回顾功能是什么？",
     "a12": "教学回顾是专业版功能，通过让你向 AI 讲解概念来巩固学习。AI 会评估你的讲解，找出理解中的不足，并提供有针对性的反馈以加深你的知识。",
     "searchPlaceholder": "搜索常见问题...",
@@ -1062,10 +1182,10 @@
     }
   },
   "about": {
-    "badge": "关于 Studyield",
+    "badge": "关于 Study RPG",
     "title": "更聪明地学习，",
     "titleHighlight": "由 AI 驱动",
-    "description": "Studyield 帮助学生更有效地学习，将文档转化为闪卡、测验和互动学习工具——全部由 AI 驱动。",
+    "description": "Study RPG 帮助学生更有效地学习，将文档转化为闪卡、测验和互动学习工具——全部由 AI 驱动。",
     "stats": {
       "featuresCount": "10+",
       "featuresLabel": "学习工具",
@@ -1076,10 +1196,10 @@
       "uptime": "免费",
       "uptimeLabel": "即可开始"
     },
-    "ourStory": "为什么我们创建了 Studyield",
-    "storyP1": "我们创建 Studyield 是因为厌倦了花几个小时手动制作闪卡和学习笔记。作为学生，我们知道 AI 可以完成繁重的工作——从文档中提取关键概念、生成测验和安排复习——这样我们可以专注于真正的学习。",
-    "storyP2": "Studyield 使用经过验证的技术，如间隔重复和主动回忆，结合理解你文档的 AI。上传一个 PDF，几秒钟内你就有了闪卡、测验和一个可以回答关于你材料问题的 AI 助教。",
-    "storyP3": "我们是一个小团队，在打造我们一直想要的学习工具。Studyield 免费开始，我们根据每天使用它的真实学生的反馈不断改进。",
+    "ourStory": "为什么我们创建了 Study RPG",
+    "storyP1": "我们创建 Study RPG 是因为厌倦了花几个小时手动制作闪卡和学习笔记。作为学生，我们知道 AI 可以完成繁重的工作——从文档中提取关键概念、生成测验和安排复习——这样我们可以专注于真正的学习。",
+    "storyP2": "Study RPG 使用经过验证的技术，如间隔重复和主动回忆，结合理解你文档的 AI。上传一个 PDF，几秒钟内你就有了闪卡、测验和一个可以回答关于你材料问题的 AI 助教。",
+    "storyP3": "我们是一个小团队，在打造我们一直想要的学习工具。Study RPG 免费开始，我们根据每天使用它的真实学生的反馈不断改进。",
     "whatWeOffer": "你可以做什么",
     "features": {
       "studySets": "学习集与闪卡",
@@ -1090,12 +1210,12 @@
       "examClone": "考试克隆"
     },
     "ourValues": "我们关心的事",
-    "valuesDescription": "我们构建 Studyield 背后的原则。",
+    "valuesDescription": "我们构建 Study RPG 背后的原则。",
     "values": {
       "missionDriven": "无障碍学习",
-      "missionDrivenDesc": "优质学习工具不应该是天价。Studyield 提供 7 天免费试用，让每位学生都能体验 AI 驱动的学习。",
+      "missionDrivenDesc": "优质学习工具不应该是天价。Study RPG 提供 7 天免费试用，让每位学生都能体验 AI 驱动的学习。",
       "userCentric": "为学生打造",
-      "userCentricDesc": "我们自己也用 Studyield。每个功能都是根据学生实际的学习方式设计的——而不是我们认为他们应该怎么学。",
+      "userCentricDesc": "我们自己也用 Study RPG。每个功能都是根据学生实际的学习方式设计的——而不是我们认为他们应该怎么学。",
       "innovationFirst": "真正有用的 AI",
       "innovationFirstDesc": "我们不是为了加 AI 而加 AI。每个 AI 功能都解决一个真实问题——生成闪卡、解释概念或创建模拟考试。",
       "communityFocused": "一起学习",
@@ -1109,7 +1229,7 @@
     "badge": "我们随时为你服务",
     "title": "联系",
     "titleHighlight": "我们",
-    "description": "对 Studyield 有疑问？我们随时为你服务。通过以下任何方式联系我们或填写联系表单。",
+    "description": "对 Study RPG 有疑问？我们随时为你服务。通过以下任何方式联系我们或填写联系表单。",
     "methods": {
       "emailSupport": "邮件支持",
       "emailSupportDesc": "获得任何问题的帮助",
@@ -1230,7 +1350,7 @@
       "a1": "可以，你可以随时升级或降级方案。升级时立即获得新功能。降级时在当前计费周期结束后生效。",
       "q2": "如果我降级为免费会怎样？",
       "a2": "你的学习材料会保留，但高级功能的访问将受限。你可以随时升级回专业版以恢复完整访问。",
-      "q3": "Studyield 对学生来说价格实惠吗？",
+      "q3": "Study RPG 对学生来说价格实惠吗？",
       "a3": "当然！我们的定价是为学生设计的。先享受 7 天免费试用，然后选择月付（$7.99/月）或年付（$47.88/年）——对学生来说都很实惠。",
       "q4": "你们接受哪些支付方式？",
       "a4": "我们接受所有主流信用卡（Visa, Mastercard, American Express）、PayPal 以及部分地区的本地支付方式。所有支付通过 Stripe 安全处理。",
@@ -1240,11 +1360,11 @@
       "a6": "AI 请求包括从文档生成闪卡、创建测验、使用 AI 助教对话、问题求解和考试克隆。基本操作如复习闪卡不计数。",
       "q7": "你们提供哪些计费周期？",
       "a7": "我们提供月付（$7.99/月）和年付（$47.88/年）计费周期。年付方案相比月付可节省约 50%。",
-      "q8": "Studyield 对学生来说价格实惠吗？",
+      "q8": "Study RPG 对学生来说价格实惠吗？",
       "a8": "当然！我们的定价是为学生设计的。先享受 7 天免费试用，然后选择月付（$7.99/月）或年付（$47.88/年）——对学生来说都很实惠。"
     },
     "ctaTitle": "准备好革新你的学习了吗？",
-    "ctaDescription": "加入数千名正在用 Studyield 更聪明学习的学生。今天就免费开始。",
+    "ctaDescription": "加入数千名正在用 Study RPG 更聪明学习的学生。今天就免费开始。",
     "startFree": "免费开始",
     "talkToSales": "联系销售"
   },
@@ -1252,7 +1372,7 @@
     "badge": "常见问题",
     "title": "常见",
     "titleHighlight": "问题",
-    "description": "查找关于 Studyield 最常见问题的答案。找不到你要找的？联系我们的支持团队。",
+    "description": "查找关于 Study RPG 最常见问题的答案。找不到你要找的？联系我们的支持团队。",
     "searchPlaceholder": "搜索常见问题...",
     "questionsCount": "{{count}} 个问题",
     "categories": {
@@ -1264,18 +1384,18 @@
       "technical": "技术"
     },
     "general": {
-      "q1": "Studyield 是什么？",
-      "a1": "Studyield 是一个 AI 驱动的学习平台，帮助你更聪明地学习。上传文档，生成闪卡，参加测验，与 AI 助教对话——一切都为了帮助你用间隔重复等科学方法更快掌握任何学科。",
-      "q2": "Studyield 免费吗？",
-      "a2": "是的！Studyield 提供 7 天免费试用，包含 3 个学习集、50 张闪卡和 10 次 AI 请求。试用结束后，升级到专业版即可获得无限访问和高级功能，如问题求解器、考试克隆和深度研究。",
-      "q3": "Studyield 支持哪些设备？",
-      "a3": "Studyield 适用于任何配有现代浏览器的设备——电脑、平板和手机。网页应用完全响应式设计，并为移动屏幕优化。",
-      "q4": "需要创建账号才能使用 Studyield 吗？",
+      "q1": "Study RPG 是什么？",
+      "a1": "Study RPG 是一个 AI 驱动的学习平台，帮助你更聪明地学习。上传文档，生成闪卡，参加测验，与 AI 助教对话——一切都为了帮助你用间隔重复等科学方法更快掌握任何学科。",
+      "q2": "Study RPG 免费吗？",
+      "a2": "是的！Study RPG 提供 7 天免费试用，包含 3 个学习集、50 张闪卡和 10 次 AI 请求。试用结束后，升级到专业版即可获得无限访问和高级功能，如问题求解器、考试克隆和深度研究。",
+      "q3": "Study RPG 支持哪些设备？",
+      "a3": "Study RPG 适用于任何配有现代浏览器的设备——电脑、平板和手机。网页应用完全响应式设计，并为移动屏幕优化。",
+      "q4": "需要创建账号才能使用 Study RPG 吗？",
       "a4": "是的，你需要一个免费账号来保存学习材料和追踪进度。你可以用邮箱地址注册。"
     },
     "features": {
       "q1": "我可以上传哪些类型的文档？",
-      "a1": "Studyield 支持 PDF、Word 文档（.docx, .doc）、纯文本文件、Markdown 文件和图片（PNG, JPEG）。我们的 AI 从这些文档中提取文本来创建学习材料。",
+      "a1": "Study RPG 支持 PDF、Word 文档（.docx, .doc）、纯文本文件、Markdown 文件和图片（PNG, JPEG）。我们的 AI 从这些文档中提取文本来创建学习材料。",
       "q2": "AI 是如何生成闪卡的？",
       "a2": "我们的 AI 分析你上传的文档，识别关键概念、定义和重要信息，然后创建针对学习和记忆优化的问答对。",
       "q3": "AI 生成的内容准确吗？",
@@ -1302,7 +1422,7 @@
       "a2": "可以，你可以随时升级或降级。升级时立即获得新功能。降级时在当前计费周期结束后生效。",
       "q3": "有免费试用吗？",
       "a3": "有！7 天免费试用让你体验核心功能，包括学习集、闪卡、测验和间隔重复——无需信用卡。试用后订阅专业版即可获得无限访问。",
-      "q4": "Studyield 对学生来说价格实惠吗？",
+      "q4": "Study RPG 对学生来说价格实惠吗？",
       "a4": "当然！我们的定价是为学生设计的。先享受 7 天免费试用，然后选择月付或年付方案——都是学生负担得起的价格。",
       "q5": "如何取消订阅？",
       "a5": "你可以随时从账号设置 > 账单 > 管理订阅中取消。你将继续使用高级功能直到当前计费周期结束。",
@@ -1320,10 +1440,10 @@
       "a4": "默认情况下，你的学习材料是私密的，只有你可以看到。你可以控制分享——设为公开、与特定的人分享或完全保持私密。"
     },
     "technical": {
-      "q1": "Studyield 可以离线使用吗？",
+      "q1": "Study RPG 可以离线使用吗？",
       "a1": "目前，大部分功能需要网络连接，因为 AI 处理在云端进行。我们正在开发离线复习闪卡的功能。",
       "q2": "支持哪些浏览器？",
-      "a2": "Studyield 适用于所有现代浏览器，包括 Chrome、Firefox、Safari 和 Edge。我们建议保持浏览器更新以获得最佳体验。",
+      "a2": "Study RPG 适用于所有现代浏览器，包括 Chrome、Firefox、Safari 和 Edge。我们建议保持浏览器更新以获得最佳体验。",
       "q3": "问题求解器功能是什么？",
       "a3": "问题求解器是专业版功能，帮助你分步解决复杂问题。你可以输入数学、科学或其他问题，AI 提供详细的带解释的解答。批量求解器让你一次解决多个问题。",
       "q4": "什么算作一次 AI 请求？",
@@ -1345,146 +1465,167 @@
     "visitHelpCenter": "访问帮助中心"
   },
   "featuresFullPage": {
-    "badge": "平台功能",
-    "title": "高效学习所需的",
+    "badge": "强大功能",
+    "title": "学习所需的",
     "titleHighlight": "一切工具",
-    "description": "AI 闪卡支持完形填空和图片遮挡、SM-2 间隔重复、考试克隆、问题求解、手写 OCR 和 AI 学习伙伴——探索驱动你学习的每一个工具。",
+    "description": "AI 生成的完形填空和图片遮挡闪卡、间隔重复、考试克隆、问题求解和个人 AI 助教——集于一个平台。",
     "startLearningFree": "免费开始学习",
+    "viewPricing": "查看定价",
+    "highlightsTitle": "核心功能",
+    "highlightsDescription": "为你的学习之旅提供最强大的工具。",
+    "allFeaturesTitle": "探索所有功能",
+    "allFeaturesDescription": "发现每一个帮助你更快学习、记忆更牢的工具。",
+    "learnMore": "了解更多",
+    "viewBenefits": "查看优势",
+    "tryItNow": "立即试用",
+    "categories": {
+      "all": "全部",
+      "study": "学习工具",
+      "ai": "AI 驱动",
+      "assessment": "评估",
+      "tracking": "追踪"
+    },
+    "stats": {
+      "features": "强大功能",
+      "cardTypes": "闪卡类型",
+      "aiAvailable": "AI 可用",
+      "fileFormats": "文件格式"
+    },
     "studySets": {
       "title": "学习集",
       "subtitle": "整理你的学习",
-      "description": "创建按科目、课程或主题组织的学习材料集合。上传文档，添加笔记，将一切集中在一个地方。",
+      "description": "使用 AI 内容提取创建和整理学习集。上传文档，让 AI 自动生成全面的学习材料。",
       "benefits": [
-        "无限的组织灵活性",
-        "与同学分享或保持私密",
-        "复制和重新组合现有学习集",
-        "标签系统方便筛选"
+        "AI 内容提取",
+        "按科目和主题整理",
+        "与同学分享和协作",
+        "从多种格式导入"
       ]
     },
     "flashcards": {
-      "title": "AI 闪卡与间隔重复",
-      "subtitle": "三种卡片类型，一个智能系统",
-      "description": "从你的文档生成标准卡、完形填空和图片遮挡闪卡。SM-2 间隔重复算法在最佳时间安排复习，助力长期记忆。",
+      "title": "智能闪卡",
+      "subtitle": "AI 生成的卡片",
+      "description": "从任何文档自动生成标准卡、完形填空和图片遮挡闪卡。SM-2 间隔重复在最佳时间安排复习。",
       "benefits": [
-        "标准卡、完形填空和图片遮挡卡",
-        "SM-2 算法优化复习间隔",
-        "追踪每张卡片的难度系数和掌握度",
-        "从 CSV 批量导入，也支持手动创建"
+        "3 种卡片类型：标准、完形填空、图片遮挡",
+        "SM-2 间隔重复算法",
+        "从文档 AI 生成",
+        "追踪每张卡片的掌握度"
       ]
     },
     "documents": {
-      "title": "文档处理",
-      "subtitle": "从任何文件提取知识",
-      "description": "上传 PDF、Word 文档（.docx, .doc）、图片（PNG, JPEG）、Markdown 或纯文本。我们的 AI 提取关键概念、定义和公式——通过 OCR 还能识别手写笔记。",
+      "title": "文档分析",
+      "subtitle": "上传和提取",
+      "description": "上传 PDF、Word 文档、图片或 Markdown 文件。我们的 AI 提取关键概念、定义和公式——甚至通过 OCR 识别手写笔记。",
       "benefits": [
-        "支持 PDF、Word、图片、Markdown 和文本文件",
-        "AI 视觉模型实现手写 OCR",
-        "从文档建立知识库",
-        "免费 10MB，专业版每个文件 100MB"
+        "支持 6+ 种文件格式",
+        "AI 概念提取",
+        "手写识别 (OCR)",
+        "从文档自动生成闪卡"
       ]
     },
     "chat": {
       "title": "AI 学习伙伴",
-      "subtitle": "与你的学习材料对话",
-      "description": "对任何主题提问，从你的学习材料获得即时、有上下文的回答。AI 助教可以解释概念、生成闪卡，帮你备考。",
+      "subtitle": "与你的材料对话",
+      "description": "与你的学习材料对话。对任何主题提问，获得即时解释，让 AI 从你的文档生成闪卡和测验。",
       "benefits": [
-        "自然的对话界面",
-        "基于你材料的上下文感知回答",
-        "从对话中生成闪卡和测验",
-        "流式响应提供详细解释"
+        "对任何主题提问",
+        "获得即时解释",
+        "从对话生成闪卡",
+        "全天候可用"
       ]
     },
     "quizzes": {
       "title": "测验与实时测验",
-      "subtitle": "独自测试或实时竞赛",
-      "description": "AI 从你的材料生成选择题、判断题和简答题。还可以通过 Socket.IO 房间与同学进行实时多人测验。",
+      "subtitle": "测试你的知识",
+      "description": "从你的学习材料 AI 生成测验，加上实时多人在线测验。与同学竞赛并追踪进度。",
       "benefits": [
-        "AI 生成多种题型",
-        "实时多人在线测验",
-        "每道题的详细解析",
-        "追踪尝试次数、分数和排行榜"
+        "AI 生成测验题",
+        "实时多人模式",
+        "多种题型",
+        "详细表现分析"
       ]
     },
     "examClone": {
       "title": "考试克隆",
       "subtitle": "像真实考试一样练习",
-      "description": "上传往年考试，我们的 AI 分析其风格、格式和难度。生成无限的新题目，完全匹配你将面对的考试。",
+      "description": "分析往年考试并生成匹配的练习题。用计时和评分模拟真实考试环境。",
       "benefits": [
-        "从样题分析风格",
-        "生成无限练习题",
-        "精确匹配难度和格式",
-        "非常适合标准化考试备考"
+        "分析往年考试模式",
+        "生成相似题目",
+        "计时考试模拟",
+        "表现评分和回顾"
       ]
     },
     "problemSolver": {
-      "title": "问题求解器与批量模式",
+      "title": "问题求解器",
       "subtitle": "分步解答",
-      "description": "输入数学、科学或任何问题，获得详细的分步解答。批量求解器让你一次解决多个问题。支持通过相机扫描图片输入。",
+      "description": "获取数学、科学等的分步解答。上传照片或输入问题——AI 将其分解为清晰、易懂的步骤。",
       "benefits": [
-        "附解释的分步解答",
-        "多题目批量模式",
-        "相机扫描图片问题",
-        "相似题目供额外练习"
+        "分步解释",
+        "数学、科学等多学科",
+        "照片上传支持",
+        "多题目批量模式"
       ]
     },
     "handwritingOcr": {
       "title": "手写 OCR",
-      "subtitle": "扫描手写笔记",
-      "description": "拍一张手写笔记的照片，我们的 AI 视觉模型将其转为数字文本。从你的手写内容即时创建闪卡和学习材料。",
+      "subtitle": "扫描你的笔记",
+      "description": "扫描手写笔记并转为数字文本。非常适合将课堂笔记转换为闪卡和学习材料。",
       "benefits": [
-        "AI 驱动的手写识别",
-        "将笔记转为数字闪卡",
-        "适用于任何手写风格",
-        "相机扫描或图片上传"
+        "准确的手写识别",
+        "将笔记转为闪卡",
+        "支持多种语言",
+        "照片和扫描件均可"
       ]
     },
     "learningPaths": {
-      "title": "AI 学习路径",
-      "subtitle": "个性化学习路线",
-      "description": "让 AI 为任何学科生成定制的学习路径。通过结构化步骤追踪进度，按计划达成目标。",
+      "title": "学习路径",
+      "subtitle": "个性化路线图",
+      "description": "AI 根据你的目标和当前知识创建个性化学习路线图。按结构化路径高效掌握任何学科。",
       "benefits": [
-        "AI 生成的课程计划",
-        "可根据你的水平调整",
-        "进度追踪",
-        "预估完成时间"
+        "AI 生成的学习计划",
+        "根据进度自适应",
+        "基于目标的里程碑",
+        "追踪完成百分比"
       ]
     },
     "analytics": {
       "title": "分析与游戏化",
-      "subtitle": "追踪、赚取、升级",
-      "description": "学习热力图、打卡日历和详细进度图表帮你保持正轨。每次学习行为赚取经验值，通过 12 个等级升级，保持每日连续打卡。",
+      "subtitle": "追踪你的进度",
+      "description": "通过学习热力图和打卡日历追踪进度。赚取经验值，升级等级，保持每日连续打卡，设置考试倒计时按计划学习。",
       "benefits": [
-        "学习热力图和打卡日历",
-        "12 级经验值系统",
-        "每日连续打卡追踪和奖励",
-        "考试倒计时和学习计划"
+        "学习热力图和日历",
+        "经验值和等级系统",
+        "每日连续打卡追踪",
+        "考试倒计时"
       ]
     },
     "teachBack": {
-      "title": "教学回顾会话",
-      "subtitle": "费曼学习法",
-      "description": "用自己的话解释概念并获得 AI 对你理解程度的反馈。基于经科学验证的费曼学习法。",
+      "title": "教学回顾",
+      "subtitle": "通过教学来学习",
+      "description": "向 AI 讲解概念并获得对你理解程度的反馈。教学是巩固知识最有效的方法之一。",
       "benefits": [
-        "通过讲解证明理解",
-        "AI 评估你的讲解",
-        "找出知识空白",
-        "显著提高记忆力"
+        "向 AI 讲解概念",
+        "获得即时反馈",
+        "识别知识空白",
+        "加深理解"
       ]
     },
     "conceptMaps": {
       "title": "概念图",
       "subtitle": "可视化联系",
-      "description": "从你的学习材料生成互动概念图。查看主题之间的联系，识别关系，建立对任何学科的视觉理解。",
+      "description": "可视化主题和概念之间的联系。AI 从你的学习材料生成交互式思维导图，帮你看到全局。",
       "benefits": [
         "AI 生成的概念图",
-        "交互式节点探索",
-        "可视化主题关系",
-        "导出和分享概念图"
+        "交互式可视化",
+        "查看主题关系",
+        "导出和分享"
       ]
     }
   },
   "onboarding": {
-    "title": "欢迎来到 Studyield",
+    "title": "欢迎来到 Study RPG",
     "skipForNow": "暂时跳过",
     "stepOf": "第 {{current}} 步 / 共 {{total}} 步",
     "welcome": {
@@ -1653,7 +1794,7 @@
     },
     "features": {
       "title": "你可以做什么",
-      "description": "Studyield 满载让学习更快更有效的工具",
+      "description": "Study RPG 满载让学习更快更有效的工具",
       "studySets": "学习集",
       "studySetsDesc": "手动创建闪卡或用 AI 从文档生成",
       "aiChat": "AI 对话助教",
@@ -1679,7 +1820,7 @@
       "deepResearch": "深度研究",
       "deepResearchDesc": "AI 驱动的主题深度探索",
       "adFreeTitle": "100% 无广告，始终如此",
-      "adFreeDesc": "没有广告，没有干扰。只有你和你的学习。Studyield 永远不会显示广告。"
+      "adFreeDesc": "没有广告，没有干扰。只有你和你的学习。Study RPG 永远不会显示广告。"
     },
     "done": {
       "title": "一切就绪！",
@@ -1778,7 +1919,7 @@
     "articles": "{{count}} 篇文章",
     "categories": {
       "gettingStarted": "入门指南",
-      "gettingStartedDesc": "快速了解 Studyield 的基础知识",
+      "gettingStartedDesc": "快速了解 Study RPG 的基础知识",
       "studySets": "学习集与闪卡",
       "studySetsDesc": "创建、管理和掌握你的学习材料",
       "documents": "文档处理",
@@ -1818,24 +1959,24 @@
     "faqSubtitle": "最常见问题的快速解答",
     "faqs": {
       "q1": "我可以上传哪些类型的文档？",
-      "a1": "Studyield 支持多种文档格式，包括 PDF、Word 文档（.docx, .doc）、纯文本文件、Markdown 文件和图片（PNG, JPEG）。我们的 AI 会处理这些文档，提取文本并创建学习材料。",
+      "a1": "Study RPG 支持多种文档格式，包括 PDF、Word 文档（.docx, .doc）、纯文本文件、Markdown 文件和图片（PNG, JPEG）。我们的 AI 会处理这些文档，提取文本并创建学习材料。",
       "q2": "间隔重复系统是如何工作的？",
       "a2": "我们的闪卡系统使用 SM-2 间隔重复算法来优化你的学习。根据你对每张卡片的记忆程度，系统会计算下次复习的最佳时间。困难的卡片出现更频繁，而已掌握的卡片出现较少。",
-      "q3": "Studyield 可以离线使用吗？",
-      "a3": "目前，Studyield 的大部分功能需要网络连接，因为 们的 AI 处理在云端进行。不过，我们正在开发离线复习闪卡的功能。",
+      "q3": "Study RPG 可以离线使用吗？",
+      "a3": "目前，Study RPG 的大部分功能需要网络连接，因为 们的 AI 处理在云端进行。不过，我们正在开发离线复习闪卡的功能。",
       "q4": "AI 生成的内容准确吗？",
       "a4": "我们的 AI 基于你上传的材料生成高质量内容。但我们建议始终检查生成的闪卡和测验以确保准确性。你可以轻松编辑任何生成的内容。",
       "q5": "我的数据安全和隐私有保障吗？",
       "a5": "是的，我们非常重视数据安全。所有文档在存储和传输时都经过加密。你的学习材料绝不会与其他用户共享或用于训练 AI 模型。你可以随时从账号设置中删除数据。",
       "q6": "考试克隆功能是什么？",
       "a6": "考试克隆分析你往年考试的风格、格式和难度，然后生成完全匹配该风格的新题目，帮助你用相关的练习材料备考。",
-      "q7": "Studyield 对学生来说价格实惠吗？",
+      "q7": "Study RPG 对学生来说价格实惠吗？",
       "a7": "当然！我们的定价是为学生设计的。先享受 7 天免费试用，然后选择月付或年付方案——都是学生负担得起的价格。",
       "q8": "如何取消订阅？",
       "a8": "你可以随时从账号设置中取消订阅。前往设置 > 账单 > 管理订阅，点击\"取消方案\"。你将继续使用高级功能直到当前计费周期结束。"
     },
     "videoTutorials": "视频教程",
-    "videoTutorialsDesc": "通过我们的分步视频指南学习如何使用 Studyield。从入门到高级功能。",
+    "videoTutorialsDesc": "通过我们的分步视频指南学习如何使用 Study RPG。从入门到高级功能。",
     "watchTutorials": "观看教程",
     "ctaTitle": "还需要帮助？",
     "ctaDescription": "我们的支持团队随时准备帮助你解答任何问题。我们通常在 24 小时内回复。",
@@ -1864,7 +2005,7 @@
     },
     "introduction": {
       "title": "简介",
-      "p1": "Studyield 非常重视你的隐私。本隐私政策说明我们在你使用我们的 AI 学习平台时如何收集、使用、披露和保护你的信息。",
+      "p1": "Study RPG 非常重视你的隐私。本隐私政策说明我们在你使用我们的 AI 学习平台时如何收集、使用、披露和保护你的信息。",
       "p2": "请仔细阅读本隐私政策。如果你不同意本隐私政策的条款，请不要使用该平台。"
     },
     "informationCollected": {
@@ -1878,7 +2019,7 @@
         "通信偏好"
       ],
       "studyContent": "学习内容",
-      "studyContentDesc": "当你使用 Studyield 时，我们存储：",
+      "studyContentDesc": "当你使用 Study RPG 时，我们存储：",
       "studyItems": [
         "你上传的文档（PDF、图片）",
         "闪卡和学习集",
@@ -1961,7 +2102,7 @@
     "badge": "法律协议",
     "title": "服务",
     "titleHighlight": "条款",
-    "description": "在使用 Studyield 之前，请仔细阅读这些条款。访问我们的平台即表示你同意受这些条款的约束。",
+    "description": "在使用 Study RPG 之前，请仔细阅读这些条款。访问我们的平台即表示你同意受这些条款的约束。",
     "lastUpdated": "最后更新：2026年2月14日",
     "contents": "目录",
     "toc": {
@@ -1981,11 +2122,11 @@
     },
     "acceptance": {
       "title": "1. 条款接受",
-      "content": "通过访问或使用 Studyield，你同意受这些服务条款和所有适用法律法规的约束。如果你不同意这些条款中的任何一项，则禁止使用或访问该平台。"
+      "content": "通过访问或使用 Study RPG，你同意受这些服务条款和所有适用法律法规的约束。如果你不同意这些条款中的任何一项，则禁止使用或访问该平台。"
     },
     "descriptionOfService": {
       "title": "2. 服务描述",
-      "intro": "Studyield 是一个 AI 驱动的学习平台，提供：",
+      "intro": "Study RPG 是一个 AI 驱动的学习平台，提供：",
       "items": [
         "带文档上传和分析的学习集",
         "AI 生成的带间隔重复的闪卡",
@@ -2021,7 +2162,7 @@
     "contentOwnership": {
       "title": "5. 内容所有权",
       "yourContent": "你的内容",
-      "yourContentDesc": "你保留你上传到 Studyield 的所有内容的所有权，包括文档、笔记和学习材料。通过上传内容，你授予我们有限的许可来处理、存储和展示这些内容以提供服务。",
+      "yourContentDesc": "你保留你上传到 Study RPG 的所有内容的所有权，包括文档、笔记和学习材料。通过上传内容，你授予我们有限的许可来处理、存储和展示这些内容以提供服务。",
       "aiGenerated": "AI 生成的内容",
       "aiGeneratedDesc": "我们的 AI 基于你的材料生成的内容（闪卡、测验、摘要）属于你。你可以自由使用、修改和分享这些内容。"
     },
@@ -2037,11 +2178,11 @@
     },
     "aiDisclaimer": {
       "title": "7. AI 免责声明",
-      "content": "我们的 AI 生成内容以协助你的学习。虽然我们力求准确，但 AI 生成的内容可能包含错误。你应该审查所有生成的材料，不应仅依赖 AI 做出关键决策。Studyield 不对 AI 生成内容中的错误负责。"
+      "content": "我们的 AI 生成内容以协助你的学习。虽然我们力求准确，但 AI 生成的内容可能包含错误。你应该审查所有生成的材料，不应仅依赖 AI 做出关键决策。Study RPG 不对 AI 生成内容中的错误负责。"
     },
     "liability": {
       "title": "8. 责任限制",
-      "content": "在法律允许的最大范围内，Studyield 不对任何间接的、附带的、特殊的、后果性的或惩罚性的损害负责，包括因使用服务而产生的数据丢失、利润损失或商誉损失。"
+      "content": "在法律允许的最大范围内，Study RPG 不对任何间接的、附带的、特殊的、后果性的或惩罚性的损害负责，包括因使用服务而产生的数据丢失、利润损失或商誉损失。"
     },
     "availability": {
       "title": "9. 服务可用性",
@@ -2057,7 +2198,7 @@
     },
     "governingLaw": {
       "title": "12. 适用法律",
-      "content": "这些条款应受适用法律的管辖和解释。因这些条款或使用 Studyield 而产生的任何争议应通过善意协商解决，或在必要时通过有约束力的仲裁解决。"
+      "content": "这些条款应受适用法律的管辖和解释。因这些条款或使用 Study RPG 而产生的任何争议应通过善意协商解决，或在必要时通过有约束力的仲裁解决。"
     },
     "contact": {
       "title": "13. 联系方式",
@@ -2075,7 +2216,7 @@
     "badge": "Cookie 政策",
     "title": "Cookie",
     "titleHighlight": "政策",
-    "description": "了解我们如何使用 Cookie 和类似技术来改善你在 Studyield 上的体验。",
+    "description": "了解我们如何使用 Cookie 和类似技术来改善你在 Study RPG 上的体验。",
     "lastUpdated": "最后更新：2026年2月14日",
     "contents": "目录",
     "toc": {
@@ -2091,7 +2232,7 @@
     "whatAreCookies": {
       "title": "什么是 Cookie",
       "content": "Cookie 是访问网站时放置在你设备上的小型文本文件。它们被广泛用于使网站更高效地运行、提供更好的用户体验，并向网站所有者提供有关其网站使用方式的有用信息。",
-      "note": "使用 Studyield 即表示你同意按照本 Cookie 政策使用 Cookie。你可以随时管理你的 Cookie 偏好。",
+      "note": "使用 Study RPG 即表示你同意按照本 Cookie 政策使用 Cookie。你可以随时管理你的 Cookie 偏好。",
       "noteLabel": "注意："
     },
     "typesOfCookies": {
@@ -2149,7 +2290,7 @@
     },
     "howWeUse": {
       "title": "我们如何使用 Cookie",
-      "description": "我们为了增强你在 Studyield 上的体验而使用 Cookie：",
+      "description": "我们为了增强你在 Study RPG 上的体验而使用 Cookie：",
       "items": [
         {
           "title": "认证",
@@ -2217,11 +2358,11 @@
         }
       ],
       "warningLabel": "警告：",
-      "warning": "禁用必要 Cookie 可能影响 Studyield 的功能，并阻止你使用某些功能。"
+      "warning": "禁用必要 Cookie 可能影响 Study RPG 的功能，并阻止你使用某些功能。"
     },
     "cookieSettings": {
       "title": "Cookie 设置",
-      "description": "你可以随时自定义 Studyield 的 Cookie 偏好。点击下方按钮管理你允许的 Cookie 类型。",
+      "description": "你可以随时自定义 Study RPG 的 Cookie 偏好。点击下方按钮管理你允许的 Cookie 类型。",
       "managePreferences": "管理 Cookie 偏好"
     },
     "policyUpdates": {
@@ -2242,7 +2383,7 @@
     "badge": "符合 GDPR",
     "title": "账号与",
     "titleHighlight": "数据删除",
-    "description": "我们尊重你被遗忘的权利。了解如何永久删除你的 Studyield 账号和所有相关数据。此过程不可逆。",
+    "description": "我们尊重你被遗忘的权利。了解如何永久删除你的 Study RPG 账号和所有相关数据。此过程不可逆。",
     "importantNotice": {
       "title": "重要提示：此操作无法撤销",
       "description": "一旦删除账号，你的所有数据将从我们的服务器永久删除。请确保在操作前导出任何重要的学习材料。",
@@ -2294,7 +2435,7 @@
       "steps": [
         {
           "title": "登录你的账号",
-          "description": "使用你的邮箱和密码登录 Studyield，访问账号设置。"
+          "description": "使用你的邮箱和密码登录 Study RPG，访问账号设置。"
         },
         {
           "title": "进入账号设置",
@@ -2335,7 +2476,7 @@
     "badge": "网站导航",
     "title": "网站",
     "titleHighlight": "地图",
-    "description": "Studyield 所有页面的完整概览。快速找到你要找的内容。",
+    "description": "Study RPG 所有页面的完整概览。快速找到你要找的内容。",
     "quickAccess": "快速访问",
     "sections": {
       "mainPages": "主要页面",
@@ -2346,7 +2487,7 @@
     },
     "links": {
       "home": "首页",
-      "homeDesc": "欢迎来到 Studyield",
+      "homeDesc": "欢迎来到 Study RPG",
       "aboutUs": "关于我们",
       "aboutUsDesc": "了解我们的使命",
       "features": "功能",
@@ -2397,7 +2538,7 @@
     "xmlSitemapDesc": "供搜索引擎和开发者使用",
     "viewSitemapXml": "查看 sitemap.xml",
     "ctaTitle": "找不到你要找的？",
-    "ctaDescription": "我们的支持团队随时帮你导航 Studyield。",
+    "ctaDescription": "我们的支持团队随时帮你导航 Study RPG。",
     "contactUs": "联系我们",
     "helpCenterBtn": "帮助中心"
   },
@@ -4002,108 +4143,717 @@
       ]
     },
     "faq": {
-      "studentQuestion": "Studyield 对学生来说价格实惠吗？",
+      "studentQuestion": "Study RPG 对学生来说价格实惠吗？",
       "studentAnswer": "当然！我们的定价是为学生设计的。先享受 7 天免费试用，然后选择月付（$7.99/月）或年付（$47.88/年）——对学生来说都很实惠。"
     }
   },
-  "featuresFullPage": {
-    "badge": "强大功能",
-    "title": "学习所需的",
-    "titleHighlight": "一切工具",
-    "description": "AI 生成的完形填空和图片遮挡闪卡、间隔重复、考试克隆、问题求解和个人 AI 助教——集于一个平台。",
-    "startLearningFree": "免费开始学习",
-    "viewPricing": "查看定价",
-    "highlightsTitle": "核心功能",
-    "highlightsDescription": "为你的学习之旅提供最强大的工具。",
-    "allFeaturesTitle": "探索所有功能",
-    "allFeaturesDescription": "发现每一个帮助你更快学习、记忆更牢的工具。",
-    "learnMore": "了解更多",
-    "viewBenefits": "查看优势",
-    "tryItNow": "立即试用",
-    "categories": {
-      "all": "全部",
-      "study": "学习工具",
-      "ai": "AI 驱动",
-      "assessment": "评估",
-      "tracking": "追踪"
+  "academics": {
+    "title": "学业结构",
+    "subtitle": "在一个地方管理你的科目、章节、主题、考试和学校资料。",
+    "profileTab": "资料",
+    "subjectsTab": "科目",
+    "examsTab": "考试",
+    "profileTitle": "学校资料",
+    "profileSubtitle": "告诉我们你的学校信息，让 Study RPG 为你定制学习计划。",
+    "country": "国家",
+    "board": "教育委员会",
+    "school": "学校",
+    "grade": "年级",
+    "academicYear": "学年",
+    "saveProfile": "保存资料",
+    "profileSaved": "资料已保存",
+    "addSubject": "添加科目",
+    "subjectNamePlaceholder": "科目名称（例如：数学）",
+    "chapters_other": "{{count}} 章",
+    "topics": "主题",
+    "noSubjects": "还没有科目。添加你的第一个科目开始吧。",
+    "noChapters": "还没有章节 — 在下方添加第一个章节。",
+    "addChapter": "添加章节",
+    "chapterNamePlaceholder": "章节名称",
+    "addTopic": "添加主题",
+    "topicNamePlaceholder": "主题名称",
+    "learningObjective": "学习目标",
+    "deleteSubject": "删除科目",
+    "deleteSubjectConfirm": "删除此科目？其章节和主题也将被删除。",
+    "deleteChapterConfirm": "删除此章节？其主题也将被删除。",
+    "deleteTopicConfirm": "删除此主题？",
+    "deleteExamConfirm": "删除此考试？其范围也将被移除。",
+    "addExam": "添加考试",
+    "examNamePlaceholder": "考试名称（例如：期中考试）",
+    "examDate": "考试日期",
+    "subjectLabel": "科目",
+    "noExams": "还没有计划考试。添加考试以管理考试范围。",
+    "portions": "考试范围",
+    "noPortions": "此范围中还没有章节。",
+    "addPortion": "将章节添加到范围",
+    "removePortion": "从范围移除",
+    "create": "创建",
+    "add": "添加",
+    "cancel": "取消",
+    "error": "出错了。请重试。"
+  },
+"wellbeing": {
+    "title": "学习健康",
+    "today": "今日专注",
+    "optimal": "健康最优：每天{{min}}分钟",
+    "budget": "距离每日上限还有{{min}}分钟",
+    "band": {
+      "fresh": "状态良好",
+      "focused": "专注",
+      "draining": "逐渐下降",
+      "depleted": "精力耗尽"
     },
-    "stats": {
-      "features": "强大功能",
-      "cardTypes": "闪卡类型",
-      "aiAvailable": "AI 可用",
-      "fileFormats": "文件格式"
+    "cooldownTitle": "休息窗口进行中",
+    "cooldownBody": "你上一段专注时间较长。请真正休息一下（还剩{{min}}分钟）——休息时大脑会巩固你刚学的内容。",
+    "nightTitle": "时间已晚",
+    "nightBody": "学习在睡眠中巩固。建议今晚收工——明天的学习比今晚多熬一小时更有价值。",
+    "diminishingTitle": "收益递减",
+    "diminishingBody": "你已经超过健康最优值——今天额外的时间只能获得平时×{{mult}}的奖励。休息会让你的学习更有价值。"
+  },
+  "focusSessions": {
+    "title": "Focus Sessions",
+    "subtitle": "Record your study time, subject by subject.",
+    "startFocus": "Ready to focus?",
+    "nowFocusing": "In a focus session",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "complete": "Complete",
+    "paused": "Paused",
+    "today": "Focus today",
+    "history": "Session history",
+    "minutes": "min",
+    "general": "General study",
+    "noSessions": "No sessions yet. Start one above!",
+    "subjectPlaceholder": "Subject (optional)",
+    "deleteConfirm": "Delete this session?",
+    "alreadyActive": "A session is already running or paused. Complete it first.",
+    "error": "Could not load focus sessions."
+  },
+  "mistakes": {
+    "title": "Mistake Notebook",
+    "subtitle": "Turn every mistake into a lesson.",
+    "addMistake": "Add mistake",
+    "save": "Save",
+    "cancel": "Cancel",
+    "questionLabel": "Question",
+    "questionPlaceholder": "What question did you get wrong?",
+    "subject": "Subject",
+    "chapter": "Chapter",
+    "correctAnswer": "Correct answer",
+    "wrongAnswer": "Your answer",
+    "category": "Category",
+    "category_concept": "Concept",
+    "category_careless": "Careless",
+    "category_time": "Time pressure",
+    "category_guess": "Guessed",
+    "category_other": "Other",
+    "cause": "Why it happened",
+    "correctionNote": "Correction note",
+    "status_open": "Open",
+    "status_resolved": "Resolved",
+    "status_reopened": "Reopened",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "resolvePrompt": "Correction note (optional):",
+    "search": "Search mistakes…",
+    "empty": "No mistakes match.",
+    "deleteConfirm": "Delete this mistake?",
+    "error": "Could not load mistakes."
+  },
+  "puzzles": {
+    "title": "Subject Puzzles",
+    "subtitle": "Ranked streaks and practice for every subject.",
+    "mode_ranked": "Ranked",
+    "mode_practice": "Practice",
+    "total": "puzzles",
+    "rankedToday": "ranked today",
+    "best": "best {best}",
+    "pickSubject": "Pick a subject to start puzzling.",
+    "noSubjects": "No puzzles yet. Create original puzzles for your subjects.",
+    "dailyLimit": "Daily ranked limit reached",
+    "dailyLimitHint": "Come back tomorrow, or keep practicing!",
+    "noneLeft": "No puzzles left for this subject.",
+    "retry": "Try again",
+    "submit": "Submit answer",
+    "correct": "Correct!",
+    "incorrect": "Not quite.",
+    "answer": "Answer",
+    "next": "Next puzzle",
+    "history": "Recent attempts",
+    "error": "Could not load puzzles."
+  },
+  "examCentre": {
+    "title": "Exam Centre",
+    "subtitle": "能力测评——选择一门科目，锻炼思维能力，了解为什么丢分以及如何改进。",
+    "addPeriod": "Add period",
+    "periodName": "Period name",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "notes": "Notes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "status_upcoming": "Upcoming",
+    "status_live": "Live",
+    "status_ended": "Ended",
+    "noPeriods": "No exam periods yet. Add one to plan your exams.",
+    "noExamsInPeriod": "No exams attached to this period.",
+    "recordResult": "Record result: {exam}",
+    "recordResultTitle": "Record exam result",
+    "marksObtained": "Marks obtained",
+    "marksTotal": "Total marks",
+    "mistakeAnalysis": "Mistake analysis",
+    "revisionPlan": "Revision plan",
+    "saveResult": "Save result",
+    "results": "Results",
+    "deleteConfirm": "Delete this exam period?",
+    "error": "Could not load the exam centre."
+  },
+  "rpg": {
+    "title": "Study RPG",
+    "subtitle": "Defeat the monsters of distraction with knowledge and original cards.",
+    "stp": "STP",
+    "error": "Failed to load Study RPG data.",
+    "deckError": "Could not create the deck — check card restrictions.",
+    "battleError": "Could not start a battle.",
+    "actionError": "That move was rejected by the server.",
+    "tab": {
+      "character": "Character",
+      "decks": "Decks",
+      "battle": "Battle",
+      "duel": "Duels"
     },
-    "studySets": {
-      "title": "学习集",
-      "subtitle": "整理你的学习",
-      "description": "使用 AI 内容提取创建和整理学习集。上传文档，让 AI 自动生成全面的学习材料。",
-      "benefits": ["AI 内容提取", "按科目和主题整理", "与同学分享和协作", "从多种格式导入"]
+    "level": "Level",
+    "xp": "XP",
+    "studyStreak": "Study streak",
+    "bestPuzzleStreak": "Best puzzle streak",
+    "eventExp": "Event XP",
+    "equippedDeck": "Equipped deck",
+    "noDeck": "No deck yet",
+    "startBattle": "Start battle",
+    "collectionCount": "Cards owned",
+    "manageDecks": "Manage decks",
+    "cardLibrary": "Card library",
+    "libraryHint": "Original cards only — no third-party content.",
+    "balance": "Wallet balance",
+    "ledgerHint": "Every STP/SLC change is recorded on an immutable ledger.",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "legendary": "Legendary"
     },
-    "flashcards": {
-      "title": "智能闪卡",
-      "subtitle": "AI 生成的卡片",
-      "description": "从任何文档自动生成标准卡、完形填空和图片遮挡闪卡。SM-2 间隔重复在最佳时间安排复习。",
-      "benefits": ["3 种卡片类型：标准、完形填空、图片遮挡", "SM-2 间隔重复算法", "从文档 AI 生成", "追踪每张卡片的掌握度"]
+    "buildDeck": "Build a deck",
+    "deckNamePlaceholder": "Deck name",
+    "deckHint": "five cards, max one Poison, one Decay and one Shield",
+    "saveDeck": "Save deck",
+    "collection": "Collection",
+    "active": "Active",
+    "equip": "Equip",
+    "deckValid": "Valid deck",
+    "deckInvalid": "Invalid deck",
+    "defaultDeckName": "My Deck",
+    "noBattle": "No battle in progress",
+    "noBattleHint": "Equip a validated deck, then challenge a monster.",
+    "turn": "Turn",
+    "shield": "Shield",
+    "forfeit": "Forfeit",
+    "done": "Done",
+    "victory": "Victory!",
+    "defeat": "Defeated…",
+    "forfeited": "Forfeited",
+    "pendingReward": "Reward on victory",
+    "log": {
+      "start": "Battle starts —",
+      "action": "plays",
+      "damage": "deals",
+      "dot": "damage over time",
+      "heal": "heals",
+      "shield": "shield from",
+      "status": "status",
+      "mana": "mana",
+      "quiz": "quiz restores",
+      "challengeWin": "Damage challenge: perfect! +10",
+      "challengeFail": "Damage challenge missed.",
+      "defeatWin": "Monster defeated!",
+      "defeatLoss": "You were defeated.",
+      "end": "Turn ends."
     },
-    "documents": {
-      "title": "文档分析",
-      "subtitle": "上传和提取",
-      "description": "上传 PDF、Word 文档、图片或 Markdown 文件。我们的 AI 提取关键概念、定义和公式——甚至通过 OCR 识别手写笔记。",
-      "benefits": ["支持 6+ 种文件格式", "AI 概念提取", "手写识别 (OCR)", "从文档自动生成闪卡"]
-    },
-    "chat": {
-      "title": "AI 学习伙伴",
-      "subtitle": "与你的材料对话",
-      "description": "与你的学习材料对话。对任何主题提问，获得即时解释，让 AI 从你的文档生成闪卡和测验。",
-      "benefits": ["对任何主题提问", "获得即时解释", "从对话生成闪卡", "全天候可用"]
-    },
-    "quizzes": {
-      "title": "测验与实时测验",
-      "subtitle": "测试你的知识",
-      "description": "从你的学习材料 AI 生成测验，加上实时多人在线测验。与同学竞赛并追踪进度。",
-      "benefits": ["AI 生成测验题", "实时多人模式", "多种题型", "详细表现分析"]
-    },
-    "examClone": {
-      "title": "考试克隆",
-      "subtitle": "像真实考试一样练习",
-      "description": "分析往年考试并生成匹配的练习题。用计时和评分模拟真实考试环境。",
-      "benefits": ["分析往年考试模式", "生成相似题目", "计时考试模拟", "表现评分和回顾"]
-    },
-    "problemSolver": {
-      "title": "问题求解器",
-      "subtitle": "分步解答",
-      "description": "获取数学、科学等的分步解答。上传照片或输入问题——AI 将其分解为清晰、易懂的步骤。",
-      "benefits": ["分步解释", "数学、科学等多学科", "照片上传支持", "多题目批量模式"]
-    },
-    "handwritingOcr": {
-      "title": "手写 OCR",
-      "subtitle": "扫描你的笔记",
-      "description": "扫描手写笔记并转为数字文本。非常适合将课堂笔记转换为闪卡和学习材料。",
-      "benefits": ["准确的手写识别", "将笔记转为闪卡", "支持多种语言", "照片和扫描件均可"]
-    },
-    "learningPaths": {
-      "title": "学习路径",
-      "subtitle": "个性化路线图",
-      "description": "AI 根据你的目标和当前知识创建个性化学习路线图。按结构化路径高效掌握任何学科。",
-      "benefits": ["AI 生成的学习计划", "根据进度自适应", "基于目标的里程碑", "追踪完成百分比"]
-    },
-    "analytics": {
-      "title": "分析与游戏化",
-      "subtitle": "追踪你的进度",
-      "description": "通过学习热力图和打卡日历追踪进度。赚取经验值，升级等级，保持每日连续打卡，设置考试倒计时按计划学习。",
-      "benefits": ["学习热力图和日历", "经验值和等级系统", "每日连续打卡追踪", "考试倒计时"]
-    },
-    "teachBack": {
-      "title": "教学回顾",
-      "subtitle": "通过教学来学习",
-      "description": "向 AI 讲解概念并获得对你理解程度的反馈。教学是巩固知识最有效的方法之一。",
-      "benefits": ["向 AI 讲解概念", "获得即时反馈", "识别知识空白", "加深理解"]
-    },
-    "conceptMaps": {
-      "title": "概念图",
-      "subtitle": "可视化联系",
-      "description": "可视化主题和概念之间的联系。AI 从你的学习材料生成交互式思维导图，帮你看到全局。",
-      "benefits": ["AI 生成的概念图", "交互式可视化", "查看主题关系", "导出和分享"]
+    "pvp": {
+      "challengeByEmail": "Challenge by email",
+      "emailPlaceholder": "friend@example.com",
+      "challengeBtn": "Challenge",
+      "randomMatchmaking": "Random matchmaking",
+      "needDeck": "You need a validated, equipped deck to duel.",
+      "leaderboard": "Leaderboard",
+      "noDuels": "No duels yet",
+      "level": "Level",
+      "yourDuels": "Your duels",
+      "rating": "Rating",
+      "vs": "vs",
+      "you": "you",
+      "status": {
+        "challenged": "Challenged",
+        "in_progress": "In progress",
+        "settled": "Settled",
+        "expired": "Expired"
+      },
+      "youWon": "You won the duel!",
+      "youLost": "You lost the duel.",
+      "draw": "The duel was a draw.",
+      "ratingChange": "Rating change",
+      "limited": "daily limit reached",
+      "expires": "Expires",
+      "continue": "Continue battle",
+      "fight": "Fight",
+      "duelError": "Could not create the duel.",
+      "battleError": "Could not start the duel battle."
     }
+  },
+  "economy": {
+    "title": "卡牌市场",
+    "subtitle": "买卖、拆解和焚毁原创卡牌 — 每一笔 STP 变动都记录在不可篡改的账本中。",
+    "error": "市场出现了一些问题。",
+    "loading": "正在打开市场…",
+    "tab": {
+      "marketplace": "市场",
+      "collection": "我的卡牌",
+      "supply": "供给"
+    },
+    "rarity": {
+      "all": "全部",
+      "common": "普通",
+      "rare": "稀有",
+      "legendary": "传说",
+      "supply": "稀有度"
+    },
+    "officialValue": "官方价值",
+    "seller": "卖家",
+    "buy": "购买",
+    "offer": "出价",
+    "sendOffer": "发送",
+    "offerPlaceholder": "你的 STP 出价",
+    "offerMade": "出价已发送 — 等待卖家回复。",
+    "pendingOffers": "待处理出价",
+    "from": "来自",
+    "to": "发给",
+    "accept": "接受",
+    "decline": "拒绝",
+    "cancelOffer": "撤回",
+    "myListings": "我的上架",
+    "noListings": "市场上目前没有卡牌。",
+    "owned": "已拥有",
+    "location": {
+      "inventory": "背包",
+      "vault": "金库"
+    },
+    "inDeck": "在卡组中",
+    "listedBadge": "已上架",
+    "sell": "出售",
+    "confirmList": "上架",
+    "pricePlaceholder": "STP 价格",
+    "listed": "卡牌已上架到市场。",
+    "toVault": "存入金库",
+    "toInventory": "放入背包",
+    "scrape": "拆解",
+    "scrapeTitle": "拆解这张卡牌？",
+    "scrapeWarning": "卡牌将被永久移除，你会立即获得其官方价值。此操作无法撤销。",
+    "confirmScrape": "拆解换 STP",
+    "burn": "焚毁",
+    "burnTitle": "焚毁这张卡牌？",
+    "burnWarning": "卡牌将被永久移除。你将分期获得付款 — 首期立即到账，其余随时间支付。此操作无法撤销。",
+    "confirmBurn": "分期焚毁",
+    "cancel": "取消",
+    "burnActive": "焚毁进行中",
+    "instalments": "期分期",
+    "nextInstalment": "下次付款",
+    "noCards": "你还没有任何卡牌。赢得战斗并开启卡包来壮大收藏吧。",
+    "card": "卡牌",
+    "original": "原始",
+    "active": "活跃",
+    "burned": "已焚毁",
+    "scraped": "已拆解",
+    "listedShort": "已上架",
+    "statusCol": "状态",
+    "extinct": "绝版",
+    "replacement": "回声",
+    "activeBadge": "在售",
+    "retired": "已退役",
+    "priceHistory": "官方价值历史",
+    "noHistory": "尚未记录任何价值变动。",
+    "supplyHint": "供给账本追踪每一次印刷、焚毁、拆解和绝版 — 官方价值随供给变化。",
+    "adminReconcile": "对账",
+    "adminInstalments": "支付分期"
+  },
+  "events": {
+    "title": "学习活动",
+    "subtitle": "始终有一个活动正在进行。学习、赚取活动经验、提升你的 Study Pass 并领取奖励——游戏永远不会让你偏离学习。",
+    "loadError": "无法加载当前活动。",
+    "none": "当前没有进行中的活动——调度器会自动启动一个。",
+    "daysLeft": "将于 {count} 天后结束",
+    "startsOn": "开始",
+    "endsOn": "结束",
+    "fallbackBadge": "备用",
+    "status": {
+      "scheduled": "已排期",
+      "active": "进行中",
+      "ended": "已结束"
+    },
+    "studyPass": {
+      "title": "Study Pass",
+      "hint": "活动经验只来自真实的学习——任务、专注、测验、谜题和战斗。",
+      "level": "等级 {level}",
+      "exp": "{exp} / {next} 经验",
+      "maxed": "已达最高等级",
+      "trackNone": "选择你的赛道",
+      "trackLocked": "赛道已锁定",
+      "free": "免费通行证",
+      "gold": "黄金通行证",
+      "goldCost": "黄金通行证 · {cost} STP",
+      "chooseFree": "选择免费",
+      "chooseGold": "选择黄金",
+      "goldConfirmTitle": "购买黄金通行证？",
+      "goldConfirmBody": "这将从你的钱包扣除 {cost} STP，并在整个活动期间锁定你的赛道。此选择无法更改。",
+      "claim": "领取",
+      "claimed": "已领取",
+      "locked": "已锁定",
+      "claimHint": "{count} 个奖励可领取"
+    },
+    "quests": {
+      "title": "任务",
+      "subtitle": "完成真实的学习活动，赚取 STP、活动经验和物品。",
+      "category": {
+        "daily": "每日",
+        "weekly": "每周",
+        "study": "学习",
+        "puzzle": "谜题"
+      },
+      "claim": "领取",
+      "claimed": "已领取",
+      "none": "该活动暂无进行中的任务。"
+    },
+    "items": {
+      "title": "活动物品",
+      "subtitle": "抽象错误、碎片和灭绝印记。",
+      "none": "你还没有任何活动物品。",
+      "transfer": "发送印记",
+      "transferHint": "向好友发送灭绝印记（用户 ID + 数量）。",
+      "friendId": "好友的用户 ID",
+      "quantity": "数量",
+      "send": "发送",
+      "transferred": "印记已发送。",
+      "transferError": "无法发送印记。",
+      "redeemLimbo": "兑换 Limbo",
+      "limboTitle": "兑换 Limbo？",
+      "limboBody": "消耗全部 7 个抽象错误，获得不可交易的 Limbo 传说卡。仅可进行一次。",
+      "limboDone": "已获得 Limbo！",
+      "errorsHave": "你拥有 {count} 个抽象错误。"
+    },
+    "abstracted": {
+      "title": "抽象卡牌",
+      "subtitle": "解除抽象会将抽象卡牌永久转换为传说卡牌。",
+      "none": "你没有可解除抽象的抽象卡牌。",
+      "unabstract": "解除抽象",
+      "unabstractTitle": "解除 {name} 的抽象？",
+      "unabstractBody": "该卡牌将永久转换为 {result}，你将获得 {stp} STP 和 1 个抽象错误。此操作无法撤销。",
+      "reason": "原因（在审计日志中可见）",
+      "confirm": "确认",
+      "done": "卡牌已解除抽象——{result} 已加入你的收藏。"
+    },
+    "extinction": {
+      "title": "大灭绝",
+      "subtitle": "这些卡牌系列正在消失。烧毁目标可获得灭绝印记，或使用印记来保护你心爱的卡牌。",
+      "targets": "目标",
+      "value": "价值",
+      "milestone": "全球焚火",
+      "milestoneProgress": "已定向烧毁 {progress} / {target}",
+      "claimMilestone": "领取印记",
+      "milestoneClaimed": "已领取",
+      "none": "尚未设定目标。"
+    },
+    "admin": {
+      "title": "活动管理",
+      "subtitle": "安排活动、激活活动并管理灭绝。每项操作都会记录原因。",
+      "slug": "标识",
+      "name": "名称",
+      "story": "故事",
+      "startsAt": "开始时间",
+      "endsAt": "结束时间",
+      "graceHours": "宽限小时数",
+      "reason": "原因",
+      "create": "安排活动",
+      "created": "活动已安排。",
+      "createError": "无法安排活动。",
+      "activate": "立即激活",
+      "activated": "活动已激活。",
+      "activateError": "无法激活活动。",
+      "seedTargets": "重新设定灭绝目标",
+      "cardKeys": "卡牌键（逗号分隔）",
+      "seeded": "灭绝目标已更新。",
+      "seedError": "无法更新灭绝目标。"
+    }
+  },
+  "programmes": {
+    "title": "学习计划",
+    "subtitle": "可选的框架，训练你的思维——设计解决真实学习问题的系统。所有计划都是可选的；你的选择最为重要。",
+    "suggest": "提议一个计划",
+    "suggestBtn": "提议计划",
+    "suggestHint": "描述一个计划想法（例如「十年级科学复习中心」）。",
+    "suggestError": "无法提议该计划。",
+    "loadError": "无法加载计划。",
+    "join": "加入",
+    "leave": "退出",
+    "review": "评审",
+    "reviewBtn": "提交评审",
+    "reviewError": "无法保存评审。",
+    "reviewAccepted": "已通过",
+    "reviewRejected": "已拒绝",
+    "reviewReasonPlaceholder": "本次评审的原因（必填）",
+    "reviewHistory": "评审历史",
+    "reviewQueue": "评审队列",
+    "reviewQueueError": "无法加载评审队列。",
+    "queueHint": "等待人工裁决的计划（尚无 AI 评审，或评分较低）。",
+    "queueEmpty": "评审队列为空。",
+    "applyVerdicts": "应用裁决",
+    "accept": "通过",
+    "reject": "拒绝",
+    "by": "由",
+    "none": "还没有计划——来做第一个提议者吧。",
+    "score": "评分",
+    "reward": "奖励",
+    "objectives": "目标",
+    "weeks": "周",
+    "hoursWeek": "小时/周",
+    "reasonPlaceholder": "原因（必填）",
+    "namePlaceholder": "计划名称",
+    "descriptionPlaceholder": "简短描述",
+    "factionSizePlaceholder": "阵营规模",
+    "hasFactions": "启用阵营",
+    "factionsEnabled": "含阵营",
+    "startPath": "开始学习路径",
+    "pathError": "无法创建学习路径。",
+    "hideForm": "隐藏表单",
+    "hideQueue": "隐藏队列",
+    "hideTemplates": "隐藏模板",
+    "templates": "模板",
+    "templatesHint": "从精选模板开始，AI 会基于它构建完整的计划。",
+    "noTemplates": "还没有模板。",
+    "useTemplate": "使用模板",
+    "newTemplate": "新建模板",
+    "saveTemplate": "保存模板",
+    "deleteTemplate": "删除模板",
+    "templateDeletePrompt": "删除此模板的原因（必填）：",
+    "templateNamePlaceholder": "模板名称",
+    "templateDescPlaceholder": "模板描述",
+    "templateError": "无法保存模板。",
+    "archiveReasonPrompt": "归档此计划的原因（必填）：",
+    "batchReviewDone": "已应用批量评审。",
+    "filter": {
+      "active": "全部",
+      "mine": "我的",
+      "suggested": "已提议"
+    },
+    "status": {
+      "active": "进行中",
+      "suggested": "已提议",
+      "building": "构建中",
+      "rejected": "已拒绝",
+      "archived": "已归档"
+    },
+    "kind": {
+      "custom": "自定义",
+      "revision_centre": "复习中心",
+      "competency_testing": "能力测评",
+      "exam_sprint": "考试冲刺"
+    }
+  },
+  "admin": {
+    "title": "管理",
+    "subtitle": "Nightmare 超级管理员控制台",
+    "users": {
+      "create": "创建用户",
+      "createBtn": "创建用户",
+      "createError": "无法创建用户。",
+      "edit": "编辑",
+      "editUser": "编辑用户",
+      "loadError": "无法加载用户。",
+      "none": "未找到用户。",
+      "searchPlaceholder": "按姓名、邮箱或用户名搜索",
+      "namePlaceholder": "全名",
+      "emailPlaceholder": "邮箱（可选）",
+      "usernamePlaceholder": "用户名（可选）",
+      "passwordPlaceholder": "密码",
+      "reasonPlaceholder": "原因（必填）",
+      "role": {
+        "admin": "管理员",
+        "teacher": "教师",
+        "user": "用户"
+      },
+      "activeLabel": "启用",
+      "disabled": "已停用",
+      "reset": "重置密码",
+      "resetBtn": "重置",
+      "resetError": "无法重置密码。",
+      "resetPassword": "重置密码",
+      "newPasswordPlaceholder": "新密码",
+      "updateError": "无法更新用户。",
+      "hideForm": "隐藏表单",
+      "noIdentifier": "需要邮箱或用户名"
+    },
+    "audit": {
+      "title": "审计日志",
+      "export": "导出",
+      "none": "没有审计记录。",
+      "reason": "原因",
+      "target": "目标",
+      "loadError": "无法加载审计日志。",
+      "purge": "清除旧记录",
+      "purgeError": "无法清除审计日志。",
+      "retentionPlaceholder": "保留天数",
+      "retentionReason": "原因（必填）",
+      "retentionNow": "保留期",
+      "setRetention": "设置保留期",
+      "retentionError": "无法更新保留期。",
+      "days": "天",
+      "system": "系统"
+    },
+    "notes": {
+      "deleteError": "无法删除笔记。",
+      "deleteReasonPrompt": "删除此笔记的原因（必填）：",
+      "hideForm": "隐藏表单",
+      "hint": "上传 PDF 或编写通用笔记。所选页面会编入 RAG 搜索索引。",
+      "loadError": "无法加载笔记。",
+      "none": "还没有管理笔记。",
+      "pages": "页面",
+      "selectedPages": "所选页面",
+      "subjectPlaceholder": "科目（可选）",
+      "textNote": "编写文本笔记",
+      "titlePlaceholder": "笔记标题",
+      "upload": "上传",
+      "uploadBtn": "上传笔记",
+      "uploadError": "无法上传笔记。"
+    },
+    "syllabus": {
+      "add": "添加教学大纲条目",
+      "boardPlaceholder": "教育委员会（如 CBSE）",
+      "chaptersPlaceholder": "章节 JSON（名称 + 主题）",
+      "deleteError": "无法删除教学大纲条目。",
+      "deleteReasonPrompt": "删除此教学大纲条目的原因（必填）：",
+      "gradePlaceholder": "年级（如 9）",
+      "hideForm": "隐藏表单",
+      "hint": "发布学生学习的官方教学大纲。",
+      "loadError": "无法加载教学大纲。",
+      "none": "还没有教学大纲条目。",
+      "reasonPlaceholder": "原因（必填）",
+      "save": "保存教学大纲",
+      "saveError": "无法保存教学大纲。",
+      "subjectPlaceholder": "科目"
+    },
+    "system": {
+      "users": "按角色统计用户",
+      "auditCount": "审计记录",
+      "activeEvents": "进行中的活动",
+      "activeFactions": "活跃阵营",
+      "queue": "队列（默认）",
+      "queueWaiting": "等待中",
+      "queueActive": "运行中",
+      "queueCompleted": "已完成",
+      "queueFailed": "失败",
+      "queueDelayed": "已延迟",
+      "loadError": "无法加载系统状态。",
+      "health": {
+        "title": "服务健康",
+        "database": "数据库",
+        "redis": "Redis",
+        "qdrant": "Qdrant",
+        "queue": "队列",
+        "ok": "正常",
+        "down": "故障"
+      }
+    }
+  },
+  "factions": {
+    "title": "阵营",
+    "subtitle": "由一名队长带领的学习小组。较弱的阵营会得到较强阵营的帮助——互相帮助，一起学习。",
+    "loadError": "无法加载阵营。",
+    "none": "还没有阵营。",
+    "myFaction": "我的阵营",
+    "noFaction": "你还没有加入任何阵营。",
+    "joinDefault": "加入默认阵营",
+    "members": "成员",
+    "viewMembers": "查看成员",
+    "score": "积分",
+    "leader": "队长",
+    "election": "选举",
+    "vote": "投票",
+    "voteError": "无法提交投票。",
+    "noVotes": "本周期还没有投票。",
+    "leaderboard": "排行榜",
+    "period": "周期",
+    "targetSize": "目标规模",
+    "helpPledges": "互助承诺",
+    "pledgesTo": "承诺对象",
+    "pledgeStatus": {
+      "open": "进行中",
+      "completed": "已完成"
+    },
+    "recordHelp": "记录帮助",
+    "recordHelpBtn": "记录帮助活动",
+    "recordHelpHint": "记录你本周期帮助了较弱的阵营。",
+    "helpActivities": "帮助活动",
+    "helpNotePrompt": "备注（可选）：",
+    "helpError": "无法记录帮助活动。",
+    "promoteLeaders": "晋升前 2 名",
+    "promoteError": "无法晋升队长。",
+    "assignError": "无法加入阵营。"
+  },
+  "social": {
+    "title": "社交",
+    "subtitle": "好友与私信——自托管、有审核、有频率限制。",
+    "loadError": "无法加载你的社交信息。",
+    "friends": "好友",
+    "noFriends": "还没有好友。去找学习伙伴吧！",
+    "findFriends": "查找好友",
+    "searchPlaceholder": "按姓名、用户名或邮箱搜索",
+    "add": "添加",
+    "pending": "待处理",
+    "requests": "请求",
+    "selectFriend": "选择一个好友",
+    "selectFriendHint": "从列表中选择好友开始聊天。",
+    "noMessages": "还没有消息。打个招呼吧！",
+    "messagePlaceholder": "输入消息…",
+    "sendError": "无法发送消息。",
+    "requestError": "无法发送好友请求。",
+    "block": "拉黑",
+    "blockConfirm": "要拉黑此用户吗？",
+    "status": {
+      "pending": "待处理",
+      "accepted": "好友",
+      "blocked": "已拉黑"
+    }
+  },
+  "accepted": "已通过",
+  "rejected": "已拒绝",
+  "campfire": {
+    "title": "篝火 — 元认知检查",
+    "subtitle": "在领取奖励之前，证明你真正理解了你所学的知识。",
+    "checkTitle": "篝火检查：验证你的理解",
+    "checkSubtitle": "回答导师的一个综合问题来锁定奖励——理解深度最多可提升 1.5 倍。",
+    "checkSubtitleBattle": "回答导师的综合问题，将你下一次胜利的奖励最多提升 1.5 倍。",
+    "reflectBoost": "反思并强化",
+    "answeredLabel": "反思已记录",
+    "tutorQuestion": "你的导师提问",
+    "answerPlaceholder": "用自己的话综合这个想法——它如何运作、为何重要，以及如何与你已知的内容联系起来…",
+    "submit": "提交反思",
+    "skip": "跳过（基础倍率 1.0 倍）",
+    "depthLabel": "理解深度",
+    "multiplierApplied": "奖励倍率已应用",
+    "masteryFrame": "你的真实认知能力和专注耐力提升了。加深的技能：{{skill}}。",
+    "reflectionLogged": "反思已记录",
+    "done": "继续",
+    "error": "暂时无法点燃篝火。请稍后再试。",
+    "tooShort": "你的反思太简短了——请真正花点时间综合这个想法。",
+    "limitReached": "你今天已经反思得够多了（每天 3 次）。当前倍率仍然有效。",
+    "boostActive": "奖励增强 ×{{mult}}",
+    "yourSubject": "你的学习会话"
   }
 }

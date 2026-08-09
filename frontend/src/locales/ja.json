@@ -1,6 +1,41 @@
 {
+  "philosophy": {
+    "badge": "Study RPGの流儀",
+    "title": "暗記より",
+    "titleHighlight": "習得",
+    "description": "Study RPGは単なる勉強ツールではありません——本当の深い学びを促します。アクティブリコールによる毎日の学習、勉強が遊び時間のように感じられる報酬、そしてクイズ・復習テスト・模擬試験・ティーチバック・共同試験のためのAIチューター——暗記するだけでなく、テーマを習得するための仕組みです。",
+    "learnMore": "詳しく見る",
+    "goalTitle": "目標",
+    "goal": "単なる暗記ではなく、テーマの習得と真の理解によって学ぶこと。仕事は学びの習得を求めます。暗記では、本当に学ぶ力には勝てません。",
+    "healthTitle": "学習の健康",
+    "health": "適切な時間割で学習者の健康を最優先します。逃した学習時間は効率よく再調整され、イベントは一体感と新しいアイデアを生みます。",
+    "freeToWin": "100%無料で勝てる——近道も課金勝利もありません",
+    "start": "旅を始める",
+    "pillars": {
+      "missions": {
+        "title": "ミッション",
+        "description": "宿題・課題・プロジェクトなど、どんなタスクも低報酬のミッションです。記憶力に必要な反復暗記を育てます。"
+      },
+      "revisionCentre": {
+        "title": "復習センター",
+        "description": "長さより深さ。登録してしっかり復習し、証明しましょう——学んだ考えを別の場面で応用して中程度の報酬を得ます。"
+      },
+      "competencyTesting": {
+        "title": "コンピテンシー評価",
+        "description": "科目を選び、思考力を高める能力問題に挑戦——どこで点数を失ったか、どう改善するかの洞察付きです。"
+      },
+      "programmes": {
+        "title": "プログラム",
+        "description": "実際の学習課題を解決するシステムを考え、作る力を育てる任意参加の枠組み。あなたの選択が最も大切です。"
+      },
+      "factions": {
+        "title": "ファクション",
+        "description": "1人のチームリーダーが率いる学習グループで、より良い学習と高いスコアへ導きます。弱いファクションは強いファクションから助けを受けます——助け合って学びます。"
+      }
+    }
+  },
   "common": {
-    "appName": "Studyield",
+    "appName": "Study RPG",
     "loading": "読み込み中...",
     "save": "保存",
     "cancel": "キャンセル",
@@ -54,6 +89,7 @@
   },
   "nav": {
     "dashboard": "ダッシュボード",
+    "tasks": "ミッション",
     "studySets": "学習セット",
     "aiChat": "AIチャット",
     "problemSolver": "問題解決",
@@ -70,7 +106,52 @@
     "tutorial": "チュートリアル",
     "about": "概要",
     "contact": "お問い合わせ",
-    "viewAllFeatures": "すべての機能を見る"
+    "viewAllFeatures": "すべての機能を見る",
+    "academics": "学習管理",
+    "focus": "Focus",
+    "mistakes": "Mistakes",
+    "puzzles": "Puzzles",
+    "examCentre": "Exam Centre",
+    "rpg": "Study RPG",
+    "economy": "エコノミー",
+    "events": "イベント"
+  },
+  "tasks": {
+    "title": "ミッション",
+    "subtitle": "宿題・課題・プロジェクトはミッションです。完了して記憶力を高め、報酬を得ましょう。",
+    "dueToday": "今日が期限",
+    "completedCount": "完了",
+    "addTask": "タスクを追加",
+    "titlePlaceholder": "何を勉強しますか？",
+    "subjectPlaceholder": "科目（任意）",
+    "descriptionPlaceholder": "詳細、リンク、メモ…",
+    "create": "タスクを作成",
+    "openTasks": "未完了のタスク",
+    "noOpenTasks": "未完了のタスクはありません。集中タイムをお楽しみください！",
+    "completedTasks": "完了済み",
+    "noCompletedTasks": "まだ完了していません。きっとできます！",
+    "complete": "完了としてマーク",
+    "reopen": "タスクを再開",
+    "type": {
+      "homework": "宿題",
+      "revision": "復習",
+      "exam_prep": "試験対策",
+      "project": "プロジェクト",
+      "reading": "読書",
+      "practice": "練習"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "緊急"
+    },
+    "recurrence": {
+      "none": "一回限り",
+      "daily": "毎日",
+      "weekly": "毎週",
+      "monthly": "毎月"
+    }
   },
   "header": {
     "features": {
@@ -95,10 +176,10 @@
     "changeLanguage": "言語を変更"
   },
   "hero": {
-    "badge": "AI搭載学習プラットフォーム",
-    "titleLine1": "ノートを入れて、",
-    "titleLine2": "試験をエース。",
-    "description": "PDF、ドキュメント、手書きノートをアップロード — AIが<strong>フラッシュカード、クイズ、コンセプトマップ</strong>を数秒で生成。間隔反復で復習、問題をステップ解決、XPでレベルアップ。",
+    "badge": "Study RPG · 暗記より習得",
+    "titleLine1": "習得するために学び、",
+    "titleLine2": "暗記だけではありません。",
+    "description": "ノートをアップロードするとAIが数秒で<strong>フラッシュカード・クイズ・模擬試験</strong>を作成。アクティブリコールで毎日学び、遊び時間の報酬を得て、ティーチバックで深さを証明——暗記より習得、無料で勝てます。",
     "startLearningFree": "無料で学習を始める",
     "watchDemo": "使い方を見る",
     "highlights": {
@@ -160,18 +241,18 @@
     "badge": "学生レビュー",
     "title": "世界中の学生に",
     "titleHighlight": "愛されています",
-    "description": "Studyieldでの学習体験について学生の声をご覧ください。",
+    "description": "Study RPGでの学習体験について学生の声をご覧ください。",
     "t1": {
       "name": "Sarah Chen",
       "role": "医学部予科生",
       "university": "スタンフォード大学",
-      "text": "Studyieldは有機化学の勉強方法を完全に変えました。AI生成のフラッシュカードで何時間もの準備時間を節約し、間隔反復システムでMCATの内容をすべて記憶できました。"
+      "text": "Study RPGは有機化学の勉強方法を完全に変えました。AI生成のフラッシュカードで何時間もの準備時間を節約し、間隔反復システムでMCATの内容をすべて記憶できました。"
     },
     "t2": {
       "name": "James Williams",
       "role": "コンピュータサイエンス専攻",
       "university": "MIT",
-      "text": "ドキュメント分析機能は素晴らしいです。講義PDFをアップロードすれば、数秒でフラッシュカードとクイズが完成します。Studyieldを使い始めてからB+からAに成績が上がりました。"
+      "text": "ドキュメント分析機能は素晴らしいです。講義PDFをアップロードすれば、数秒でフラッシュカードとクイズが完成します。Study RPGを使い始めてからB+からAに成績が上がりました。"
     },
     "t3": {
       "name": "田中愛子",
@@ -189,20 +270,20 @@
       "name": "Emma Rodriguez",
       "role": "医学生",
       "university": "ジョンズ・ホプキンス大学",
-      "text": "Studyieldを発見するまで解剖学に苦労していました。画像隠しフラッシュカードのおかげで解剖学的構造の学習がとても簡単になりました。医学生に強くお勧めします！"
+      "text": "Study RPGを発見するまで解剖学に苦労していました。画像隠しフラッシュカードのおかげで解剖学的構造の学習がとても簡単になりました。医学生に強くお勧めします！"
     },
     "t6": {
       "name": "David Kim",
       "role": "MBA学生",
       "university": "ウォートン・スクール",
-      "text": "私たちの研究グループはStudyieldのライブクイズ機能をケーススタディの準備に使っています。リアルタイムのクイズ対戦で復習セッションが非常に魅力的で生産的になりました。"
+      "text": "私たちの研究グループはStudy RPGのライブクイズ機能をケーススタディの準備に使っています。リアルタイムのクイズ対戦で復習セッションが非常に魅力的で生産的になりました。"
     }
   },
   "howItWorks": {
     "badge": "使い方",
     "title": "学習を始めよう",
     "titleHighlight": "4つの簡単なステップ",
-    "description": "9つのソースからインポート、AIが学習キットを作成、間隔反復とリアルタイム分析であらゆる科目をマスター。",
+    "description": "どこからでもインポートし、AIに学習キットを作らせ、長さより深さを証明——アクティブリコールとリアルタイム分析であらゆる科目を習得。",
     "steps": {
       "upload": {
         "title": "どこからでもインポート",
@@ -247,9 +328,9 @@
   },
   "cta": {
     "badge": "今日から学習を始めましょう",
-    "title": "もっと賢く学ぶ",
-    "titleHighlight": "準備はできていますか？",
-    "description": "AI学習ツールであらゆる科目を効率的にマスター。無料で始めて、いつでもアップグレード。",
+    "title": "習得の準備はできましたか、",
+    "titleHighlight": "暗記だけではありませんか？",
+    "description": "すべてのミッション、復習クイズ、模擬試験が報酬をもたらします——本当の学習だけが勝利への道だからです。いつでも無料で勝てます。",
     "getStartedFree": "無料で始める",
     "talkToSales": "営業に相談",
     "benefits": {
@@ -296,11 +377,13 @@
       "cookiePolicy": "Cookieポリシー",
       "dataDeletion": "データ削除"
     },
-    "copyright": "{{year}} Studyield. 無断転載禁止。",
+    "copyright": "{{year}} Study RPG. 無断転載禁止。",
     "madeWith": "作られた",
     "andAI": "とAIでより良い学習のために",
     "sitemap": "サイトマップ",
     "accessibility": "アクセシビリティ",
+    "license": "AGPL-3.0 ライセンス",
+    "sourceCode": "ソースコード",
     "backToTop": "トップに戻る"
   },
   "auth": {
@@ -431,7 +514,39 @@
     },
     "userMenu": {
       "user": "ユーザー"
-    }
+    },
+    "summaryUnavailable": "Live summary unavailable right now.",
+    "hideGameStats": "Hide game stats",
+    "gameStatsHidden": "Game stats hidden",
+    "recommendedNext": "Recommended next",
+    "recommend": {
+      "examToday": "Exam today: {name}",
+      "examIn": "Exam in {days} days: {name}",
+      "flashcards": "{count} flashcards due",
+      "tasks": "{count} overdue tasks",
+      "mistakes": "{count} mistakes to review",
+      "puzzle": "Keep your puzzle streak going",
+      "relax": "All caught up — take a break!"
+    },
+    "todaysPlan": "Today's plan",
+    "tasksDueToday": "Tasks due today",
+    "overdue": "Overdue",
+    "nextUp": "Next up",
+    "examPortions": "{count} exam portions coming up",
+    "noUpcomingExams": "No upcoming exams",
+    "focusThisWeek": "Focus time",
+    "focusTodayMsg": "{minutes} minutes focused today",
+    "noFocusYet": "No focus time yet today",
+    "recentMistakes": "Recent mistakes",
+    "noMistakes": "No open mistakes — great job!",
+    "weakTopics": "Weak topics",
+    "noWeakTopics": "No weak-topic data yet",
+    "studyStreak": "Study streak",
+    "puzzleBest": "Best puzzle streak",
+    "gameStats": "Game stats",
+    "playerXp": "Player XP",
+    "eventExp": "Event EXP",
+    "stpToday": "STP today"
   },
   "studySets": {
     "title": "マイ学習セット",
@@ -784,7 +899,12 @@
     "productUpdatesDesc": "新機能や改善に関するニュース",
     "saving": "保存中...",
     "saved": "保存しました！",
-    "savePreferences": "設定を保存"
+    "savePreferences": "設定を保存",
+    "webPush": "ブラウザ通知",
+    "webPushDesc": "ブラウザでプッシュ通知を受け取れます（アプリ不要）。",
+    "webPushEnable": "ブラウザ通知を有効化",
+    "webPushEnabled": "ブラウザ通知が有効です",
+    "webPushDenied": "ブラウザの許可が拒否されました"
   },
   "subscription": {
     "title": "サブスクリプション",
@@ -878,15 +998,15 @@
     "badge": "よくある質問",
     "title": "よくある",
     "titleHighlight": "質問",
-    "description": "Studyieldについて知りたいことすべて。お探しの情報が見つからない場合は、サポートチームにお問い合わせください。",
+    "description": "Study RPGについて知りたいことすべて。お探しの情報が見つからない場合は、サポートチームにお問い合わせください。",
     "stillHaveQuestions": "まだ質問がありますか？",
     "contactSupport": "サポートに連絡",
     "q1": "どのような種類のドキュメントをアップロードできますか？",
-    "a1": "StudyieldはPDF、Wordドキュメント（.docx、.doc）、プレーンテキスト、マークダウン、画像（PNG、JPEG）など、さまざまなフォーマットに対応しています。AIがこれらを処理してテキストを抽出し、学習教材を作成します。",
+    "a1": "Study RPGはPDF、Wordドキュメント（.docx、.doc）、プレーンテキスト、マークダウン、画像（PNG、JPEG）など、さまざまなフォーマットに対応しています。AIがこれらを処理してテキストを抽出し、学習教材を作成します。",
     "q2": "間隔反復システムはどのように機能しますか？",
     "a2": "フラッシュカードシステムはSM-2間隔反復アルゴリズムを使用して学習を最適化します。各カードの記憶度に基づいて、次の復習の最適なタイミングを計算します。苦手なカードはより頻繁に、マスターしたカードはより少なく表示されます。",
-    "q3": "Studyieldはオフラインで使えますか？",
-    "a3": "現在、Studyieldのほとんどの機能にはインターネット接続が必要です（AI処理はクラウドで行われます）。将来のアップデートでフラッシュカードのオフライン復習に対応予定です。",
+    "q3": "Study RPGはオフラインで使えますか？",
+    "a3": "現在、Study RPGのほとんどの機能にはインターネット接続が必要です（AI処理はクラウドで行われます）。将来のアップデートでフラッシュカードのオフライン復習に対応予定です。",
     "q4": "AIが生成するコンテンツの精度はどのくらいですか？",
     "a4": "AIはアップロードされた教材に基づいて高品質なコンテンツを生成します。ただし、生成されたフラッシュカードやクイズは確認することをお勧めします。生成されたコンテンツは簡単に編集できます。",
     "q5": "データは安全でプライベートですか？",
@@ -902,7 +1022,7 @@
     "q10": "プランをダウングレードするとどうなりますか？",
     "a10": "ダウングレードすると、現在の請求サイクルの終了までプレミアム機能にアクセスできます。その後、新しいプランに移行します。学習教材は保持されますが、一部の機能へのアクセスが制限される場合があります。",
     "q11": "どのブラウザやデバイスに対応していますか？",
-    "a11": "StudyieldはChrome、Firefox、Safari、Edgeなどのすべてのモダンブラウザで動作します。デスクトップ、タブレット、モバイルデバイスで完全にレスポンシブです。iOS・Android向けネイティブアプリも近日公開予定です。",
+    "a11": "Study RPGはChrome、Firefox、Safari、Edgeなどのすべてのモダンブラウザで動作します。デスクトップ、タブレット、モバイルデバイスで完全にレスポンシブです。iOS・Android向けネイティブアプリも近日公開予定です。",
     "q12": "ティーチバック機能とは何ですか？",
     "a12": "ティーチバックはProの機能で、概念をAIに説明することで学習を強化します。AIがあなたの説明を評価し、理解のギャップを特定し、知識を強化するためのフィードバックを提供します。",
     "searchPlaceholder": "FAQを検索...",
@@ -1062,10 +1182,10 @@
     }
   },
   "about": {
-    "badge": "Studyieldについて",
+    "badge": "Study RPGについて",
     "title": "AIで、もっと",
     "titleHighlight": "賢く学ぶ",
-    "description": "Studyieldはドキュメントをフラッシュカード、クイズ、インタラクティブな学習ツールに変換し、AIの力でより効果的な学習を実現します。",
+    "description": "Study RPGはドキュメントをフラッシュカード、クイズ、インタラクティブな学習ツールに変換し、AIの力でより効果的な学習を実現します。",
     "stats": {
       "featuresCount": "10+",
       "featuresLabel": "学習ツール",
@@ -1076,10 +1196,10 @@
       "uptime": "無料",
       "uptimeLabel": "で始められる"
     },
-    "ourStory": "Studyieldを作った理由",
-    "storyP1": "フラッシュカードやノートを手作業で何時間もかけて作ることに疲れて、Studyieldを作りました。学生として、AIが重要な概念の抽出、クイズの生成、復習スケジュールの管理を担当し、私たちは学習に集中できるはずだと考えました。",
-    "storyP2": "Studyieldは間隔反復やアクティブリコールなどの実証された学習テクニックを、ドキュメントを理解するAIと組み合わせています。PDFをアップロードすれば、数秒でフラッシュカード、クイズ、教材について質問できるAIチューターが手に入ります。",
-    "storyP3": "私たちはずっと欲しかった学習ツールを作っている小さなチームです。Studyieldは無料で始められ、毎日実際に使っている学生のフィードバックをもとに改善し続けています。",
+    "ourStory": "Study RPGを作った理由",
+    "storyP1": "フラッシュカードやノートを手作業で何時間もかけて作ることに疲れて、Study RPGを作りました。学生として、AIが重要な概念の抽出、クイズの生成、復習スケジュールの管理を担当し、私たちは学習に集中できるはずだと考えました。",
+    "storyP2": "Study RPGは間隔反復やアクティブリコールなどの実証された学習テクニックを、ドキュメントを理解するAIと組み合わせています。PDFをアップロードすれば、数秒でフラッシュカード、クイズ、教材について質問できるAIチューターが手に入ります。",
+    "storyP3": "私たちはずっと欲しかった学習ツールを作っている小さなチームです。Study RPGは無料で始められ、毎日実際に使っている学生のフィードバックをもとに改善し続けています。",
     "whatWeOffer": "できること",
     "features": {
       "studySets": "学習セット＆フラッシュカード",
@@ -1090,12 +1210,12 @@
       "examClone": "試験クローン"
     },
     "ourValues": "大切にしていること",
-    "valuesDescription": "Studyieldを作る上での原則。",
+    "valuesDescription": "Study RPGを作る上での原則。",
     "values": {
       "missionDriven": "学びやすさ",
-      "missionDrivenDesc": "質の高い学習ツールに高額な費用は不要です。Studyieldは7日間の無料トライアルで、すべての学生がAI学習を体験できます。",
+      "missionDrivenDesc": "質の高い学習ツールに高額な費用は不要です。Study RPGは7日間の無料トライアルで、すべての学生がAI学習を体験できます。",
       "userCentric": "学生のために作った",
-      "userCentricDesc": "私たち自身もStudyieldを使っています。すべての機能は、学生が実際にどう勉強するかに基づいて設計されています。",
+      "userCentricDesc": "私たち自身もStudy RPGを使っています。すべての機能は、学生が実際にどう勉強するかに基づいて設計されています。",
       "innovationFirst": "本当に役立つAI",
       "innovationFirstDesc": "AIのためのAIではなく、すべてのAI機能が実際の問題を解決します — フラッシュカード生成、概念説明、練習試験の作成。",
       "communityFocused": "一緒に学ぶ",
@@ -1109,7 +1229,7 @@
     "badge": "お手伝いします",
     "title": "お問い",
     "titleHighlight": "合わせ",
-    "description": "Studyieldについてご質問がありますか？下記の方法でお気軽にご連絡ください。",
+    "description": "Study RPGについてご質問がありますか？下記の方法でお気軽にご連絡ください。",
     "methods": {
       "emailSupport": "メールサポート",
       "emailSupportDesc": "質問や問題のサポート",
@@ -1239,12 +1359,12 @@
       "q6": "AIリクエストとは何ですか？",
       "a6": "AIリクエストには、ドキュメントからのフラッシュカード生成、クイズ作成、AIチューターチャット、問題解決、試験クローンが含まれます。フラッシュカードの復習などの基本操作はカウントされません。",
       "q7": "永久プランには何が含まれますか？",
-      "a7": "永久プランでは、$99.99の一括払いでProのすべての機能に永久にアクセスできます。定期的な料金は一切かかりません。Studyieldが存在する限り、将来のすべてのアップデートと機能を受け取れます。",
+      "a7": "永久プランでは、$99.99の一括払いでProのすべての機能に永久にアクセスできます。定期的な料金は一切かかりません。Study RPGが存在する限り、将来のすべてのアップデートと機能を受け取れます。",
       "q8": "学生にも手頃な価格ですか？",
       "a8": "もちろん！学生のために手頃な価格設定をしています。7日間の無料トライアルから始めて、年額（$47.88/年）または永久（$99.99一括）プランを選べます。"
     },
     "ctaTitle": "学習を変革する準備はできましたか？",
-    "ctaDescription": "Studyieldでよりスマートに学んでいる何千人もの学生に参加しましょう。今すぐ無料で始めましょう。",
+    "ctaDescription": "Study RPGでよりスマートに学んでいる何千人もの学生に参加しましょう。今すぐ無料で始めましょう。",
     "startFree": "無料で始める",
     "talkToSales": "営業に相談"
   },
@@ -1252,7 +1372,7 @@
     "badge": "FAQ",
     "title": "よくある",
     "titleHighlight": "質問",
-    "description": "Studyieldに関するよくある質問の回答をご覧ください。お探しの回答が見つからない場合は、サポートチームにお問い合わせください。",
+    "description": "Study RPGに関するよくある質問の回答をご覧ください。お探しの回答が見つからない場合は、サポートチームにお問い合わせください。",
     "searchPlaceholder": "FAQを検索...",
     "questionsCount": "{{count}}件の質問",
     "categories": {
@@ -1264,18 +1384,18 @@
       "technical": "技術"
     },
     "general": {
-      "q1": "Studyieldとは何ですか？",
-      "a1": "StudyieldはAIを活用した学習プラットフォームです。ドキュメントをアップロードし、フラッシュカードを生成し、クイズを受け、AIチューターとチャットできます。間隔反復などの実証済みの学習テクニックを使い、あらゆる科目をより速く習得できるよう設計されています。",
-      "q2": "Studyieldは無料で試せますか？",
-      "a2": "はい！Studyieldには3つの学習セット、50枚のフラッシュカード、10回のAIリクエストを含む7日間の無料トライアルがあります。トライアル後、無制限アクセスと問題解決、試験クローン、ディープリサーチなどの高度な機能にはProに登録してください。",
-      "q3": "どのデバイスでStudyieldを使えますか？",
-      "a3": "Studyieldは最新のウェブブラウザを持つすべてのデバイス（PC、タブレット、スマートフォン）で動作します。Webアプリは完全にレスポンシブ対応で、あらゆる画面サイズに最適化されています。",
-      "q4": "Studyieldを使うにはアカウントが必要ですか？",
+      "q1": "Study RPGとは何ですか？",
+      "a1": "Study RPGはAIを活用した学習プラットフォームです。ドキュメントをアップロードし、フラッシュカードを生成し、クイズを受け、AIチューターとチャットできます。間隔反復などの実証済みの学習テクニックを使い、あらゆる科目をより速く習得できるよう設計されています。",
+      "q2": "Study RPGは無料で試せますか？",
+      "a2": "はい！Study RPGには3つの学習セット、50枚のフラッシュカード、10回のAIリクエストを含む7日間の無料トライアルがあります。トライアル後、無制限アクセスと問題解決、試験クローン、ディープリサーチなどの高度な機能にはProに登録してください。",
+      "q3": "どのデバイスでStudy RPGを使えますか？",
+      "a3": "Study RPGは最新のウェブブラウザを持つすべてのデバイス（PC、タブレット、スマートフォン）で動作します。Webアプリは完全にレスポンシブ対応で、あらゆる画面サイズに最適化されています。",
+      "q4": "Study RPGを使うにはアカウントが必要ですか？",
       "a4": "はい、学習資料の保存と進捗の追跡には無料アカウントが必要です。メールアドレスでサインアップできます。"
     },
     "features": {
       "q1": "どの種類のドキュメントをアップロードできますか？",
-      "a1": "StudyieldはPDF、Wordドキュメント（.docx、.doc）、プレーンテキストファイル、マークダウンファイル、画像（PNG、JPEG）に対応しています。AIがこれらのドキュメントからテキストを抽出して学習教材を作成します。",
+      "a1": "Study RPGはPDF、Wordドキュメント（.docx、.doc）、プレーンテキストファイル、マークダウンファイル、画像（PNG、JPEG）に対応しています。AIがこれらのドキュメントからテキストを抽出して学習教材を作成します。",
       "q2": "AIはどのようにフラッシュカードを生成しますか？",
       "a2": "AIがアップロードされたドキュメントを分析し、重要な概念、定義、重要な情報を特定します。その後、学習と記憶に最適化された質問と回答のペアを作成します。",
       "q3": "AI生成コンテンツの精度はどの程度ですか？",
@@ -1320,10 +1440,10 @@
       "a4": "デフォルトでは、学習資料はプライベートであなただけが閲覧できます。共有はあなたが管理します。セットを公開にしたり、特定の人と共有したり、完全にプライベートに保つことができます。"
     },
     "technical": {
-      "q1": "Studyieldはオフラインで使えますか？",
+      "q1": "Study RPGはオフラインで使えますか？",
       "a1": "現在、ほとんどの機能はAI処理がクラウドで行われるため、インターネット接続が必要です。今後のアップデートでフラッシュカードの復習のオフラインサポートに取り組んでいます。",
       "q2": "対応ブラウザは？",
-      "a2": "StudyieldはChrome、Firefox、Safari、Edgeを含むすべての最新ブラウザで動作します。最高の体験のためにブラウザを最新に保つことをお勧めします。",
+      "a2": "Study RPGはChrome、Firefox、Safari、Edgeを含むすべての最新ブラウザで動作します。最高の体験のためにブラウザを最新に保つことをお勧めします。",
       "q3": "問題解決機能とは何ですか？",
       "a3": "問題解決はProの機能で、複雑な問題をステップバイステップで解決します。数学、科学、その他の問題を入力すると、AIが詳細な解答と説明を提供します。一括解決では、複数の問題を一度に解くことができます。",
       "q4": "AIリクエストとは何ですか？",
@@ -1505,7 +1625,7 @@
     }
   },
   "onboarding": {
-    "title": "Studyieldへようこそ",
+    "title": "Study RPGへようこそ",
     "skipForNow": "後で設定する",
     "stepOf": "ステップ {{current}} / {{total}}",
     "welcome": {
@@ -1674,7 +1794,7 @@
     },
     "features": {
       "title": "できること一覧",
-      "description": "Studyieldには学習をより速く効果的にするツールが満載です",
+      "description": "Study RPGには学習をより速く効果的にするツールが満載です",
       "studySets": "学習セット",
       "studySetsDesc": "手動またはAIでドキュメントからフラッシュカードを作成",
       "aiChat": "AIチャットチューター",
@@ -1700,7 +1820,7 @@
       "deepResearch": "ディープリサーチ",
       "deepResearchDesc": "AIによるあらゆるトピックの深掘り探究",
       "adFreeTitle": "完全広告なし、いつでも",
-      "adFreeDesc": "広告なし、邪魔なし。あなたと勉強だけ。Studyieldは広告を表示しません。"
+      "adFreeDesc": "広告なし、邪魔なし。あなたと勉強だけ。Study RPGは広告を表示しません。"
     },
     "done": {
       "title": "準備完了！",
@@ -1799,7 +1919,7 @@
     "articles": "{{count}}件の記事",
     "categories": {
       "gettingStarted": "はじめに",
-      "gettingStartedDesc": "Studyieldの基本を学び、すぐに使い始める",
+      "gettingStartedDesc": "Study RPGの基本を学び、すぐに使い始める",
       "studySets": "学習セット＆フラッシュカード",
       "studySetsDesc": "学習教材の作成、管理、習得",
       "documents": "ドキュメント処理",
@@ -1839,11 +1959,11 @@
     "faqSubtitle": "よくある質問への素早い回答",
     "faqs": {
       "q1": "どの種類のドキュメントをアップロードできますか？",
-      "a1": "Studyieldは、PDF、Wordドキュメント（.docx、.doc）、プレーンテキストファイル、マークダウンファイル、画像（PNG、JPEG）など、さまざまなドキュメント形式に対応しています。AIがこれらのドキュメントを処理してテキストを抽出し、学習教材を作成します。",
+      "a1": "Study RPGは、PDF、Wordドキュメント（.docx、.doc）、プレーンテキストファイル、マークダウンファイル、画像（PNG、JPEG）など、さまざまなドキュメント形式に対応しています。AIがこれらのドキュメントを処理してテキストを抽出し、学習教材を作成します。",
       "q2": "間隔反復システムはどのように機能しますか？",
       "a2": "フラッシュカードシステムはSM-2間隔反復アルゴリズムを使用して学習を最適化します。各カードをどれだけ覚えているかに基づいて、次の復習に最適なタイミングを計算します。苦手なカードはより頻繁に表示され、習得したカードはあまり表示されません。",
-      "q3": "Studyieldはオフラインで使えますか？",
-      "a3": "現在、StudyieldはAI処理がクラウドで行われるため、ほとんどの機能にインターネット接続が必要です。ただし、今後のアップデートでフラッシュカードの復習のオフラインサポートに取り組んでいます。",
+      "q3": "Study RPGはオフラインで使えますか？",
+      "a3": "現在、Study RPGはAI処理がクラウドで行われるため、ほとんどの機能にインターネット接続が必要です。ただし、今後のアップデートでフラッシュカードの復習のオフラインサポートに取り組んでいます。",
       "q4": "AI生成コンテンツの精度はどの程度ですか？",
       "a4": "AIはアップロードした資料に基づいて高品質なコンテンツを生成します。ただし、精度を確認するために生成されたフラッシュカードやクイズを確認することをお勧めします。生成されたコンテンツはお好みに合わせて簡単に編集できます。",
       "q5": "データは安全でプライベートですか？",
@@ -1856,7 +1976,7 @@
       "a8": "アカウント設定からいつでもサブスクリプションをキャンセルできます。設定 > 請求 > サブスクリプション管理から「プランをキャンセル」をクリックしてください。請求期間の終了まではプレミアム機能にアクセスできます。"
     },
     "videoTutorials": "ビデオチュートリアル",
-    "videoTutorialsDesc": "ステップバイステップのビデオガイドでStudyieldの使い方を学びましょう。入門から高度な機能まで。",
+    "videoTutorialsDesc": "ステップバイステップのビデオガイドでStudy RPGの使い方を学びましょう。入門から高度な機能まで。",
     "watchTutorials": "チュートリアルを見る",
     "ctaTitle": "まだサポートが必要ですか？",
     "ctaDescription": "サポートチームがあらゆるご質問にお答えします。通常24時間以内に返信いたします。",
@@ -1885,7 +2005,7 @@
     },
     "introduction": {
       "title": "はじめに",
-      "p1": "Studyieldでは、あなたのプライバシーを真剣に考えています。このプライバシーポリシーは、AI学習プラットフォームをご利用いただく際に、お客様の情報をどのように収集、使用、開示、保護するかを説明します。",
+      "p1": "Study RPGでは、あなたのプライバシーを真剣に考えています。このプライバシーポリシーは、AI学習プラットフォームをご利用いただく際に、お客様の情報をどのように収集、使用、開示、保護するかを説明します。",
       "p2": "このプライバシーポリシーをよくお読みください。このプライバシーポリシーの条件に同意されない場合は、プラットフォームにアクセスしないでください。"
     },
     "informationCollected": {
@@ -1899,7 +2019,7 @@
         "コミュニケーション設定"
       ],
       "studyContent": "学習コンテンツ",
-      "studyContentDesc": "Studyieldをご利用いただく際に、以下を保存します：",
+      "studyContentDesc": "Study RPGをご利用いただく際に、以下を保存します：",
       "studyItems": [
         "アップロードしたドキュメント（PDF、画像）",
         "フラッシュカードと学習セット",
@@ -1982,7 +2102,7 @@
     "badge": "法的合意",
     "title": "利用",
     "titleHighlight": "規約",
-    "description": "Studyieldをご利用になる前に、これらの利用規約をよくお読みください。当プラットフォームにアクセスすることで、これらの規約に同意したものとみなされます。",
+    "description": "Study RPGをご利用になる前に、これらの利用規約をよくお読みください。当プラットフォームにアクセスすることで、これらの規約に同意したものとみなされます。",
     "lastUpdated": "最終更新日：2026年2月14日",
     "contents": "目次",
     "toc": {
@@ -2002,11 +2122,11 @@
     },
     "acceptance": {
       "title": "1. 利用規約の承諾",
-      "content": "Studyieldにアクセスまたは使用することにより、この利用規約およびすべての適用法令に従うことに同意したものとみなされます。これらの規約に同意しない場合は、本プラットフォームの使用またはアクセスは禁止されています。"
+      "content": "Study RPGにアクセスまたは使用することにより、この利用規約およびすべての適用法令に従うことに同意したものとみなされます。これらの規約に同意しない場合は、本プラットフォームの使用またはアクセスは禁止されています。"
     },
     "descriptionOfService": {
       "title": "2. サービスの説明",
-      "intro": "Studyieldは以下を提供するAI搭載学習プラットフォームです：",
+      "intro": "Study RPGは以下を提供するAI搭載学習プラットフォームです：",
       "items": [
         "ドキュメントのアップロード・分析機能付き学習セット",
         "間隔反復によるAI生成フラッシュカード",
@@ -2042,7 +2162,7 @@
     "contentOwnership": {
       "title": "5. コンテンツの所有権",
       "yourContent": "あなたのコンテンツ",
-      "yourContentDesc": "Studyieldにアップロードしたすべてのコンテンツ（ドキュメント、ノート、学習教材を含む）の所有権は保持されます。コンテンツをアップロードすることで、サービスを提供するためにコンテンツを処理、保存、表示する限定的なライセンスを当社に付与するものとします。",
+      "yourContentDesc": "Study RPGにアップロードしたすべてのコンテンツ（ドキュメント、ノート、学習教材を含む）の所有権は保持されます。コンテンツをアップロードすることで、サービスを提供するためにコンテンツを処理、保存、表示する限定的なライセンスを当社に付与するものとします。",
       "aiGenerated": "AI生成コンテンツ",
       "aiGeneratedDesc": "あなたの教材に基づいてAIが生成したコンテンツ（フラッシュカード、クイズ、要約）はあなたのものです。このコンテンツを自由に使用、変更、共有できます。"
     },
@@ -2058,11 +2178,11 @@
     },
     "aiDisclaimer": {
       "title": "7. AI免責事項",
-      "content": "当社のAIは学習を支援するためにコンテンツを生成します。正確性を追求していますが、AI生成コンテンツにはエラーが含まれる場合があります。生成されたすべての資料を確認し、重要な決定にAIのみに頼らないでください。StudyieldはAI生成コンテンツのエラーに対して責任を負いません。"
+      "content": "当社のAIは学習を支援するためにコンテンツを生成します。正確性を追求していますが、AI生成コンテンツにはエラーが含まれる場合があります。生成されたすべての資料を確認し、重要な決定にAIのみに頼らないでください。Study RPGはAI生成コンテンツのエラーに対して責任を負いません。"
     },
     "liability": {
       "title": "8. 責任の制限",
-      "content": "法律で許容される最大限の範囲において、Studyieldは、サービスの使用から生じるデータ、利益、またはのれんの損失を含む、間接的、付随的、特別、結果的、または懲罰的損害について責任を負わないものとします。"
+      "content": "法律で許容される最大限の範囲において、Study RPGは、サービスの使用から生じるデータ、利益、またはのれんの損失を含む、間接的、付随的、特別、結果的、または懲罰的損害について責任を負わないものとします。"
     },
     "availability": {
       "title": "9. サービスの可用性",
@@ -2078,7 +2198,7 @@
     },
     "governingLaw": {
       "title": "12. 準拠法",
-      "content": "これらの規約は適用法に準拠し、それに従って解釈されるものとします。これらの規約またはStudyieldの使用に起因する紛争は、誠実な交渉を通じて、または必要に応じて拘束力のある仲裁を通じて解決されるものとします。"
+      "content": "これらの規約は適用法に準拠し、それに従って解釈されるものとします。これらの規約またはStudy RPGの使用に起因する紛争は、誠実な交渉を通じて、または必要に応じて拘束力のある仲裁を通じて解決されるものとします。"
     },
     "contact": {
       "title": "13. お問い合わせ",
@@ -2096,7 +2216,7 @@
     "badge": "Cookieポリシー",
     "title": "Cookie",
     "titleHighlight": "ポリシー",
-    "description": "Studyieldでの体験を向上させるために、Cookieと同様の技術をどのように使用しているかをご確認ください。",
+    "description": "Study RPGでの体験を向上させるために、Cookieと同様の技術をどのように使用しているかをご確認ください。",
     "lastUpdated": "最終更新日：2026年2月14日",
     "contents": "目次",
     "toc": {
@@ -2112,7 +2232,7 @@
     "whatAreCookies": {
       "title": "Cookieとは",
       "content": "Cookieとは、ウェブサイトを訪問した際にデバイスに配置される小さなテキストファイルです。ウェブサイトをより効率的に動作させ、より良いユーザー体験を提供し、サイトの使用状況に関する有用な情報をウェブサイト所有者に提供するために広く使用されています。",
-      "note": "Studyieldを使用することにより、このCookieポリシーに従ったCookieの使用に同意したものとみなされます。Cookie設定はいつでも管理できます。",
+      "note": "Study RPGを使用することにより、このCookieポリシーに従ったCookieの使用に同意したものとみなされます。Cookie設定はいつでも管理できます。",
       "noteLabel": "注意："
     },
     "typesOfCookies": {
@@ -2170,7 +2290,7 @@
     },
     "howWeUse": {
       "title": "Cookieの使用方法",
-      "description": "Studyieldでの体験を向上させるために、さまざまな目的でCookieを使用しています：",
+      "description": "Study RPGでの体験を向上させるために、さまざまな目的でCookieを使用しています：",
       "items": [
         {
           "title": "認証",
@@ -2238,11 +2358,11 @@
         }
       ],
       "warningLabel": "警告：",
-      "warning": "必須Cookieを無効にすると、Studyieldの機能に影響を与え、一部の機能が使用できなくなる場合があります。"
+      "warning": "必須Cookieを無効にすると、Study RPGの機能に影響を与え、一部の機能が使用できなくなる場合があります。"
     },
     "cookieSettings": {
       "title": "Cookie設定",
-      "description": "Studyieldのcookie設定はいつでもカスタマイズできます。下のボタンをクリックして、許可するCookieの種類を管理してください。",
+      "description": "Study RPGのcookie設定はいつでもカスタマイズできます。下のボタンをクリックして、許可するCookieの種類を管理してください。",
       "managePreferences": "Cookie設定を管理"
     },
     "policyUpdates": {
@@ -2263,7 +2383,7 @@
     "badge": "GDPR準拠",
     "title": "アカウントと",
     "titleHighlight": "データ削除",
-    "description": "忘れられる権利を尊重します。Studyieldのアカウントとすべての関連データを完全に削除する方法をご確認ください。このプロセスは不可逆です。",
+    "description": "忘れられる権利を尊重します。Study RPGのアカウントとすべての関連データを完全に削除する方法をご確認ください。このプロセスは不可逆です。",
     "importantNotice": {
       "title": "重要：この操作は元に戻せません",
       "description": "アカウントを削除すると、すべてのデータがサーバーから完全に削除されます。続行する前に、重要な学習教材をエクスポートしてください。",
@@ -2315,7 +2435,7 @@
       "steps": [
         {
           "title": "アカウントにログイン",
-          "description": "メールアドレスとパスワードでStudyieldにサインインし、アカウント設定にアクセスします。"
+          "description": "メールアドレスとパスワードでStudy RPGにサインインし、アカウント設定にアクセスします。"
         },
         {
           "title": "アカウント設定に移動",
@@ -2356,7 +2476,7 @@
     "badge": "サイトナビゲーション",
     "title": "サイト",
     "titleHighlight": "マップ",
-    "description": "Studyieldの全ページの完全な概要。お探しのものを正確に見つけてください。",
+    "description": "Study RPGの全ページの完全な概要。お探しのものを正確に見つけてください。",
     "quickAccess": "クイックアクセス",
     "sections": {
       "mainPages": "メインページ",
@@ -2367,7 +2487,7 @@
     },
     "links": {
       "home": "ホーム",
-      "homeDesc": "Studyieldへようこそ",
+      "homeDesc": "Study RPGへようこそ",
       "aboutUs": "私たちについて",
       "aboutUsDesc": "私たちのミッションについて",
       "features": "機能",
@@ -2418,7 +2538,7 @@
     "xmlSitemapDesc": "検索エンジンと開発者向け",
     "viewSitemapXml": "sitemap.xmlを見る",
     "ctaTitle": "お探しのものが見つかりませんか？",
-    "ctaDescription": "サポートチームがStudyieldのナビゲーションをお手伝いします。",
+    "ctaDescription": "サポートチームがStudy RPGのナビゲーションをお手伝いします。",
     "contactUs": "お問い合わせ",
     "helpCenterBtn": "ヘルプセンター"
   },
@@ -4026,5 +4146,714 @@
       "studentQuestion": "学生にも手頃な価格ですか？",
       "studentAnswer": "もちろん！学生のために手頃な価格設定をしています。7日間の無料トライアルから始めて、月額（$7.99/月）または年額（$47.88/年）プランを選べます。"
     }
+  },
+  "academics": {
+    "title": "学習管理",
+    "subtitle": "科目・章・トピック・試験・学校プロフィールをまとめて管理します。",
+    "profileTab": "プロフィール",
+    "subjectsTab": "科目",
+    "examsTab": "試験",
+    "profileTitle": "学校プロフィール",
+    "profileSubtitle": "学校の情報を教えて、Study RPG が学習計画を最適化できるようにしましょう。",
+    "country": "国",
+    "board": "教育委員会",
+    "school": "学校",
+    "grade": "学年",
+    "academicYear": "年度",
+    "saveProfile": "プロフィールを保存",
+    "profileSaved": "保存しました",
+    "addSubject": "科目を追加",
+    "subjectNamePlaceholder": "科目名（例: 数学）",
+    "chapters_other": "{{count}}章",
+    "topics": "トピック",
+    "noSubjects": "科目がまだありません。最初の科目を追加しましょう。",
+    "noChapters": "章がまだありません — 最初の章を追加しましょう。",
+    "addChapter": "章を追加",
+    "chapterNamePlaceholder": "章名",
+    "addTopic": "トピックを追加",
+    "topicNamePlaceholder": "トピック名",
+    "learningObjective": "学習目標",
+    "deleteSubject": "科目を削除",
+    "deleteSubjectConfirm": "この科目を削除しますか？章とトピックも削除されます。",
+    "deleteChapterConfirm": "この章を削除しますか？トピックも削除されます。",
+    "deleteTopicConfirm": "このトピックを削除しますか？",
+    "deleteExamConfirm": "この試験を削除しますか？出題範囲も削除されます。",
+    "addExam": "試験を追加",
+    "examNamePlaceholder": "試験名（例: 中間試験）",
+    "examDate": "試験日",
+    "subjectLabel": "科目",
+    "noExams": "予定された試験はまだありません。試験を追加して出題範囲を管理しましょう。",
+    "portions": "出題範囲",
+    "noPortions": "この範囲には章がまだありません。",
+    "addPortion": "範囲に章を追加",
+    "removePortion": "範囲から削除",
+    "create": "作成",
+    "add": "追加",
+    "cancel": "キャンセル",
+    "error": "エラーが発生しました。もう一度お試しください。"
+  },
+"wellbeing": {
+    "title": "学習の健康状態",
+    "today": "今日の集中",
+    "optimal": "健康的な最適値: {{min}}分/日",
+    "budget": "1日の上限まであと{{min}}分",
+    "band": {
+      "fresh": "フレッシュ",
+      "focused": "集中",
+      "draining": "低下中",
+      "depleted": "疲労"
+    },
+    "cooldownTitle": "休憩中です",
+    "cooldownBody": "前の集中ブロックは長めでした。本当の休憩を（あと{{min}}分）— 休んでいる間に脳は学んだことを定着させます。",
+    "nightTitle": "深夜です",
+    "nightBody": "学習は睡眠中に定着します。今日はここで終えて、明日のセッションを大切にしましょう。",
+    "diminishingTitle": "収穫逓減",
+    "diminishingBody": "健康的な最適値を超えました — 今日の追加分は通常の×{{mult}}しか得られません。休息が学びをより深くします。"
+  },
+  "focusSessions": {
+    "title": "Focus Sessions",
+    "subtitle": "Record your study time, subject by subject.",
+    "startFocus": "Ready to focus?",
+    "nowFocusing": "In a focus session",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "complete": "Complete",
+    "paused": "Paused",
+    "today": "Focus today",
+    "history": "Session history",
+    "minutes": "min",
+    "general": "General study",
+    "noSessions": "No sessions yet. Start one above!",
+    "subjectPlaceholder": "Subject (optional)",
+    "deleteConfirm": "Delete this session?",
+    "alreadyActive": "A session is already running or paused. Complete it first.",
+    "error": "Could not load focus sessions."
+  },
+  "mistakes": {
+    "title": "Mistake Notebook",
+    "subtitle": "Turn every mistake into a lesson.",
+    "addMistake": "Add mistake",
+    "save": "Save",
+    "cancel": "Cancel",
+    "questionLabel": "Question",
+    "questionPlaceholder": "What question did you get wrong?",
+    "subject": "Subject",
+    "chapter": "Chapter",
+    "correctAnswer": "Correct answer",
+    "wrongAnswer": "Your answer",
+    "category": "Category",
+    "category_concept": "Concept",
+    "category_careless": "Careless",
+    "category_time": "Time pressure",
+    "category_guess": "Guessed",
+    "category_other": "Other",
+    "cause": "Why it happened",
+    "correctionNote": "Correction note",
+    "status_open": "Open",
+    "status_resolved": "Resolved",
+    "status_reopened": "Reopened",
+    "resolve": "Resolve",
+    "reopen": "Reopen",
+    "resolvePrompt": "Correction note (optional):",
+    "search": "Search mistakes…",
+    "empty": "No mistakes match.",
+    "deleteConfirm": "Delete this mistake?",
+    "error": "Could not load mistakes."
+  },
+  "puzzles": {
+    "title": "Subject Puzzles",
+    "subtitle": "Ranked streaks and practice for every subject.",
+    "mode_ranked": "Ranked",
+    "mode_practice": "Practice",
+    "total": "puzzles",
+    "rankedToday": "ranked today",
+    "best": "best {best}",
+    "pickSubject": "Pick a subject to start puzzling.",
+    "noSubjects": "No puzzles yet. Create original puzzles for your subjects.",
+    "dailyLimit": "Daily ranked limit reached",
+    "dailyLimitHint": "Come back tomorrow, or keep practicing!",
+    "noneLeft": "No puzzles left for this subject.",
+    "retry": "Try again",
+    "submit": "Submit answer",
+    "correct": "Correct!",
+    "incorrect": "Not quite.",
+    "answer": "Answer",
+    "next": "Next puzzle",
+    "history": "Recent attempts",
+    "error": "Could not load puzzles."
+  },
+  "examCentre": {
+    "title": "Exam Centre",
+    "subtitle": "コンピテンシー評価——科目を選び、思考力を磨き、なぜ点数を失ったのか、どう改善するのかがわかります。",
+    "addPeriod": "Add period",
+    "periodName": "Period name",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "notes": "Notes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "status_upcoming": "Upcoming",
+    "status_live": "Live",
+    "status_ended": "Ended",
+    "noPeriods": "No exam periods yet. Add one to plan your exams.",
+    "noExamsInPeriod": "No exams attached to this period.",
+    "recordResult": "Record result: {exam}",
+    "recordResultTitle": "Record exam result",
+    "marksObtained": "Marks obtained",
+    "marksTotal": "Total marks",
+    "mistakeAnalysis": "Mistake analysis",
+    "revisionPlan": "Revision plan",
+    "saveResult": "Save result",
+    "results": "Results",
+    "deleteConfirm": "Delete this exam period?",
+    "error": "Could not load the exam centre."
+  },
+  "rpg": {
+    "title": "Study RPG",
+    "subtitle": "Defeat the monsters of distraction with knowledge and original cards.",
+    "stp": "STP",
+    "error": "Failed to load Study RPG data.",
+    "deckError": "Could not create the deck — check card restrictions.",
+    "battleError": "Could not start a battle.",
+    "actionError": "That move was rejected by the server.",
+    "tab": {
+      "character": "Character",
+      "decks": "Decks",
+      "battle": "Battle",
+      "duel": "Duels"
+    },
+    "level": "Level",
+    "xp": "XP",
+    "studyStreak": "Study streak",
+    "bestPuzzleStreak": "Best puzzle streak",
+    "eventExp": "Event XP",
+    "equippedDeck": "Equipped deck",
+    "noDeck": "No deck yet",
+    "startBattle": "Start battle",
+    "collectionCount": "Cards owned",
+    "manageDecks": "Manage decks",
+    "cardLibrary": "Card library",
+    "libraryHint": "Original cards only — no third-party content.",
+    "balance": "Wallet balance",
+    "ledgerHint": "Every STP/SLC change is recorded on an immutable ledger.",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "legendary": "Legendary"
+    },
+    "buildDeck": "Build a deck",
+    "deckNamePlaceholder": "Deck name",
+    "deckHint": "five cards, max one Poison, one Decay and one Shield",
+    "saveDeck": "Save deck",
+    "collection": "Collection",
+    "active": "Active",
+    "equip": "Equip",
+    "deckValid": "Valid deck",
+    "deckInvalid": "Invalid deck",
+    "defaultDeckName": "My Deck",
+    "noBattle": "No battle in progress",
+    "noBattleHint": "Equip a validated deck, then challenge a monster.",
+    "turn": "Turn",
+    "shield": "Shield",
+    "forfeit": "Forfeit",
+    "done": "Done",
+    "victory": "Victory!",
+    "defeat": "Defeated…",
+    "forfeited": "Forfeited",
+    "pendingReward": "Reward on victory",
+    "log": {
+      "start": "Battle starts —",
+      "action": "plays",
+      "damage": "deals",
+      "dot": "damage over time",
+      "heal": "heals",
+      "shield": "shield from",
+      "status": "status",
+      "mana": "mana",
+      "quiz": "quiz restores",
+      "challengeWin": "Damage challenge: perfect! +10",
+      "challengeFail": "Damage challenge missed.",
+      "defeatWin": "Monster defeated!",
+      "defeatLoss": "You were defeated.",
+      "end": "Turn ends."
+    },
+    "pvp": {
+      "challengeByEmail": "Challenge by email",
+      "emailPlaceholder": "friend@example.com",
+      "challengeBtn": "Challenge",
+      "randomMatchmaking": "Random matchmaking",
+      "needDeck": "You need a validated, equipped deck to duel.",
+      "leaderboard": "Leaderboard",
+      "noDuels": "No duels yet",
+      "level": "Level",
+      "yourDuels": "Your duels",
+      "rating": "Rating",
+      "vs": "vs",
+      "you": "you",
+      "status": {
+        "challenged": "Challenged",
+        "in_progress": "In progress",
+        "settled": "Settled",
+        "expired": "Expired"
+      },
+      "youWon": "You won the duel!",
+      "youLost": "You lost the duel.",
+      "draw": "The duel was a draw.",
+      "ratingChange": "Rating change",
+      "limited": "daily limit reached",
+      "expires": "Expires",
+      "continue": "Continue battle",
+      "fight": "Fight",
+      "duelError": "Could not create the duel.",
+      "battleError": "Could not start the duel battle."
+    }
+  },
+  "economy": {
+    "title": "カードマーケット",
+    "subtitle": "オリジナルカードの売買・スクラップ・バーン — すべてのSTPの動きは不変の台帳に記録されます。",
+    "error": "マーケットで問題が発生しました。",
+    "loading": "マーケットを開いています…",
+    "tab": {
+      "marketplace": "マーケット",
+      "collection": "マイカード",
+      "supply": "供給"
+    },
+    "rarity": {
+      "all": "すべて",
+      "common": "コモン",
+      "rare": "レア",
+      "legendary": "レジェンド",
+      "supply": "レア度"
+    },
+    "officialValue": "公式価値",
+    "seller": "出品者",
+    "buy": "購入",
+    "offer": "オファー",
+    "sendOffer": "送信",
+    "offerPlaceholder": "あなたのSTPオファー",
+    "offerMade": "オファーを送信しました — 出品者の返信をお待ちください。",
+    "pendingOffers": "保留中のオファー",
+    "from": "から",
+    "to": "へ",
+    "accept": "承認",
+    "decline": "辞退",
+    "cancelOffer": "取り下げ",
+    "myListings": "自分の出品",
+    "noListings": "現在マーケットにカードはありません。",
+    "owned": "所持",
+    "location": {
+      "inventory": "インベントリ",
+      "vault": "金庫"
+    },
+    "inDeck": "デッキ内",
+    "listedBadge": "出品中",
+    "sell": "売却",
+    "confirmList": "出品",
+    "pricePlaceholder": "STPでの価格",
+    "listed": "カードをマーケットに出品しました。",
+    "toVault": "金庫へ",
+    "toInventory": "インベントリへ",
+    "scrape": "スクラップ",
+    "scrapeTitle": "このカードをスクラップしますか?",
+    "scrapeWarning": "カードは完全に削除され、公式価値が即時に支払われます。この操作は取り消せません。",
+    "confirmScrape": "STPでスクラップ",
+    "burn": "バーン",
+    "burnTitle": "このカードをバーンしますか?",
+    "burnWarning": "カードは完全に削除されます。分割払いで支払われます — 初回は今すぐ、残りは時間をかけて。この操作は取り消せません。",
+    "confirmBurn": "分割でバーン",
+    "cancel": "キャンセル",
+    "burnActive": "バーン進行中",
+    "instalments": "分割払い",
+    "nextInstalment": "次回支払い",
+    "noCards": "まだカードを所有していません。バトルに勝ってパックを開き、コレクションを増やしましょう。",
+    "card": "カード",
+    "original": "元の枚数",
+    "active": "アクティブ",
+    "burned": "バーン済み",
+    "scraped": "スクラップ済み",
+    "listedShort": "出品中",
+    "statusCol": "ステータス",
+    "extinct": "絶版",
+    "replacement": "エコー",
+    "activeBadge": "現役",
+    "retired": "退役",
+    "priceHistory": "公式価値の履歴",
+    "noHistory": "まだ価値の変更は記録されていません。",
+    "supplyHint": "供給台帳はすべての印刷・バーン・スクラップ・絶版を追跡します — 公式価値は供給に追随します。",
+    "adminReconcile": "整合",
+    "adminInstalments": "分割払いを実行"
+  },
+  "events": {
+    "title": "学習イベント",
+    "subtitle": "常に1つのイベントが開催されています。勉強してイベントEXPを稼ぎ、Study Passを進めて報酬を受け取りましょう。ゲームが勉強の妨げになることはありません。",
+    "loadError": "現在のイベントを読み込めませんでした。",
+    "none": "現在アクティブなイベントはありません。スケジューラーが自動的に開始します。",
+    "daysLeft": "あと{count}日で終了",
+    "startsOn": "開始",
+    "endsOn": "終了",
+    "fallbackBadge": "フォールバック",
+    "status": {
+      "scheduled": "予定",
+      "active": "開催中",
+      "ended": "終了"
+    },
+    "studyPass": {
+      "title": "Study Pass",
+      "hint": "イベントEXPは実際の勉強からのみ得られます。課題・集中・クイズ・パズル・バトルが対象です。",
+      "level": "レベル{level}",
+      "exp": "{exp} / {next} EXP",
+      "maxed": "最大レベル到達",
+      "trackNone": "トラックを選択",
+      "trackLocked": "トラック確定済み",
+      "free": "フリーパス",
+      "gold": "ゴールドパス",
+      "goldCost": "ゴールドパス・{cost} STP",
+      "chooseFree": "無料を選ぶ",
+      "chooseGold": "ゴールドを選ぶ",
+      "goldConfirmTitle": "ゴールドパスを購入しますか？",
+      "goldConfirmBody": "ウォレットから{cost} STPを消費し、イベント全体でトラックが確定します。この選択は変更できません。",
+      "claim": "受け取る",
+      "claimed": "受取済み",
+      "locked": "ロック",
+      "claimHint": "報酬{count}件が受け取り可能"
+    },
+    "quests": {
+      "title": "クエスト",
+      "subtitle": "実際の勉強アクティビティを完了してSTP・イベントEXP・アイテムを獲得しましょう。",
+      "category": {
+        "daily": "デイリー",
+        "weekly": "ウィークリー",
+        "study": "勉強",
+        "puzzle": "パズル"
+      },
+      "claim": "受け取る",
+      "claimed": "受取済み",
+      "none": "このイベントのアクティブなクエストはまだありません。"
+    },
+    "items": {
+      "title": "イベントアイテム",
+      "subtitle": "Abstractedエラー、フラグメント、絶滅のシギル。",
+      "none": "まだイベントアイテムを持っていません。",
+      "transfer": "シギルを送る",
+      "transferHint": "友人に絶滅のシギルを送ります（ユーザーIDと数量）。",
+      "friendId": "友人のユーザーID",
+      "quantity": "数量",
+      "send": "送信",
+      "transferred": "シギルを送信しました。",
+      "transferError": "シギルを送信できませんでした。",
+      "redeemLimbo": "リンボと交換",
+      "limboTitle": "リンボと交換しますか？",
+      "limboBody": "7個すべてのAbstractedエラーを消費して、取引不可のリンボレジェンダリーを受け取ります。一度だけ可能です。",
+      "limboDone": "リンボを獲得しました！",
+      "errorsHave": "Abstractedエラー: {count}個"
+    },
+    "abstracted": {
+      "title": "Abstractedカード",
+      "subtitle": "アンアブストラクトすると、Abstractedカードはレジェンダリーに永久変換されます。",
+      "none": "アンアブストラクトできるAbstractedカードがありません。",
+      "unabstract": "アンアブストラクト",
+      "unabstractTitle": "{name}をアンアブストラクトしますか？",
+      "unabstractBody": "カードは{result}に永久変換され、{stp} STPとAbstractedエラー1個を受け取ります。元に戻せません。",
+      "reason": "理由（監査ログに表示）",
+      "confirm": "確認",
+      "done": "カードをアンアブストラクトしました。{result}をコレクションに追加しました。"
+    },
+    "extinction": {
+      "title": "大絶滅",
+      "subtitle": "これらのカード系統は消えつつあります。対象カードを焼いて絶滅のシギルを獲得するか、シギルを使ってお気に入りを守りましょう。",
+      "targets": "対象カード",
+      "value": "価値",
+      "milestone": "世界の焚火",
+      "milestoneProgress": "{progress} / {target}回の対象焼却",
+      "claimMilestone": "シギルを受け取る",
+      "milestoneClaimed": "受取済み",
+      "none": "まだ対象が設定されていません。"
+    },
+    "admin": {
+      "title": "イベント管理",
+      "subtitle": "イベントの予定・アクティブ化・絶滅の管理。すべての操作は理由付きで監査されます。",
+      "slug": "スラッグ",
+      "name": "名前",
+      "story": "ストーリー",
+      "startsAt": "開始日時",
+      "endsAt": "終了日時",
+      "graceHours": "猶予時間",
+      "reason": "理由",
+      "create": "イベントを予定",
+      "created": "イベントを予定しました。",
+      "createError": "イベントを予定できませんでした。",
+      "activate": "今すぐ開始",
+      "activated": "イベントを開始しました。",
+      "activateError": "イベントを開始できませんでした。",
+      "seedTargets": "絶滅対象を再設定",
+      "cardKeys": "カードキー（カンマ区切り）",
+      "seeded": "絶滅対象を更新しました。",
+      "seedError": "絶滅対象を更新できませんでした。"
+    }
+  },
+  "programmes": {
+    "title": "プログラム",
+    "subtitle": "思考力を鍛える任意参加の枠組み——実際の学習課題を解決するシステムを設計しよう。すべてのプログラムは任意参加。あなたの選択が最も大切です。",
+    "suggest": "プログラムを提案",
+    "suggestBtn": "プログラムを提案",
+    "suggestHint": "プログラムのアイデアを説明してください（例：「10年生の理科の復習センター」）。",
+    "suggestError": "プログラムを提案できませんでした。",
+    "loadError": "プログラムを読み込めませんでした。",
+    "join": "参加",
+    "leave": "退出",
+    "review": "レビュー",
+    "reviewBtn": "レビューを送信",
+    "reviewError": "レビューを保存できませんでした。",
+    "reviewAccepted": "承認済み",
+    "reviewRejected": "却下済み",
+    "reviewReasonPlaceholder": "このレビューの理由（必須）",
+    "reviewHistory": "レビュー履歴",
+    "reviewQueue": "レビュー待ち",
+    "reviewQueueError": "レビュー待ちを読み込めませんでした。",
+    "queueHint": "人間の判断を待っているプログラム（AIレビューがない、またはスコアが低いもの）。",
+    "queueEmpty": "レビュー待ちは空です。",
+    "applyVerdicts": "判定を適用",
+    "accept": "承認",
+    "reject": "却下",
+    "by": "by",
+    "none": "まだプログラムがありません。最初の提案者になりましょう。",
+    "score": "スコア",
+    "reward": "報酬",
+    "objectives": "目標",
+    "weeks": "週",
+    "hoursWeek": "時間/週",
+    "reasonPlaceholder": "理由（必須）",
+    "namePlaceholder": "プログラム名",
+    "descriptionPlaceholder": "短い説明",
+    "factionSizePlaceholder": "派閥サイズ",
+    "hasFactions": "派閥を有効化",
+    "factionsEnabled": "派閥あり",
+    "startPath": "学習パスを開始",
+    "pathError": "学習パスを作成できませんでした。",
+    "hideForm": "フォームを隠す",
+    "hideQueue": "待ちを隠す",
+    "hideTemplates": "テンプレートを隠す",
+    "templates": "テンプレート",
+    "templatesHint": "厳選テンプレートから始めると、AIがそこから完全なプログラムを作ります。",
+    "noTemplates": "まだテンプレートがありません。",
+    "useTemplate": "テンプレートを使用",
+    "newTemplate": "新しいテンプレート",
+    "saveTemplate": "テンプレートを保存",
+    "deleteTemplate": "テンプレートを削除",
+    "templateDeletePrompt": "このテンプレートを削除する理由（必須）：",
+    "templateNamePlaceholder": "テンプレート名",
+    "templateDescPlaceholder": "テンプレートの説明",
+    "templateError": "テンプレートを保存できませんでした。",
+    "archiveReasonPrompt": "このプログラムをアーカイブする理由（必須）：",
+    "batchReviewDone": "一括レビューを適用しました。",
+    "filter": {
+      "active": "すべて",
+      "mine": "マイ",
+      "suggested": "提案済み"
+    },
+    "status": {
+      "active": "アクティブ",
+      "suggested": "提案済み",
+      "building": "作成中",
+      "rejected": "却下済み",
+      "archived": "アーカイブ済み"
+    },
+    "kind": {
+      "custom": "カスタム",
+      "revision_centre": "復習センター",
+      "competency_testing": "コンピテンシー評価",
+      "exam_sprint": "試験スプリント"
+    }
+  },
+  "admin": {
+    "title": "管理",
+    "subtitle": "Nightmareスーパー管理者コンソール",
+    "users": {
+      "create": "ユーザーを作成",
+      "createBtn": "ユーザーを作成",
+      "createError": "ユーザーを作成できませんでした。",
+      "edit": "編集",
+      "editUser": "ユーザーを編集",
+      "loadError": "ユーザーを読み込めませんでした。",
+      "none": "ユーザーが見つかりません。",
+      "searchPlaceholder": "名前、メール、ユーザー名で検索",
+      "namePlaceholder": "氏名",
+      "emailPlaceholder": "メール（任意）",
+      "usernamePlaceholder": "ユーザー名（任意）",
+      "passwordPlaceholder": "パスワード",
+      "reasonPlaceholder": "理由（必須）",
+      "role": {
+        "admin": "管理者",
+        "teacher": "教師",
+        "user": "ユーザー"
+      },
+      "activeLabel": "アクティブ",
+      "disabled": "無効",
+      "reset": "パスワードをリセット",
+      "resetBtn": "リセット",
+      "resetError": "パスワードをリセットできませんでした。",
+      "resetPassword": "パスワードをリセット",
+      "newPasswordPlaceholder": "新しいパスワード",
+      "updateError": "ユーザーを更新できませんでした。",
+      "hideForm": "フォームを隠す",
+      "noIdentifier": "メールまたはユーザー名が必要です"
+    },
+    "audit": {
+      "title": "監査ログ",
+      "export": "エクスポート",
+      "none": "監査エントリはありません。",
+      "reason": "理由",
+      "target": "対象",
+      "loadError": "監査ログを読み込めませんでした。",
+      "purge": "古いエントリを削除",
+      "purgeError": "監査ログを削除できませんでした。",
+      "retentionPlaceholder": "保存日数",
+      "retentionReason": "理由（必須）",
+      "retentionNow": "保存期間",
+      "setRetention": "保存期間を設定",
+      "retentionError": "保存期間を更新できませんでした。",
+      "days": "日",
+      "system": "システム"
+    },
+    "notes": {
+      "deleteError": "ノートを削除できませんでした。",
+      "deleteReasonPrompt": "このノートを削除する理由（必須）：",
+      "hideForm": "フォームを隠す",
+      "hint": "PDFをアップロードするか、共通ノートを書きます。選択したページがRAG検索に索引付けされます。",
+      "loadError": "ノートを読み込めませんでした。",
+      "none": "まだ管理者ノートがありません。",
+      "pages": "ページ",
+      "selectedPages": "選択ページ",
+      "subjectPlaceholder": "科目（任意）",
+      "textNote": "テキストノートを書く",
+      "titlePlaceholder": "ノートのタイトル",
+      "upload": "アップロード",
+      "uploadBtn": "ノートをアップロード",
+      "uploadError": "ノートをアップロードできませんでした。"
+    },
+    "syllabus": {
+      "add": "シラバス項目を追加",
+      "boardPlaceholder": "教育委員会（例：CBSE）",
+      "chaptersPlaceholder": "章JSON（名前＋トピック）",
+      "deleteError": "シラバス項目を削除できませんでした。",
+      "deleteReasonPrompt": "このシラバス項目を削除する理由（必須）：",
+      "gradePlaceholder": "学年（例：9）",
+      "hideForm": "フォームを隠す",
+      "hint": "生徒が学ぶ公式シラバスを公開します。",
+      "loadError": "シラバスを読み込めませんでした。",
+      "none": "まだシラバス項目がありません。",
+      "reasonPlaceholder": "理由（必須）",
+      "save": "シラバスを保存",
+      "saveError": "シラバスを保存できませんでした。",
+      "subjectPlaceholder": "科目"
+    },
+    "system": {
+      "users": "役割別ユーザー数",
+      "auditCount": "監査エントリ",
+      "activeEvents": "アクティブなイベント",
+      "activeFactions": "アクティブな派閥",
+      "queue": "キュー（デフォルト）",
+      "queueWaiting": "待機中",
+      "queueActive": "実行中",
+      "queueCompleted": "完了",
+      "queueFailed": "失敗",
+      "queueDelayed": "遅延",
+      "loadError": "システム状態を読み込めませんでした。",
+      "health": {
+        "title": "サービス健全性",
+        "database": "データベース",
+        "redis": "Redis",
+        "qdrant": "Qdrant",
+        "queue": "キュー",
+        "ok": "OK",
+        "down": "停止中"
+      }
+    }
+  },
+  "factions": {
+    "title": "派閥",
+    "subtitle": "1人のチームリーダーが率いる学習グループ。弱いファクションは強いファクションから助けを受けます——助け合って学びます。",
+    "loadError": "派閥を読み込めませんでした。",
+    "none": "まだ派閥がありません。",
+    "myFaction": "自分の派閥",
+    "noFaction": "まだ派閥に所属していません。",
+    "joinDefault": "デフォルト派閥に参加",
+    "members": "メンバー",
+    "viewMembers": "メンバーを見る",
+    "score": "スコア",
+    "leader": "リーダー",
+    "election": "選挙",
+    "vote": "投票",
+    "voteError": "投票を送信できませんでした。",
+    "noVotes": "この期間の投票はまだありません。",
+    "leaderboard": "ランキング",
+    "period": "期間",
+    "targetSize": "目標サイズ",
+    "helpPledges": "支援の約束",
+    "pledgesTo": "支援対象",
+    "pledgeStatus": {
+      "open": "オープン",
+      "completed": "完了"
+    },
+    "recordHelp": "支援を記録",
+    "recordHelpBtn": "支援活動を記録",
+    "recordHelpHint": "この期間に弱い派閥を支援したことを記録します。",
+    "helpActivities": "支援活動",
+    "helpNotePrompt": "メモ（任意）：",
+    "helpError": "支援活動を記録できませんでした。",
+    "promoteLeaders": "上位2名を昇格",
+    "promoteError": "リーダーを昇格できませんでした。",
+    "assignError": "派閥に参加できませんでした。"
+  },
+  "social": {
+    "title": "ソーシャル",
+    "subtitle": "友人とダイレクトメッセージ — 自社ホスト、モデレーション、レート制限付き。",
+    "loadError": "ソーシャルを読み込めませんでした。",
+    "friends": "友達",
+    "noFriends": "まだ友達がいません。勉強仲間を探しましょう！",
+    "findFriends": "友達を探す",
+    "searchPlaceholder": "名前、ユーザー名、メールで検索",
+    "add": "追加",
+    "pending": "保留中",
+    "requests": "リクエスト",
+    "selectFriend": "友達を選択",
+    "selectFriendHint": "リストから友達を選んでチャットを始めましょう。",
+    "noMessages": "まだメッセージがありません。挨拶しましょう！",
+    "messagePlaceholder": "メッセージを入力…",
+    "sendError": "メッセージを送信できませんでした。",
+    "requestError": "友達リクエストを送信できませんでした。",
+    "block": "ブロック",
+    "blockConfirm": "このユーザーをブロックしますか？",
+    "status": {
+      "pending": "保留中",
+      "accepted": "友達",
+      "blocked": "ブロック済み"
+    }
+  },
+  "accepted": "承認済み",
+  "rejected": "却下済み",
+  "campfire": {
+    "title": "焚き火 — メタ認知チェック",
+    "subtitle": "報酬を受け取る前に、学んだことを本当に理解していることを証明しましょう。",
+    "checkTitle": "焚き火チェック: 理解を確かめる",
+    "checkSubtitle": "チューターの1つの統合質問に答えて報酬を確定しましょう — 理解の深さで最大1.5倍になります。",
+    "checkSubtitleBattle": "チューターの統合質問に答えて、次の勝利の報酬を最大1.5倍にしましょう。",
+    "reflectBoost": "振り返って強化",
+    "answeredLabel": "振り返りを記録しました",
+    "tutorQuestion": "チューターからの質問",
+    "answerPlaceholder": "自分の言葉で考えを統合してください — どのように機能するか、なぜ重要か、既に知っていることとどう繋がるか…",
+    "submit": "振り返りを送信",
+    "skip": "スキップ (基本倍率 1.0倍)",
+    "depthLabel": "理解の深さ",
+    "multiplierApplied": "報酬倍率を適用しました",
+    "masteryFrame": "あなたの現実の認知能力と集中力が向上しました。深めたスキル: {{skill}}。",
+    "reflectionLogged": "振り返りを記録しました",
+    "done": "続ける",
+    "error": "今は焚き火を灯せませんでした。少ししてからもう一度お試しください。",
+    "tooShort": "振り返りが短すぎます — 考えを統合する時間を取りましょう。",
+    "limitReached": "今日は十分振り返りました (1日3回)。現在の倍率は引き続き有効です。",
+    "boostActive": "報酬ブースト ×{{mult}}",
+    "yourSubject": "あなたの学習セッション"
   }
 }

@@ -408,3 +408,1228 @@ export interface UpdateNoteRequest {
   isPinned?: boolean;
   color?: string;
 }
+
+// Study Task (Planner) types
+export type TaskType =
+  | 'homework'
+  | 'revision'
+  | 'exam_prep'
+  | 'project'
+  | 'reading'
+  | 'practice';
+
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type TaskRecurrence = 'none' | 'daily' | 'weekly' | 'monthly';
+
+export interface StudyTask {
+  id: string;
+  userId: string;
+  parentId: string | null;
+  title: string;
+  description: string | null;
+  taskType: TaskType;
+  subject: string | null;
+  chapter: string | null;
+  priority: TaskPriority;
+  status: TaskStatus;
+  dueDate: string | null;
+  estimatedMinutes: number | null;
+  actualMinutes: number | null;
+  recurrence: TaskRecurrence;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  parentId?: string;
+  taskType?: TaskType;
+  subject?: string;
+  chapter?: string;
+  priority?: TaskPriority;
+  dueDate?: string;
+  estimatedMinutes?: number;
+  recurrence?: TaskRecurrence;
+}
+
+export interface UpdateTaskRequest {
+  title?: string;
+  description?: string;
+  parentId?: string;
+  taskType?: TaskType;
+  subject?: string;
+  chapter?: string;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  dueDate?: string;
+  estimatedMinutes?: number;
+  actualMinutes?: number;
+  recurrence?: TaskRecurrence;
+}
+
+export interface TodayTaskSummary {
+  total: number;
+  completed: number;
+  dueToday: number;
+}
+
+// Academic structure (Phase 2 Study RPG Core) types
+export interface AcademicProfile {
+  userId: string;
+  country: string | null;
+  board: string | null;
+  school: string | null;
+  grade: string | null;
+  academicYear: string | null;
+}
+
+export interface UpdateAcademicProfileRequest {
+  country?: string;
+  board?: string;
+  school?: string;
+  grade?: string;
+  academicYear?: string;
+}
+
+export interface Topic {
+  id: string;
+  chapterId: string;
+  name: string;
+  learningObjective: string | null;
+  orderIndex: number;
+}
+
+export interface Chapter {
+  id: string;
+  subjectId: string;
+  name: string;
+  description: string | null;
+  orderIndex: number;
+  topics: Topic[];
+}
+
+export interface Subject {
+  id: string;
+  name: string;
+  programme: string | null;
+  color: string | null;
+  icon: string | null;
+  sortOrder: number;
+  chapters: Chapter[];
+}
+
+export interface ExamPortion {
+  id: string;
+  chapterId: string;
+  chapterName: string;
+  weight: number;
+}
+
+export interface Exam {
+  id: string;
+  subjectId: string | null;
+  name: string;
+  examDate: string | null;
+  notes: string | null;
+  portions: ExamPortion[];
+}
+
+export interface AcademicStructure {
+  profile: AcademicProfile | null;
+  subjects: Subject[];
+  exams: Exam[];
+}
+
+export interface CreateSubjectRequest {
+  name: string;
+  programme?: string;
+  color?: string;
+  icon?: string;
+  sortOrder?: number;
+}
+
+export interface UpdateSubjectRequest {
+  name?: string;
+  programme?: string;
+  color?: string;
+  icon?: string;
+  sortOrder?: number;
+}
+
+export interface CreateChapterRequest {
+  name: string;
+  description?: string;
+  orderIndex?: number;
+}
+
+export interface CreateTopicRequest {
+  name: string;
+  learningObjective?: string;
+  orderIndex?: number;
+}
+
+export interface CreateExamRequest {
+  name: string;
+  subjectId?: string;
+  examDate?: string;
+  notes?: string;
+}
+
+export interface AddPortionRequest {
+  chapterId: string;
+  weight?: number;
+}
+
+// -------------------- Study Tools (Phase 2 gap-fill) --------------------
+
+export interface FocusSession {
+  id: string;
+  taskId: string | null;
+  subject: string | null;
+  startedAt: string;
+  endedAt: string | null;
+  focusMinutes: number;
+  status: 'running' | 'paused' | 'completed';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StartFocusSessionRequest {
+  taskId?: string;
+  subject?: string;
+}
+
+export interface FocusTodaySummary {
+  totalMinutes: number;
+  bySubject: Array<{ subject: string; minutes: number }>;
+}
+
+export type StudyHealthBand = 'fresh' | 'focused' | 'draining' | 'depleted';
+
+/** Anti-overstudy status (spec 015) served by GET /focus-sessions/wellbeing. */
+export interface FocusWellbeing {
+  todayMinutes: number;
+  optimalDailyMinutes: number;
+  hardDailyCapMinutes: number;
+  budgetRemaining: number;
+  healthPercent: number;
+  band: StudyHealthBand;
+  rewardFactor: number;
+  cooldownActive: boolean;
+  cooldownMinutesLeft: number;
+  nightStudy: boolean;
+  nightFactor: number;
+  canStart: boolean;
+}
+
+export interface Mistake {
+  id: string;
+  subject: string | null;
+  chapter: string | null;
+  questionText: string;
+  correctAnswer: string | null;
+  wrongAnswer: string | null;
+  category: string | null;
+  cause: string | null;
+  correctionNote: string | null;
+  status: 'open' | 'resolved' | 'reopened';
+  source: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt: string | null;
+}
+
+export interface CreateMistakeRequest {
+  questionText: string;
+  subject?: string;
+  chapter?: string;
+  correctAnswer?: string;
+  wrongAnswer?: string;
+  category?: string;
+  cause?: string;
+  correctionNote?: string;
+  source?: string;
+}
+
+export interface MistakeList {
+  items: Mistake[];
+  counts: Record<string, number>;
+}
+
+export interface PuzzleChoice {
+  key: string;
+  text: string;
+}
+
+export interface Puzzle {
+  id: string;
+  subject: string;
+  question: string;
+  choices: PuzzleChoice[];
+  answerKey: string;
+  explanation: string | null;
+  difficulty: string;
+  source: string;
+  createdAt: string;
+}
+
+export interface PuzzleSubjectOverview {
+  subject: string;
+  total: number;
+  rankedToday: number;
+  streak: number;
+  personalBest: number;
+}
+
+export interface PuzzleAttempt {
+  id: string;
+  puzzleId: string;
+  subject: string;
+  mode: string;
+  selectedKey: string | null;
+  isCorrect: boolean;
+  shielded: boolean;
+  streakAfter: number;
+  personalBest: number;
+  createdAt: string;
+}
+
+export interface NextPuzzleResponse {
+  puzzle: Omit<Puzzle, 'answerKey'> | null;
+  streak: {
+    streak: number;
+    personalBest: number;
+    dailyRankedCount: number;
+    lastRankedDay: string | null;
+    lastRankedPuzzleId: string | null;
+  };
+  dailyLimitReached: boolean;
+}
+
+export interface SubmitPuzzleRequest {
+  selectedKey: string;
+  mode?: string;
+  shielded?: boolean;
+}
+
+export interface SubmitPuzzleResponse {
+  correct: boolean;
+  answerKey: string;
+  explanation: string | null;
+  streak: {
+    streak: number;
+    personalBest: number;
+    dailyRankedCount: number;
+    lastRankedDay: string | null;
+    lastRankedPuzzleId: string | null;
+  };
+  attempt: PuzzleAttempt;
+}
+
+export interface ExamPeriod {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: 'upcoming' | 'live' | 'ended';
+  notes: string | null;
+  exams: Array<{ id: string; name: string; examDate: string | null; subject: string | null }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateExamPeriodRequest {
+  name: string;
+  startDate: string;
+  endDate: string;
+  notes?: string;
+}
+
+export interface ExamResult {
+  id: string;
+  examId: string;
+  marksObtained: number;
+  marksTotal: number;
+  mistakeAnalysis: string | null;
+  revisionPlan: string | null;
+  completedAt: string;
+}
+
+export interface RecordExamResultRequest {
+  marksObtained: number;
+  marksTotal: number;
+  mistakeAnalysis?: string;
+  revisionPlan?: string;
+}
+
+export interface DashboardSummary {
+  todayPlan: {
+    tasksDueToday: number;
+    tasksDueNow: number;
+    nextTask: { id: string; title: string; dueDate: string | null } | null;
+  };
+  upcomingExams: Array<{ id: string; name: string; subject: string | null; examDate: string; daysUntil: number }>;
+  currentExamPortions: number;
+  focusMinutesToday: number;
+  flashcardsDue: number;
+  quizAccuracy30d: number | null;
+  recentMistakes: Array<{ id: string; questionText: string; subject: string | null; status: string }>;
+  weakTopics: Array<{ topic: string; accuracy: number }>;
+  puzzleStreak: { best: number; subjects: Array<{ subject: string; streak: number }> };
+  studyStreakDays: number;
+  gameStats: {
+    stpToday: number;
+    playerXp: number;
+    eventExp: number;
+    dailyQuests: Array<{ id: string; title: string; done: boolean }>;
+  };
+  recommendedAction:
+    | { kind: 'exam'; label: string; examName: string; daysUntil: number }
+    | { kind: 'flashcards'; label: string; count: number }
+    | { kind: 'tasks'; label: string; count: number }
+    | { kind: 'mistakes'; label: string; count: number }
+    | { kind: 'puzzle'; label: string }
+    | { kind: 'relax'; label: string };
+}
+
+export interface DashboardPreferences {
+  hideGameStats: boolean;
+}
+
+// ---------------- Study RPG (Phase 4) ----------------
+
+export interface RpgLevelInfo {
+  level: number;
+  currentLevelXp: number;
+  nextLevelXp: number;
+  totalXp: number;
+}
+
+export interface RpgProfile {
+  userId: string;
+  xp: number;
+  level: number;
+  eventExp: number;
+  stp: number;
+  battleRating: number;
+  studyStreak: number;
+  bestPuzzleStreak: number;
+  currentWorld: string;
+  levelInfo: RpgLevelInfo;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RpgWalletEntry {
+  id: string;
+  userId: string;
+  currency: string;
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  transactionType: string;
+  reason: string | null;
+  relatedEntityId: string | null;
+  idempotencyKey: string;
+  actor: string;
+  createdAt: string;
+}
+
+export interface RpgAbility {
+  key: string;
+  name: string;
+  category: string;
+  description: string;
+  manaCost: number;
+  damage?: number;
+  healing?: number;
+  duration?: number;
+  cooldown?: number;
+  target: string;
+  stackPolicy: string;
+  statusEffect?: {
+    type: string;
+    duration: number;
+    damagePerTurn?: number;
+    shieldValue?: number;
+  };
+  restrictions?: string[];
+  balanceVersion: string;
+}
+
+export interface RpgCardDefinition {
+  key: string;
+  name: string;
+  rarity: 'common' | 'rare' | 'legendary';
+  category: string;
+  ability: RpgAbility;
+  lore: string;
+  balanceVersion: string;
+}
+
+export interface RpgCardInstance {
+  id: string;
+  cardKey: string;
+  name: string;
+  rarity: string;
+  category: string;
+  ability: RpgAbility;
+  lore: string;
+  source: string;
+  createdAt: string;
+}
+
+export interface RpgDeckCard {
+  slot: number;
+  instanceId: string;
+  cardKey: string;
+  name: string;
+  rarity: string;
+  category: string;
+  ability: RpgAbility;
+}
+
+export interface RpgDeckValidation {
+  valid: boolean;
+  size: number;
+  errors: string[];
+  restrictedCounts: Record<string, number>;
+}
+
+export interface RpgDeck {
+  id: string;
+  name: string;
+  isActive: boolean;
+  validated: boolean;
+  invalidReason: string | null;
+  validation: RpgDeckValidation;
+  cards: RpgDeckCard[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RpgStatus {
+  type: string;
+  remaining: number;
+  damagePerTurn?: number;
+  shieldValue?: number;
+  source: string;
+}
+
+export interface RpgBattleLogEntry {
+  turn: number;
+  sequence: number;
+  eventType: string;
+  payload: Record<string, unknown>;
+}
+
+export interface RpgBattleState {
+  seed: number;
+  turn: number;
+  playerHp: number;
+  playerMana: number;
+  maxHp: number;
+  maxMana: number;
+  monster: { key: string; name: string; hp: number; maxHp: number; attack: number };
+  shieldRemaining: number;
+  statuses: RpgStatus[];
+  phase: 'active' | 'player_won' | 'monster_won' | 'forfeited';
+  hand: Array<{
+    instanceId: string;
+    cardKey: string;
+    ability: RpgAbility;
+  }>;
+  cooldowns: Record<string, number>;
+  challengeBonusThisTurn: number;
+  log: RpgBattleLogEntry[];
+  lastAction: string | null;
+}
+
+export interface RpgBattleReward {
+  xp: number;
+  stp: number;
+  limited: boolean;
+}
+
+export interface RpgBattle {
+  id: string;
+  seed: number;
+  subject: string | null;
+  world: string;
+  monster: { key: string; name: string; hp: number; maxHp: number; attack: number };
+  state: RpgBattleState;
+  phase: string;
+  rewardClaimed: boolean;
+  reward: RpgBattleReward | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RpgBattleHistoryItem {
+  id: string;
+  phase: string;
+  monsterKey: string;
+  world: string;
+  rewardClaimed: boolean;
+  createdAt: string;
+}
+
+export interface CreateRpgDeckRequest {
+  name: string;
+  cardInstanceIds: string[];
+}
+
+export interface UpdateRpgDeckRequest {
+  name?: string;
+  cardInstanceIds?: string[];
+}
+
+export interface CreateRpgBattleRequest {
+  monsterKey?: string;
+  subject?: string;
+  deckId?: string;
+}
+
+export interface RpgBattleActionRequest {
+  cardInstanceId: string;
+}
+
+export interface RpgManaQuizRequest {
+  correctCount: number;
+}
+
+export interface RpgDamageChallengeRequest {
+  allCorrect: boolean;
+}
+
+// ---------------- PvP duels (Phase 5) ----------------
+
+export type RpgPvpDuelStatus = 'challenged' | 'in_progress' | 'settled' | 'expired';
+export type RpgDuelSide = 'challenger' | 'defender';
+
+export interface RpgPvpRewards {
+  xp: number;
+  stp: number;
+  limited: boolean;
+}
+
+export interface RpgPvpMargins {
+  challengerHpPct: number;
+  defenderHpPct: number;
+  challengerTurns: number;
+  defenderTurns: number;
+}
+
+export interface RpgPvpPlayer {
+  id: string;
+  name: string;
+  rating: number;
+}
+
+export interface RpgPvpDuel {
+  id: string;
+  status: RpgPvpDuelStatus;
+  challenger: RpgPvpPlayer;
+  defender: RpgPvpPlayer;
+  mySide: RpgDuelSide | null;
+  myBattleId: string | null;
+  myBattle: RpgBattle | null;
+  opponentBattleId: string | null;
+  opponentPlayed: boolean;
+  winner: RpgDuelSide | 'draw' | null;
+  margins: RpgPvpMargins | null;
+  ratingChange: { challenger: number; defender: number } | null;
+  rewards: RpgPvpRewards | null;
+  expiresAt: string;
+  settledAt: string | null;
+  createdAt: string;
+}
+
+export interface RpgPvpLeaderboardEntry {
+  userId: string;
+  name: string;
+  rating: number;
+  level: number;
+}
+
+export interface CreateRpgPvpDuelRequest {
+  opponentEmail?: string;
+  deckId?: string;
+}
+
+
+// ================= Phase 6 — Study Community =================
+
+// ---- Admin & audit ----
+export interface AdminUserRow {
+  id: string;
+  name: string;
+  email: string | null;
+  username: string | null;
+  role: string;
+  isActive: boolean;
+  emailVerified: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actorId: string | null;
+  actorName: string | null;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  reason: string;
+  details: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface AdminNote {
+  id: string;
+  title: string;
+  subject: string | null;
+  content: string;
+  pageCount: number;
+  selectedPages: number[];
+  uploadedByName: string | null;
+  isUniversal: boolean;
+  createdAt: string;
+}
+
+export interface SyllabusEntry {
+  id: string;
+  board: string;
+  grade: string;
+  subject: string;
+  chapters: Array<{ name: string; topics?: string[] }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---- Programmes ----
+export type ProgrammeStatus = 'suggested' | 'building' | 'active' | 'rejected' | 'archived';
+
+export interface Programme {
+  id: string;
+  name: string;
+  description: string | null;
+  kind: string;
+  status: ProgrammeStatus;
+  suggestedBy: string | null;
+  suggesterName: string | null;
+  aiBuilt: boolean;
+  content: Record<string, unknown>;
+  rewardPolicy: Record<string, unknown>;
+  review: Record<string, unknown>;
+  reviewHistory: ProgrammeReviewEvent[];
+  hasFactions: boolean;
+  factionSize: number;
+  joined?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SuggestProgrammeRequest {
+  name: string;
+  description?: string;
+  kind?: string;
+  hasFactions?: boolean;
+  factionSize?: number;
+}
+
+// ---- Factions ----
+export interface Faction {
+  id: string;
+  programmeId: string | null;
+  programmeName: string | null;
+  name: string;
+  color: string;
+  targetSize: number;
+  status: string;
+  memberCount: number;
+  myRole: string | null;
+  score: number;
+  createdAt: string;
+}
+
+export interface FactionMember {
+  userId: string;
+  name: string;
+  role: string;
+  joinedAt: string;
+}
+
+export interface ElectionResult {
+  userId: string;
+  name: string;
+  votes: number;
+}
+
+export interface HelpPledge {
+  id: string;
+  helperFactionId: string;
+  helperName: string;
+  helpedFactionId: string;
+  helpedName: string;
+  periodKey: string;
+  status: string;
+  activityCount: number;
+}
+
+// ---- Social ----
+export interface FriendUser {
+  userId: string;
+  name: string;
+  username: string | null;
+  email: string | null;
+  avatarUrl: string | null;
+  status: 'accepted' | 'pending' | 'blocked';
+  direction: 'outgoing' | 'incoming';
+}
+
+export interface SearchUserResult {
+  id: string;
+  name: string;
+  username: string | null;
+  email: string | null;
+  avatarUrl: string | null;
+}
+
+export interface DirectMessage {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  body: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+// ---- RPG parties ----
+export interface RpgParty {
+  id: string;
+  leaderId: string;
+  leaderName: string;
+  name: string;
+  maxMembers: number;
+  memberCount: number;
+  members: Array<{ userId: string; name: string }>;
+  createdAt: string;
+}
+
+export interface RpgExamBoss {
+  key: string;
+  name: string;
+  subject: string;
+  lore: string;
+}
+
+export interface RpgPartyBattle {
+  id: string;
+  partyId: string;
+  boss: { key: string; name: string; hp: number; maxHp: number; attack: number };
+  examId: string | null;
+  state: {
+    seed: number;
+    round: number;
+    phase: string;
+    boss: { key: string; name: string; hp: number; maxHp: number; attack: number };
+    heroes: Array<{
+      userId: string;
+      name: string;
+      isDown: boolean;
+      actedThisRound: boolean;
+      state: {
+        playerHp: number;
+        playerMana: number;
+        maxHp: number;
+        maxMana: number;
+        hand: Array<{
+          instanceId: string;
+          cardKey: string;
+          ability?: {
+            key: string;
+            name: string;
+            manaCost: number;
+          };
+        }>;
+      };
+    }>;
+    log: Array<{ round: number; eventType: string; payload: Record<string, unknown> }>;
+  };
+  phase: string;
+  rewardClaimed: boolean;
+  reward: { xp: number; stp: number } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Economy (PDF Phase 6 — §16.3, §18, §20–§24)
+// ---------------------------------------------------------------------------
+
+export interface EconomyListing {
+  id: string;
+  cardKey: string;
+  cardName: string;
+  rarity: string;
+  category: string;
+  ability: unknown;
+  lore: string | null;
+  officialValue: number;
+  price: number;
+  status: string;
+  sellerId: string;
+  sellerName: string;
+  sellerUsername: string | null;
+  createdAt: string;
+  expiresAt: string;
+  hasMyOffer: boolean;
+}
+
+export interface EconomyOffer {
+  id: string;
+  listingId: string;
+  buyerId: string;
+  amount: number;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+  createdAt: string;
+  direction: 'incoming' | 'outgoing';
+  cardName: string;
+  cardKey: string;
+  listingPrice: number;
+  otherName: string;
+}
+
+export interface EconomyCollectionCard {
+  id: string;
+  cardKey: string;
+  name: string;
+  rarity: string;
+  category: string;
+  ability: unknown;
+  lore: string;
+  officialValue: number;
+  location: 'inventory' | 'vault';
+  source: string;
+  inDeck: boolean;
+  listed: boolean;
+  createdAt: string;
+}
+
+export interface EconomySupplyRow {
+  key: string;
+  name: string;
+  rarity: string;
+  originalSupply: number;
+  activeSupply: number;
+  burnedCount: number;
+  scrapedCount: number;
+  listedCount: number;
+  officialValue: number;
+  extinct: boolean;
+  active: boolean;
+  replacementOf: string | null;
+  retiredAt: string | null;
+}
+
+export interface EconomyPricePoint {
+  value: number;
+  reason: string;
+  created_at: string;
+}
+
+export interface EconomyScrapeResult {
+  removed: boolean;
+  cardKey: string;
+  name: string;
+  payout: number;
+  extinct: boolean;
+  replacementKey: string | null;
+}
+
+export interface EconomyBurnResult {
+  burned: boolean;
+  burnId: string;
+  cardKey: string;
+  name: string;
+  total: number;
+  instalments: number;
+  firstPayment: number;
+  paid: number;
+  remaining: number;
+  nextInstalmentAt: string | null;
+  extinct: boolean;
+  replacementKey: string | null;
+}
+
+export interface EconomyBurnStatus {
+  burnId: string;
+  cardKey: string;
+  total: number;
+  instalments: number;
+  schedule: number[];
+  paidAmount: number;
+  paidCount: number;
+  status: string;
+  nextInstalmentAt: string | null;
+}
+
+export interface EconomySettlement {
+  listingId: string;
+  cardName: string;
+  price: number;
+  buyerId: string;
+  sellerId: string;
+}
+
+export interface EconomyReconcileResult {
+  cardsChecked: number;
+  valueChanges: number;
+  extinct: string[];
+}
+
+export interface EconomyInstalmentRun {
+  processed: number;
+  completed: number;
+  failures: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Study Events (PDF Phase 7 — §25–§30)
+// ---------------------------------------------------------------------------
+
+export type EventStatus = 'scheduled' | 'active' | 'ended';
+
+export interface StudyEvent {
+  id: string;
+  slug: string;
+  name: string;
+  story: string | null;
+  kind: string;
+  startsAt: string;
+  endsAt: string;
+  graceHours: number;
+  claimDeadline: string;
+  config: Record<string, unknown>;
+  status: EventStatus;
+}
+
+export interface StudyPassTrackView {
+  track: 'free' | 'gold' | null;
+  trackLocked: boolean;
+  goldPaidAt: string | null;
+  level: number;
+  exp: number;
+  currentThreshold: number;
+  nextThreshold: number | null;
+  levelProgressPct: number;
+  maxed: boolean;
+  claimedLevels: number[];
+  claimableLevels: number[];
+}
+
+export interface EventQuest {
+  id: string;
+  slug: string;
+  category: string;
+  title: string;
+  story: string | null;
+  objective: Record<string, unknown>;
+  rewards: Record<string, unknown>;
+  period: string;
+  progress: number;
+  target: number;
+  completed: boolean;
+  claimed: boolean;
+}
+
+export interface EventItem {
+  slug: string;
+  name: string;
+  description: string | null;
+  tradable: boolean;
+  quantity: number;
+}
+
+export interface LootBoxOdds {
+  label: string;
+  weights: Record<string, number>;
+}
+
+export interface CurrentEventView {
+  event: StudyEvent;
+  studyPass: StudyPassTrackView;
+  quests: EventQuest[];
+  items: EventItem[];
+  lootBoxOdds: Record<string, LootBoxOdds>;
+  goldCost: number;
+}
+
+export interface AbstractedCard {
+  instanceId: string;
+  cardKey: string;
+  name: string;
+  rarity: string;
+  ability: unknown;
+}
+
+export interface UnabstractRequest {
+  instanceId: string;
+  confirm: boolean;
+  reason?: string;
+}
+
+export interface UnabstractResult {
+  unabstracted: boolean;
+  cardKey: string;
+  name: string;
+  resultCardKey: string;
+  stpAwarded: number;
+  abstractedErrors: number;
+}
+
+export interface LimboResult {
+  redeemed: boolean;
+  consumedErrors: number;
+  rewardCardKey: string;
+}
+
+export interface ExtinctionTargetView {
+  cardKey: string;
+  name: string;
+  rarity: string;
+  officialValue: number;
+  reason: string;
+}
+
+export interface MilestoneView {
+  id: string;
+  slug: string;
+  title: string;
+  progress: number;
+  target: number;
+  completed: boolean;
+  claimed: boolean;
+}
+
+export interface CreateEventRequest {
+  slug: string;
+  name: string;
+  story?: string;
+  startsAt: string;
+  endsAt: string;
+  graceHours?: number;
+  reason: string;
+}
+
+export interface ClaimLevelResult {
+  level: number;
+  granted: string[];
+  studyPass: StudyPassTrackView;
+}
+
+// ---------------------------------------------------------------------------
+// Advanced Learning (PDF Phase 8 — §31 follow-ups)
+// ---------------------------------------------------------------------------
+
+export interface ProgrammeTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  kind: string;
+  outline: Record<string, unknown>;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProgrammeReviewEvent {
+  verdict: 'accepted' | 'rejected';
+  score: number | null;
+  reasons: string[];
+  reviewer: string | null;
+  reviewedAt: string;
+}
+
+export interface CreateProgrammeTemplateRequest {
+  name: string;
+  description?: string;
+  kind?: string;
+  outline?: Record<string, unknown>;
+  reason: string;
+}
+
+export interface BatchReviewItem {
+  id: string;
+  verdict: 'accepted' | 'rejected';
+  reason: string;
+  score?: number;
+}
+
+export interface LearningPathReview {
+  verdict: string;
+  score: number | null;
+  reasons: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Hardening (PDF Phase 9 — §32–§36)
+// ---------------------------------------------------------------------------
+
+export interface SystemStatus {
+  users: Record<string, number>;
+  auditCount: number;
+  activeEvents: number;
+  activeFactions: number;
+  health: {
+    database: boolean;
+    redis: boolean;
+    qdrant: boolean;
+    queue: boolean;
+  };
+  queue: {
+    waiting: number;
+    active: number;
+    completed: number;
+    failed: number;
+    delayed: number;
+  };
+}
+
+export interface AuditRetention {
+  retentionDays: number;
+}
+
+export interface WebPushPublicKey {
+  publicKey: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Integrity (spec 014 — F2W meritocracy, anti-cheese, campfire loop)
+// ---------------------------------------------------------------------------
+
+export type CampfireSourceKind = 'session' | 'battle' | 'quiz' | 'exam' | 'teach_back';
+
+export interface CampfireReflection {
+  id: string;
+  question: string;
+  answer: string | null;
+  depthScore: number | null;
+  multiplier: number;
+  sourceKind: CampfireSourceKind;
+  sourceId: string | null;
+  status: 'pending' | 'answered' | 'skipped';
+  createdAt: string;
+}
+
+export interface CampfireStatus {
+  usedToday: number;
+  maxPerDay: number;
+  pending: CampfireReflection | null;
+  latestMultiplier: number;
+  reflections: CampfireReflection[];
+}

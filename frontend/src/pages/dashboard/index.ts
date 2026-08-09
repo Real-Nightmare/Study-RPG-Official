@@ -1,4 +1,5 @@
 export { DashboardHomePage } from './DashboardHomePage';
+export { default as TasksPage } from './TasksPage';
 export { StudySetsPage } from './StudySetsPage';
 export { StudySetDetailPage } from './StudySetDetailPage';
 export { CreateStudySetPage } from './CreateStudySetPage';
@@ -52,3 +53,15 @@ export { default as NotificationSettingsPage } from './NotificationSettingsPage'
 export { default as AppearanceSettingsPage } from './AppearanceSettingsPage';
 export { default as ChatPage } from './ChatPage';
 export { default as ChatHistoryPage } from './ChatHistoryPage';
+export { default as AcademicsPage } from './AcademicsPage';
+export { default as FocusSessionsPage } from './FocusSessionsPage';
+export { default as MistakesPage } from './MistakesPage';
+export { default as PuzzlesPage } from './PuzzlesPage';
+export { default as ExamCentrePage } from './ExamCentrePage';
+export { default as RpgPage } from './RpgPage';
+export { default as EconomyPage } from './EconomyPage';
+export { default as EventsPage } from './EventsPage';
+export { default as AdminPage } from './AdminPage';
+export { default as ProgrammesPage } from './ProgrammesPage';
+export { default as FactionsPage } from './FactionsPage';
+export { default as SocialPage } from './SocialPage';

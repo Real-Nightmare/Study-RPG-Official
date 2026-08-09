@@ -14,6 +14,12 @@ export interface LearningStep {
   completedAt: string | null;
 }
 
+export interface LearningPathReview {
+  verdict: string;
+  score: number | null;
+  reasons: string[];
+}
+
 export interface LearningPath {
   id: string;
   userId: string;
@@ -24,6 +30,10 @@ export interface LearningPath {
   estimatedHours: number;
   steps: LearningStep[];
   progress: number;
+  programmeId: string | null;
+  programmeName: string | null;
+  review: LearningPathReview;
+  needsRegeneration: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -51,6 +61,11 @@ export const learningPathsService = {
     availableHoursPerWeek: number;
   }): Promise<LearningPath> {
     const res = await api.post(ENDPOINTS.learningPaths.generate, data);
+    return res.data;
+  },
+
+  async fromProgramme(programmeId: string): Promise<LearningPath> {
+    const res = await api.post(ENDPOINTS.learningPaths.fromProgramme, { programmeId });
     return res.data;
   },
 

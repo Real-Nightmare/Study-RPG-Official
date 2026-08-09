@@ -99,8 +99,6 @@ export default function CollaborativeExamPage() {
     const wsUrl = url.origin + '/exam-clone';
     const token = localStorage.getItem('accessToken');
 
-    console.log('[ExamClone] Connecting to:', wsUrl);
-
     if (!token) {
       setError('Not authenticated');
       return;
@@ -113,7 +111,7 @@ export default function CollaborativeExamPage() {
     });
 
     newSocket.on('connect', () => {
-      console.log('Connected to exam-clone socket');
+      // socket ready
     });
 
     newSocket.on('connect_error', (err) => {

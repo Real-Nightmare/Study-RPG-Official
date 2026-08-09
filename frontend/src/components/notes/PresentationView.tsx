@@ -36,7 +36,7 @@ const THEMES = [
   { id: 'green', name: 'Green', bg: 'bg-emerald-950', text: 'text-white', accent: 'text-emerald-400' },
   { id: 'warm', name: 'Warm', bg: 'bg-amber-50', text: 'text-amber-900', accent: 'text-amber-600' },
   { id: 'midnight', name: 'Midnight', bg: 'bg-slate-950', text: 'text-slate-100', accent: 'text-cyan-400' },
-  { id: 'studyield', name: 'Studyield', bg: 'bg-black', text: 'text-white', accent: 'text-green-500' },
+  { id: 'study-rpg', name: 'Study RPG', bg: 'bg-black', text: 'text-white', accent: 'text-green-500' },
 ];
 
 const TRANSITIONS = ['fade', 'slide', 'scale', 'none'] as const;
@@ -172,7 +172,7 @@ export function PresentationView({ note, onClose }: PresentationViewProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [theme, setTheme] = useState(THEMES[7]); // Studyield theme
+  const [theme, setTheme] = useState(THEMES[7]); // Study RPG theme
   const [transition, setTransition] = useState<TransitionType>('slide');
   const [autoSlideInterval, setAutoSlideInterval] = useState(5);
 

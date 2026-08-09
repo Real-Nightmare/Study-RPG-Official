@@ -232,7 +232,6 @@ export default function PracticeExamPage() {
         totalTime: timeTaken,
       });
 
-      console.log('Attempt submitted to backend');
     } catch (err) {
       console.error('Failed to submit attempt:', err);
       // Continue to results even if API fails

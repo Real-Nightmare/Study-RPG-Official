@@ -3,6 +3,22 @@
 > **Date**: April 8, 2026
 > **Status**: Initial open-source release completed, polish work remaining
 
+> **Status update (2026-08-09)** — this briefing was written before the Study RPG
+> transformation. Items below are now **done** in this repository (`Real-Nightmare/Study-RPG-Official`):
+> - **Priority 1 (frontend console cleanup)**: all debug `console.log` statements removed
+>   (live-quiz socket store, exam-clone socket page, practice-exam submission, solution-page
+>   code-run, pomodoro fallback). The `console.error` catch-block pattern is retained as the
+>   codebase convention for API failure logging.
+> - **Priority 2c (migration naming)**: fixed in Phase 1 with order-preserving `002b`/`006b`/`010b` suffixes.
+> - **Priority 2d (PlanGuard)**: commented-out global PlanGuard removed; a note explains why it
+>   stays unregistered (100% Free-to-Win).
+> - **Priority 3 (Dockerfiles)**: `backend/Dockerfile`, `frontend/Dockerfile` and `frontend/nginx.conf` now exist.
+> - **Priority 7 (translated READMEs)**: all 12 translations exist.
+> - The **mobile** items (Priority 1 mobile, Priority 6 package rename) are not applicable — there
+>   is no `mobile/` directory in this repository.
+> - Superseded by the Study RPG master plan: all 10 PDF phases (0–9) plus the community track,
+>   F2W Integrity, and Anti-OverStudy Wellbeing briefs are delivered — see `IMPLEMENTATION_STATUS.md`.
+
 ---
 
 ## Repository Structure
@@ -32,9 +48,11 @@
 - [x] Public repo has zero secrets in git history (fresh single-commit repo)
 
 ### 2. License & Legal
-- [x] Replaced proprietary INFO INLET license with **Apache License 2.0**
-- [x] Updated `backend/package.json` license: `"UNLICENSED"` → `"Apache-2.0"`
+- [x] Replaced proprietary INFO INLET license (historically recorded as Apache-2.0 — see correction below)
+- [x] Updated `backend/package.json` license: `"UNLICENSED"` → `"AGPL-3.0"`
 - [x] Created `NOTICE` file with third-party dependency attribution (backend, frontend, mobile)
+
+> **⚠️ Correction (2026-08-04)** — The root `LICENSE` file is the **GNU Affero General Public License v3.0 (AGPL-3.0)** and is the authoritative licence for this project. Earlier documentation (`NOTICE`, package metadata, translated READMEs, this briefing) claimed Apache-2.0; that metadata was inconsistent with the root licence file. Per ADR-0001 (`docs/architecture/decisions/0001-licence-decision.md`), **AGPL-3.0 is the single project licence** and all metadata has been aligned. Do not reintroduce Apache/MIT claims.
 
 ### 3. Repository Hygiene
 - [x] Removed 13 internal markdown docs from `mobile/` (IMPLEMENTATION_GUIDE, ONBOARDING_*, LOCALIZATION_PROGRESS, etc.)
@@ -170,14 +188,16 @@ ConfigModule.forRoot({
 ```
 
 #### 2c. Fix migration file naming
-Current naming has conflicts (duplicate numbers):
+Current naming has conflicts (duplicate numbers) — **fixed in Phase 1 (2026-08-04)** with order-preserving letter suffixes:
 ```
-001_initial.sql
-001_add_exam_and_type_columns.sql   ← duplicate 001
+000_initial.sql
+001_add_exam_and_type_columns.sql
+002_exam_clone_tables.sql
+002b_live_quiz_history.sql           ← was duplicate 002, renamed
 006_mind_maps.sql
-006_problem_chat_messages.sql       ← duplicate 006
+006b_problem_chat_messages.sql       ← was duplicate 006, renamed
 010_blog.sql
-010_create_user_fcm_tokens_table.sql ← duplicate 010
+010b_create_user_fcm_tokens_table.sql ← was duplicate 010, renamed
 ```
 **Action**: Renumber to be sequential without gaps/duplicates.
 

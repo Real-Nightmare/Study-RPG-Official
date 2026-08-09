@@ -75,14 +75,31 @@ export class KnowledgeBaseController {
   }
 
   @Post(':id/search')
-  @ApiOperation({ summary: 'Search the knowledge base' })
+  @ApiOperation({
+    summary: 'Search the knowledge base (hybrid: dense + lexical, or mode-specific)',
+  })
   @ApiResponse({ status: 200, description: 'Search results' })
   async search(
     @CurrentUser() user: JwtPayload,
     @Param('id') id: string,
-    @Body() body: { query: string; limit?: number },
+    @Body()
+    body: {
+      query: string;
+      limit?: number;
+      mode?: 'dense' | 'lexical' | 'hybrid';
+      minScore?: number;
+      maxPerDocument?: number;
+      rerank?: boolean;
+      rerankTopK?: number;
+    },
   ) {
-    return this.knowledgeBaseService.search(id, user.sub, body.query, body.limit);
+    return this.knowledgeBaseService.search(id, user.sub, body.query, body.limit, {
+      mode: body.mode,
+      minScore: body.minScore,
+      maxPerDocument: body.maxPerDocument,
+      rerank: body.rerank,
+      rerankTopK: body.rerankTopK,
+    });
   }
 
   @Post('search')
@@ -98,6 +115,18 @@ export class KnowledgeBaseController {
       body.query,
       body.limit,
     );
+  }
+
+  @Delete(':id/documents/:docId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete one document from the knowledge base (deletion pipeline)' })
+  @ApiResponse({ status: 204, description: 'Document deleted' })
+  async deleteDocument(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Param('docId') docId: string,
+  ) {
+    await this.knowledgeBaseService.deleteDocument(id, docId, user.sub);
   }
 
   @Delete(':id')

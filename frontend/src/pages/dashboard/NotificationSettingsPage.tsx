@@ -5,9 +5,11 @@ import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bell, Check } from 'lucide-react';
+import { ArrowLeft, Bell, Check, Globe } from 'lucide-react';
 import api from '@/services/api';
 import { ENDPOINTS } from '@/config/api';
+import { notificationsService } from '@/services/notifications';
+
 
 interface NotificationPreferences {
   enabled: boolean;
@@ -98,6 +100,11 @@ export function NotificationSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Phase 9: standards-based Web Push (VAPID)
+  const [webPushKey, setWebPushKey] = useState<string | null>(null);
+  const [webPushStatus, setWebPushStatus] = useState<'idle' | 'subscribed' | 'denied'>('idle');
+  const [webPushBusy, setWebPushBusy] = useState(false);
+
   useEffect(() => {
     const loadPrefs = async () => {
       try {
@@ -109,7 +116,64 @@ export function NotificationSettingsPage() {
       setLoading(false);
     };
     loadPrefs();
+
+    // Web Push is optional: hidden entirely when VAPID is not configured.
+    notificationsService
+      .webPushPublicKey()
+      .then(({ publicKey }) => {
+        setWebPushKey(publicKey);
+        if (!('serviceWorker' in navigator) || !publicKey) return;
+        void navigator.serviceWorker
+          .getRegistration('/sw.js')
+          .then((reg) => {
+            if (reg && reg.pushManager && reg.pushManager.getSubscription) {
+              return reg.pushManager.getSubscription();
+            }
+            return null;
+          })
+          .then((sub) => setWebPushStatus(sub ? 'subscribed' : 'idle'))
+          .catch(() => undefined);
+      })
+      .catch(() => setWebPushKey(null));
   }, []);
+
+  const handleWebPushToggle = async () => {
+    if (webPushStatus === 'subscribed') {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+        const sub = reg ? await reg.pushManager.getSubscription() : null;
+        if (sub) {
+          await notificationsService.webPushUnsubscribe(sub.endpoint);
+          await sub.unsubscribe();
+        }
+        setWebPushStatus('idle');
+      } catch {
+        // best-effort unsubscription
+      }
+      return;
+    }
+    if (!webPushKey) return;
+    setWebPushBusy(true);
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: webPushKey,
+      });
+      const json = sub.toJSON();
+      await notificationsService.webPushSubscribe({
+        endpoint: sub.endpoint,
+        p256dh: json.keys?.p256dh ?? '',
+        auth: json.keys?.auth ?? '',
+        userAgent: navigator.userAgent,
+      });
+      setWebPushStatus('subscribed');
+    } catch {
+      setWebPushStatus('denied');
+    } finally {
+      setWebPushBusy(false);
+    }
+  };
 
   const updatePref = (key: keyof NotificationPreferences, value: boolean) => {
     setPrefs((prev) => ({ ...prev, [key]: value }));
@@ -152,6 +216,45 @@ export function NotificationSettingsPage() {
           </Button>
           <h1 className="text-2xl font-bold">{t('notificationSettingsPage.title')}</h1>
         </motion.div>
+
+        {/* Web Push (VAPID) — shown only when configured */}
+        {webPushKey && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="bg-card rounded-2xl border border-border p-5 mb-6"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-sky-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{t('notificationSettingsPage.webPush')}</p>
+                  <p className="text-xs text-muted-foreground">{t('notificationSettingsPage.webPushDesc')}</p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant={webPushStatus === 'subscribed' ? 'default' : 'outline'}
+                disabled={webPushBusy}
+                onClick={() => void handleWebPushToggle()}
+              >
+                {webPushBusy ? (
+                  <Spinner size="sm" className="mr-2" />
+                ) : webPushStatus === 'subscribed' ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : null}
+                {webPushStatus === 'subscribed'
+                  ? t('notificationSettingsPage.webPushEnabled')
+                  : webPushStatus === 'denied'
+                    ? t('notificationSettingsPage.webPushDenied')
+                    : t('notificationSettingsPage.webPushEnable')}
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Master Toggle */}
         <motion.div

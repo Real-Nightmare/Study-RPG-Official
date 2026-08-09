@@ -73,7 +73,7 @@ function AIChatDemo() {
           <Bot className="w-3 h-3 text-white" />
         </div>
         <div>
-          <p className="text-[11px] font-medium leading-none">Studyield AI</p>
+          <p className="text-[11px] font-medium leading-none">Study RPG AI</p>
           <p className="text-[9px] text-indigo-500 flex items-center gap-0.5 mt-0.5">
             <span className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse" />
             {t('featuresPage.aiChat.online')}
