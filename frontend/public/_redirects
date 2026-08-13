@@ -1,4 +1,6 @@
-# SPA fallback — Cloudflare Pages edge config, zero Worker invocations.
+# SPA fallback — Cloudflare Pages edge config (a single redirect rule, NOT a
+# Function). Static asset requests on Pages are free and unlimited; only
+# Pages Functions / Workers consume the shared 100k/day request quota.
 # Any path that is not a real file (e.g. /dashboard, /rpg, /auth) serves
 # index.html with a 200 so react-router can take over.
 /*    /index.html   200

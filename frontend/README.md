@@ -29,11 +29,17 @@ in dev). See `.env.example`.
 Pushing to `main` runs `.github/workflows/deploy-frontend-cloudflare.yml`,
 which builds `dist/` and uploads it to Cloudflare Pages with wrangler.
 
-**The frontend is deployed as a pure static site — no Pages Functions, no
-Worker scripts.** Every asset is served directly from Cloudflare's edge CDN,
-so each page load costs **0 Worker invocations**:
+**How billing actually works here:** the frontend is a **pure static site —
+no Pages Functions, no Worker scripts**. Cloudflare does not bill static
+asset requests on Pages at all: they are **free and unlimited**, and never
+touch the shared **Workers + Pages Functions** 100k/day quota (see
+`pages/functions/pricing`). `public/_routes.json` excludes *every* route from
+Functions invocation, so even if someone adds a `functions/` directory later,
+all requests stay in the free-and-unlimited static pool:
 
-- `public/_redirects` — SPA fallback (`/* → /index.html 200`)
+- `public/_routes.json` — exclude-all guard: no route can ever invoke a
+  Pages Function (requests stay static = free & unlimited)
+- `public/_redirects` — SPA fallback (`/* → /index.html 200`), an edge rule
 - `public/_headers` — hashed `/assets/*` cached immutable (1 year); `index.html`
   and `sw.js` revalidated every load so deploys propagate instantly
 - `wrangler.toml` — Pages project config for local `wrangler pages deploy`

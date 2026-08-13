@@ -1,11 +1,15 @@
 # =============================================================
 # Study RPG frontend — Cloudflare Pages configuration
 #
-# The frontend is deployed as a **pure static site**: there are
-# no Pages Functions and no Worker scripts in this directory, so
-# every asset is served straight from Cloudflare's edge CDN with
-# ZERO Worker invocations. See public/_headers + public/_redirects
-# for the caching/SPA rules that make that true.
+# How billing actually works (see pages/functions/pricing and
+# pages/functions/routing in the Cloudflare docs): requests to
+# STATIC assets on Pages are free and unlimited and do NOT count
+# against the Workers quota — the 100k/day free limit is a shared
+# pool for Workers + Pages Functions only. So this pure static
+# site (no functions/ dir) never consumes that pool. public/
+# _routes.json additionally excludes ALL routes from Functions
+# invocation, so even if a functions/ directory is added later,
+# every request stays in the free-and-unlimited static pool.
 #
 # NOTE: this file is mostly for local `wrangler pages deploy`
 # DX. The canonical production path is the GitHub Actions

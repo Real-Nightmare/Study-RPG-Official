@@ -114,30 +114,43 @@ cd frontend && npm ci && npm run build
 # point nginx/Cloudflare Pages at frontend/dist with SPA fallback
 ```
 
-### Option C — Cloudflare Pages (automatic, zero Worker usage)
+### Option C — Cloudflare Pages (automatic, free static serving)
 
 The frontend is wired for **automatic Cloudflare Pages deploys**: pushing to
 `main` runs `.github/workflows/deploy-frontend-cloudflare.yml`, which builds
 `frontend/dist` and uploads it with wrangler.
 
-**Zero Worker invocations by design.** The frontend is deployed as a **pure
-static site**: there is no `frontend/functions/` directory and no Worker
-script anywhere in the deploy path, so every request is answered straight
-from Cloudflare's edge CDN — no Worker compute, no per-request Worker cost.
-Three pieces make this work:
+**How Cloudflare billing works for this setup.** Static asset requests on
+Pages are **free and unlimited** on every plan — the 100k/day Workers free
+tier is a shared pool for **Workers + Pages Functions only**, and static
+asset requests never count against it (Cloudflare docs,
+`pages/functions/pricing`). This project ships a **pure static site** — no
+`frontend/functions/` directory and no Worker scripts — so it never consumes
+that pool. Crucially, `frontend/public/_routes.json` excludes **all** routes
+from Functions invocation: the moment Pages has Functions, *every request
+defaults to invoking the Function* unless `_routes.json` excludes it
+(docs, `pages/functions/routing`), so this guard makes the free-static
+property structural rather than coincidental.
 
-1. `frontend/public/_redirects` — SPA fallback (`/* → /index.html 200`),
+The pieces:
+
+1. `frontend/public/_routes.json` — exclude-all guard: no route can ever
+   invoke a Pages Function, keeping every request in the free & unlimited
+   static-asset pool even if a `functions/` directory is added later.
+2. `frontend/public/_redirects` — SPA fallback (`/* → /index.html 200`),
    a plain edge rule, not a Function.
-2. `frontend/public/_headers` — hashed `/assets/*` are cached **immutable
+3. `frontend/public/_headers` — hashed `/assets/*` are cached **immutable
    for 1 year** (browser + edge), while `index.html` and `sw.js` are
    revalidated every load so new deploys propagate immediately. Repeat
    visits therefore hit the browser cache and the CDN — never an origin.
-3. `frontend/wrangler.toml` — Pages project config (`pages_build_output_dir
+4. `frontend/wrangler.toml` — Pages project config (`pages_build_output_dir
    = "dist"`) for local `wrangler pages deploy`.
 
 The API is **not** proxied through a Worker: the browser calls the NestJS
 backend directly, either same-origin via a reverse proxy on the Pages custom
-domain or cross-origin with `CORS_ORIGINS` allowlisted.
+domain or cross-origin with `CORS_ORIGINS` allowlisted. (If you ever DO add
+Pages Functions — e.g. an `/api` proxy — remember they burn the shared
+100k/day quota, and update `_routes.json` to exclude the static routes.)
 
 **GitHub configuration needed once** (repo → Settings → Secrets and
 variables → Actions):

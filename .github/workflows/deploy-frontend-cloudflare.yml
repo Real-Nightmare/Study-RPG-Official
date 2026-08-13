@@ -3,10 +3,14 @@
 # to main (and manually via workflow_dispatch).
 #
 # The deploy is a pure static upload of `frontend/dist`:
-#   • NO Pages Functions, NO Worker scripts -> every request is
-#     served from Cloudflare's edge CDN with ZERO Worker
-#     invocations (see frontend/public/_headers + _redirects).
-#   • SPA fallback + caching headers ship inside the build output.
+#   • NO Pages Functions, NO Worker scripts. Static asset requests
+#     on Pages are FREE and UNLIMITED — the 100k/day Workers quota
+#     is a shared pool for Workers + Pages Functions only, and this
+#     project never touches it. public/_routes.json excludes ALL
+#     routes from Functions invocation, so the free-static property
+#     holds even if a functions/ directory is added later.
+#   • SPA fallback + caching headers ship inside the build output
+#     (public/_redirects + public/_headers) as edge config.
 #
 # Required GitHub secrets:
 #   CLOUDFLARE_API_TOKEN  — API token with "Cloudflare Pages: Edit"

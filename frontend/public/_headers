@@ -1,4 +1,7 @@
-# Cloudflare Pages response headers (edge config, zero Worker invocations).
+# Cloudflare Pages response headers (edge config — served with the static
+# asset, NOT via a Function/Worker). Static asset requests on Pages are free
+# and unlimited and never touch the shared Workers + Pages Functions
+# 100k/day quota (enforced structurally by public/_routes.json).
 #
 # Vite fingerprints everything under /assets with a content hash, so those
 # files can be cached in the browser for a year WITHOUT revalidation —
