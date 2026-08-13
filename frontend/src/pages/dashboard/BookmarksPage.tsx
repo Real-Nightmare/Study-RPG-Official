@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { ENDPOINTS } from '@/config/api';
 import { cn } from '@/lib/utils';
+import { onEnterOrSpace } from '@/lib/a11y';
 import {
   ArrowLeft,
   Bookmark,
@@ -185,7 +186,11 @@ export default function BookmarksPage() {
                       >
                         {/* Question Header */}
                         <div
+                          role="button"
+                          tabIndex={0}
+                          aria-expanded={expandedId === q.id}
                           onClick={() => setExpandedId(expandedId === q.id ? null : q.id)}
+                          onKeyDown={onEnterOrSpace(() => setExpandedId(expandedId === q.id ? null : q.id))}
                           className="p-4 cursor-pointer hover:bg-muted/50 transition-colors"
                         >
                           <div className="flex items-start gap-4">

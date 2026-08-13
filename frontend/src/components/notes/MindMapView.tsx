@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Note } from '@/types';
 import { cn } from '@/lib/utils';
+import { onEnterOrSpace } from '@/lib/a11y';
 import {
   ZoomIn,
   ZoomOut,
@@ -562,6 +563,8 @@ function MindMapNode({
         height={height}
       >
         <div
+          role="button"
+          tabIndex={0}
           className={getNodeStyle()}
           style={{
             width,
@@ -573,6 +576,9 @@ function MindMapNode({
             e.stopPropagation();
             onSelect();
           }}
+          onKeyDown={onEnterOrSpace(() => {
+            onSelect();
+          })}
           onDoubleClick={(e) => {
             e.stopPropagation();
             if (node.noteId) onDoubleClick();
@@ -978,7 +984,8 @@ export function MindMapView({ notes, onNoteClick, onClose }: MindMapViewProps) {
         </div>
       )}
 
-      {/* Canvas */}
+      {/* Canvas — drag-to-pan surface: pointer handlers only; nodes and zoom controls stay keyboard accessible. */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing"
         onMouseDown={handleMouseDown}

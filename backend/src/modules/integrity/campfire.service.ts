@@ -226,9 +226,11 @@ export class CampfireService {
   // AI tutor (with deterministic fallbacks)
   // -------------------------------------------------------------------------
 
-  private async askTutor(
-    context: { topics: string[]; subject?: string | null; title?: string | null },
-  ): Promise<string> {
+  private async askTutor(context: {
+    topics: string[];
+    subject?: string | null;
+    title?: string | null;
+  }): Promise<string> {
     const subject = context.subject || context.topics[0] || null;
     const fallback = subject
       ? `In your own words: what is the single most important idea you studied in "${subject}" today, and how does it connect to something you already knew? Give one concrete example.`

@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { motion } from 'framer-motion';
 import type { LearningPath } from '@/services/learningPaths';
 import { learningPathsService } from '@/services/learningPaths';
+import { onEnterOrSpace } from '@/lib/a11y';
 import {
   ArrowLeft,
   Route,
@@ -209,10 +210,14 @@ export function LearningPathDetailPage() {
                   )}
 
                   <div
+                    role="button"
+                    tabIndex={0}
+                    aria-expanded={!!isExpanded}
                     className={`flex gap-3 p-3 rounded-xl transition-colors cursor-pointer ${
                       isNext ? 'bg-amber-500/5 border border-amber-500/20' : 'hover:bg-muted/30'
                     }`}
                     onClick={() => setExpandedStep(isExpanded ? null : step.id)}
+                    onKeyDown={onEnterOrSpace(() => setExpandedStep(isExpanded ? null : step.id))}
                   >
                     {/* Step indicator */}
                     <div className={`w-[46px] h-[46px] rounded-xl flex items-center justify-center shrink-0 ${
@@ -275,12 +280,12 @@ export function LearningPathDetailPage() {
                     >
                       <div className="bg-muted/20 rounded-lg p-3 mt-1">
                         <p className="text-sm text-muted-foreground">{step.description}</p>
-                        {step.resourceId && step.resourceType && (
+                        {step.resourceId && (step.resourceType === 'study_set' || step.resourceType === 'quiz') && (
                           <Button size="sm" variant="outline" className="mt-2" asChild>
                             <a href={
-                              step.resourceType === 'study_set' ? `/dashboard/study-sets/${step.resourceId}`
-                                : step.resourceType === 'quiz' ? `/dashboard/quiz/${step.resourceId}`
-                                : '#'
+                              step.resourceType === 'study_set'
+                                ? `/dashboard/study-sets/${step.resourceId}`
+                                : `/dashboard/quiz/${step.resourceId}`
                             }>
                               <BookOpen className="w-3.5 h-3.5 mr-1" /> {t('learningPathDetail.open', { type: step.resourceType.replace('_', ' ') })}
                             </a>

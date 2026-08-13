@@ -38,12 +38,55 @@ function makeDb() {
     instances: [
       { id: 'i1', card_key: 'mana_slash', removed_at: null, removed_reason: null },
       { id: 'i2', card_key: 'mana_slash', removed_at: null, removed_reason: null },
-      { id: 'i3', card_key: 'mana_slash', removed_at: '2026-01-01T00:00:00Z', removed_reason: 'burn' },
+      {
+        id: 'i3',
+        card_key: 'mana_slash',
+        removed_at: '2026-01-01T00:00:00Z',
+        removed_reason: 'burn',
+      },
       { id: 'i4', card_key: 'decay_curse', removed_at: null, removed_reason: null },
     ],
     definitions: new Map([
-      ['mana_slash', { key: 'mana_slash', name: 'Mana Slash', rarity: 'common', category: 'attack', ability: {}, lore: 'lore', original_supply: 3, active_supply: 2, burned_count: 1, scraped_count: 0, official_value: 0, extinct: false, active: true, replacement_of: null, retired_at: null }],
-      ['decay_curse', { key: 'decay_curse', name: 'Decay Curse', rarity: 'rare', category: 'poison', ability: {}, lore: 'lore', original_supply: 1, active_supply: 1, burned_count: 0, scraped_count: 0, official_value: 0, extinct: false, active: true, replacement_of: null, retired_at: null }],
+      [
+        'mana_slash',
+        {
+          key: 'mana_slash',
+          name: 'Mana Slash',
+          rarity: 'common',
+          category: 'attack',
+          ability: {},
+          lore: 'lore',
+          original_supply: 3,
+          active_supply: 2,
+          burned_count: 1,
+          scraped_count: 0,
+          official_value: 0,
+          extinct: false,
+          active: true,
+          replacement_of: null,
+          retired_at: null,
+        },
+      ],
+      [
+        'decay_curse',
+        {
+          key: 'decay_curse',
+          name: 'Decay Curse',
+          rarity: 'rare',
+          category: 'poison',
+          ability: {},
+          lore: 'lore',
+          original_supply: 1,
+          active_supply: 1,
+          burned_count: 0,
+          scraped_count: 0,
+          official_value: 0,
+          extinct: false,
+          active: true,
+          replacement_of: null,
+          retired_at: null,
+        },
+      ],
     ]),
     supplyLedger: [],
     priceHistory: [],
@@ -66,7 +109,9 @@ function makeDb() {
       }
       return { rows };
     }
-    if (/SELECT key, name, rarity, original_supply, active_supply, official_value, extinct/.test(text)) {
+    if (
+      /SELECT key, name, rarity, original_supply, active_supply, official_value, extinct/.test(text)
+    ) {
       // Return copies — the UPDATE handler mutates map rows, and reconcile
       // compares against the pre-update snapshot for its value-change check.
       return { rows: [...state.definitions.values()].map((d) => ({ ...d })) };
@@ -87,7 +132,11 @@ function makeDb() {
       state.priceHistory.push({ card_key: params[0] as string, value: Number(params[1]), reason });
       return { rows: [] };
     }
-    if (/SELECT key, name, rarity, category, ability, lore, active_supply, extinct, active, official_value/.test(text)) {
+    if (
+      /SELECT key, name, rarity, category, ability, lore, active_supply, extinct, active, official_value/.test(
+        text,
+      )
+    ) {
       const def = state.definitions.get(params[0] as string);
       return { rows: def ? [def] : [] };
     }
@@ -103,18 +152,28 @@ function makeDb() {
     if (/INSERT INTO card_supply_ledger/.test(text)) {
       const m = /VALUES \(\$1, '([a-z_]+)', (?:\$(\d+)|(\d+))/.exec(text);
       const quantity = m?.[2] ? Number(params[Number(m[2]) - 1]) : Number(m?.[3] ?? 0);
-      state.supplyLedger.push({ card_key: params[0] as string, event_type: m?.[1] ?? 'unknown', quantity });
+      state.supplyLedger.push({
+        card_key: params[0] as string,
+        event_type: m?.[1] ?? 'unknown',
+        quantity,
+      });
       return { rows: [] };
     }
     if (/COUNT\(\*\)::int AS count FROM card_definitions WHERE replacement_of/.test(text)) {
-      const count = [...state.definitions.values()].filter((d) => d.replacement_of === params[0]).length;
+      const count = [...state.definitions.values()].filter(
+        (d) => d.replacement_of === params[0],
+      ).length;
       return { rows: [{ count }] };
     }
     if (/SELECT key FROM card_definitions WHERE key/.test(text)) {
       const def = state.definitions.get(params[0] as string);
       return { rows: def ? [{ key: def.key }] : [] };
     }
-    if (/INSERT INTO card_definitions\s+\(key, name, rarity, category, ability, lore, balance_version/.test(text)) {
+    if (
+      /INSERT INTO card_definitions\s+\(key, name, rarity, category, ability, lore, balance_version/.test(
+        text,
+      )
+    ) {
       state.definitions.set(params[0] as string, {
         key: params[0] as string,
         name: params[1] as string,
@@ -134,8 +193,14 @@ function makeDb() {
       });
       return { rows: [] };
     }
-    if (/SELECT key, name, rarity, original_supply, active_supply, burned_count, scraped_count,\n\s+official_value/.test(text)) {
-      return { rows: [...state.definitions.values()].sort((a, b) => a.rarity.localeCompare(b.rarity)) };
+    if (
+      /SELECT key, name, rarity, original_supply, active_supply, burned_count, scraped_count,\n\s+official_value/.test(
+        text,
+      )
+    ) {
+      return {
+        rows: [...state.definitions.values()].sort((a, b) => a.rarity.localeCompare(b.rarity)),
+      };
     }
     if (/GROUP BY cd\.key/.test(text)) {
       const rows: Array<{ key: string; listed: number }> = [];
@@ -163,7 +228,8 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: unknown): Promise<T> => (fn as (c: never) => Promise<T>)(undefined as never),
+    transaction: async <T>(fn: unknown): Promise<T> =>
+      (fn as (c: never) => Promise<T>)(undefined as never),
   };
 
   const cards = { syncDefinitions: jest.fn().mockResolvedValue(2) };
@@ -193,7 +259,9 @@ describe('SupplyService', () => {
       // common base 25, multiplier ~1.5 → 37
       expect(mana.official_value).toBe(37);
       expect(fixture.state.priceHistory).toEqual(
-        expect.arrayContaining([expect.objectContaining({ card_key: 'mana_slash', value: 37, reason: 'supply change' })]),
+        expect.arrayContaining([
+          expect.objectContaining({ card_key: 'mana_slash', value: 37, reason: 'supply change' }),
+        ]),
       );
     });
 
@@ -218,7 +286,11 @@ describe('SupplyService', () => {
       expect(original.retired_at).not.toBeNull();
 
       const replacement = fixture.state.definitions.get('decay_curse__echo_1')!;
-      expect(replacement).toMatchObject({ name: 'Echo of Decay Curse', rarity: 'rare', replacement_of: 'decay_curse' });
+      expect(replacement).toMatchObject({
+        name: 'Echo of Decay Curse',
+        rarity: 'rare',
+        replacement_of: 'decay_curse',
+      });
       expect(replacement.original_supply).toBe(DEFAULT_ECONOMY_CONFIG.supplyInitialPrint.rare);
       expect(replacement.official_value).toBe(DEFAULT_ECONOMY_CONFIG.rarityBaseValues.rare);
 
@@ -246,7 +318,12 @@ describe('SupplyService', () => {
       fixture.state.listings.push({ id: 'l1', card_instance_id: 'i1', status: 'active' });
       const report = await service.getSupplyReport();
       const mana = report.find((r) => r.key === 'mana_slash')!;
-      expect(mana).toMatchObject({ activeSupply: 2, burnedCount: 1, listedCount: 1, extinct: false });
+      expect(mana).toMatchObject({
+        activeSupply: 2,
+        burnedCount: 1,
+        listedCount: 1,
+        extinct: false,
+      });
     });
   });
 });

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { BaseGateway } from '../../common/gateways/base.gateway';
+import { parseCorsOrigins } from '../../common/config/cors-origins';
 import { LiveQuizService, LiveQuestion } from './live-quiz.service';
 import { QuizService } from './quiz.service';
 import { SubscriptionService } from '../subscription/subscription.service';
@@ -14,10 +15,7 @@ import { SubscriptionService } from '../subscription/subscription.service';
 @WebSocketGateway({
   namespace: 'live-quiz',
   cors: {
-    origin: process.env.CORS_ORIGINS?.split(',') || [
-      'http://localhost:3010',
-      'http://localhost:5189',
-    ],
+    origin: parseCorsOrigins(process.env.CORS_ORIGINS),
     credentials: true,
   },
 })

@@ -15,7 +15,10 @@ describe('supply', () => {
     });
 
     it('minted always equals the number of rows, including unknown removal reasons', () => {
-      const agg = aggregateSupply([{ removed_at: null }, { removed_at: new Date(), removed_reason: 'unknown' }]);
+      const agg = aggregateSupply([
+        { removed_at: null },
+        { removed_at: new Date(), removed_reason: 'unknown' },
+      ]);
       expect(agg.minted).toBe(2);
       expect(agg.active).toBe(1);
       expect(agg.burned + agg.scraped).toBe(0);

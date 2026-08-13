@@ -87,8 +87,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-muted/30">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label="Close menu"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden border-0 p-0"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -226,8 +229,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {/* Dropdown menu */}
               {userMenuOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-40"
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label="Close user menu"
+                    className="fixed inset-0 z-40 border-0 p-0"
                     onClick={() => setUserMenuOpen(false)}
                   />
                   <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-lg shadow-lg z-50">

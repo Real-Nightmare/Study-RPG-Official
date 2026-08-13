@@ -338,7 +338,15 @@ export function GenerateNotePage() {
                     {t('generateNote.uploadLabel', { type: sourceType === 'pdf' ? 'PDF' : sourceType === 'audio' ? 'Audio' : 'Image' })}
                   </label>
                   <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => fileRef.current?.click()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        fileRef.current?.click();
+                      }
+                    }}
                     className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-green-500/50 hover:bg-green-500/5 transition-all"
                   >
                     <input

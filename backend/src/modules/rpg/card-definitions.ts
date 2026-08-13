@@ -448,7 +448,8 @@ export const EVENT_CARD_DEFINITIONS: EventCardDefinition[] = [
       key: 'echo_courier',
       name: 'Echo Step',
       category: 'attack',
-      description: 'A feint copied from a memory of a memory — lands where the enemy is about to be.',
+      description:
+        'A feint copied from a memory of a memory — lands where the enemy is about to be.',
       manaCost: 20,
       damage: 16,
       cooldown: 2,
@@ -495,7 +496,8 @@ export const EVENT_CARD_DEFINITIONS: EventCardDefinition[] = [
       key: 'abstracted_recluse',
       name: 'Abstracted Recall',
       category: 'abstracted',
-      description: 'Pulls knowledge straight from the glitch between pages — 40 Mana, and it reacts when the Recluse is struck.',
+      description:
+        'Pulls knowledge straight from the glitch between pages — 40 Mana, and it reacts when the Recluse is struck.',
       manaCost: 40,
       damage: 42,
       cooldown: 3,
@@ -543,7 +545,8 @@ export const EVENT_CARD_DEFINITIONS: EventCardDefinition[] = [
       key: 'limbo_warden',
       name: 'Limbo Toll',
       category: 'drain',
-      description: 'Charges a toll in lost certainty — drains the enemy and repays you in confidence.',
+      description:
+        'Charges a toll in lost certainty — drains the enemy and repays you in confidence.',
       manaCost: 40,
       damage: 36,
       healing: 18,

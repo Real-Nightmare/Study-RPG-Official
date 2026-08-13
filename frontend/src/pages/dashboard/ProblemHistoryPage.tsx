@@ -143,7 +143,13 @@ export function ProblemHistoryPage() {
             </button>
             {showFilter && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowFilter(false)} />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-label="Close filter menu"
+                  className="fixed inset-0 z-40 border-0 p-0"
+                  onClick={() => setShowFilter(false)}
+                />
                 <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-50 py-1 w-48">
                   {SUBJECT_FILTER_KEYS.map((s) => (
                     <button

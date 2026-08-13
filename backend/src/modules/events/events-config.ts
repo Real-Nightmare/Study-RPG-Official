@@ -69,16 +69,36 @@ export const DEFAULT_EVENTS_CONFIG: EventsConfig = {
     limboRewardCard: 'limbo_warden',
     defaultLegendaryResultKey: 'awakened_guardian',
     freeTrack: [
-      { stp: 100 }, { loot: 'normal' }, { stp: 75 }, { loot: 'common' }, { stp: 125 },
-      { loot: 'uncommon' }, { stp: 200 }, { loot: 'rare' }, { stp: 100, loot: 'normal' },
-      { item: 'abstracted_fragment' }, { card: 'event_echo_courier' }, { stp: 300 },
-      { loot: 'epic_chance' }, { card: 'abstracted_recluse' },
+      { stp: 100 },
+      { loot: 'normal' },
+      { stp: 75 },
+      { loot: 'common' },
+      { stp: 125 },
+      { loot: 'uncommon' },
+      { stp: 200 },
+      { loot: 'rare' },
+      { stp: 100, loot: 'normal' },
+      { item: 'abstracted_fragment' },
+      { card: 'event_echo_courier' },
+      { stp: 300 },
+      { loot: 'epic_chance' },
+      { card: 'abstracted_recluse' },
     ],
     goldTrack: [
-      { stp: 200 }, { loot: 'boosted' }, { loot: 'event' }, { stp: 200 }, { card: 'event_echo_courier' },
-      { loot: 'rare' }, { stp: 300 }, { card: 'event_sigil_warden' }, { stp: 150, loot: 'boosted' },
-      { loot: 'epic_chance' }, { card: 'event_echo_courier', stp: 200 }, { stp: 500 },
-      { loot: 'legendary_chance' }, { card: 'abstracted_recluse' },
+      { stp: 200 },
+      { loot: 'boosted' },
+      { loot: 'event' },
+      { stp: 200 },
+      { card: 'event_echo_courier' },
+      { loot: 'rare' },
+      { stp: 300 },
+      { card: 'event_sigil_warden' },
+      { stp: 150, loot: 'boosted' },
+      { loot: 'epic_chance' },
+      { card: 'event_echo_courier', stp: 200 },
+      { stp: 500 },
+      { loot: 'legendary_chance' },
+      { card: 'abstracted_recluse' },
     ],
   },
   extinction: {
@@ -96,8 +116,14 @@ export const DEFAULT_EVENTS_CONFIG: EventsConfig = {
     boosted: { label: 'Boosted Loot Box', weights: { common: 30, rare: 50, legendary: 20 } },
     event: { label: 'Event Loot Box', weights: { common: 25, rare: 50, legendary: 25 } },
     rare: { label: 'Rare Loot Box', weights: { common: 10, rare: 60, legendary: 30 } },
-    epic_chance: { label: 'Epic-Chance Event Loot Box', weights: { common: 0, rare: 45, legendary: 55 } },
-    legendary_chance: { label: 'Legendary-Chance Event Loot Box', weights: { common: 0, rare: 25, legendary: 75 } },
+    epic_chance: {
+      label: 'Epic-Chance Event Loot Box',
+      weights: { common: 0, rare: 45, legendary: 55 },
+    },
+    legendary_chance: {
+      label: 'Legendary-Chance Event Loot Box',
+      weights: { common: 0, rare: 25, legendary: 75 },
+    },
   },
 };
 
@@ -152,11 +178,26 @@ export function mergeEventsConfig(raw: unknown): EventsConfig {
       graceHours: toInt(fallback.graceHours, DEFAULT_EVENTS_CONFIG.fallback.graceHours),
     },
     abstracted: {
-      slug: typeof abstracted.slug === 'string' ? abstracted.slug : DEFAULT_EVENTS_CONFIG.abstracted.slug,
-      name: typeof abstracted.name === 'string' ? abstracted.name : DEFAULT_EVENTS_CONFIG.abstracted.name,
-      abilityCostMana: toInt(abstracted.abilityCostMana, DEFAULT_EVENTS_CONFIG.abstracted.abilityCostMana),
-      unabstractStp: toInt(abstracted.unabstractStp, DEFAULT_EVENTS_CONFIG.abstracted.unabstractStp),
-      errorsForLimbo: toInt(abstracted.errorsForLimbo, DEFAULT_EVENTS_CONFIG.abstracted.errorsForLimbo),
+      slug:
+        typeof abstracted.slug === 'string'
+          ? abstracted.slug
+          : DEFAULT_EVENTS_CONFIG.abstracted.slug,
+      name:
+        typeof abstracted.name === 'string'
+          ? abstracted.name
+          : DEFAULT_EVENTS_CONFIG.abstracted.name,
+      abilityCostMana: toInt(
+        abstracted.abilityCostMana,
+        DEFAULT_EVENTS_CONFIG.abstracted.abilityCostMana,
+      ),
+      unabstractStp: toInt(
+        abstracted.unabstractStp,
+        DEFAULT_EVENTS_CONFIG.abstracted.unabstractStp,
+      ),
+      errorsForLimbo: toInt(
+        abstracted.errorsForLimbo,
+        DEFAULT_EVENTS_CONFIG.abstracted.errorsForLimbo,
+      ),
       limboRewardCard:
         typeof abstracted.limboRewardCard === 'string'
           ? abstracted.limboRewardCard
@@ -169,11 +210,23 @@ export function mergeEventsConfig(raw: unknown): EventsConfig {
       goldTrack: toRewards(abstracted.goldTrack, DEFAULT_EVENTS_CONFIG.abstracted.goldTrack),
     },
     extinction: {
-      slug: typeof extinction.slug === 'string' ? extinction.slug : DEFAULT_EVENTS_CONFIG.extinction.slug,
-      name: typeof extinction.name === 'string' ? extinction.name : DEFAULT_EVENTS_CONFIG.extinction.name,
+      slug:
+        typeof extinction.slug === 'string'
+          ? extinction.slug
+          : DEFAULT_EVENTS_CONFIG.extinction.slug,
+      name:
+        typeof extinction.name === 'string'
+          ? extinction.name
+          : DEFAULT_EVENTS_CONFIG.extinction.name,
       targetCount: toInt(extinction.targetCount, DEFAULT_EVENTS_CONFIG.extinction.targetCount),
-      commonRareTargets: toInt(extinction.commonRareTargets, DEFAULT_EVENTS_CONFIG.extinction.commonRareTargets),
-      legendaryTargets: toInt(extinction.legendaryTargets, DEFAULT_EVENTS_CONFIG.extinction.legendaryTargets),
+      commonRareTargets: toInt(
+        extinction.commonRareTargets,
+        DEFAULT_EVENTS_CONFIG.extinction.commonRareTargets,
+      ),
+      legendaryTargets: toInt(
+        extinction.legendaryTargets,
+        DEFAULT_EVENTS_CONFIG.extinction.legendaryTargets,
+      ),
       sigilItemSlug:
         typeof extinction.sigilItemSlug === 'string'
           ? extinction.sigilItemSlug

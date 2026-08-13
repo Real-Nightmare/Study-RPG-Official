@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { ENDPOINTS } from '@/config/api';
+import { onEnterOrSpace } from '@/lib/a11y';
 import {
   Plus,
   FileText,
@@ -690,7 +691,10 @@ function UploadExamModal({
             <div>
               <label className="block text-sm font-medium mb-1.5">{t('examClone.upload.examFile')}</label>
               <div
+                role="button"
+                tabIndex={0}
                 onClick={() => document.getElementById('exam-file-input')?.click()}
+                onKeyDown={onEnterOrSpace(() => document.getElementById('exam-file-input')?.click())}
                 className={cn(
                   'border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all',
                   file ? 'border-purple-500 bg-purple-500/5' : 'border-border hover:border-purple-500/50'

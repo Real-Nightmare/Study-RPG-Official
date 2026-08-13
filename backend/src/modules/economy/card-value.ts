@@ -39,7 +39,10 @@ export function computeOfficialValue(
   if (base <= 0) return 1;
 
   const original = Math.max(0, Math.floor(input.originalSupply));
-  const active = Math.max(0, Math.min(original === 0 ? original : input.activeSupply, original === 0 ? 0 : original));
+  const active = Math.max(
+    0,
+    Math.min(original === 0 ? original : input.activeSupply, original === 0 ? 0 : original),
+  );
 
   let multiplier = 1;
   if (original > 0) {

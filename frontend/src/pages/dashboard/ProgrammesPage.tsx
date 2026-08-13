@@ -792,7 +792,13 @@ export default function ProgrammesPage() {
       {/* Review dialog */}
       {reviewing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setReviewing(null)} />
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Close review dialog"
+            className="absolute inset-0 bg-black/50 border-0 p-0"
+            onClick={() => setReviewing(null)}
+          />
           <div className="relative w-full max-w-md rounded-2xl border bg-card p-6 shadow-xl">
             <h2 className="mb-1 text-lg font-semibold">{t('programmes.review')}</h2>
             <p className="mb-4 text-sm text-muted-foreground">{reviewing.name}</p>

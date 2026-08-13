@@ -333,7 +333,13 @@ export default function FactionsPage() {
       {/* Detail dialog */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSelected(null)} />
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Close faction details"
+            className="absolute inset-0 bg-black/50 border-0 p-0"
+            onClick={() => setSelected(null)}
+          />
           <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border bg-card p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">

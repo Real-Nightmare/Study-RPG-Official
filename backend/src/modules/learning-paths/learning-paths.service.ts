@@ -124,7 +124,7 @@ Return in JSON format:
         type: string;
         estimatedMinutes: number;
       }>;
-    }    >(
+    }>(
       [
         {
           role: 'system',
@@ -246,7 +246,7 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
           type: string;
           estimatedMinutes: number;
         }>;
-      }      >(
+      }>(
         [
           {
             role: 'system',
@@ -324,7 +324,7 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
         verdict: 'accepted' | 'rejected';
         score: number;
         reasons: string[];
-      }      >(
+      }>(
         [
           {
             role: 'system',

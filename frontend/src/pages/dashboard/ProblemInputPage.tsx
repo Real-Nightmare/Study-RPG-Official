@@ -214,8 +214,11 @@ export function ProblemInputPage() {
               </button>
               {showSubjectDropdown && (
                 <>
-                  <div
-                    className="fixed inset-0 z-40"
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label="Close subject filter"
+                    className="fixed inset-0 z-40 border-0 p-0"
                     onClick={() => setShowSubjectDropdown(false)}
                   />
                   <div className="absolute top-full mt-1 w-full sm:w-64 bg-card border border-border rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto">
@@ -266,10 +269,18 @@ export function ProblemInputPage() {
             </div>
           ) : (
             <div
+              role="button"
+              tabIndex={0}
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               className="mb-4 border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-green-500/50 transition-colors cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
             >
               <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">

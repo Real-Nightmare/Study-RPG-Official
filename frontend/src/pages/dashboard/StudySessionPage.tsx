@@ -7,6 +7,7 @@ import { useGamificationStore } from '@/stores/useGamificationStore';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { onEnterOrSpace } from '@/lib/a11y';
 import { ClozeRenderer } from '@/components/ClozeRenderer';
 import { ImageOcclusionViewer } from '@/components/ImageOcclusionViewer';
 import { CampfireReflectionModal } from '@/components/rpg/CampfireReflectionModal';
@@ -55,8 +56,11 @@ function FlipCard({
   const { t } = useTranslation();
   return (
     <div
+      role="button"
+      tabIndex={0}
       className="relative w-full max-w-xl mx-auto h-48 md:h-56 cursor-pointer perspective-1000"
       onClick={onFlip}
+      onKeyDown={onEnterOrSpace(onFlip)}
     >
       <motion.div
         className="absolute inset-0 w-full h-full"

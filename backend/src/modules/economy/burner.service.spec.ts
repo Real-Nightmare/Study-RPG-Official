@@ -33,21 +33,60 @@ interface FakeBurnRow {
 function makeDb() {
   const state: {
     instances: Map<string, FakeInstance>;
-    definitions: Map<string, { key: string; name: string; rarity: string; official_value: number; burnable: boolean; scrapable: boolean }>;
+    definitions: Map<
+      string,
+      {
+        key: string;
+        name: string;
+        rarity: string;
+        official_value: number;
+        burnable: boolean;
+        scrapable: boolean;
+      }
+    >;
     listings: Array<{ id: string; card_instance_id: string; status: string }>;
     deckCards: Array<{ deck_id: string; card_instance_id: string }>;
     profiles: Map<string, { stp: number }>;
-    ledger: Array<{ user_id: string; idempotency_key: string; amount: number; transaction_type: string }>;
+    ledger: Array<{
+      user_id: string;
+      idempotency_key: string;
+      amount: number;
+      transaction_type: string;
+    }>;
     supplyLedger: Array<{ card_key: string; event_type: string; quantity: number }>;
-    definitionsUpdated: Array<{ key: string; active_supply: number; burned_count: number; scraped_count: number }>;
+    definitionsUpdated: Array<{
+      key: string;
+      active_supply: number;
+      burned_count: number;
+      scraped_count: number;
+    }>;
     burns: Map<string, FakeBurnRow>;
     now: Date;
   } = {
     instances: new Map([
-      [CARD, { id: CARD, user_id: OWNER, card_key: 'mana_slash', removed_at: null, removed_reason: null }],
+      [
+        CARD,
+        {
+          id: CARD,
+          user_id: OWNER,
+          card_key: 'mana_slash',
+          removed_at: null,
+          removed_reason: null,
+        },
+      ],
     ]),
     definitions: new Map([
-      ['mana_slash', { key: 'mana_slash', name: 'Mana Slash', rarity: 'common', official_value: 25, burnable: true, scrapable: true }],
+      [
+        'mana_slash',
+        {
+          key: 'mana_slash',
+          name: 'Mana Slash',
+          rarity: 'common',
+          official_value: 25,
+          burnable: true,
+          scrapable: true,
+        },
+      ],
     ]),
     listings: [],
     deckCards: [],
@@ -60,18 +99,28 @@ function makeDb() {
   };
 
   const applyWallet = async (userId: string, input: WalletChangeInput) => {
-    const replay = state.ledger.find((l) => l.user_id === userId && l.idempotency_key === input.idempotencyKey);
+    const replay = state.ledger.find(
+      (l) => l.user_id === userId && l.idempotency_key === input.idempotencyKey,
+    );
     if (replay) return replay;
     const profile = state.profiles.get(userId) ?? { stp: 0 };
     const after = profile.stp + input.amount;
     if (after < 0) throw new BadRequestException('Insufficient STP/SLC balance');
     profile.stp = after;
-    const entry = { user_id: userId, idempotency_key: input.idempotencyKey, amount: input.amount, transaction_type: input.transactionType };
+    const entry = {
+      user_id: userId,
+      idempotency_key: input.idempotencyKey,
+      amount: input.amount,
+      transaction_type: input.transactionType,
+    };
     state.ledger.push(entry);
     return entry;
   };
 
-  const handle = async (text: string, params: unknown[] = []): Promise<{ rows: unknown[]; rowCount?: number }> => {
+  const handle = async (
+    text: string,
+    params: unknown[] = [],
+  ): Promise<{ rows: unknown[]; rowCount?: number }> => {
     if (/SELECT value FROM game_config/.test(text)) return { rows: [] };
     if (/FROM card_instances ci\n\s+JOIN card_definitions cd/.test(text)) {
       const inst = state.instances.get(params[0] as string);
@@ -94,7 +143,9 @@ function makeDb() {
       };
     }
     if (/SELECT id FROM marketplace_listings\n\s+WHERE card_instance_id/.test(text)) {
-      const listed = state.listings.find((l) => l.card_instance_id === params[0] && l.status === 'active');
+      const listed = state.listings.find(
+        (l) => l.card_instance_id === params[0] && l.status === 'active',
+      );
       return { rows: listed ? [{ id: listed.id }] : [] };
     }
     if (/FROM deck_cards dc WHERE dc\.card_instance_id/.test(text)) {
@@ -112,7 +163,11 @@ function makeDb() {
     if (/INSERT INTO card_supply_ledger/.test(text)) {
       const m = /VALUES \(\$1, '([a-z_]+)', (?:\$(\d+)|(\d+))/.exec(text);
       const quantity = m?.[2] ? Number(params[Number(m[2]) - 1]) : Number(m?.[3] ?? 0);
-      state.supplyLedger.push({ card_key: params[0] as string, event_type: m?.[1] ?? 'unknown', quantity });
+      state.supplyLedger.push({
+        card_key: params[0] as string,
+        event_type: m?.[1] ?? 'unknown',
+        quantity,
+      });
       return { rows: [] };
     }
     if (/UPDATE card_definitions\s+SET active_supply/.test(text)) {
@@ -150,7 +205,10 @@ function makeDb() {
     }
     if (/WHERE status = 'active' AND next_instalment_at IS NOT NULL/.test(text)) {
       const due = [...state.burns.values()].filter(
-        (b) => b.status === 'active' && b.next_instalment_at && new Date(b.next_instalment_at) <= (params[0] as Date),
+        (b) =>
+          b.status === 'active' &&
+          b.next_instalment_at &&
+          new Date(b.next_instalment_at) <= (params[0] as Date),
       );
       return { rows: due };
     }
@@ -158,7 +216,14 @@ function makeDb() {
       const burn = state.burns.get(params[0] as string);
       return {
         rows: burn
-          ? [{ paid_count: burn.paid_count, instalments: burn.instalments, status: burn.status, created_at: burn.created_at }]
+          ? [
+              {
+                paid_count: burn.paid_count,
+                instalments: burn.instalments,
+                status: burn.status,
+                created_at: burn.created_at,
+              },
+            ]
           : [],
       };
     }
@@ -177,7 +242,8 @@ function makeDb() {
       return { rows: [{ stp: state.profiles.get(params[0] as string)?.stp ?? 0 }] };
     }
     if (/INSERT INTO player_profiles/.test(text)) {
-      if (!state.profiles.has(params[0] as string)) state.profiles.set(params[0] as string, { stp: 0 });
+      if (!state.profiles.has(params[0] as string))
+        state.profiles.set(params[0] as string, { stp: 0 });
       return { rows: [] };
     }
     return { rows: [] };
@@ -188,13 +254,15 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> => fn(client),
+    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> =>
+      fn(client),
   };
 
   const wallet = {
     applyChange: jest.fn(),
     applyChangeWithClient: jest.fn(
-      async (_client: unknown, userId: string, input: WalletChangeInput) => applyWallet(userId, input),
+      async (_client: unknown, userId: string, input: WalletChangeInput) =>
+        applyWallet(userId, input),
     ),
   } as unknown as WalletService;
 
@@ -229,7 +297,12 @@ describe('BurnerService', () => {
     it('pays the official liquidation value immediately and removes the card', async () => {
       const result = await service.scrapeCard(OWNER, CARD, true);
       // 80% of 25 = 20
-      expect(result).toMatchObject({ removed: true, cardKey: 'mana_slash', payout: 20, extinct: false });
+      expect(result).toMatchObject({
+        removed: true,
+        cardKey: 'mana_slash',
+        payout: 20,
+        extinct: false,
+      });
       expect(fixture.state.instances.get(CARD)?.removed_reason).toBe('scrape');
       expect(fixture.state.profiles.get(OWNER)?.stp).toBe(20);
       expect(fixture.state.supplyLedger).toEqual(
@@ -240,7 +313,9 @@ describe('BurnerService', () => {
     });
 
     it('rejects a card the user does not own', async () => {
-      await expect(service.scrapeCard('someone-else', CARD, true)).rejects.toThrow(NotFoundException);
+      await expect(service.scrapeCard('someone-else', CARD, true)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('rejects a card that is listed or equipped in a deck', async () => {

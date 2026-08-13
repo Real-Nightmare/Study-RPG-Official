@@ -78,7 +78,18 @@ export function BatchSolverPage() {
 
         {problems.length === 0 ? (
           <div className="space-y-4">
-            <div onClick={() => fileRef.current?.click()} className="bg-card rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer hover:border-green-500/50 transition-colors">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => fileRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  fileRef.current?.click();
+                }
+              }}
+              className="bg-card rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer hover:border-green-500/50 transition-colors"
+            >
               <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
               <p className="font-medium">{t('batchSolver.uploadPdfImage')}</p>
               <p className="text-sm text-muted-foreground mt-1">{t('batchSolver.dropWorksheet')}</p>

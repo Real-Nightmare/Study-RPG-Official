@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as Joi from 'joi';
 import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
@@ -67,6 +68,20 @@ import { HealthController } from './health.controller';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
+      // Fail fast on misconfigured env values (typos, wrong types). All keys are
+      // optional — validation only checks shape, never forces a variable to exist,
+      // so development boots are unaffected.
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').optional(),
+        PORT: Joi.number().port().optional(),
+        API_PREFIX: Joi.string().optional(),
+        CORS_ORIGINS: Joi.string().optional(),
+        RATE_LIMIT_TTL: Joi.number().positive().optional(),
+        RATE_LIMIT_MAX: Joi.number().positive().optional(),
+        DATABASE_PORT: Joi.number().port().optional(),
+        REDIS_PORT: Joi.number().port().optional(),
+        QDRANT_PORT: Joi.number().port().optional(),
+      }),
     }),
 
     // Rate Limiting

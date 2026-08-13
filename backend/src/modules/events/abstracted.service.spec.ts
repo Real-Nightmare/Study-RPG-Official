@@ -55,7 +55,9 @@ function makeDb() {
       const inst = state.abstracted.find((a) => a.card_instance_id === params[0]);
       return { rows: inst ? [inst] : [] };
     }
-    if (/UPDATE card_instances SET removed_at = NOW\(\), removed_reason = 'unabstracted'/.test(text)) {
+    if (
+      /UPDATE card_instances SET removed_at = NOW\(\), removed_reason = 'unabstracted'/.test(text)
+    ) {
       const inst = state.instances.get(params[0] as string);
       if (inst) inst.removed_at = new Date().toISOString();
       return { rows: [] };
@@ -88,13 +90,16 @@ function makeDb() {
       const key = `${params[1]}:${item?.id ?? ''}`;
       return { rows: [{ quantity: state.userItems.get(key) ?? 0 }] };
     }
-    if (/SELECT ci.id FROM card_instances ci WHERE ci.user_id = \$1 AND ci.card_key = \$2/.test(text)) {
+    if (
+      /SELECT ci.id FROM card_instances ci WHERE ci.user_id = \$1 AND ci.card_key = \$2/.test(text)
+    ) {
       return { rows: [] }; // no limbo card owned yet
     }
     if (/SELECT value FROM game_config/.test(text)) return { rows: [] };
     if (/SELECT \* FROM events WHERE status = 'active'/.test(text)) return { rows: [] };
     if (/SELECT \* FROM events WHERE starts_at > \$1/.test(text)) return { rows: [] };
-    if (/SELECT \* FROM quests WHERE event_id = \$1 AND active = TRUE/.test(text)) return { rows: [] };
+    if (/SELECT \* FROM quests WHERE event_id = \$1 AND active = TRUE/.test(text))
+      return { rows: [] };
     return { rows: [] };
   };
 
@@ -103,7 +108,8 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> => fn(client),
+    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> =>
+      fn(client),
   };
 
   const wallet = {
@@ -185,7 +191,10 @@ describe('AbstractedService (PDF Phase 7 §28)', () => {
     expect(fixture.state.abstracted[0].unabstracted_at).not.toBeNull();
     expect(fixture.state.instances.get(INSTANCE)?.removed_at).not.toBeNull();
     expect(fixture.audit.log).toHaveBeenCalledWith(
-      expect.objectContaining({ action: 'events.abstracted.unabstract', reason: 'Testing the seams' }),
+      expect.objectContaining({
+        action: 'events.abstracted.unabstract',
+        reason: 'Testing the seams',
+      }),
     );
     expect(result.abstractedErrors).toBe(1);
   });

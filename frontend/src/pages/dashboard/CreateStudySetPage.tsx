@@ -136,7 +136,6 @@ export function CreateStudySetPage() {
               placeholder={t('createStudySet.titlePlaceholder')}
               className="w-full text-xl font-semibold px-0 py-2 bg-transparent border-0 border-b-2 border-border focus:outline-none focus:border-green-500 placeholder:text-muted-foreground/50 transition-colors"
               required
-              autoFocus
             />
           </div>
 

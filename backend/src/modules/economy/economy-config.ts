@@ -59,15 +59,24 @@ export function mergeEconomyConfig(raw: unknown): EconomyConfig {
       : ((raw ?? {}) as Record<string, unknown>);
 
   return {
-    listingDurationHours: toInt(value.listingDurationHours, DEFAULT_ECONOMY_CONFIG.listingDurationHours),
+    listingDurationHours: toInt(
+      value.listingDurationHours,
+      DEFAULT_ECONOMY_CONFIG.listingDurationHours,
+    ),
     offerDurationHours: toInt(value.offerDurationHours, DEFAULT_ECONOMY_CONFIG.offerDurationHours),
-    marketplaceFeePercent: toInt(value.marketplaceFeePercent, DEFAULT_ECONOMY_CONFIG.marketplaceFeePercent),
+    marketplaceFeePercent: toInt(
+      value.marketplaceFeePercent,
+      DEFAULT_ECONOMY_CONFIG.marketplaceFeePercent,
+    ),
     burnInstalments: toInt(value.burnInstalments, DEFAULT_ECONOMY_CONFIG.burnInstalments),
     burnInstalmentIntervalHours: toInt(
       value.burnInstalmentIntervalHours,
       DEFAULT_ECONOMY_CONFIG.burnInstalmentIntervalHours,
     ),
-    scrapePayoutPercent: toInt(value.scrapePayoutPercent, DEFAULT_ECONOMY_CONFIG.scrapePayoutPercent),
+    scrapePayoutPercent: toInt(
+      value.scrapePayoutPercent,
+      DEFAULT_ECONOMY_CONFIG.scrapePayoutPercent,
+    ),
     burnPayoutPercent: toInt(value.burnPayoutPercent, DEFAULT_ECONOMY_CONFIG.burnPayoutPercent),
     rarityBaseValues: toRecord(value.rarityBaseValues, DEFAULT_ECONOMY_CONFIG.rarityBaseValues),
     supplyMultiplierFloor: Number.isFinite(Number(value.supplyMultiplierFloor))
@@ -76,7 +85,10 @@ export function mergeEconomyConfig(raw: unknown): EconomyConfig {
     supplyMultiplierCap: Number.isFinite(Number(value.supplyMultiplierCap))
       ? Number(value.supplyMultiplierCap)
       : DEFAULT_ECONOMY_CONFIG.supplyMultiplierCap,
-    supplyInitialPrint: toRecord(value.supplyInitialPrint, DEFAULT_ECONOMY_CONFIG.supplyInitialPrint),
+    supplyInitialPrint: toRecord(
+      value.supplyInitialPrint,
+      DEFAULT_ECONOMY_CONFIG.supplyInitialPrint,
+    ),
     inventoryCapacity: toInt(value.inventoryCapacity, DEFAULT_ECONOMY_CONFIG.inventoryCapacity),
     vaultCapacity: toInt(value.vaultCapacity, DEFAULT_ECONOMY_CONFIG.vaultCapacity),
   };

@@ -38,7 +38,12 @@ const DAILY_QUEST: FakeQuest = {
   category: 'daily',
   title: 'Clear the Daily Quota',
   story: null,
-  objective: JSON.stringify({ type: 'study_activity', activityType: 'task_completed', target: 3, period: 'day' }),
+  objective: JSON.stringify({
+    type: 'study_activity',
+    activityType: 'task_completed',
+    target: 3,
+    period: 'day',
+  }),
   rewards: JSON.stringify({ stp: 50, eventExp: 40 }),
   period: 'daily',
   starts_at: null,
@@ -102,7 +107,11 @@ function makeDb() {
       );
       return { rows: row ? [row] : [] };
     }
-    if (/INSERT INTO user_quests \(user_id, quest_id, period_key, progress, completed_at, updated_at\)/.test(text)) {
+    if (
+      /INSERT INTO user_quests \(user_id, quest_id, period_key, progress, completed_at, updated_at\)/.test(
+        text,
+      )
+    ) {
       const delta = Number(params[3]);
       const target = Number(params[4]);
       const existing = state.userQuests.find(
@@ -111,7 +120,8 @@ function makeDb() {
       const progress = Math.min((existing?.progress ?? 0) + delta, target);
       if (existing) {
         existing.progress = progress;
-        if (progress >= target && !existing.completed_at) existing.completed_at = new Date().toISOString();
+        if (progress >= target && !existing.completed_at)
+          existing.completed_at = new Date().toISOString();
       } else {
         state.userQuests.push({
           user_id: params[0] as string,
@@ -165,7 +175,8 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> => fn(client),
+    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> =>
+      fn(client),
   };
 
   const wallet = {
@@ -214,7 +225,10 @@ describe('QuestsService (PDF Phase 7 §30)', () => {
     expect(fixture.wallet.applyChangeWithClient).toHaveBeenCalledWith(
       expect.anything(),
       USER,
-      expect.objectContaining({ amount: 50, idempotencyKey: expect.stringContaining('events:quest:') }),
+      expect.objectContaining({
+        amount: 50,
+        idempotencyKey: expect.stringContaining('events:quest:'),
+      }),
     );
     expect(fixture.state.eventExp.get(`${USER}:${EVENT}`)).toBe(40);
     await expect(fixture.service.claim(USER, DAILY_QUEST.id)).rejects.toThrow('already claimed');
@@ -254,8 +268,6 @@ describe('QuestsService (PDF Phase 7 §30)', () => {
       completed_at: new Date().toISOString(),
       claimed_at: null,
     });
-    await expect(fixture.service.claim(USER, SIGIL_QUEST.id)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(fixture.service.claim(USER, SIGIL_QUEST.id)).rejects.toThrow(BadRequestException);
   });
 });

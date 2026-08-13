@@ -552,7 +552,6 @@ export default function AcademicsPage() {
                                               {newTopicFor === chapter.id ? (
                                                 <div className="space-y-2 rounded-md bg-card border p-3">
                                                   <Input
-                                                    autoFocus
                                                     value={newTopicName}
                                                     onChange={(e) => setNewTopicName(e.target.value)}
                                                     onKeyDown={(e) =>
@@ -614,7 +613,6 @@ export default function AcademicsPage() {
                                   {newChapterFor === subject.id ? (
                                     <div className="flex gap-2">
                                       <Input
-                                        autoFocus
                                         value={newChapterName}
                                         onChange={(e) => setNewChapterName(e.target.value)}
                                         onKeyDown={(e) =>

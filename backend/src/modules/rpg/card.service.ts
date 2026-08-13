@@ -223,8 +223,7 @@ export class CardService {
       );
       if (opts.abstracted || ABSTRACTED_CARD_KEYS.has(def.key)) {
         const eventId = opts.abstracted?.eventId ?? '00000000-0000-4000-8000-0000000000a1';
-        const legendaryResultKey =
-          opts.abstracted?.legendaryResultKey ?? 'awakened_guardian';
+        const legendaryResultKey = opts.abstracted?.legendaryResultKey ?? 'awakened_guardian';
         await c.query(
           `INSERT INTO abstracted_instances (card_instance_id, event_id, legendary_result_key)
            VALUES ($1, $2, $3)
@@ -289,7 +288,13 @@ export class CardService {
         `UPDATE card_definitions SET active_supply = active_supply + 1 WHERE key = $1`,
         [card.key as string],
       );
-      return { boxType, cardKey: card.key as string, name: card.name as string, rarity: card.rarity as string, odds };
+      return {
+        boxType,
+        cardKey: card.key as string,
+        name: card.name as string,
+        rarity: card.rarity as string,
+        odds,
+      };
     };
     if (client) {
       return run(client);

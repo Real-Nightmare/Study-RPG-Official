@@ -7,6 +7,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { parseCorsOrigins } from '../../common/config/cors-origins';
 import { ProblemSolverService, SolveProblemDto } from './problem-solver.service';
 import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
@@ -15,10 +16,7 @@ import { SubscriptionService } from '../subscription/subscription.service';
 @WebSocketGateway({
   namespace: 'problem-solver',
   cors: {
-    origin: process.env.CORS_ORIGINS?.split(',') || [
-      'http://localhost:3010',
-      'http://localhost:5189',
-    ],
+    origin: parseCorsOrigins(process.env.CORS_ORIGINS),
     credentials: true,
   },
 })

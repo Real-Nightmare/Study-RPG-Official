@@ -76,9 +76,15 @@ export class EventItemsService {
     return row ? Number(row.quantity) : 0;
   }
 
-  async getItems(
-    userId: string,
-  ): Promise<Array<{ slug: string; name: string; description: string | null; tradable: boolean; quantity: number }>> {
+  async getItems(userId: string): Promise<
+    Array<{
+      slug: string;
+      name: string;
+      description: string | null;
+      tradable: boolean;
+      quantity: number;
+    }>
+  > {
     const rows = await this.db.queryMany<Record<string, unknown>>(
       `SELECT ei.slug, ei.name, ei.description, ei.tradable, COALESCE(uei.quantity, 0)::int AS quantity
        FROM event_items ei

@@ -247,9 +247,10 @@ export class SupplyService {
     }));
   }
 
-  async getPriceHistory(cardKey: string, limit = 50): Promise<
-    Array<{ value: number; reason: string | null; createdAt: Date }>
-  > {
+  async getPriceHistory(
+    cardKey: string,
+    limit = 50,
+  ): Promise<Array<{ value: number; reason: string | null; createdAt: Date }>> {
     const rows = await this.db.queryMany<Record<string, unknown>>(
       `SELECT value, reason, created_at
        FROM card_price_history

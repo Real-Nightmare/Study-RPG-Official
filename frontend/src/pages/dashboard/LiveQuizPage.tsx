@@ -609,7 +609,6 @@ function JoinOrCreate() {
               onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 6))}
               placeholder="ABCDEF"
               maxLength={6}
-              autoFocus
               className="w-full text-center text-2xl font-mono tracking-[0.5em] px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
             />
           </div>

@@ -105,10 +105,17 @@ export class ExtinctionService {
   }
 
   /** Admin override: replace the target list with explicit card keys. */
-  async overrideTargets(actorId: string, eventId: string, cardKeys: string[], reason: string): Promise<ExtinctionTargetView[]> {
+  async overrideTargets(
+    actorId: string,
+    eventId: string,
+    cardKeys: string[],
+    reason: string,
+  ): Promise<ExtinctionTargetView[]> {
     const config = await this.events.getConfig();
     if (cardKeys.length > config.extinction.targetCount) {
-      throw new BadRequestException(`A maximum of ${config.extinction.targetCount} targets is allowed`);
+      throw new BadRequestException(
+        `A maximum of ${config.extinction.targetCount} targets is allowed`,
+      );
     }
     const defs = await this.db.queryMany<{ key: string }>(
       `SELECT key FROM card_definitions WHERE key = ANY($1)`,
@@ -268,8 +275,18 @@ export class ExtinctionService {
       throw new BadRequestException('Only friends can trade Extinction Sigils');
     }
     await this.db.transaction(async (client) => {
-      await this.items.consumeItemWithClient(client, userId, config.extinction.sigilItemSlug, quantity);
-      await this.items.grantItemWithClient(client, toUserId, config.extinction.sigilItemSlug, quantity);
+      await this.items.consumeItemWithClient(
+        client,
+        userId,
+        config.extinction.sigilItemSlug,
+        quantity,
+      );
+      await this.items.grantItemWithClient(
+        client,
+        toUserId,
+        config.extinction.sigilItemSlug,
+        quantity,
+      );
     });
     this.logger.log(`${userId} transferred ${quantity} Sigil(s) to ${toUserId}`);
   }

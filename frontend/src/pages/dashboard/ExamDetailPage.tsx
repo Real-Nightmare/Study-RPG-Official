@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import api from '@/services/api';
 import { ENDPOINTS } from '@/config/api';
+import { onEnterOrSpace } from '@/lib/a11y';
 import {
   ArrowLeft,
   FileText,
@@ -554,31 +555,33 @@ function ExportPdfModal({
 
           {/* Options */}
           <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer">
+            <div className="flex items-center gap-3">
               <input
+                id="include-answers"
                 type="checkbox"
                 checked={includeAnswers}
                 onChange={(e) => setIncludeAnswers(e.target.checked)}
                 className="w-4 h-4 rounded border-border"
               />
-              <div>
-                <span className="text-sm font-medium">{t('examDetail.includeAnswers')}</span>
-                <p className="text-xs text-muted-foreground">{t('examDetail.showCorrectAnswers')}</p>
-              </div>
-            </label>
+              <label htmlFor="include-answers" className="cursor-pointer flex-1">
+                <span className="block text-sm font-medium">{t('examDetail.includeAnswers')}</span>
+                <span className="block text-xs text-muted-foreground">{t('examDetail.showCorrectAnswers')}</span>
+              </label>
+            </div>
 
-            <label className="flex items-center gap-3 cursor-pointer">
+            <div className="flex items-center gap-3">
               <input
+                id="include-explanations"
                 type="checkbox"
                 checked={includeExplanations}
                 onChange={(e) => setIncludeExplanations(e.target.checked)}
                 className="w-4 h-4 rounded border-border"
               />
-              <div>
-                <span className="text-sm font-medium">{t('examDetail.includeExplanations')}</span>
-                <p className="text-xs text-muted-foreground">{t('examDetail.addExplanations')}</p>
-              </div>
-            </label>
+              <label htmlFor="include-explanations" className="cursor-pointer flex-1">
+                <span className="block text-sm font-medium">{t('examDetail.includeExplanations')}</span>
+                <span className="block text-xs text-muted-foreground">{t('examDetail.addExplanations')}</span>
+              </label>
+            </div>
           </div>
 
           {/* Preview */}
@@ -812,8 +815,12 @@ function QuestionsTab({
           className="p-4 hover:bg-muted/30 transition-colors"
         >
           <div
+            role="button"
+            tabIndex={0}
+            aria-expanded={expandedQuestion === question.id}
             className="flex items-start gap-4 cursor-pointer"
             onClick={() => setExpandedQuestion(expandedQuestion === question.id ? null : question.id)}
+            onKeyDown={onEnterOrSpace(() => setExpandedQuestion(expandedQuestion === question.id ? null : question.id))}
           >
             <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium flex-shrink-0">
               {index + 1}

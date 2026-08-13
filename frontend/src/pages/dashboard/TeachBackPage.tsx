@@ -242,10 +242,11 @@ export function TeachBackPage() {
                   <>
                     {/* Topic Input */}
                     <div className="mb-4">
-                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                      <label htmlFor="teachback-topic" className="text-xs font-medium text-muted-foreground mb-1.5 block">
                         What topic do you want to master?
                       </label>
                       <input
+                        id="teachback-topic"
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
                         placeholder="e.g., Pythagorean Theorem, Photosynthesis, Supply & Demand..."
@@ -275,10 +276,11 @@ export function TeachBackPage() {
 
                     {/* Reference Content (Optional) */}
                     <div className="mb-4">
-                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                      <label htmlFor="teachback-reference" className="text-xs font-medium text-muted-foreground mb-1.5 block">
                         Reference material (optional — helps AI evaluate better)
                       </label>
                       <textarea
+                        id="teachback-reference"
                         value={reference}
                         onChange={(e) => setReference(e.target.value)}
                         placeholder="Paste textbook notes, lecture content, or key points here..."
@@ -306,10 +308,10 @@ export function TeachBackPage() {
                 ) : (
                   <>
                     {/* Study Set Picker */}
-                    <div className="mb-4">
-                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                    <div className="mb-4" role="group" aria-label="Study set picker">
+                      <span className="text-xs font-medium text-muted-foreground mb-1.5 block">
                         Pick a study set — we'll auto-generate the topic from your flashcards
-                      </label>
+                      </span>
                       {studySetsLoading ? (
                         <div className="flex justify-center py-6">
                           <Spinner size="sm" />

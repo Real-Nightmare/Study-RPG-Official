@@ -246,8 +246,11 @@ export function AccountSettingsPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(t('accountSettingsPage.typeDeleteToConfirm')) }} />
+                <label htmlFor="delete-confirm-input" className="text-xs text-muted-foreground mb-1 block">
+                  <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(t('accountSettingsPage.typeDeleteToConfirm')) }} />
+                </label>
                 <input
+                  id="delete-confirm-input"
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder="DELETE"

@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
+import { parseCorsOrigins } from './common/config/cors-origins';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -25,16 +26,7 @@ async function bootstrap() {
 
   // CORS — allowlist from CORS_ORIGINS (comma-separated). Defaults to local dev origins.
   // ADR: audit finding S1 — do NOT reflect arbitrary origins with credentials.
-  const corsOrigins = (configService.get<string>('CORS_ORIGINS') ?? '')
-    .split(',')
-    .map((o) => o.trim())
-    .filter(Boolean);
-  const defaultOrigins = [
-    'http://localhost:3010',
-    'http://localhost:5189',
-    'http://127.0.0.1:5189',
-  ];
-  const allowedOrigins = corsOrigins.length > 0 ? corsOrigins : defaultOrigins;
+  const allowedOrigins = parseCorsOrigins(configService.get<string>('CORS_ORIGINS'));
 
   // Security headers (helmet-like baseline, applied to all responses)
   app.use((req: any, res: any, next: any) => {

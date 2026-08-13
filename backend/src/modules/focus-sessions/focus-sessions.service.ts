@@ -280,7 +280,10 @@ export class FocusSessionsService {
    * minutes vs the healthy optimum and hard cap, a study-health meter band,
    * the active reward factor, cooldown state, and the night-study flag.
    */
-  async wellbeing(userId: string, now: Date = new Date()): Promise<{
+  async wellbeing(
+    userId: string,
+    now: Date = new Date(),
+  ): Promise<{
     todayMinutes: number;
     optimalDailyMinutes: number;
     hardDailyCapMinutes: number;
@@ -308,10 +311,7 @@ export class FocusSessionsService {
       todayMinutes,
       optimalDailyMinutes: config.overStudy.optimalDailyMinutes,
       hardDailyCapMinutes: config.overStudy.hardDailyCapMinutes,
-      budgetRemaining: dailyBudgetRemaining(
-        todayMinutes,
-        config.overStudy.hardDailyCapMinutes,
-      ),
+      budgetRemaining: dailyBudgetRemaining(todayMinutes, config.overStudy.hardDailyCapMinutes),
       healthPercent: health.percent,
       band: health.band,
       rewardFactor: overStudyFactor(todayMinutes, config.overStudy),

@@ -78,7 +78,8 @@ export function minutesUntilRestAllowed(
   cooldownMinutes: number,
 ): number {
   if (!lastEndedAt) return 0;
-  const remainingMs = cooldownMinutes * 60 * 1000 - (now.getTime() - new Date(lastEndedAt).getTime());
+  const remainingMs =
+    cooldownMinutes * 60 * 1000 - (now.getTime() - new Date(lastEndedAt).getTime());
   return Math.max(0, Math.ceil(remainingMs / 60000));
 }
 

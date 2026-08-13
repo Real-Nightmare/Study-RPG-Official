@@ -274,10 +274,7 @@ export function mergeIntegrityConfig(raw: unknown): IntegrityConfig {
         overStudy.nightStartHour,
         DEFAULT_INTEGRITY_CONFIG.overStudy.nightStartHour,
       ),
-      nightEndHour: toInt(
-        overStudy.nightEndHour,
-        DEFAULT_INTEGRITY_CONFIG.overStudy.nightEndHour,
-      ),
+      nightEndHour: toInt(overStudy.nightEndHour, DEFAULT_INTEGRITY_CONFIG.overStudy.nightEndHour),
       nightFactor: toNum(overStudy.nightFactor, DEFAULT_INTEGRITY_CONFIG.overStudy.nightFactor),
     },
   };

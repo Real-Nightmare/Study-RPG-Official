@@ -13,7 +13,9 @@ export function istDayKey(now: Date): string {
 /** ISO-8601 week key `YYYY-Www` (Monday start). */
 export function isoWeekKey(now: Date): string {
   const shifted = new Date(now.getTime() + IST_OFFSET_MS);
-  const date = new Date(Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate()));
+  const date = new Date(
+    Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate()),
+  );
   const dayNum = (date.getUTCDay() + 6) % 7; // Monday = 0
   date.setUTCDate(date.getUTCDate() - dayNum + 3);
   const isoYear = date.getUTCFullYear();

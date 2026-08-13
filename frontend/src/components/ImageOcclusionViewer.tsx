@@ -33,7 +33,7 @@ export function ImageOcclusionViewer({ imageUrl, regions, onAllRevealed }: Image
     <div className="space-y-4">
       {/* Image with occlusion overlays */}
       <div className="relative rounded-xl overflow-hidden border border-border">
-        <img src={imageUrl} alt="Study image" className="w-full block" draggable={false} />
+        <img src={imageUrl} alt="Study material" className="w-full block" draggable={false} />
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox="0 0 100 100"

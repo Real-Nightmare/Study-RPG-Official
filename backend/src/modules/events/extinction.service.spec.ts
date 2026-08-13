@@ -75,7 +75,11 @@ function makeDb() {
     if (/SELECT COUNT\(\*\)::int AS count FROM event_extinction_targets/.test(text)) {
       return { rows: [{ count: state.targets.length }] };
     }
-    if (/SELECT key, name, rarity, official_value FROM card_definitions\s+WHERE active = TRUE/.test(text)) {
+    if (
+      /SELECT key, name, rarity, official_value FROM card_definitions\s+WHERE active = TRUE/.test(
+        text,
+      )
+    ) {
       return { rows: state.defs };
     }
     if (/INSERT INTO event_extinction_targets/.test(text)) {
@@ -119,7 +123,11 @@ function makeDb() {
       }
       return { rows: [] };
     }
-    if (/SELECT card_key FROM event_extinction_targets\s+WHERE event_id = \$1 AND card_key = \$2/.test(text)) {
+    if (
+      /SELECT card_key FROM event_extinction_targets\s+WHERE event_id = \$1 AND card_key = \$2/.test(
+        text,
+      )
+    ) {
       const target = state.targets.find(
         (t) => t.event_id === params[0] && t.card_key === params[1],
       );
@@ -128,13 +136,17 @@ function makeDb() {
     if (/UPDATE event_global_milestones\s+SET progress = progress \+ 1/.test(text)) {
       if (state.milestone && !state.milestone.completed_at) {
         state.milestone.progress += 1;
-        if (state.milestone.progress >= (JSON.parse(state.milestone.objective) as { target: number }).target) {
+        if (
+          state.milestone.progress >=
+          (JSON.parse(state.milestone.objective) as { target: number }).target
+        ) {
           state.milestone.completed_at = new Date().toISOString();
         }
       }
       return { rows: [] };
     }
-    if (/SELECT \* FROM quests WHERE event_id = \$1 AND active = TRUE/.test(text)) return { rows: [] };
+    if (/SELECT \* FROM quests WHERE event_id = \$1 AND active = TRUE/.test(text))
+      return { rows: [] };
     if (/SELECT id FROM event_items WHERE slug = \$1/.test(text)) {
       const item = state.items.find((i) => i.slug === params[0]);
       return { rows: item ? [{ id: item.id }] : [] };
@@ -154,7 +166,9 @@ function makeDb() {
     if (/SELECT \* FROM event_global_milestones WHERE id = \$1 FOR UPDATE/.test(text)) {
       return { rows: state.milestone && state.milestone.id === params[0] ? [state.milestone] : [] };
     }
-    if (/SELECT id FROM user_milestone_claims WHERE user_id = \$1 AND milestone_id = \$2/.test(text)) {
+    if (
+      /SELECT id FROM user_milestone_claims WHERE user_id = \$1 AND milestone_id = \$2/.test(text)
+    ) {
       const key = `${params[0]}:${params[1]}`;
       return { rows: state.milestoneClaims.has(key) ? [{ id: key }] : [] };
     }
@@ -184,7 +198,8 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> => fn(client),
+    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> =>
+      fn(client),
   };
 
   const wallet = {} as unknown as WalletService;
@@ -260,9 +275,7 @@ describe('ExtinctionService (PDF Phase 7 §29)', () => {
 
   it('rejects claiming an incomplete milestone', async () => {
     const fixture = makeService();
-    await expect(fixture.service.claimMilestone(USER, 'm-1')).rejects.toThrow(
-      'not been completed',
-    );
+    await expect(fixture.service.claimMilestone(USER, 'm-1')).rejects.toThrow('not been completed');
   });
 
   it('transfers Sigils between friends', async () => {

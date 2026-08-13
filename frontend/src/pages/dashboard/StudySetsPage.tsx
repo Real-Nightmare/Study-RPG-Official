@@ -83,8 +83,11 @@ function StudySetCard({ studySet, onDelete }: { studySet: StudySet; onDelete: (i
 
           {menuOpen && (
             <>
-              <div
-                className="fixed inset-0 z-40"
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Close menu"
+                className="fixed inset-0 z-40 border-0 p-0"
                 onClick={() => setMenuOpen(false)}
               />
               <div className="absolute right-0 top-full mt-1 w-36 bg-card border border-border rounded-lg shadow-lg z-50">

@@ -36,7 +36,13 @@ describe('event-scheduler (§25)', () => {
     const now = new Date('2026-08-05T00:00:00Z');
     expect(needsFallback([event({ status: 'active' })], now)).toBe(false);
     expect(
-      needsFallback([event({ status: 'ended', claimDeadline: new Date('2026-08-01T00:00:00Z') }), event({ id: 'e2', slug: 'next', startsAt: new Date('2026-08-20T00:00:00Z') })], now),
+      needsFallback(
+        [
+          event({ status: 'ended', claimDeadline: new Date('2026-08-01T00:00:00Z') }),
+          event({ id: 'e2', slug: 'next', startsAt: new Date('2026-08-20T00:00:00Z') }),
+        ],
+        now,
+      ),
     ).toBe(false);
   });
 
@@ -44,7 +50,10 @@ describe('event-scheduler (§25)', () => {
     const now = new Date('2026-08-05T00:00:00Z');
     expect(needsFallback([], now)).toBe(true);
     expect(
-      needsFallback([event({ status: 'ended', claimDeadline: new Date('2026-08-01T00:00:00Z') })], now),
+      needsFallback(
+        [event({ status: 'ended', claimDeadline: new Date('2026-08-01T00:00:00Z') })],
+        now,
+      ),
     ).toBe(true);
   });
 });

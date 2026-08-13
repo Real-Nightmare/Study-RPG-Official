@@ -347,14 +347,7 @@ export class UsersService {
       await this.db.query(
         `INSERT INTO faction_score_events (id, faction_id, user_id, event_type, points, period_key)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          uuidv4(),
-          faction.faction_id,
-          userId,
-          type,
-          points,
-          currentIstPeriodKey(),
-        ],
+        [uuidv4(), faction.faction_id, userId, type, points, currentIstPeriodKey()],
       );
     } catch (error) {
       this.logger.warn(`Failed to credit faction score: ${(error as Error).message}`);
@@ -457,8 +450,6 @@ export class UsersService {
 
 /** Current month as 'YYYY-MM' in IST (Asia/Kolkata) — faction period key. */
 function currentIstPeriodKey(): string {
-  const ist = new Date(
-    new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
-  );
+  const ist = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   return `${ist.getFullYear()}-${String(ist.getMonth() + 1).padStart(2, '0')}`;
 }

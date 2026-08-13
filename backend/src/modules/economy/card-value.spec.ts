@@ -3,33 +3,55 @@ import { computeOfficialValue, scrapePayout, burnPayout } from './card-value';
 describe('card-value', () => {
   describe('computeOfficialValue', () => {
     it('returns the base value at full supply (multiplier 1)', () => {
-      expect(computeOfficialValue({ rarity: 'common', activeSupply: 1500, originalSupply: 1500 })).toBe(25);
-      expect(computeOfficialValue({ rarity: 'rare', activeSupply: 400, originalSupply: 400 })).toBe(120);
-      expect(computeOfficialValue({ rarity: 'legendary', activeSupply: 100, originalSupply: 100 })).toBe(600);
+      expect(
+        computeOfficialValue({ rarity: 'common', activeSupply: 1500, originalSupply: 1500 }),
+      ).toBe(25);
+      expect(computeOfficialValue({ rarity: 'rare', activeSupply: 400, originalSupply: 400 })).toBe(
+        120,
+      );
+      expect(
+        computeOfficialValue({ rarity: 'legendary', activeSupply: 100, originalSupply: 100 }),
+      ).toBe(600);
     });
 
     it('increases value as supply shrinks', () => {
       const full = computeOfficialValue({ rarity: 'rare', activeSupply: 400, originalSupply: 400 });
-      const scarce = computeOfficialValue({ rarity: 'rare', activeSupply: 40, originalSupply: 400 });
+      const scarce = computeOfficialValue({
+        rarity: 'rare',
+        activeSupply: 40,
+        originalSupply: 400,
+      });
       expect(scarce).toBeGreaterThan(full);
       // 1 + 0.9*1.5 = 2.35 → floor(120 * 2.35) = 282
       expect(scarce).toBe(282);
     });
 
     it('applies the scarcity multiplier below the cap', () => {
-      const value = computeOfficialValue({ rarity: 'legendary', activeSupply: 1, originalSupply: 100 });
+      const value = computeOfficialValue({
+        rarity: 'legendary',
+        activeSupply: 1,
+        originalSupply: 100,
+      });
       // 1 + 0.99*1.5 = 2.485 (below the 3.0 cap) → floor(600 * 2.485) = 1491
       expect(value).toBe(1491);
     });
 
     it('clamps the multiplier to the configured floor', () => {
-      const value = computeOfficialValue({ rarity: 'common', activeSupply: 99999, originalSupply: 1500 });
+      const value = computeOfficialValue({
+        rarity: 'common',
+        activeSupply: 99999,
+        originalSupply: 1500,
+      });
       // active capped at original → multiplier 1 → base 25
       expect(value).toBe(25);
     });
 
     it('never returns a value below 1 and uses integer math', () => {
-      const value = computeOfficialValue({ rarity: 'unknown-rarity', activeSupply: 0, originalSupply: 10 });
+      const value = computeOfficialValue({
+        rarity: 'unknown-rarity',
+        activeSupply: 0,
+        originalSupply: 10,
+      });
       expect(value).toBeGreaterThanOrEqual(1);
       expect(Number.isInteger(value)).toBe(true);
     });

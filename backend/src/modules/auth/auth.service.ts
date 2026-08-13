@@ -357,7 +357,9 @@ export class AuthService {
       throw new BadRequestException('User not found');
     }
     if (!user.email) {
-      throw new BadRequestException('No email on this account — website notifications are used instead');
+      throw new BadRequestException(
+        'No email on this account — website notifications are used instead',
+      );
     }
 
     if (user.emailVerified) {

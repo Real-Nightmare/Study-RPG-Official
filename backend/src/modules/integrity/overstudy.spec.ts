@@ -29,9 +29,13 @@ describe('overStudyFactor', () => {
   });
 
   it('honours custom options', () => {
-    expect(overStudyFactor(100, { decayStartMinutes: 50, hardDailyCapMinutes: 100, minFactor: 0.2 })).toBe(0.2);
+    expect(
+      overStudyFactor(100, { decayStartMinutes: 50, hardDailyCapMinutes: 100, minFactor: 0.2 }),
+    ).toBe(0.2);
     // 60 of [50, 100] → t=0.2 → 1 - 0.2*0.8 = 0.84
-    expect(overStudyFactor(60, { decayStartMinutes: 50, hardDailyCapMinutes: 100, minFactor: 0.2 })).toBeCloseTo(0.84, 3);
+    expect(
+      overStudyFactor(60, { decayStartMinutes: 50, hardDailyCapMinutes: 100, minFactor: 0.2 }),
+    ).toBeCloseTo(0.84, 3);
   });
 
   it('never exceeds 1 or goes below the floor', () => {
@@ -67,11 +71,10 @@ describe('restRequired', () => {
 
   it('honours custom cooldown windows', () => {
     expect(
-      restRequired(
-        { endedAt: new Date(now.getTime() - 10 * 60 * 1000), minutes: 90 },
-        now,
-        { sessionCooldownMinutes: 15, cooldownAfterMinutes: 60 },
-      ),
+      restRequired({ endedAt: new Date(now.getTime() - 10 * 60 * 1000), minutes: 90 }, now, {
+        sessionCooldownMinutes: 15,
+        cooldownAfterMinutes: 60,
+      }),
     ).toBe(true);
   });
 });

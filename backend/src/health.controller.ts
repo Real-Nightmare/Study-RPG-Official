@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from './common';
 import { DatabaseService } from './modules/database';
@@ -23,6 +24,7 @@ export class HealthController {
     private readonly database: DatabaseService,
     private readonly redis: RedisService,
     private readonly qdrant: QdrantService,
+    private readonly config: ConfigService,
   ) {}
 
   @Public()
@@ -42,7 +44,7 @@ export class HealthController {
     return {
       status: allHealthy ? 'healthy' : anyHealthy ? 'degraded' : 'unhealthy',
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || '1.0.0',
+      version: this.config.get<string>('npm_package_version') || '1.0.0',
       services: {
         database: dbHealth,
         redis: redisHealth,
@@ -58,7 +60,7 @@ export class HealthController {
   root() {
     return {
       name: 'Studyield API',
-      version: process.env.npm_package_version || '1.0.0',
+      version: this.config.get<string>('npm_package_version') || '1.0.0',
       documentation: '/api/docs',
     };
   }

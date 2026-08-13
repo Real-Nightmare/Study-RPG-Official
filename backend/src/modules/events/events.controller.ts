@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { Role, Roles } from '../../common/decorators/roles.decorator';
 import { StudyEventsService, EventView } from './events.service';
 import { QuestsService } from './quests.service';
@@ -107,7 +99,11 @@ export class EventsController {
 
   @Post(':id/activate')
   @Roles(Role.ADMIN)
-  async activate(@Param('id') id: string, @Req() req: AuthedRequest, @Body() dto: ActivateEventDto) {
+  async activate(
+    @Param('id') id: string,
+    @Req() req: AuthedRequest,
+    @Body() dto: ActivateEventDto,
+  ) {
     return this.events.activateEvent(this.userId(req), id, dto.reason);
   }
 

@@ -166,8 +166,8 @@ function CardCountPicker({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium mb-1.5">Cards to generate</label>
-      <div className="flex flex-wrap gap-1.5">
+      <span className="block text-xs font-medium mb-1.5">Cards to generate</span>
+      <div role="group" aria-label="Cards to generate" className="flex flex-wrap gap-1.5">
         {COUNT_PRESETS.map((n) => (
           <button
             key={n}
@@ -246,9 +246,17 @@ function PDFScreen({
       <ScreenHeader icon={FileText} title="Upload PDF" onBack={onBack} color="bg-red-500/10 text-red-500" />
 
       <div
+        role="button"
+        tabIndex={0}
         onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => fileRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileRef.current?.click();
+          }
+        }}
         className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-red-500/30 hover:bg-red-500/5 transition-all mb-4"
       >
         <input
@@ -321,10 +329,11 @@ function YouTubeScreen({
       <ScreenHeader icon={Video} title="YouTube Video" onBack={onBack} color="bg-red-500/10 text-red-500" />
 
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1.5">YouTube URL</label>
+        <label htmlFor="import-youtube-url" className="block text-sm font-medium mb-1.5">YouTube URL</label>
         <div className="relative">
           <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
+            id="import-youtube-url"
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -516,6 +525,8 @@ function AudioRecordScreen({
         {/* Playback preview */}
         {audioUrl && status === 'done' && (
           <div className="mt-4">
+            {/* User-uploaded audio preview — captions are not available for arbitrary personal files. */}
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <audio controls src={audioUrl} className="w-full h-10" />
           </div>
         )}
@@ -552,9 +563,17 @@ function AudioFileScreen({
       <ScreenHeader icon={Music} title="Audio File" onBack={onBack} color="bg-blue-500/10 text-blue-500" />
 
       <div
+        role="button"
+        tabIndex={0}
         onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) setFile(f); }}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => fileRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileRef.current?.click();
+          }
+        }}
         className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-blue-500/30 hover:bg-blue-500/5 transition-all mb-4"
       >
         <input
@@ -581,6 +600,8 @@ function AudioFileScreen({
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
+          {/* User-uploaded audio preview — captions are not available for arbitrary personal files. */}
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           {audioUrl && <audio controls src={audioUrl} className="w-full h-10" />}
           <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
             <Sparkles className="w-3.5 h-3.5 text-blue-500" />
@@ -623,10 +644,11 @@ function WebsiteScreen({
       <ScreenHeader icon={Globe} title="Website URL" onBack={onBack} color="bg-purple-500/10 text-purple-500" />
 
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1.5">Website URL</label>
+        <label htmlFor="import-website-url" className="block text-sm font-medium mb-1.5">Website URL</label>
         <div className="relative">
           <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
+            id="import-website-url"
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -955,8 +977,9 @@ function TextScreen({
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1.5">Paste your terms and definitions</label>
+          <label htmlFor="import-terms-text" className="block text-sm font-medium mb-1.5">Paste your terms and definitions</label>
           <textarea
+            id="import-terms-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={`Paste your terms and definitions here...\n\nExample (tab-separated):\nPhotosynthesis\tThe process by which plants convert sunlight to energy\nMitosis\tCell division producing two identical cells`}
@@ -972,8 +995,9 @@ function TextScreen({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium mb-1">Between term and definition</label>
+            <label htmlFor="import-term-sep" className="block text-xs font-medium mb-1">Between term and definition</label>
             <select
+              id="import-term-sep"
               value={termSep}
               onChange={(e) => setTermSep(e.target.value)}
               className="w-full px-2.5 py-1.5 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20"
@@ -985,8 +1009,9 @@ function TextScreen({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Between cards</label>
+            <label htmlFor="import-card-sep" className="block text-xs font-medium mb-1">Between cards</label>
             <select
+              id="import-card-sep"
               value={cardSep}
               onChange={(e) => setCardSep(e.target.value)}
               className="w-full px-2.5 py-1.5 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20"
@@ -1034,9 +1059,17 @@ function HandwritingScreen({
       <ScreenHeader icon={PenLine} title="Handwritten Notes" onBack={onBack} color="bg-indigo-500/10 text-indigo-500" />
 
       <div
+        role="button"
+        tabIndex={0}
         onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => fileRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileRef.current?.click();
+          }
+        }}
         className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all mb-4"
       >
         <input

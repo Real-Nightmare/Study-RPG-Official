@@ -67,11 +67,15 @@ function makeDb() {
     if (/UPDATE events SET status = 'ended'/.test(text)) return { rows: [] };
     if (/UPDATE events SET status = 'active'/.test(text)) return { rows: [] };
     if (/status = 'active' AND claim_deadline >/.test(text)) {
-      const row = state.events.find((e) => e.status === 'active' && new Date(e.claim_deadline) > (params[0] as Date));
+      const row = state.events.find(
+        (e) => e.status === 'active' && new Date(e.claim_deadline) > (params[0] as Date),
+      );
       return { rows: row ? [row] : [] };
     }
     if (/starts_at > \$1 AND status <> 'ended'/.test(text)) {
-      const row = state.events.find((e) => new Date(e.starts_at) > (params[0] as Date) && e.status !== 'ended');
+      const row = state.events.find(
+        (e) => new Date(e.starts_at) > (params[0] as Date) && e.status !== 'ended',
+      );
       return { rows: row ? [row] : [] };
     }
     if (/pg_advisory_xact_lock/.test(text)) return { rows: [] };
@@ -115,7 +119,11 @@ function makeDb() {
       });
       return { rows: [] };
     }
-    if (/INSERT INTO user_event_state \(user_id, event_id, track, track_locked, gold_paid_at\)/.test(text)) {
+    if (
+      /INSERT INTO user_event_state \(user_id, event_id, track, track_locked, gold_paid_at\)/.test(
+        text,
+      )
+    ) {
       const key = `${params[0]}:${params[1]}`;
       state.userEventState.set(key, {
         user_id: params[0],
@@ -168,7 +176,8 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> => fn(client),
+    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> =>
+      fn(client),
   };
 
   const wallet = {
@@ -323,9 +332,9 @@ describe('StudyEventsService (PDF Phase 7 §25–§27)', () => {
     it('rejects switching tracks after the choice is locked', async () => {
       const fixture = makeService();
       await fixture.service.chooseTrack(USER, 'ev-abstracted', 'free');
-      await expect(
-        fixture.service.chooseTrack(USER, 'ev-abstracted', 'gold'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(fixture.service.chooseTrack(USER, 'ev-abstracted', 'gold')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -359,9 +368,7 @@ describe('StudyEventsService (PDF Phase 7 §25–§27)', () => {
 
     it('rejects claiming before choosing a track', async () => {
       const fixture = makeService();
-      await expect(fixture.service.claimLevel(USER, 'ev-abstracted', 0)).rejects.toThrow(
-        'track',
-      );
+      await expect(fixture.service.claimLevel(USER, 'ev-abstracted', 0)).rejects.toThrow('track');
     });
   });
 });

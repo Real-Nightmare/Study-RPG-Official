@@ -33,13 +33,23 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Type check
         run: npx tsc --noEmit --skipLibCheck
 
       - name: Build
         run: npm run build
+
+      - name: Tests + coverage
+        run: npm run test:cov -- --runInBand
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage
+          if-no-files-found: warn
 
   frontend-checks:
     name: Frontend Checks
@@ -63,10 +73,13 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Type check
         run: npx tsc --noEmit --skipLibCheck
 
       - name: Build
         run: npm run build
+
+      - name: Tests
+        run: npm test

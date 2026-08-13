@@ -50,12 +50,31 @@ function makeDb() {
   const state: {
     users: Map<string, { name: string; username: string | null }>;
     instances: Map<string, FakeInstance>;
-    definitions: Map<string, { key: string; name: string; rarity: string; category: string; ability: unknown; lore: string; official_value: number; tradable: boolean }>;
+    definitions: Map<
+      string,
+      {
+        key: string;
+        name: string;
+        rarity: string;
+        category: string;
+        ability: unknown;
+        lore: string;
+        official_value: number;
+        tradable: boolean;
+      }
+    >;
     listings: Map<string, FakeListing>;
     offers: Map<string, FakeOffer>;
     deckCards: FakeDeckCard[];
     profiles: Map<string, { stp: number }>;
-    ledger: Array<{ user_id: string; idempotency_key: string; amount: number; transaction_type: string; balance_before: number; balance_after: number }>;
+    ledger: Array<{
+      user_id: string;
+      idempotency_key: string;
+      amount: number;
+      transaction_type: string;
+      balance_before: number;
+      balance_after: number;
+    }>;
     configValue: Record<string, unknown> | null;
   } = {
     users: new Map([
@@ -64,12 +83,56 @@ function makeDb() {
       [OTHER, { name: 'Other', username: 'other' }],
     ]),
     instances: new Map([
-      [CARD, { id: CARD, user_id: SELLER, card_key: 'mana_slash', location: 'inventory', removed_at: null, removed_reason: null }],
-      [CARD2, { id: CARD2, user_id: BUYER, card_key: 'study_burst', location: 'vault', removed_at: null, removed_reason: null }],
+      [
+        CARD,
+        {
+          id: CARD,
+          user_id: SELLER,
+          card_key: 'mana_slash',
+          location: 'inventory',
+          removed_at: null,
+          removed_reason: null,
+        },
+      ],
+      [
+        CARD2,
+        {
+          id: CARD2,
+          user_id: BUYER,
+          card_key: 'study_burst',
+          location: 'vault',
+          removed_at: null,
+          removed_reason: null,
+        },
+      ],
     ]),
     definitions: new Map([
-      ['mana_slash', { key: 'mana_slash', name: 'Mana Slash', rarity: 'common', category: 'attack', ability: {}, lore: 'A slash of focus.', official_value: 25, tradable: true }],
-      ['study_burst', { key: 'study_burst', name: 'Study Burst', rarity: 'common', category: 'attack', ability: {}, lore: 'Burst of study.', official_value: 25, tradable: true }],
+      [
+        'mana_slash',
+        {
+          key: 'mana_slash',
+          name: 'Mana Slash',
+          rarity: 'common',
+          category: 'attack',
+          ability: {},
+          lore: 'A slash of focus.',
+          official_value: 25,
+          tradable: true,
+        },
+      ],
+      [
+        'study_burst',
+        {
+          key: 'study_burst',
+          name: 'Study Burst',
+          rarity: 'common',
+          category: 'attack',
+          ability: {},
+          lore: 'Burst of study.',
+          official_value: 25,
+          tradable: true,
+        },
+      ],
     ]),
     listings: new Map(),
     offers: new Map(),
@@ -83,11 +146,13 @@ function makeDb() {
     configValue: null,
   };
 
-  let listingSeq = 1;
-  let offerSeq = 1;
+  const listingSeq = 1;
+  const offerSeq = 1;
 
   const applyWallet = async (userId: string, input: WalletChangeInput) => {
-    const replay = state.ledger.find((l) => l.user_id === userId && l.idempotency_key === input.idempotencyKey);
+    const replay = state.ledger.find(
+      (l) => l.user_id === userId && l.idempotency_key === input.idempotencyKey,
+    );
     if (replay) return replay;
     const profile = state.profiles.get(userId) ?? { stp: 0 };
     const before = profile.stp;
@@ -130,13 +195,21 @@ function makeDb() {
     };
   };
 
-  const handle = async (text: string, params: unknown[] = []): Promise<{ rows: unknown[]; rowCount?: number }> => {
+  const handle = async (
+    text: string,
+    params: unknown[] = [],
+  ): Promise<{ rows: unknown[]; rowCount?: number }> => {
     // Config
     if (/SELECT value FROM game_config/.test(text)) {
       return { rows: state.configValue ? [{ value: state.configValue }] : [] };
     }
     // Marketplace list view (join query with card_key AS card_key)
-    if (/AS card_key/.test(text) && /marketplace_listings ml/.test(text) && !/FOR UPDATE/.test(text) && !/marketplace_offers/.test(text)) {
+    if (
+      /AS card_key/.test(text) &&
+      /marketplace_listings ml/.test(text) &&
+      !/FOR UPDATE/.test(text) &&
+      !/marketplace_offers/.test(text)
+    ) {
       const mine = text.includes('ml.seller_id = $');
       const rows = [...state.listings.values()]
         .filter((l) => l.status === 'active')
@@ -148,7 +221,15 @@ function makeDb() {
       const l = state.listings.get(params[0] as string);
       if (!l) return { rows: [] };
       const inst = state.instances.get(l.card_instance_id);
-      return { rows: [{ ...l, card_name: inst ? state.definitions.get(inst.card_key)?.name : undefined, card_key: inst?.card_key }] };
+      return {
+        rows: [
+          {
+            ...l,
+            card_name: inst ? state.definitions.get(inst.card_key)?.name : undefined,
+            card_key: inst?.card_key,
+          },
+        ],
+      };
     }
     if (/SELECT \* FROM marketplace_listings WHERE id/.test(text)) {
       const l = state.listings.get(params[0] as string);
@@ -314,7 +395,9 @@ function makeDb() {
             listing_status: l?.status,
             listing_expires_at: l?.expires_at,
             card_instance_id: l?.card_instance_id,
-            card_name: l ? state.definitions.get(state.instances.get(l.card_instance_id)?.card_key ?? '')?.name : undefined,
+            card_name: l
+              ? state.definitions.get(state.instances.get(l.card_instance_id)?.card_key ?? '')?.name
+              : undefined,
             card_key: l ? state.instances.get(l.card_instance_id)?.card_key : undefined,
           },
         ],
@@ -325,7 +408,9 @@ function makeDb() {
       const l = state.listings.get(params[0] as string);
       if (!l) return { rows: [] };
       const inst = state.instances.get(l.card_instance_id);
-      return { rows: [{ ...l, card_name: inst ? state.definitions.get(inst.card_key)?.name : undefined }] };
+      return {
+        rows: [{ ...l, card_name: inst ? state.definitions.get(inst.card_key)?.name : undefined }],
+      };
     }
     // Capacity / counts
     if (/COUNT\(\*\)::int AS count FROM card_instances/.test(text)) {
@@ -355,7 +440,18 @@ function makeDb() {
     }
     if (/SELECT id, user_id, location, removed_at FROM card_instances WHERE id/.test(text)) {
       const inst = state.instances.get(params[0] as string);
-      return { rows: inst ? [{ id: inst.id, user_id: inst.user_id, location: inst.location, removed_at: inst.removed_at }] : [] };
+      return {
+        rows: inst
+          ? [
+              {
+                id: inst.id,
+                user_id: inst.user_id,
+                location: inst.location,
+                removed_at: inst.removed_at,
+              },
+            ]
+          : [],
+      };
     }
     if (/SELECT id FROM marketplace_listings\n\s+WHERE card_instance_id/.test(text)) {
       const listed = [...state.listings.values()].find(
@@ -422,7 +518,8 @@ function makeDb() {
       return { rows: [{ stp: state.profiles.get(params[0] as string)?.stp ?? 0 }] };
     }
     if (/INSERT INTO player_profiles/.test(text)) {
-      if (!state.profiles.has(params[0] as string)) state.profiles.set(params[0] as string, { stp: 0 });
+      if (!state.profiles.has(params[0] as string))
+        state.profiles.set(params[0] as string, { stp: 0 });
       return { rows: [] };
     }
     return { rows: [] };
@@ -433,13 +530,15 @@ function makeDb() {
     query: handle,
     queryOne: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows[0],
     queryMany: async (text: string, params: unknown[] = []) => (await handle(text, params)).rows,
-    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> => fn(client),
+    transaction: async <T>(fn: (c: { query: typeof handle }) => Promise<T>): Promise<T> =>
+      fn(client),
   };
 
   const wallet = {
     applyChange: jest.fn(),
     applyChangeWithClient: jest.fn(
-      async (_client: unknown, userId: string, input: WalletChangeInput) => applyWallet(userId, input),
+      async (_client: unknown, userId: string, input: WalletChangeInput) =>
+        applyWallet(userId, input),
     ),
   } as unknown as WalletService;
 
@@ -532,16 +631,18 @@ describe('EconomyService', () => {
       expect(fixture.state.instances.get(CARD)?.user_id).toBe(BUYER);
       expect(fixture.state.profiles.get(BUYER)?.stp).toBe(900);
       expect(fixture.state.profiles.get(SELLER)?.stp).toBe(1100);
-      expect(fixture.state.listings.get([...fixture.state.listings.keys()][0])?.status).toBe('sold');
+      expect(fixture.state.listings.get([...fixture.state.listings.keys()][0])?.status).toBe(
+        'sold',
+      );
       expect(fixture.notifications.create).toHaveBeenCalledWith(
         expect.objectContaining({ userId: SELLER, type: 'success' }),
       );
     });
 
     it('rejects buying your own listing', async () => {
-      await expect(service.buyListing(SELLER, [...fixture.state.listings.keys()][0])).rejects.toThrow(
-        'own listing',
-      );
+      await expect(
+        service.buyListing(SELLER, [...fixture.state.listings.keys()][0]),
+      ).rejects.toThrow('own listing');
     });
 
     it('rejects a sold listing', async () => {
@@ -552,13 +653,16 @@ describe('EconomyService', () => {
 
     it('rejects a buyer without enough STP', async () => {
       fixture.state.profiles.set(BUYER, { stp: 10 });
-      await expect(service.buyListing(BUYER, [...fixture.state.listings.keys()][0])).rejects.toThrow(
-        'Insufficient STP/SLC balance',
-      );
+      await expect(
+        service.buyListing(BUYER, [...fixture.state.listings.keys()][0]),
+      ).rejects.toThrow('Insufficient STP/SLC balance');
     });
 
     it('rejects when the buyer inventory is full', async () => {
-      fixture.supply.getConfig.mockResolvedValue({ ...DEFAULT_ECONOMY_CONFIG, inventoryCapacity: 1 });
+      fixture.supply.getConfig.mockResolvedValue({
+        ...DEFAULT_ECONOMY_CONFIG,
+        inventoryCapacity: 1,
+      });
       fixture.state.instances.set('c3', {
         id: 'c3',
         user_id: BUYER,
@@ -567,9 +671,9 @@ describe('EconomyService', () => {
         removed_at: null,
         removed_reason: null,
       });
-      await expect(service.buyListing(BUYER, [...fixture.state.listings.keys()][0])).rejects.toThrow(
-        'Inventory is full',
-      );
+      await expect(
+        service.buyListing(BUYER, [...fixture.state.listings.keys()][0]),
+      ).rejects.toThrow('Inventory is full');
     });
 
     it('is idempotent — replaying the buy does not double-pay', async () => {
@@ -589,7 +693,12 @@ describe('EconomyService', () => {
       const listingId = [...fixture.state.listings.keys()][0];
 
       const offer = await service.makeOffer(BUYER, listingId, 80);
-      expect(offer).toMatchObject({ amount: 80, status: 'pending', direction: 'outgoing', cardName: 'Mana Slash' });
+      expect(offer).toMatchObject({
+        amount: 80,
+        status: 'pending',
+        direction: 'outgoing',
+        cardName: 'Mana Slash',
+      });
 
       const result = await service.acceptOffer(SELLER, offer.id);
       expect(result.price).toBe(80);
@@ -626,7 +735,14 @@ describe('EconomyService', () => {
 
     it('enforces vault capacity', async () => {
       fixture.supply.getConfig.mockResolvedValue({ ...DEFAULT_ECONOMY_CONFIG, vaultCapacity: 1 });
-      fixture.state.instances.set('c3', { id: 'c3', user_id: SELLER, card_key: 'mana_slash', location: 'vault', removed_at: null, removed_reason: null });
+      fixture.state.instances.set('c3', {
+        id: 'c3',
+        user_id: SELLER,
+        card_key: 'mana_slash',
+        location: 'vault',
+        removed_at: null,
+        removed_reason: null,
+      });
       await expect(service.moveCard(SELLER, CARD, 'vault')).rejects.toThrow('Vault is full');
     });
 

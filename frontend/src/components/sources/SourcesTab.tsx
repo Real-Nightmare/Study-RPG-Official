@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { onEnterOrSpace } from '@/lib/a11y';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Youtube,
@@ -223,10 +224,16 @@ export function SourcesTab({ studySetId }: SourcesTabProps) {
             >
               {/* Main Row */}
               <div
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedId === source.id}
                 className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
                 onClick={() =>
                   setExpandedId(expandedId === source.id ? null : source.id)
                 }
+                onKeyDown={onEnterOrSpace(() =>
+                  setExpandedId(expandedId === source.id ? null : source.id)
+                )}
               >
                 <div
                   className={cn(

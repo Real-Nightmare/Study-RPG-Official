@@ -113,9 +113,9 @@ describe('party-battle-engine', () => {
       defaults: DEFAULT_BATTLE_DEFAULTS,
     });
 
-    expect(() => applyPartyAction(state, 'zombie', 'inst-mana_slash', DEFAULT_BATTLE_DEFAULTS)).toThrow(
-      'Hero not in this party battle',
-    );
+    expect(() =>
+      applyPartyAction(state, 'zombie', 'inst-mana_slash', DEFAULT_BATTLE_DEFAULTS),
+    ).toThrow('Hero not in this party battle');
 
     state.heroes[0].isDown = true;
     expect(() => applyPartyAction(state, 'a', 'inst-mana_slash', DEFAULT_BATTLE_DEFAULTS)).toThrow(

@@ -7,6 +7,7 @@ import { useFlashcardsStore } from '@/stores/useFlashcardsStore';
 import { useNotesStore } from '@/stores/useNotesStore';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Button } from '@/components/ui/button';
+import { onEnterOrSpace } from '@/lib/a11y';
 import { Spinner } from '@/components/ui/spinner';
 import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
 import { cn } from '@/lib/utils';
@@ -130,8 +131,11 @@ function FlashcardPreviewModal({
 
         {/* Flip Card */}
         <div
+          role="button"
+          tabIndex={0}
           className="relative h-56 cursor-pointer perspective-1000 m-4"
           onClick={() => setIsFlipped(!isFlipped)}
+          onKeyDown={onEnterOrSpace(() => setIsFlipped(!isFlipped))}
         >
           <motion.div
             className="absolute inset-0 w-full h-full"
@@ -229,9 +233,12 @@ function FlashcardItem({
 
         <div className="flex items-center gap-1">
           <Eye className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <div className="relative">
             <button
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
+              }}
               className="p-2 rounded-lg hover:bg-muted transition-colors opacity-0 group-hover:opacity-100"
             >
               <MoreVertical className="w-4 h-4" />
@@ -239,7 +246,13 @@ function FlashcardItem({
 
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-label="Close card menu"
+                  className="fixed inset-0 z-40 border-0 p-0"
+                  onClick={() => setMenuOpen(false)}
+                />
                 <div className="absolute right-0 top-full mt-1 w-32 bg-card border border-border rounded-lg shadow-lg z-50">
                   <button
                     onClick={() => { onPreview(); setMenuOpen(false); }}
@@ -1410,7 +1423,13 @@ export function StudySetDetailPage() {
                       </button>
                       {showSortDropdown && (
                         <>
-                          <div className="fixed inset-0 z-40" onClick={() => setShowSortDropdown(false)} />
+                          <button
+                            type="button"
+                            tabIndex={-1}
+                            aria-label="Close sort options"
+                            className="fixed inset-0 z-40 border-0 p-0"
+                            onClick={() => setShowSortDropdown(false)}
+                          />
                           <div className="absolute right-0 top-full mt-1 w-36 bg-card border border-border rounded-lg shadow-lg z-50">
                             {(Object.keys(sortLabels) as SortOption[]).map((opt) => (
                               <button
@@ -1681,9 +1700,18 @@ export function StudySetDetailPage() {
                             {note.tags.slice(0, 3).map((tag) => (
                               <span
                                 key={tag}
+                                role="button"
+                                tabIndex={0}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setNoteTagFilter(tag);
+                                }}
+                                onKeyDown={(e) => {
+                                  e.stopPropagation();
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setNoteTagFilter(tag);
+                                  }
                                 }}
                                 className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 cursor-pointer"
                               >

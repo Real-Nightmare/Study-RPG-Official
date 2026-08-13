@@ -8,6 +8,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { parseCorsOrigins } from '../../common/config/cors-origins';
 import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
 import { DatabaseService } from '../database/database.service';
@@ -27,10 +28,7 @@ interface SessionParticipant {
 @WebSocketGateway({
   namespace: 'exam-clone',
   cors: {
-    origin: process.env.CORS_ORIGINS?.split(',') || [
-      'http://localhost:3010',
-      'http://localhost:5189',
-    ],
+    origin: parseCorsOrigins(process.env.CORS_ORIGINS),
     credentials: true,
   },
 })

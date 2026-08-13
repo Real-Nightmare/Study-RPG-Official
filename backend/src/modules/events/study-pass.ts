@@ -25,11 +25,7 @@ export function levelForExp(exp: number, thresholds: number[]): number {
 }
 
 /** Level indexes the player may still claim (reached and not yet claimed). */
-export function claimableLevels(
-  exp: number,
-  thresholds: number[],
-  claimed: number[],
-): number[] {
+export function claimableLevels(exp: number, thresholds: number[], claimed: number[]): number[] {
   const maxLevel = levelForExp(exp, thresholds);
   const claimedSet = new Set(claimed);
   const out: number[] = [];
@@ -52,7 +48,10 @@ export function buildStudyPassView(
   const levelProgressPct =
     nextThreshold === null
       ? 100
-      : Math.min(100, Math.round(((exp - currentThreshold) / (nextThreshold - currentThreshold)) * 100));
+      : Math.min(
+          100,
+          Math.round(((exp - currentThreshold) / (nextThreshold - currentThreshold)) * 100),
+        );
   return {
     level,
     exp,

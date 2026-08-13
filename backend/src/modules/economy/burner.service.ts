@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../database/database.service';
 import { WalletService } from '../rpg/wallet.service';
@@ -69,7 +75,9 @@ export class BurnerService {
    */
   async scrapeCard(userId: string, instanceId: string, confirm: boolean): Promise<ScrapeResult> {
     if (!confirm) {
-      throw new BadRequestException('Confirmation required — scraping permanently removes the card');
+      throw new BadRequestException(
+        'Confirmation required — scraping permanently removes the card',
+      );
     }
     const card = await this.assertRemovable(userId, instanceId, 'scrapable');
     const config = await this.supply.getConfig();
@@ -275,9 +283,7 @@ export class BurnerService {
           const current = locked.rows[0];
           if (!current || current.status !== 'active') return 0;
 
-          const created = current.created_at
-            ? new Date(current.created_at as string)
-            : now;
+          const created = current.created_at ? new Date(current.created_at as string) : now;
           const intervalMs = config.burnInstalmentIntervalHours * 60 * 60 * 1000;
           let paidIndex = Number(current.paid_count ?? 0);
           let runAmount = 0;
@@ -312,9 +318,7 @@ export class BurnerService {
               runAmount,
               paidIndex,
               complete ? 'completed' : 'active',
-              complete
-                ? null
-                : new Date(created.getTime() + paidIndex * intervalMs),
+              complete ? null : new Date(created.getTime() + paidIndex * intervalMs),
               complete ? now : null,
               id,
             ],

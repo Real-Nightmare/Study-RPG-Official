@@ -53,7 +53,9 @@ export class AbstractedService {
   ): Promise<UnabstractResult> {
     const config = await this.events.getConfig();
     if (!dto.confirm) {
-      throw new BadRequestException('Confirmation required — unabstracting permanently converts the card');
+      throw new BadRequestException(
+        'Confirmation required — unabstracting permanently converts the card',
+      );
     }
 
     const result = await this.db.transaction(async (client) => {
@@ -144,9 +146,7 @@ export class AbstractedService {
         stp: config.abstracted.unabstractStp,
       },
     });
-    this.logger.log(
-      `Unabstracted ${result.cardKey} for ${userId} → ${result.resultCardKey}`,
-    );
+    this.logger.log(`Unabstracted ${result.cardKey} for ${userId} → ${result.resultCardKey}`);
     return {
       unabstracted: true,
       ...result,
@@ -156,7 +156,9 @@ export class AbstractedService {
   }
 
   /** Lists the user's still-abstracted card instances for the UI. */
-  async myAbstracted(userId: string): Promise<
+  async myAbstracted(
+    userId: string,
+  ): Promise<
     Array<{ instanceId: string; cardKey: string; name: string; rarity: string; ability: unknown }>
   > {
     const rows = await this.db.queryMany<Record<string, unknown>>(

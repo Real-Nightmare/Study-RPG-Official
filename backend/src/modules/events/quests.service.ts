@@ -56,7 +56,11 @@ export class QuestsService {
     private readonly items: EventItemsService,
   ) {}
 
-  async listForEvent(userId: string, eventId: string, now: Date = new Date()): Promise<QuestView[]> {
+  async listForEvent(
+    userId: string,
+    eventId: string,
+    now: Date = new Date(),
+  ): Promise<QuestView[]> {
     const rows = await this.db.queryMany<QuestRow>(
       `SELECT * FROM quests
        WHERE event_id = $1 AND active = TRUE

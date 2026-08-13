@@ -116,7 +116,15 @@ export function ImageOcclusionEditor({ imageUrl, regions, onRegionsChange, onIma
   if (!imageUrl) {
     return (
       <div
+        role="button"
+        tabIndex={0}
         onClick={() => fileRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileRef.current?.click();
+          }
+        }}
         className="border-2 border-dashed border-border rounded-xl p-12 text-center cursor-pointer hover:border-green-500/30 hover:bg-green-500/5 transition-all"
       >
         <input

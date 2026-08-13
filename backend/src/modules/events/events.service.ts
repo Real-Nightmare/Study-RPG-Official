@@ -91,7 +91,7 @@ export class StudyEventsService {
       [now],
     );
 
-    let row = await this.db.queryOne<Record<string, unknown>>(
+    const row = await this.db.queryOne<Record<string, unknown>>(
       `SELECT * FROM events
        WHERE status = 'active' AND claim_deadline > $1
        ORDER BY starts_at DESC LIMIT 1`,
@@ -166,7 +166,8 @@ export class StudyEventsService {
         id,
         slug: config.fallback.slug,
         name: config.fallback.name,
-        story: 'An automatic fallback event, always active when no scheduled event follows an ending event. Study normally — every minute counts.',
+        story:
+          'An automatic fallback event, always active when no scheduled event follows an ending event. Study normally — every minute counts.',
         kind: 'fallback',
         startsAt,
         endsAt,
@@ -440,7 +441,8 @@ export class StudyEventsService {
         throw new BadRequestException('Study Pass level not reached yet');
       }
       const track = state.track as string;
-      const trackRewards = track === 'gold' ? config.abstracted.goldTrack : config.abstracted.freeTrack;
+      const trackRewards =
+        track === 'gold' ? config.abstracted.goldTrack : config.abstracted.freeTrack;
       const reward = trackRewards[level];
       if (!reward) {
         throw new BadRequestException('No reward configured for this level');

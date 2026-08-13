@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -160,7 +151,9 @@ export class EconomyController {
   // ---------------------------------------------------------------------------
 
   @Get('supply')
-  @ApiOperation({ summary: 'Supply report: original/active/burned/scraped/listed + value + extinction' })
+  @ApiOperation({
+    summary: 'Supply report: original/active/burned/scraped/listed + value + extinction',
+  })
   async supplyReport() {
     return this.supply.getSupplyReport();
   }

@@ -209,7 +209,14 @@ export class EconomyService {
         throw new BadRequestException('The card is no longer available');
       }
 
-      return this.settleSale(client, listing, buyerId, price, 'marketplace_buy', 'marketplace_sell');
+      return this.settleSale(
+        client,
+        listing,
+        buyerId,
+        price,
+        'marketplace_buy',
+        'marketplace_sell',
+      );
     });
 
     this.notify(
@@ -413,10 +420,11 @@ export class EconomyService {
       return { moved: false, location };
     }
     await this.assertLocationCapacity(userId, location);
-    await this.db.query(
-      `UPDATE card_instances SET location = $1 WHERE id = $2 AND user_id = $3`,
-      [location, instanceId, userId],
-    );
+    await this.db.query(`UPDATE card_instances SET location = $1 WHERE id = $2 AND user_id = $3`, [
+      location,
+      instanceId,
+      userId,
+    ]);
     return { moved: true, location };
   }
 
@@ -599,7 +607,10 @@ export class EconomyService {
     return row;
   }
 
-  private async findOwnedCard(userId: string, instanceId: string): Promise<Record<string, unknown>> {
+  private async findOwnedCard(
+    userId: string,
+    instanceId: string,
+  ): Promise<Record<string, unknown>> {
     const row = await this.db.queryOne<Record<string, unknown>>(
       `SELECT id, user_id, location, removed_at FROM card_instances WHERE id = $1`,
       [instanceId],
@@ -664,7 +675,12 @@ export class EconomyService {
     };
   }
 
-  private notify(userId: string, type: 'info' | 'success' | 'warning', title: string, message: string): void {
+  private notify(
+    userId: string,
+    type: 'info' | 'success' | 'warning',
+    title: string,
+    message: string,
+  ): void {
     this.notifications
       .create({ userId, type, title, message, link: '/dashboard/economy' })
       .catch((error: Error) => this.logger.debug(`Notification skipped: ${error.message}`));

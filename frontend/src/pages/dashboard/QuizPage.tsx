@@ -461,7 +461,6 @@ function QuizQuestionScreen({
               }}
               disabled={showFeedback}
               placeholder="Type your answer here..."
-              autoFocus
               className={cn(
                 'w-full px-4 py-3.5 rounded-xl border-2 bg-card text-sm font-medium outline-none transition-all',
                 showFeedback

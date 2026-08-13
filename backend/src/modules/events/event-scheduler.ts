@@ -19,14 +19,20 @@ export interface SchedulableEvent {
 }
 
 /** The status an event should have right now (ends only after claim deadline). */
-export function nextStatusFor(event: Pick<SchedulableEvent, 'status' | 'startsAt' | 'claimDeadline'>, now: Date): EventStatus {
+export function nextStatusFor(
+  event: Pick<SchedulableEvent, 'status' | 'startsAt' | 'claimDeadline'>,
+  now: Date,
+): EventStatus {
   if (now >= event.claimDeadline) return 'ended';
   if (now >= event.startsAt) return 'active';
   return 'scheduled';
 }
 
 /** Whether `now` falls inside the event's playable window (start → claim deadline). */
-export function isActiveWindow(event: Pick<SchedulableEvent, 'startsAt' | 'claimDeadline'>, now: Date): boolean {
+export function isActiveWindow(
+  event: Pick<SchedulableEvent, 'startsAt' | 'claimDeadline'>,
+  now: Date,
+): boolean {
   return now >= event.startsAt && now < event.claimDeadline;
 }
 
