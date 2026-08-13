@@ -1,0 +1,26 @@
+# =============================================================
+# Study RPG frontend — Cloudflare Pages configuration
+#
+# The frontend is deployed as a **pure static site**: there are
+# no Pages Functions and no Worker scripts in this directory, so
+# every asset is served straight from Cloudflare's edge CDN with
+# ZERO Worker invocations. See public/_headers + public/_redirects
+# for the caching/SPA rules that make that true.
+#
+# NOTE: this file is mostly for local `wrangler pages deploy`
+# DX. The canonical production path is the GitHub Actions
+# workflow `.github/workflows/deploy-frontend-cloudflare.yml`,
+# which deploys `frontend/dist` with wrangler-action.
+# =============================================================
+
+name = "study-rpg"
+
+# Directory wrangler uploads on `wrangler pages deploy` when no
+# positional directory is given (vite build output).
+pages_build_output_dir = "dist"
+
+compatibility_date = "2025-08-01"
+
+# The frontend talks to the NestJS API directly (same-origin
+# reverse proxy or CORS-allowlisted origin). We deliberately do
+# NOT route /api through a Worker — see docs/deployment/hosting.md.

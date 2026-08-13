@@ -1,0 +1,4 @@
+# SPA fallback — Cloudflare Pages edge config, zero Worker invocations.
+# Any path that is not a real file (e.g. /dashboard, /rpg, /auth) serves
+# index.html with a 200 so react-router can take over.
+/*    /index.html   200

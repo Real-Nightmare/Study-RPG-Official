@@ -1,0 +1,78 @@
+# =============================================================
+# Deploy the Study RPG frontend to Cloudflare Pages on every push
+# to main (and manually via workflow_dispatch).
+#
+# The deploy is a pure static upload of `frontend/dist`:
+#   • NO Pages Functions, NO Worker scripts -> every request is
+#     served from Cloudflare's edge CDN with ZERO Worker
+#     invocations (see frontend/public/_headers + _redirects).
+#   • SPA fallback + caching headers ship inside the build output.
+#
+# Required GitHub secrets:
+#   CLOUDFLARE_API_TOKEN  — API token with "Cloudflare Pages: Edit"
+#                           permission (https://dash.cloudflare.com/profile/api-tokens)
+#   CLOUDFLARE_ACCOUNT_ID — your Cloudflare account ID
+#
+# Recommended GitHub variables:
+#   CLOUDFLARE_PROJECT_NAME — Pages project name (defaults to "study-rpg";
+#                             wrangler creates it on first deploy if missing)
+#   VITE_API_URL            — production API origin (e.g. https://api.study-rpg.com).
+#                             REQUIRED in production; the build falls back to the
+#                             code default (localhost:3010) with a warning otherwise.
+# =============================================================
+
+name: Deploy Frontend to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-frontend-cloudflare.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cf-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: |
+          if [ -z "${VITE_API_URL:-}" ]; then
+            echo "::warning::VITE_API_URL repository variable is not set — the build uses the code default (http://localhost:3010). Set it to your production API origin before shipping."
+          fi
+          npm run build
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PROJECT_NAME || 'study-rpg' }}
+          workingDirectory: frontend

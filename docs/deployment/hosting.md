@@ -114,6 +114,45 @@ cd frontend && npm ci && npm run build
 # point nginx/Cloudflare Pages at frontend/dist with SPA fallback
 ```
 
+### Option C — Cloudflare Pages (automatic, zero Worker usage)
+
+The frontend is wired for **automatic Cloudflare Pages deploys**: pushing to
+`main` runs `.github/workflows/deploy-frontend-cloudflare.yml`, which builds
+`frontend/dist` and uploads it with wrangler.
+
+**Zero Worker invocations by design.** The frontend is deployed as a **pure
+static site**: there is no `frontend/functions/` directory and no Worker
+script anywhere in the deploy path, so every request is answered straight
+from Cloudflare's edge CDN — no Worker compute, no per-request Worker cost.
+Three pieces make this work:
+
+1. `frontend/public/_redirects` — SPA fallback (`/* → /index.html 200`),
+   a plain edge rule, not a Function.
+2. `frontend/public/_headers` — hashed `/assets/*` are cached **immutable
+   for 1 year** (browser + edge), while `index.html` and `sw.js` are
+   revalidated every load so new deploys propagate immediately. Repeat
+   visits therefore hit the browser cache and the CDN — never an origin.
+3. `frontend/wrangler.toml` — Pages project config (`pages_build_output_dir
+   = "dist"`) for local `wrangler pages deploy`.
+
+The API is **not** proxied through a Worker: the browser calls the NestJS
+backend directly, either same-origin via a reverse proxy on the Pages custom
+domain or cross-origin with `CORS_ORIGINS` allowlisted.
+
+**GitHub configuration needed once** (repo → Settings → Secrets and
+variables → Actions):
+
+| Kind | Name | Purpose |
+|------|------|---------|
+| Secret | `CLOUDFLARE_API_TOKEN` | API token with **Cloudflare Pages: Edit** permission (create at https://dash.cloudflare.com/profile/api-tokens) |
+| Secret | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
+| Variable | `CLOUDFLARE_PROJECT_NAME` | Pages project name (defaults to `study-rpg`; auto-created on first deploy) |
+| Variable | `VITE_API_URL` | **Production API origin** — REQUIRED, e.g. `https://api.study-rpg.com`. Without it the build falls back to `http://localhost:3010` with a workflow warning |
+
+After the first deploy: attach a custom domain in the Cloudflare dashboard,
+add that origin to the backend's `CORS_ORIGINS` (or reverse-proxy `/api` and
+`/socket.io` on the same domain), and set `VITE_API_URL` to the same origin.
+
 ### Database migrations
 
 Migrations run on boot? No — run them explicitly:
