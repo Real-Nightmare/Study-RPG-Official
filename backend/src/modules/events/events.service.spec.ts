@@ -290,8 +290,12 @@ describe('StudyEventsService (PDF Phase 7 §25–§27)', () => {
   describe('recordStudyActivity (§25)', () => {
     it('accrues event EXP from study activity during an active event', async () => {
       const fixture = makeService();
-      await fixture.service.recordStudyActivity(USER, { type: 'task_completed' });
-      await fixture.service.recordStudyActivity(USER, { type: 'study_session', amount: 60 });
+      // Pin `now` to IST daytime (12:00Z = 17:30 IST) so the anti-overstudy
+      // night-window dampening (spec 015, 22:00–06:00 IST) never applies —
+      // otherwise this test's expected EXP shifts with the wall clock.
+      const now = new Date('2026-08-10T12:00:00Z');
+      await fixture.service.recordStudyActivity(USER, { type: 'task_completed' }, now);
+      await fixture.service.recordStudyActivity(USER, { type: 'study_session', amount: 60 }, now);
       const state = await fixture.service.studyPassState(USER, 'ev-abstracted');
       expect(state.exp).toBe(25 + 10 * 60);
     });
