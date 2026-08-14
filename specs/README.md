@@ -26,6 +26,7 @@ through the `/speckit.*` commands.
 | `013-study-hardening` | Audit-log export/retention/purge, DM moderation + rate limits, Web Push (VAPID), faction settlement job, admin status, ops scripts + runbooks + deployment docs | 9 | ✅ Implemented |
 | `014-study-integrity` | F2W meritocracy: exponential reward curve, anti-cheese behavioural guards, metacognitive Campfire loop (AI synthesis question → 1.0–1.5× multiplier), mastery-framed copy | Owner brief | ✅ Implemented |
 | `015-study-wellbeing` | Anti-overstudy & health-first wellbeing: all AI surfaces speak the canonical philosophy (health-first guardian), focus-session start gates (rest cooldown, exhaustion, night-rest nudge), diminishing-returns dampening past the healthy daily optimum, study-health meter | Owner follow-up | ✅ Implemented |
+| `016-study-data-marketplace` | Ocean Protocol data marketplace (privacy-guarded aggregates only, consent-gated, min cohort + coverage, checksummed DDO) + admin AI effectiveness benchmarking (two-window deltas, weighted 0–100 score, AI narrative grounded in metrics only) | Owner brief | ✅ Implemented |
 
 ## Workflow
 

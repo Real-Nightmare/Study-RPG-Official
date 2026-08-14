@@ -32,17 +32,29 @@ import {
   Flag,
   Boxes,
   Trash2 as TrashIcon,
+  BarChart3,
+  Sparkles,
+  Globe,
+  CircleDollarSign,
+  Lock,
+  PlusCircle,
+  RotateCcw,
 } from 'lucide-react';
 import type {
   AdminNote,
   AdminUserRow,
   AuditLogEntry,
   AuditRetention,
+  BenchmarkRun,
+  DataMarketplaceStatus,
+  MarketplaceDataset,
+  MarketplaceDatasetType,
   SyllabusEntry,
   SystemStatus,
 } from '@/types';
+import { dataMarketplaceService } from '@/services/dataMarketplace';
 
-type Tab = 'users' | 'audit' | 'notes' | 'syllabus' | 'system';
+type Tab = 'users' | 'audit' | 'notes' | 'syllabus' | 'system' | 'benchmarks';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -69,7 +81,11 @@ export default function AdminPage() {
               ['audit', 'admin.tab.audit', ScrollText],
               ['notes', 'admin.tab.notes', FileText],
               ['syllabus', 'admin.tab.syllabus', BookOpenCheck],
-              ...(isAdmin ? ([['system', 'admin.tab.system', Activity]] as Array<[Tab, string, typeof Users]>) : []),
+              ...(isAdmin
+                ? ([['system', 'admin.tab.system', Activity], ['benchmarks', 'admin.tab.benchmarks', BarChart3]] as Array<
+                    [Tab, string, typeof Users]
+                  >)
+                : []),
             ] as Array<[Tab, string, typeof Users]>
           ).map(([key, labelKey, Icon]) => (
             <button
@@ -112,6 +128,11 @@ export default function AdminPage() {
           {tab === 'system' && (
             <motion.div key="system" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
               <SystemTab />
+            </motion.div>
+          )}
+          {tab === 'benchmarks' && (
+            <motion.div key="benchmarks" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+              <BenchmarksTab />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1116,6 +1137,436 @@ function SyllabusTab() {
       </Card>
     </div>
   );
+}
+
+// ------------------------------------------------------------------
+// Data Marketplace + AI Benchmarking tab (owner brief: Ocean Protocol
+// aggregate datasets + admin effectiveness benchmarking)
+// ------------------------------------------------------------------
+function BenchmarksTab() {
+  const { t } = useTranslation();
+  const [runs, setRuns] = useState<BenchmarkRun[]>([]);
+  const [datasets, setDatasets] = useState<MarketplaceDataset[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<DataMarketplaceStatus | null>(null);
+
+  // Start-benchmark form
+  const [windowDays, setWindowDays] = useState('30');
+  const [country, setCountry] = useState('');
+  const [board, setBoard] = useState('');
+  const [grade, setGrade] = useState('');
+  const [note, setNote] = useState('');
+  const [starting, setStarting] = useState(false);
+
+  // Dataset creation form
+  const [showCreate, setShowCreate] = useState(false);
+  const [newDs, setNewDs] = useState({
+    name: '',
+    description: '',
+    datasetType: 'study_engagement' as MarketplaceDatasetType,
+    price: '10',
+    reason: '',
+    country: '',
+    board: '',
+    grade: '',
+  });
+  const [creating, setCreating] = useState(false);
+
+  const fetchAll = useCallback(async () => {
+    try {
+      const [runList, datasetList, marketplaceStatus] = await Promise.all([
+        dataMarketplaceService.listBenchmarks(),
+        dataMarketplaceService.listDatasets(),
+        dataMarketplaceService.getStatus(),
+      ]);
+      setRuns(runList);
+      setDatasets(datasetList);
+      setStatus(marketplaceStatus);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to load data marketplace:', err);
+      setError(t('admin.benchmarks.loadError'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  const startBenchmark = async () => {
+    setStarting(true);
+    try {
+      const run = await dataMarketplaceService.startBenchmark({
+        windowDays: Number(windowDays) || 30,
+        cohortFilters: {
+          ...(country.trim() ? { country: country.trim() } : {}),
+          ...(board.trim() ? { board: board.trim() } : {}),
+          ...(grade.trim() ? { grade: grade.trim() } : {}),
+        },
+        note: note.trim() || undefined,
+      });
+      setRuns((prev) => [run, ...prev]);
+      setExpanded(run.id);
+      setNote('');
+    } catch (err) {
+      console.error('Failed to start benchmark:', err);
+      setError(t('admin.benchmarks.startError'));
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  const createDataset = async () => {
+    if (!newDs.name.trim() || !newDs.reason.trim()) return;
+    setCreating(true);
+    try {
+      const ds = await dataMarketplaceService.createDataset({
+        name: newDs.name.trim(),
+        description: newDs.description.trim() || undefined,
+        datasetType: newDs.datasetType,
+        priceAmount: Number(newDs.price) || 0,
+        cohortFilters: {
+          ...(newDs.country.trim() ? { country: newDs.country.trim() } : {}),
+          ...(newDs.board.trim() ? { board: newDs.board.trim() } : {}),
+          ...(newDs.grade.trim() ? { grade: newDs.grade.trim() } : {}),
+        },
+        reason: newDs.reason.trim(),
+      });
+      setDatasets((prev) => [ds, ...prev]);
+      setNewDs({
+        name: '',
+        description: '',
+        datasetType: 'study_engagement',
+        price: '10',
+        reason: '',
+        country: '',
+        board: '',
+        grade: '',
+      });
+      setShowCreate(false);
+    } catch (err) {
+      console.error('Failed to create dataset:', err);
+      setError(t('admin.datasets.createError'));
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const publishDataset = async (ds: MarketplaceDataset) => {
+    const reason = window.prompt(t('admin.datasets.publishReasonPrompt'));
+    if (!reason) return;
+    try {
+      const updated = await dataMarketplaceService.publishDataset(ds.id, reason);
+      setDatasets((prev) => prev.map((d) => (d.id === ds.id ? updated : d)));
+      setError(null);
+    } catch (err) {
+      console.error('Failed to publish dataset:', err);
+      setError(t('admin.datasets.publishError'));
+    }
+  };
+
+  const revokeDataset = async (ds: MarketplaceDataset) => {
+    const reason = window.prompt(t('admin.datasets.revokeReasonPrompt'));
+    if (!reason) return;
+    try {
+      const updated = await dataMarketplaceService.revokeDataset(ds.id, reason);
+      setDatasets((prev) => prev.map((d) => (d.id === ds.id ? updated : d)));
+      setError(null);
+    } catch (err) {
+      console.error('Failed to revoke dataset:', err);
+      setError(t('admin.datasets.revokeError'));
+    }
+  };
+
+  const deleteDataset = async (ds: MarketplaceDataset) => {
+    const reason = window.prompt(t('admin.datasets.deleteReasonPrompt'));
+    if (!reason) return;
+    try {
+      await dataMarketplaceService.deleteDataset(ds.id, reason);
+      setDatasets((prev) => prev.filter((d) => d.id !== ds.id));
+      setError(null);
+    } catch (err) {
+      console.error('Failed to delete dataset:', err);
+      setError(t('admin.datasets.deleteError'));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
+      {/* ---------- AI effectiveness benchmark ---------- */}
+      <Card className="border-purple-500/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <BarChart3 className="h-4 w-4 text-purple-600" />
+            {t('admin.benchmarks.title')}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">{t('admin.benchmarks.subtitle')}</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Start form */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Input
+              type="number"
+              min={7}
+              max={180}
+              placeholder={t('admin.benchmarks.windowPlaceholder')}
+              value={windowDays}
+              onChange={(e) => setWindowDays(e.target.value)}
+            />
+            <Input placeholder={t('admin.benchmarks.countryPlaceholder')} value={country} onChange={(e) => setCountry(e.target.value)} />
+            <Input placeholder={t('admin.benchmarks.boardPlaceholder')} value={board} onChange={(e) => setBoard(e.target.value)} />
+            <Input placeholder={t('admin.benchmarks.gradePlaceholder')} value={grade} onChange={(e) => setGrade(e.target.value)} />
+            <Input placeholder={t('admin.benchmarks.notePlaceholder')} value={note} onChange={(e) => setNote(e.target.value)} />
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">{t('admin.benchmarks.windowHint')}</p>
+            <Button onClick={() => void startBenchmark()} disabled={starting}>
+              {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {t('admin.benchmarks.start')}
+            </Button>
+          </div>
+
+          {/* Run list */}
+          {runs.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">{t('admin.benchmarks.none')}</p>
+          ) : (
+            <div className="space-y-2">
+              {runs.map((run) => (
+                <div key={run.id} className="rounded-lg border px-4 py-3">
+                  <button
+                    type="button"
+                    className="flex w-full flex-wrap items-center justify-between gap-2 text-left"
+                    onClick={() => setExpanded((cur) => (cur === run.id ? null : run.id))}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Badge variant={run.status === 'completed' ? 'outline' : run.status === 'failed' ? 'destructive' : 'secondary'}>
+                        {run.status}
+                      </Badge>
+                      <span className="text-sm font-medium">
+                        {run.config?.windowDays ?? 30} {t('admin.benchmarks.days')}
+                      </span>
+                      {run.metrics && (
+                        <Badge variant="outline" className={bandClass(run.metrics.band)}>
+                          {t(`admin.benchmarks.band.${run.metrics.band}`)} · {run.metrics.score}/100
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(run.createdAt).toLocaleString()}
+                    </span>
+                  </button>
+
+                  {expanded === run.id && (
+                    <div className="mt-3 space-y-3 border-t pt-3 text-sm">
+                      {run.error && <p className="text-destructive">{run.error}</p>}
+                      {run.metrics && (
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                          {run.metrics.deltas.map((d) => (
+                            <div key={d.key} className="rounded-lg border bg-muted/30 px-3 py-2">
+                              <p className="text-xs text-muted-foreground">{d.label}</p>
+                              <p className="font-semibold tabular-nums">
+                                {d.before.toFixed(1)} → {d.after.toFixed(1)}
+                                <span className={d.improved ? 'ml-1 text-emerald-600 dark:text-emerald-400' : 'ml-1 text-destructive'}>
+                                  ({(d.delta * 100).toFixed(0)}%)
+                                </span>
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {run.report && (
+                        <div className="space-y-2">
+                          <p className="text-sm">{run.report.summary}</p>
+                          {Array.isArray(run.report.strengths) && run.report.strengths.length > 0 && (
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                              {t('admin.benchmarks.strengths')}: {run.report.strengths.join(', ')}
+                            </p>
+                          )}
+                          {Array.isArray(run.report.risks) && run.report.risks.length > 0 && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400">
+                              {t('admin.benchmarks.risks')}: {run.report.risks.join(', ')}
+                            </p>
+                          )}
+                          {run.report.recommendation && (
+                            <p className="text-xs text-muted-foreground">
+                              {t('admin.benchmarks.recommendation')}: {run.report.recommendation}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ---------- Data marketplace datasets ---------- */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Globe className="h-4 w-4 text-purple-600" />
+            {t('admin.datasets.title')}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">{t('admin.datasets.subtitle')}</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">{t('admin.datasets.privacyNote')}</p>
+            <Button size="sm" variant="outline" onClick={() => setShowCreate((v) => !v)}>
+              {showCreate ? <Eye className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />}
+              {showCreate ? t('admin.datasets.hideForm') : t('admin.datasets.create')}
+            </Button>
+          </div>
+
+          {status && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              <span className="font-medium">{t('admin.datasets.publishModeLabel')}:</span>
+              <Badge variant="outline" className="text-[10px]">
+                {status.publishMode === 'disabled'
+                  ? t('admin.datasets.modeDisabled')
+                  : status.publishMode === 'on-chain-ready'
+                    ? t('admin.datasets.modeOnChainReady')
+                    : t('admin.datasets.modeMetadataFirst')}
+              </Badge>
+              {status.publishMode !== 'disabled' && !status.walletConfigured && (
+                <span className="text-amber-600 dark:text-amber-400">{t('admin.datasets.walletHint')}</span>
+              )}
+            </div>
+          )}
+
+          {showCreate && (
+            <div className="grid gap-3 rounded-lg border border-purple-500/30 p-4 sm:grid-cols-2">
+              <Input placeholder={t('admin.datasets.namePlaceholder')} value={newDs.name} onChange={(e) => setNewDs({ ...newDs, name: e.target.value })} />
+              <select
+                value={newDs.datasetType}
+                onChange={(e) => setNewDs({ ...newDs, datasetType: e.target.value as MarketplaceDatasetType })}
+                className="rounded-lg border bg-background px-3 py-2 text-sm"
+              >
+                <option value="study_engagement">study_engagement</option>
+                <option value="academic_outcomes">academic_outcomes</option>
+                <option value="rpg_effectiveness">rpg_effectiveness</option>
+              </select>
+              <Input placeholder={t('admin.datasets.descriptionPlaceholder')} value={newDs.description} onChange={(e) => setNewDs({ ...newDs, description: e.target.value })} />
+              <Input placeholder={t('admin.datasets.pricePlaceholder')} value={newDs.price} onChange={(e) => setNewDs({ ...newDs, price: e.target.value })} />
+              <Input placeholder={t('admin.datasets.countryPlaceholder')} value={newDs.country} onChange={(e) => setNewDs({ ...newDs, country: e.target.value })} />
+              <Input placeholder={t('admin.datasets.boardPlaceholder')} value={newDs.board} onChange={(e) => setNewDs({ ...newDs, board: e.target.value })} />
+              <Input placeholder={t('admin.datasets.gradePlaceholder')} value={newDs.grade} onChange={(e) => setNewDs({ ...newDs, grade: e.target.value })} />
+              <Input placeholder={t('admin.datasets.reasonPlaceholder')} value={newDs.reason} onChange={(e) => setNewDs({ ...newDs, reason: e.target.value })} className="sm:col-span-2" />
+              <Button className="sm:col-span-2" onClick={() => void createDataset()} disabled={creating || !newDs.name.trim() || !newDs.reason.trim()}>
+                {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlusCircle className="h-4 w-4" />}
+                {t('admin.datasets.createBtn')}
+              </Button>
+            </div>
+          )}
+
+          {datasets.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">{t('admin.datasets.none')}</p>
+          ) : (
+            <div className="space-y-2">
+              {datasets.map((ds) => (
+                <div key={ds.id} className="rounded-lg border px-4 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                        {ds.name}
+                        <Badge variant="secondary" className="text-[10px]">{ds.datasetType}</Badge>
+                        <Badge variant={ds.status === 'published' ? 'outline' : ds.status === 'revoked' ? 'destructive' : 'secondary'} className="text-[10px]">
+                          {ds.status}
+                        </Badge>
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {Object.entries(ds.cohortFilters).map(([k, v]) => `${k}=${v}`).join(' · ') || t('admin.datasets.allCohorts')}
+                        {' · '}
+                        <CircleDollarSign className="inline h-3 w-3" /> {ds.priceAmount} {ds.priceCurrency}
+                      </p>
+                      {ds.privacyReport && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          <Lock className="inline h-3 w-3" /> {t('admin.datasets.cohortSize')}: {ds.privacyReport.cohortSize ?? '-'} ·{' '}
+                          {t('admin.datasets.consentCoverage')}:{' '}
+                          {typeof ds.privacyReport.consentCoverage === 'number'
+                            ? `${(ds.privacyReport.consentCoverage * 100).toFixed(0)}%`
+                            : '-'}
+                          {ds.privacyReport.ocean && (
+                            <>
+                              {' · '}
+                              {ds.privacyReport.ocean.published
+                                ? t('admin.datasets.oceanLive')
+                                : t('admin.datasets.oceanPending')}
+                            </>
+                          )}
+                        </p>
+                      )}
+                      {ds.did && (
+                        <p className="mt-1 font-mono text-[10px] text-muted-foreground truncate">
+                          {ds.did}
+                          {ds.checksum ? ` · sha256:${ds.checksum.slice(0, 12)}…` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-1">
+                      {ds.status !== 'published' && (
+                        <Button size="sm" variant="outline" onClick={() => void publishDataset(ds)}>
+                          <Globe className="h-4 w-4" />
+                          {t('admin.datasets.publish')}
+                        </Button>
+                      )}
+                      {ds.status === 'published' && (
+                        <Button size="sm" variant="outline" onClick={() => void revokeDataset(ds)}>
+                          <RotateCcw className="h-4 w-4" />
+                          {t('admin.datasets.revoke')}
+                        </Button>
+                      )}
+                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => void deleteDataset(ds)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+type BenchmarkBand = 'transformative' | 'strong' | 'moderate' | 'neutral' | 'negative';
+
+function bandClass(band: BenchmarkBand): string {
+  switch (band) {
+    case 'transformative':
+      return 'border-emerald-300 text-emerald-600 dark:border-emerald-700 dark:text-emerald-300';
+    case 'strong':
+      return 'border-teal-300 text-teal-600 dark:border-teal-700 dark:text-teal-300';
+    case 'moderate':
+      return 'border-amber-300 text-amber-600 dark:border-amber-700 dark:text-amber-300';
+    case 'neutral':
+      return 'text-muted-foreground';
+    default:
+      return 'border-red-300 text-red-600 dark:border-red-700 dark:text-red-300';
+  }
 }
 
 // Simple modal shell (kept local to avoid new deps)

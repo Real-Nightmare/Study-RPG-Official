@@ -373,6 +373,17 @@ export const ENDPOINTS = {
     adminReconcile: '/economy/admin/reconcile',
     adminProcessInstalments: '/economy/admin/process-burn-instalments',
   },
+  // Data marketplace + AI benchmarking (owner brief — Ocean Protocol aggregates + admin effectiveness benchmarks)
+  dataMarketplace: {
+    consent: '/data-marketplace/consent',
+    datasets: '/data-marketplace/datasets',
+    dataset: (id: string) => `/data-marketplace/datasets/${id}`,
+    publishDataset: (id: string) => `/data-marketplace/datasets/${id}/publish`,
+    revokeDataset: (id: string) => `/data-marketplace/datasets/${id}/revoke`,
+    benchmarks: '/data-marketplace/benchmarks',
+    benchmark: (id: string) => `/data-marketplace/benchmarks/${id}`,
+    status: '/data-marketplace/status',
+  },
   // Phase 6 — Study Community
   admin: {
     users: '/admin/users',

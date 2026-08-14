@@ -50,6 +50,7 @@ import { AdminNotesModule } from './modules/admin-notes';
 import { EconomyModule } from './modules/economy';
 import { EventsModule } from './modules/events';
 import { IntegrityModule } from './modules/integrity';
+import { DataMarketplaceModule } from './modules/data-marketplace';
 
 // Common
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -145,6 +146,7 @@ import { HealthController } from './health.controller';
     EconomyModule,
     EventsModule,
     IntegrityModule,
+    DataMarketplaceModule,
   ],
   controllers: [HealthController],
   providers: [

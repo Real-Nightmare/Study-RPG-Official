@@ -166,6 +166,30 @@ After the first deploy: attach a custom domain in the Cloudflare dashboard,
 add that origin to the backend's `CORS_ORIGINS` (or reverse-proxy `/api` and
 `/socket.io` on the same domain), and set `VITE_API_URL` to the same origin.
 
+### Option D — Caasify (full-stack hosting)
+
+[Caasify](https://caasify.com) is a full-stack web-app hosting platform (Git
+deploys, preview URLs, autoscaling, custom domains) that can run the whole
+stack in one place — ideal if you don't want to hand-manage the VM + Cloudflare
+split. It bills per provisioned resource (VPS/containers, domains, etc.) —
+that bill is **separate from Ocean**: the data marketplace itself needs **no
+Ocean wallet and no funds** (see wallet-free metadata mode below).
+
+What to wire on the Caasify side (no code changes needed — this repo is
+deploy-ready):
+
+1. **Connect the repo** — Git-based deploy from `Real-Nightmare/Study-RPG-Official`; every push to `main` builds the project (or builds the Docker images).
+2. **Backend** — build `npm ci && npm run build` (in `backend/`), run `node dist/main.js` (the NestJS API + BullMQ workers in one process) or the `backend/Dockerfile` image. Binds to the port Caasify injects (`PORT`).
+3. **Frontend** — build `npm ci && npm run build` (in `frontend/`) and serve `frontend/dist` statically (nginx or the platform's static host) with SPA fallback to `index.html`.
+4. **Data stores** — PostgreSQL 15 + Redis 7 (+ Qdrant if RAG features are on). Use Caasify-managed databases or your own, and point the env vars below at them.
+5. **Env vars** — set on the Caasify side (never commit):
+   - Required: `DATABASE_URL`, `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`, `QDRANT_URL`, `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` (≥ 32 chars), `CORS_ORIGINS`, `VITE_API_URL` (frontend build), `OPENROUTER_API_KEY` (AI features).
+   - Marketplace (optional, **wallet-free by default**): `OCEAN_AQUARIUS_URL` (defaults to Ocean mainnet) — aggregates publish as metadata-only DDOs; the on-chain datatoken mint only becomes possible once you add `OCEAN_PUBLISHER_ADDRESS` + `OCEAN_PUBLISHER_PRIVATE_KEY` (funded wallet).
+   - Idle-capacity Ocean Node (optional): `OCEAN_NODE_ENABLED=true` + `OCEAN_NODE_PRIVATE_KEY` + `OCEAN_NODE_RPC_URLS` — the monitor runs an `oceanprotocol/ocean-node` container when the server is fully idle and stops it the moment any user appears.
+6. **SSH debug images** — the backend/frontend Dockerfiles ship an always-on SSH server (host ports `3022`/`3222`). On Caasify, bind those ports to localhost/VPN only, or disable SSH by overriding `SSH_PUBLIC_KEY`/removing the entrypoint — they are debug conveniences, not production requirements.
+
+Full env-var tables: `docs/getting-started/configuration.md` and `backend/.env.example`.
+
 ### Database migrations
 
 Migrations run on boot? No — run them explicitly:

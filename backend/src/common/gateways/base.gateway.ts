@@ -16,6 +16,19 @@ export abstract class BaseGateway
 {
   protected abstract readonly logger: Logger;
 
+  /**
+   * Repo-wide count of live WebSocket connections across ALL gateway
+   * namespaces. Static on the shared base so every gateway instance updates
+   * the same counter; the idle-capacity Ocean Node monitor uses it as one of
+   * its "is the server actually idle?" signals.
+   */
+  private static connectionCount = 0;
+
+  /** Number of currently connected sockets across all namespaces. */
+  static get activeConnections(): number {
+    return BaseGateway.connectionCount;
+  }
+
   @WebSocketServer()
   protected server: Server;
 
@@ -26,6 +39,7 @@ export abstract class BaseGateway
   handleConnection(client: Socket) {
     const userId = client.data.user?.sub;
     this.logger.log(`Client connected: ${client.id} (user: ${userId || 'unauthenticated'})`);
+    BaseGateway.connectionCount += 1;
 
     if (userId) {
       client.join(`user:${userId}`);
@@ -35,6 +49,7 @@ export abstract class BaseGateway
   handleDisconnect(client: Socket) {
     const userId = client.data.user?.sub;
     this.logger.log(`Client disconnected: ${client.id} (user: ${userId || 'unauthenticated'})`);
+    BaseGateway.connectionCount = Math.max(0, BaseGateway.connectionCount - 1);
   }
 
   protected emitToUser(userId: string, event: string, data: unknown) {

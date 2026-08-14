@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
@@ -15,9 +15,11 @@ import {
   Check,
   Eye,
   EyeOff,
+  ShieldCheck,
 } from 'lucide-react';
 import api from '@/services/api';
 import { ENDPOINTS } from '@/config/api';
+import { dataMarketplaceService } from '@/services/dataMarketplace';
 
 export function AccountSettingsPage() {
   const navigate = useNavigate();
@@ -38,6 +40,33 @@ export function AccountSettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
+
+  // Data sharing consent (anonymised aggregates only)
+  const [consented, setConsented] = useState<boolean | null>(null);
+  const [consentBusy, setConsentBusy] = useState(false);
+  const [consentError, setConsentError] = useState('');
+
+  useEffect(() => {
+    dataMarketplaceService
+      .getConsent()
+      .then((c) => setConsented(c.consented))
+      .catch(() => setConsented(false));
+  }, []);
+
+  const toggleConsent = async () => {
+    if (consented === null || consentBusy) return;
+    setConsentBusy(true);
+    setConsentError('');
+    try {
+      const next = !consented;
+      const c = await dataMarketplaceService.setConsent(next);
+      setConsented(c.consented);
+    } catch {
+      setConsentError(t('accountSettingsPage.consentError'));
+    } finally {
+      setConsentBusy(false);
+    }
+  };
 
   const handleChangePassword = async () => {
     setPasswordError('');
@@ -207,6 +236,45 @@ export function AccountSettingsPage() {
               <span>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</span>
             </div>
           </div>
+        </motion.div>
+
+        {/* Data & Privacy (anonymised aggregate sharing) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.13 }}
+          className="bg-card rounded-2xl border border-border p-6 mb-6"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">{t('accountSettingsPage.dataSharing')}</p>
+              <p className="text-xs text-muted-foreground">{t('accountSettingsPage.dataSharingDesc')}</p>
+            </div>
+          </div>
+
+          {consented !== null && (
+            <label className="mt-4 flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-4">
+              <span className="text-sm">
+                <span className="block font-medium">{t('accountSettingsPage.consentLabel')}</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {consented ? t('accountSettingsPage.consentOn') : t('accountSettingsPage.consentOff')}
+                </span>
+                {consentError && <span className="mt-1 block text-xs text-red-500">{consentError}</span>}
+              </span>
+              <input
+                type="checkbox"
+                checked={consented}
+                onChange={() => void toggleConsent()}
+                disabled={consentBusy}
+                className="h-5 w-5 accent-purple-600"
+              />
+            </label>
+          )}
+
+          <p className="mt-3 text-xs text-muted-foreground">{t('accountSettingsPage.consentNote')}</p>
         </motion.div>
 
         {/* Delete Account */}

@@ -118,6 +118,8 @@ Owner approved **Option A — AGPL-3.0 as the single project licence** (per ADR-
 
 Remaining (non-blocking): confirm no third-party-owned assets (Q4); decide content-licence handling for Study RPG (Q3).
 
+**2026-08-14 — "remove the Studyield licence/attribution to make the repo private" request — declined.** The owner asked whether Studyield-derived files could be recoded out and their licence/attribution stripped so the codebase could go private. That is not lawful here: the upstream Studyield code is distributed under AGPL-3.0, and AGPL §5 (in conjunction with the copyright notices preserved in `NOTICE` and `UPSTREAM.md`) requires retaining the upstream copyright and licence notices — deleting them to hide provenance would be a licence violation, not a cleanup. The only lawful path to a private codebase is a **clean-room rewrite of the upstream-derived files** (reimplementation from the specification, not from the code), which is a large engineering effort and out of scope for this session; nothing in this repository's history removes or obscures upstream attribution. All new Study RPG work (Study RPG characters/lore/art, RPG engine, integrity/economy/wellbeing systems, and the Ocean data marketplace) is original code authored for this fork and remains under the same AGPL-3.0 project licence.
+
 ---
 
 *Evidence gathered 2026-08-04. No legal conclusions intended; consult qualified counsel for distribution decisions.*

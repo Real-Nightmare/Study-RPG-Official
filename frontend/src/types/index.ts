@@ -1633,3 +1633,121 @@ export interface CampfireStatus {
   latestMultiplier: number;
   reflections: CampfireReflection[];
 }
+
+// ---------------------------------------------------------------------------
+// Data marketplace + AI benchmarking (owner brief: Ocean Protocol, admin
+// effectiveness benchmarking — aggregates only, never raw student data)
+// ---------------------------------------------------------------------------
+
+export interface DataConsentView {
+  consented: boolean;
+  consentedAt: string | null;
+  withdrawnAt: string | null;
+}
+
+export interface DataMarketplaceStatus {
+  publishMode: 'disabled' | 'metadata-first' | 'on-chain-ready';
+  aquariusConfigured: boolean;
+  walletConfigured: boolean;
+  network: 'mainnet' | 'testnet';
+  chainId: number;
+  oceanNode: {
+    enabled: boolean;
+    nodeRunning: boolean;
+    idleSince: string | null;
+    stoppedAt: string | null;
+    lastAction: string | null;
+    lastError: string | null;
+    startsInLast24h: number;
+    activeConnections: number;
+    dockerUnavailable: boolean;
+  };
+}
+
+export type MarketplaceDatasetType = 'study_engagement' | 'academic_outcomes' | 'rpg_effectiveness';
+
+export interface MarketplaceDataset {
+  id: string;
+  name: string;
+  description: string;
+  datasetType: MarketplaceDatasetType;
+  cohortFilters: Record<string, string>;
+  priceCurrency: string;
+  priceAmount: number;
+  status: 'draft' | 'published' | 'revoked';
+  did: string | null;
+  privacyReport: {
+    cohortSize?: number;
+    totalCohortSize?: number;
+    consentCoverage?: number;
+    minGroupSize?: number;
+    consentThreshold?: number;
+    fields?: string[];
+    payload?: Record<string, unknown>;
+    ocean?: { published: boolean; reason: string | null };
+    [key: string]: unknown;
+  } | null;
+  checksum: string | null;
+  createdAt: string;
+  publishedAt: string | null;
+  revokedAt: string | null;
+}
+
+export interface BenchmarkWindowMetrics {
+  activeUsers: number;
+  focusMinutes: number;
+  quizAccuracyPct: number;
+  examScorePct: number;
+  teachBackDepth: number;
+  campfireDepth: number;
+  stpEarned: number;
+  avgStudyStreak: number;
+}
+
+export interface BenchmarkMetricDelta {
+  key: keyof BenchmarkWindowMetrics;
+  label: string;
+  before: number;
+  after: number;
+  delta: number;
+  improved: boolean;
+}
+
+export interface BenchmarkRun {
+  id: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  config: {
+    windowDays?: number;
+    cohortFilters?: Record<string, string>;
+    note?: string | null;
+    [key: string]: unknown;
+  };
+  metrics: {
+    before: BenchmarkWindowMetrics;
+    after: BenchmarkWindowMetrics;
+    deltas: BenchmarkMetricDelta[];
+    score: number;
+    band: 'transformative' | 'strong' | 'moderate' | 'neutral' | 'negative';
+  } | null;
+  report: {
+    summary?: string;
+    strengths?: string[];
+    risks?: string[];
+    recommendation?: string;
+    generatedBy?: string;
+    [key: string]: unknown;
+  } | null;
+  summary: {
+    windowDays?: number;
+    cohortFilters?: Record<string, string>;
+    from?: string;
+    mid?: string;
+    to?: string;
+    activeUsersAfter?: number;
+    [key: string]: unknown;
+  } | null;
+  error: string | null;
+  startedBy: string | null;
+  createdAt: string;
+  completedAt: string | null;
+}
