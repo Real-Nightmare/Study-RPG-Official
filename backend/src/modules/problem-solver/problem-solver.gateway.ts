@@ -13,6 +13,10 @@ import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
 import { SubscriptionService } from '../subscription/subscription.service';
 
+/**
+ * Socket entry point for the solver: streams agent progress as
+ * `solve:progress` events and emits `solve:complete` when done.
+ */
 @WebSocketGateway({
   namespace: 'problem-solver',
   cors: {

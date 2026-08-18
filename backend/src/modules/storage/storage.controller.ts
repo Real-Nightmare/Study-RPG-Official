@@ -47,6 +47,7 @@ export class StorageController {
       throw new BadRequestException('File is required');
     }
 
+    // Only known image formats pass; everything else is rejected up front.
     if (!ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
         `Invalid file type. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`,

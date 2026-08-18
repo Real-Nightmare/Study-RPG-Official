@@ -15,6 +15,11 @@ export interface ChunkingOptions {
   preserveParagraphs?: boolean;
 }
 
+/**
+ * Splits documents into overlapping chunks for embedding. Default mode keeps
+ * paragraphs intact (splitting oversized paragraphs on sentence boundaries);
+ * `preserveParagraphs: false` falls back to fixed-size windows with overlap.
+ */
 @Injectable()
 export class ChunkingService {
   private readonly logger = new Logger(ChunkingService.name);
@@ -34,59 +39,69 @@ export class ChunkingService {
     const chunks: TextChunk[] = [];
 
     if (preserveParagraphs) {
-      const paragraphs = text.split(separator).filter((p) => p.trim().length > 0);
-      let currentChunk = '';
-      let currentStartOffset = 0;
-      let chunkIndex = 0;
-      let offset = 0;
+      return this.chunkByParagraphs(text, chunkSize, chunkOverlap, separator);
+    }
 
-      for (const paragraph of paragraphs) {
-        const trimmedParagraph = paragraph.trim();
+    return this.chunkBySize(text, chunkSize, chunkOverlap);
+  }
 
-        if (currentChunk.length + trimmedParagraph.length + separator.length > chunkSize) {
-          if (currentChunk.length > 0) {
-            chunks.push({
-              content: currentChunk.trim(),
-              index: chunkIndex++,
-              startOffset: currentStartOffset,
-              endOffset: offset - separator.length,
-            });
+  private chunkByParagraphs(
+    text: string,
+    chunkSize: number,
+    chunkOverlap: number,
+    separator: string,
+  ): TextChunk[] {
+    const paragraphs = text.split(separator).filter((p) => p.trim().length > 0);
+    const chunks: TextChunk[] = [];
+    let currentChunk = '';
+    let currentStartOffset = 0;
+    let chunkIndex = 0;
+    let offset = 0;
 
-            const overlapStart = Math.max(0, currentChunk.length - chunkOverlap);
-            currentChunk = currentChunk.substring(overlapStart);
-            currentStartOffset = offset - currentChunk.length;
-          }
-        }
+    for (const paragraph of paragraphs) {
+      const trimmed = paragraph.trim();
 
-        if (trimmedParagraph.length > chunkSize) {
-          const sentenceChunks = this.chunkBySentences(trimmedParagraph, chunkSize, chunkOverlap);
-          for (const sentenceChunk of sentenceChunks) {
-            chunks.push({
-              content: sentenceChunk.content,
-              index: chunkIndex++,
-              startOffset: offset + sentenceChunk.startOffset,
-              endOffset: offset + sentenceChunk.endOffset,
-            });
-          }
-          offset += trimmedParagraph.length + separator.length;
-          currentChunk = '';
-          currentStartOffset = offset;
-        } else {
-          currentChunk += (currentChunk.length > 0 ? separator : '') + trimmedParagraph;
-          offset += trimmedParagraph.length + separator.length;
+      if (currentChunk.length + trimmed.length + separator.length > chunkSize) {
+        if (currentChunk.length > 0) {
+          chunks.push({
+            content: currentChunk.trim(),
+            index: chunkIndex++,
+            startOffset: currentStartOffset,
+            endOffset: offset - separator.length,
+          });
+
+          const overlapStart = Math.max(0, currentChunk.length - chunkOverlap);
+          currentChunk = currentChunk.substring(overlapStart);
+          currentStartOffset = offset - currentChunk.length;
         }
       }
 
-      if (currentChunk.trim().length > 0) {
-        chunks.push({
-          content: currentChunk.trim(),
-          index: chunkIndex,
-          startOffset: currentStartOffset,
-          endOffset: offset,
-        });
+      if (trimmed.length > chunkSize) {
+        const sentenceChunks = this.chunkBySentences(trimmed, chunkSize, chunkOverlap);
+        for (const sentenceChunk of sentenceChunks) {
+          chunks.push({
+            content: sentenceChunk.content,
+            index: chunkIndex++,
+            startOffset: offset + sentenceChunk.startOffset,
+            endOffset: offset + sentenceChunk.endOffset,
+          });
+        }
+        offset += trimmed.length + separator.length;
+        currentChunk = '';
+        currentStartOffset = offset;
+      } else {
+        currentChunk += (currentChunk.length > 0 ? separator : '') + trimmed;
+        offset += trimmed.length + separator.length;
       }
-    } else {
-      return this.chunkBySize(text, chunkSize, chunkOverlap);
+    }
+
+    if (currentChunk.trim().length > 0) {
+      chunks.push({
+        content: currentChunk.trim(),
+        index: chunkIndex,
+        startOffset: currentStartOffset,
+        endOffset: offset,
+      });
     }
 
     this.logger.debug(`Text chunked into ${chunks.length} chunks`);

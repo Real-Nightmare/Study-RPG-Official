@@ -25,6 +25,18 @@ interface SessionParticipant {
   finishedAt?: Date;
 }
 
+interface LeaderboardEntry {
+  userId: string;
+  nickname: string;
+  score: number;
+  correctCount: number;
+  finished: boolean;
+}
+
+/**
+ * Realtime home for exam clones: progress events for the analysis pipeline
+ * plus Pro-only collaborative sessions (shared room, live leaderboard, chat).
+ */
 @WebSocketGateway({
   namespace: 'exam-clone',
   cors: {
@@ -47,7 +59,6 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
   server: Server;
 
   async handleDisconnect(client: Socket) {
-    // Remove from session if in one
     const userId = client.data.user?.sub;
     if (!userId) return;
 
@@ -120,7 +131,6 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
     }
 
     try {
-      // Generate unique 6-character code
       const code = this.generateSessionCode();
       const sessionId = uuidv4();
 
@@ -137,7 +147,6 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         ],
       );
 
-      // Initialize participants map and add host
       this.sessionParticipants.set(code, new Map());
       this.sessionParticipants.get(code)!.set(userId, {
         userId,
@@ -148,20 +157,16 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         currentQuestion: 0,
       });
 
-      // Add host to participants table
       await this.db.query(
         `INSERT INTO exam_session_participants (id, session_id, user_id, nickname, joined_at)
          VALUES ($1, $2, $3, $4, NOW())`,
         [uuidv4(), sessionId, userId, hostNickname],
       );
 
-      // Host joins the session room
       client.join(`session:${code}`);
 
       this.logger.log(`Session created: ${code} by user ${userId}`);
       client.emit('session-created', { sessionId, code });
-
-      // Emit initial leaderboard with host
       this.emitLeaderboard(code);
     } catch (error) {
       this.logger.error(`Failed to create session: ${error}`);
@@ -197,7 +202,6 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         return;
       }
 
-      // Add to participants table
       await this.db.query(
         `INSERT INTO exam_session_participants (id, session_id, user_id, nickname, joined_at)
          VALUES ($1, $2, $3, $4, NOW())
@@ -205,29 +209,25 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         [uuidv4(), session.id, userId, data.nickname || userName],
       );
 
-      // Add to memory map
       if (!this.sessionParticipants.has(data.code)) {
         this.sessionParticipants.set(data.code, new Map());
       }
       this.sessionParticipants.get(data.code)!.set(userId, {
-        userId: userId,
-        userName: userName,
+        userId,
+        userName,
         nickname: data.nickname || userName,
         score: 0,
         correctCount: 0,
         currentQuestion: 0,
       });
 
-      // Join socket room
       client.join(`session:${data.code}`);
 
-      // Notify others
       this.server.to(`session:${data.code}`).emit('participant-joined', {
         userId,
         nickname: data.nickname || userName,
       });
 
-      // Send current state to joiner
       this.emitLeaderboard(data.code);
 
       this.logger.log(`User ${userId} joined session ${data.code}`);
@@ -272,7 +272,6 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         [JSON.stringify(data.questionIds), data.code],
       );
 
-      // Notify all participants
       this.server.to(`session:${data.code}`).emit('session-started', {
         questionIds: data.questionIds,
         startedAt: new Date(),
@@ -312,16 +311,14 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
     try {
       const participant = participants.get(userId)!;
 
-      // Update score
       if (data.isCorrect) {
-        // Score based on speed (max 100 points, min 50 points)
+        // Speed-scored: faster answers earn more (100 max, 50 floor).
         const speedBonus = Math.max(50, 100 - data.timeSpent);
         participant.score += speedBonus;
         participant.correctCount++;
       }
       participant.currentQuestion++;
 
-      // Update in database
       await this.db.query(
         `UPDATE exam_session_participants SET score = $1, correct_count = $2, current_question = $3
          WHERE session_id = (SELECT id FROM exam_sessions WHERE code = $4) AND user_id = $5`,
@@ -334,9 +331,7 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         ],
       );
 
-      // Broadcast updated leaderboard
       this.emitLeaderboard(data.code);
-
       client.emit('answer-submitted', { score: participant.score });
     } catch (error) {
       this.logger.error(`Failed to submit answer: ${error}`);
@@ -371,15 +366,13 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         [data.code, userId],
       );
 
-      // Notify others
       this.server.to(`session:${data.code}`).emit('participant-finished', {
-        userId: userId,
+        userId,
         score: participant.score,
         correctCount: participant.correctCount,
       });
 
       this.emitLeaderboard(data.code);
-
       client.emit('finished', { score: participant.score });
     } catch (error) {
       this.logger.error(`Failed to finish session: ${error}`);
@@ -412,15 +405,11 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
         [data.code],
       );
 
-      // Get final leaderboard
       const leaderboard = this.getLeaderboard(data.code);
-
-      // Notify all
       this.server.to(`session:${data.code}`).emit('session-ended', {
         finalLeaderboard: leaderboard,
       });
 
-      // Cleanup
       this.sessionParticipants.delete(data.code);
 
       this.logger.log(`Session ${data.code} ended`);
@@ -446,7 +435,7 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
     const nickname = participants?.get(userId)?.nickname || userName;
 
     this.server.to(`session:${data.code}`).emit('chat-message', {
-      userId: userId,
+      userId,
       nickname,
       message: data.message,
       timestamp: new Date(),
@@ -456,6 +445,7 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
   // ==================== HELPER METHODS ====================
 
   private generateSessionCode(): string {
+    // Ambiguity-safe alphabet: no 0/O/1/I.
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
     for (let i = 0; i < 6; i++) {
@@ -464,13 +454,7 @@ export class ExamCloneGateway implements OnGatewayDisconnect {
     return code;
   }
 
-  private getLeaderboard(code: string): Array<{
-    userId: string;
-    nickname: string;
-    score: number;
-    correctCount: number;
-    finished: boolean;
-  }> {
+  private getLeaderboard(code: string): LeaderboardEntry[] {
     const participants = this.sessionParticipants.get(code);
     if (!participants) return [];
 

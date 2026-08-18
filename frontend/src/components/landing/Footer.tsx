@@ -134,7 +134,7 @@ export function Footer() {
             {/* Brand */}
             <div className="col-span-2 md:col-span-3 lg:col-span-2">
               <Link to="/" className="inline-flex items-center gap-2.5 mb-5 group">
-                <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-10 h-10 object-contain transition-transform group-hover:scale-110" />
+                <img src="/logos/study-rpg-logo.svg" alt="Study RPG" className="w-10 h-10 object-contain transition-transform group-hover:scale-110" />
                 <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">Study RPG</span>
               </Link>
               <p className="text-muted-foreground text-sm mb-6 max-w-sm leading-relaxed">

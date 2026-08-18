@@ -74,6 +74,11 @@ export interface TopicEssentials {
   examplePrompt: string;
 }
 
+/**
+ * The Feynman Technique as a product: students explain a topic in their own
+ * words, get evaluated on understanding (not length), then defend it against
+ * a skeptical AI in "Convince the AI" challenge mode.
+ */
 @Injectable()
 export class TeachBackService {
   private readonly logger = new Logger(TeachBackService.name);
@@ -90,7 +95,7 @@ export class TeachBackService {
     const id = uuidv4();
     const now = new Date();
 
-    // Use basic columns that always exist for backward compatibility
+    // Insert against the core columns that exist on every schema.
     const result = await this.db.queryOne<TeachBackSession>(
       `INSERT INTO teach_back_sessions (id, user_id, topic, reference_content, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, 'pending', $5, $6)
@@ -98,7 +103,7 @@ export class TeachBackService {
       [id, userId, dto.topic, dto.referenceContent || null, now, now],
     );
 
-    // Set study_set_id if provided (column may not exist on older schemas)
+    // study_set_id is a newer column — tolerate older schemas.
     if (dto.studySetId) {
       try {
         await this.db.query(`UPDATE teach_back_sessions SET study_set_id = $1 WHERE id = $2`, [
@@ -126,7 +131,6 @@ export class TeachBackService {
       [dto.explanation, new Date(), sessionId],
     );
 
-    // Set difficulty_level if provided (column may not exist on older schemas)
     if (dto.difficultyLevel) {
       try {
         await this.db.query(`UPDATE teach_back_sessions SET difficulty_level = $1 WHERE id = $2`, [
@@ -143,7 +147,6 @@ export class TeachBackService {
 
   async evaluate(sessionId: string, userId: string): Promise<TeachBackSession> {
     const session = await this.findByIdWithAccess(sessionId, userId);
-
     if (!session.userExplanation) {
       throw new Error('No explanation submitted yet');
     }
@@ -215,7 +218,6 @@ Return in this JSON format:
       [JSON.stringify(evaluation), new Date(), sessionId],
     );
 
-    // Set xp_awarded (column may not exist on older schemas)
     try {
       await this.db.query(`UPDATE teach_back_sessions SET xp_awarded = $1 WHERE id = $2`, [
         xp,
@@ -329,7 +331,6 @@ Return in this JSON format:
     userId: string,
   ): Promise<{ messages: ChallengeMessage[] }> {
     const session = await this.findByIdWithAccess(sessionId, userId);
-
     if (!session.userExplanation) {
       throw new BadRequestException('Submit your explanation first before starting the challenge');
     }
@@ -373,7 +374,6 @@ Return in this JSON format:
 
     messages.push({ role: 'user', content: dto.message, timestamp: new Date().toISOString() });
 
-    // Build conversation history for AI
     const chatHistory = messages.map((m) => ({
       role: m.role === 'ai' ? ('assistant' as const) : ('user' as const),
       content: m.content,
@@ -419,7 +419,7 @@ Return JSON: { "response": "your reply or next question", "convinced": true/fals
       this.logger.warn(`challenge_messages column not available`);
     }
 
-    // Award bonus XP if convinced (level-aware progression path).
+    // Bonus XP for winning the challenge (level-aware progression path).
     if (aiResponse.convinced && this.player) {
       try {
         await this.player.addXp(userId, 20, 'teach_back_challenge');
@@ -434,7 +434,7 @@ Return JSON: { "response": "your reply or next question", "convinced": true/fals
   // ─── Auto-generate from Study Sets ───
 
   async createFromStudySet(userId: string, studySetId: string): Promise<TeachBackSession> {
-    // Verify study set access
+    // Access rule: the set must be yours or public.
     const studySet = await this.db.queryOne<Record<string, unknown>>(
       `SELECT s.*, (SELECT COUNT(*) FROM flashcards WHERE study_set_id = s.id) as card_count
        FROM study_sets s WHERE s.id = $1 AND (s.user_id = $2 OR s.is_public = true)`,
@@ -443,7 +443,6 @@ Return JSON: { "response": "your reply or next question", "convinced": true/fals
 
     if (!studySet) throw new NotFoundException('Study set not found');
 
-    // Get flashcards to build reference content
     const flashcards = await this.db.queryMany<Record<string, unknown>>(
       `SELECT front, back FROM flashcards WHERE study_set_id = $1 ORDER BY created_at ASC LIMIT 30`,
       [studySetId],
@@ -453,7 +452,6 @@ Return JSON: { "response": "your reply or next question", "convinced": true/fals
       throw new BadRequestException('Study set has no flashcards');
     }
 
-    // Build a topic and reference from flashcard content
     const topic = (studySet.title as string) || (studySet.name as string) || 'Study Set Topic';
     const referenceContent = flashcards
       .map((fc, i) => `${i + 1}. ${fc.front}\n   → ${fc.back}`)

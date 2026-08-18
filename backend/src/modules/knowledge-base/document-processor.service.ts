@@ -9,6 +9,12 @@ export interface ProcessedDocument {
   metadata: Record<string, unknown>;
 }
 
+const CHARS_PER_PAGE = 3000;
+
+/**
+ * Extracts raw text from uploaded study documents (PDF, DOCX, plain text).
+ * Files are pulled from object storage, parsed, and normalised for chunking.
+ */
 @Injectable()
 export class DocumentProcessorService {
   private readonly logger = new Logger(DocumentProcessorService.name);
@@ -65,7 +71,6 @@ export class DocumentProcessorService {
       const result = await mammoth.extractRawText({ buffer });
       const text = this.cleanText(result.value);
 
-      // Extract any warnings/messages as metadata
       const warnings = result.messages.filter((m) => m.type === 'warning').map((m) => m.message);
 
       return {
@@ -83,9 +88,7 @@ export class DocumentProcessorService {
   }
 
   private estimatePageCount(text: string): number {
-    // Estimate based on ~3000 characters per page (with typical margins)
-    const charsPerPage = 3000;
-    return Math.max(1, Math.ceil(text.length / charsPerPage));
+    return Math.max(1, Math.ceil(text.length / CHARS_PER_PAGE));
   }
 
   async extractTextFromUrl(url: string): Promise<string> {

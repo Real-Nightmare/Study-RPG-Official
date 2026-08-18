@@ -9,6 +9,12 @@ import { Server, Socket } from 'socket.io';
 import { WsAuthGuard } from '../guards/ws-auth.guard';
 import { WsExceptionFilter } from '../filters/ws-exception.filter';
 
+/**
+ * Shared socket gateway plumbing: JWT auth on connect, unified error
+ * handling, per-user rooms, and a repo-wide live-connection counter that
+ * other subsystems (e.g. the idle-capacity Ocean Node monitor) use to decide
+ * whether the server is genuinely idle.
+ */
 @UseGuards(WsAuthGuard)
 @UseFilters(WsExceptionFilter)
 export abstract class BaseGateway

@@ -22,15 +22,10 @@ export class BlogController {
     @Query('category') category?: string,
     @Query('search') search?: string,
   ) {
-    const { data, total } = await this.blogService.findAll(
-      page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 12,
-      category,
-      search,
-    );
-
     const p = page ? parseInt(page, 10) : 1;
     const l = limit ? parseInt(limit, 10) : 12;
+
+    const { data, total } = await this.blogService.findAll(p, l, category, search);
 
     return {
       data,
@@ -88,14 +83,10 @@ export class BlogController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const result = await this.blogService.getComments(
-      postId,
-      page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 10,
-    );
-
     const p = page ? parseInt(page, 10) : 1;
     const l = limit ? parseInt(limit, 10) : 10;
+
+    const result = await this.blogService.getComments(postId, p, l);
 
     return {
       ...result,

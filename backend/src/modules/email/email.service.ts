@@ -37,6 +37,11 @@ export interface EmailTemplate {
   text: string;
 }
 
+/**
+ * High-level email orchestration: normalises recipients, delegates the actual
+ * send to SES, records every attempt in `email_logs`, and keeps templating
+ * self-contained so callers only pass the data they have.
+ */
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -84,8 +89,7 @@ export class EmailService {
         cc,
         bcc,
         from:
-          emailOptions.from ||
-          this.configService.get('EMAIL_DEFAULT_FROM', 'noreply@studyield.com'),
+          emailOptions.from || this.configService.get('EMAIL_DEFAULT_FROM', 'noreply@studyrpg.app'),
         subject: emailOptions.subject,
         status: result.status,
         messageId: result.messageId,
@@ -108,7 +112,7 @@ export class EmailService {
       await this.logEmail({
         userId: options.userId,
         to: Array.isArray(options.to) ? options.to : [options.to],
-        from: options.from || this.configService.get('EMAIL_DEFAULT_FROM', 'noreply@studyield.com'),
+        from: options.from || this.configService.get('EMAIL_DEFAULT_FROM', 'noreply@studyrpg.app'),
         subject: options.subject,
         status: 'failed',
         error: (error as Error).message,
@@ -265,33 +269,34 @@ export class EmailService {
 
   private getVerificationTemplate(verifyUrl: string): EmailTemplate {
     return {
-      subject: 'Verify Your Studyield Account',
+      subject: 'Verify Your Study RPG Account',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2d2a26; background: #faf8f4; }
+            .container { max-width: 600px; margin: 0 auto; padding: 24px; }
+            .card { background: #ffffff; border: 1px solid #e8e2d8; border-radius: 12px; overflow: hidden; }
+            .header { background: #1f3a5f; color: #ffffff; padding: 28px; text-align: center; }
+            .content { padding: 28px; }
+            .button { display: inline-block; background: #c97b2d; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
+            .footer { text-align: center; color: #8a8378; font-size: 12px; margin-top: 20px; }
           </style>
         </head>
         <body>
           <div class="container">
-            <div class="header">
-              <h1>Welcome to Studyield!</h1>
-            </div>
-            <div class="content">
-              <p>Thanks for signing up! Please verify your email address to get started.</p>
-              <p style="text-align: center;">
-                <a href="${verifyUrl}" class="button">Verify Email</a>
-              </p>
-              <p>Or copy this link: <br><a href="${verifyUrl}">${verifyUrl}</a></p>
-              <p>This link expires in 24 hours.</p>
+            <div class="card">
+              <div class="header"><h1 style="margin:0;">Welcome to Study RPG</h1></div>
+              <div class="content">
+                <p>One more step before you can start your adventure: confirm your email address so we know the account is really yours.</p>
+                <p style="text-align: center;">
+                  <a href="${verifyUrl}" class="button">Verify Email</a>
+                </p>
+                <p>Or copy this link into your browser:<br><a href="${verifyUrl}">${verifyUrl}</a></p>
+                <p>This link expires in 24 hours.</p>
+              </div>
             </div>
             <div class="footer">
               <p>If you didn't create this account, you can safely ignore this email.</p>
@@ -300,39 +305,40 @@ export class EmailService {
         </body>
         </html>
       `,
-      text: `Welcome to Studyield!\n\nPlease verify your email by visiting: ${verifyUrl}\n\nThis link expires in 24 hours.\n\nIf you didn't create this account, you can safely ignore this email.`,
+      text: `Welcome to Study RPG!\n\nOne more step before you can start your adventure: confirm your email address.\n\nVerify here: ${verifyUrl}\n\nThis link expires in 24 hours.\n\nIf you didn't create this account, you can safely ignore this email.`,
     };
   }
 
   private getPasswordResetTemplate(resetUrl: string): EmailTemplate {
     return {
-      subject: 'Reset Your Studyield Password',
+      subject: 'Reset Your Study RPG Password',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2d2a26; background: #faf8f4; }
+            .container { max-width: 600px; margin: 0 auto; padding: 24px; }
+            .card { background: #ffffff; border: 1px solid #e8e2d8; border-radius: 12px; overflow: hidden; }
+            .header { background: #1f3a5f; color: #ffffff; padding: 28px; text-align: center; }
+            .content { padding: 28px; }
+            .button { display: inline-block; background: #c97b2d; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
+            .footer { text-align: center; color: #8a8378; font-size: 12px; margin-top: 20px; }
           </style>
         </head>
         <body>
           <div class="container">
-            <div class="header">
-              <h1>Password Reset</h1>
-            </div>
-            <div class="content">
-              <p>We received a request to reset your password. Click the button below to choose a new password.</p>
-              <p style="text-align: center;">
-                <a href="${resetUrl}" class="button">Reset Password</a>
-              </p>
-              <p>Or copy this link: <br><a href="${resetUrl}">${resetUrl}</a></p>
-              <p>This link expires in 1 hour.</p>
+            <div class="card">
+              <div class="header"><h1 style="margin:0;">Password Reset</h1></div>
+              <div class="content">
+                <p>We received a request to reset your password. Click below to choose a new one.</p>
+                <p style="text-align: center;">
+                  <a href="${resetUrl}" class="button">Reset Password</a>
+                </p>
+                <p>Or copy this link:<br><a href="${resetUrl}">${resetUrl}</a></p>
+                <p>This link expires in 1 hour.</p>
+              </div>
             </div>
             <div class="footer">
               <p>If you didn't request this reset, you can safely ignore this email.</p>
@@ -341,54 +347,57 @@ export class EmailService {
         </body>
         </html>
       `,
-      text: `Password Reset\n\nWe received a request to reset your password. Visit this link to choose a new password:\n\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this reset, you can safely ignore this email.`,
+      text: `Password Reset\n\nWe received a request to reset your password. Visit this link to choose a new one:\n\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this reset, you can safely ignore this email.`,
     };
   }
 
   private getWelcomeTemplate(name: string): EmailTemplate {
     return {
-      subject: "Welcome to Studyield - Let's Start Learning!",
+      subject: 'Welcome to Study RPG - Your Adventure Begins',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-            .feature { padding: 15px 0; border-bottom: 1px solid #eee; }
-            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2d2a26; background: #faf8f4; }
+            .container { max-width: 600px; margin: 0 auto; padding: 24px; }
+            .card { background: #ffffff; border: 1px solid #e8e2d8; border-radius: 12px; overflow: hidden; }
+            .header { background: #1f3a5f; color: #ffffff; padding: 28px; text-align: center; }
+            .content { padding: 28px; }
+            .feature { padding: 14px 0; border-bottom: 1px solid #f0ece4; }
+            .button { display: inline-block; background: #c97b2d; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
           </style>
         </head>
         <body>
           <div class="container">
-            <div class="header">
-              <h1>Welcome, ${name}!</h1>
-            </div>
-            <div class="content">
-              <p>We're excited to have you on board. Here's what you can do with Studyield:</p>
-              <div class="feature"><strong>AI-Powered Flashcards</strong> - Create smart flashcards with spaced repetition</div>
-              <div class="feature"><strong>RAG Chat</strong> - Ask questions about your study materials</div>
-              <div class="feature"><strong>Problem Solver</strong> - Get step-by-step solutions to complex problems</div>
-              <div class="feature"><strong>Exam Clone</strong> - Practice with AI-generated questions in your exam style</div>
-              <div class="feature"><strong>Deep Research</strong> - Explore topics with AI-assisted research</div>
-              <p style="text-align: center;">
-                <a href="${this.appUrl}" class="button">Start Learning</a>
-              </p>
+            <div class="card">
+              <div class="header"><h1 style="margin:0;">Welcome, ${name}!</h1></div>
+              <div class="content">
+                <p>You're now a hero of Study RPG. Here's what awaits you:</p>
+                <div class="feature"><strong>AI Flashcards & Quizzes</strong> - Turn your notes into active recall sessions in seconds</div>
+                <div class="feature"><strong>Spaced repetition</strong> - A review schedule tuned to how your memory actually works</div>
+                <div class="feature"><strong>Document Q&amp;A</strong> - Ask questions of your own study materials</div>
+                <div class="feature"><strong>Exam practice</strong> - Mock exams, teach-back, and collaborative battles</div>
+                <div class="feature"><strong>RPG progression</strong> - Level up, join a faction, and keep streaks alive</div>
+                <p style="text-align: center;">
+                  <a href="${this.appUrl}" class="button">Start Learning</a>
+                </p>
+              </div>
             </div>
           </div>
         </body>
         </html>
       `,
-      text: `Welcome, ${name}!\n\nWe're excited to have you on board. Here's what you can do with Studyield:\n\n- AI-Powered Flashcards\n- RAG Chat\n- Problem Solver\n- Exam Clone\n- Deep Research\n\nGet started at: ${this.appUrl}`,
+      text: `Welcome, ${name}!\n\nYou're now a hero of Study RPG. Here's what awaits you:\n\n- AI Flashcards & Quizzes: turn notes into active recall sessions in seconds\n- Spaced repetition: a review schedule tuned to your memory\n- Document Q&A: ask questions of your own study materials\n- Exam practice: mock exams, teach-back, and collaborative battles\n- RPG progression: level up, join a faction, keep streaks alive\n\nStart learning: ${this.appUrl}`,
     };
   }
 
   private getStudyReminderTemplate(name: string, streak: number): EmailTemplate {
     const streakText =
-      streak > 0 ? `You have a ${streak}-day streak going!` : 'Start building your streak today!';
+      streak > 0
+        ? `You have a ${streak}-day streak going — don't let the ember die!`
+        : 'Start building your streak today!';
 
     return {
       subject: "Time to Study - Don't Break Your Streak!",
@@ -398,25 +407,26 @@ export class EmailService {
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
-            .streak { font-size: 48px; text-align: center; color: #667eea; }
-            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2d2a26; background: #faf8f4; }
+            .container { max-width: 600px; margin: 0 auto; padding: 24px; }
+            .card { background: #ffffff; border: 1px solid #e8e2d8; border-radius: 12px; overflow: hidden; }
+            .header { background: #1f3a5f; color: #ffffff; padding: 28px; text-align: center; }
+            .content { padding: 28px; }
+            .streak { font-size: 48px; text-align: center; color: #c97b2d; font-weight: 700; }
+            .button { display: inline-block; background: #c97b2d; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
           </style>
         </head>
         <body>
           <div class="container">
-            <div class="header">
-              <h1>Hey ${name}!</h1>
-            </div>
-            <div class="content">
-              <p class="streak">${streak} days</p>
-              <p style="text-align: center;">${streakText}</p>
-              <p style="text-align: center;">
-                <a href="${this.appUrl}/study" class="button">Study Now</a>
-              </p>
+            <div class="card">
+              <div class="header"><h1 style="margin:0;">Hey ${name}!</h1></div>
+              <div class="content">
+                <p class="streak">${streak} days</p>
+                <p style="text-align: center;">${streakText}</p>
+                <p style="text-align: center;">
+                  <a href="${this.appUrl}/study" class="button">Study Now</a>
+                </p>
+              </div>
             </div>
           </div>
         </body>
@@ -435,48 +445,48 @@ export class EmailService {
     const timeStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes} minutes`;
 
     return {
-      subject: 'Your Weekly Studyield Progress Report',
+      subject: 'Your Weekly Study RPG Progress Report',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #2d2a26; background: #faf8f4; }
+            .container { max-width: 600px; margin: 0 auto; padding: 24px; }
+            .card { background: #ffffff; border: 1px solid #e8e2d8; border-radius: 12px; overflow: hidden; }
+            .header { background: #1f3a5f; color: #ffffff; padding: 28px; text-align: center; }
+            .content { padding: 28px; }
             .stats { display: flex; justify-content: space-around; text-align: center; margin: 20px 0; }
             .stat { padding: 20px; }
-            .stat-value { font-size: 36px; color: #667eea; font-weight: bold; }
-            .stat-label { color: #666; font-size: 14px; }
-            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+            .stat-value { font-size: 32px; color: #c97b2d; font-weight: 700; }
+            .stat-label { color: #8a8378; font-size: 14px; }
+            .button { display: inline-block; background: #c97b2d; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: 600; }
           </style>
         </head>
         <body>
           <div class="container">
-            <div class="header">
-              <h1>Weekly Progress</h1>
-              <p>Hey ${name}, here's your week in review!</p>
-            </div>
-            <div class="content">
-              <div class="stats">
-                <div class="stat">
-                  <div class="stat-value">${stats.cardsReviewed}</div>
-                  <div class="stat-label">Cards Reviewed</div>
+            <div class="card">
+              <div class="header"><h1 style="margin:0;">Weekly Progress</h1><p style="margin:8px 0 0;">Hey ${name}, here's your week in review</p></div>
+              <div class="content">
+                <div class="stats">
+                  <div class="stat">
+                    <div class="stat-value">${stats.cardsReviewed}</div>
+                    <div class="stat-label">Cards Reviewed</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${stats.quizzesTaken}</div>
+                    <div class="stat-label">Quizzes Taken</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">${timeStr}</div>
+                    <div class="stat-label">Study Time</div>
+                  </div>
                 </div>
-                <div class="stat">
-                  <div class="stat-value">${stats.quizzesTaken}</div>
-                  <div class="stat-label">Quizzes Taken</div>
-                </div>
-                <div class="stat">
-                  <div class="stat-value">${timeStr}</div>
-                  <div class="stat-label">Study Time</div>
-                </div>
+                <p style="text-align: center;">
+                  <a href="${this.appUrl}/analytics" class="button">View Full Report</a>
+                </p>
               </div>
-              <p style="text-align: center;">
-                <a href="${this.appUrl}/analytics" class="button">View Full Report</a>
-              </p>
             </div>
           </div>
         </body>

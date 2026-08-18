@@ -58,13 +58,31 @@ Publishes **aggregate statistics only** — the privacy guard (`data-marketplace
 |----------|---------|
 | `OCEAN_AQUARIUS_URL` | Aquarius metadata-store base URL (default mainnet) — DDOs are POSTed to `<url>/api/aquarius/assets/ddo` |
 | `OCEAN_PUBLISHER_ADDRESS` | Publisher wallet address (optional for metadata-first publish) |
-| `OCEAN_PUBLISHER_PRIVATE_KEY` | Publisher wallet private key (optional; required for the on-chain datatoken step — never commit, manage via secrets) |
-| `OCEAN_CHAIN_ID` | Chain id embedded in the `did:op` DID (default `1`) |
+| `OCEAN_PUBLISHER_PRIVATE_KEY` | Publisher wallet private key (optional for metadata-first; **required for on-chain Compute-to-Data** — never commit, manage via secrets) |
+| `OCEAN_CHAIN_ID` | Chain id embedded in the `did:op` DID (default `137` — Polygon mainnet) |
 | `MARKETPLACE_PUBLISH_ENABLED` | Master switch for outbound publish calls (default `true`) |
 | `MARKETPLACE_MIN_GROUP_SIZE` | Minimum cohort size before an aggregate may be published (default `10`) |
 | `MARKETPLACE_CONSENT_THRESHOLD` | Minimum consent coverage 0–1 (default `0.8`) |
 | `MARKETPLACE_DATASET_LICENSE` | License string stamped into published DDOs (default `CC-BY-4.0 (aggregate statistics only)`) |
 | `MARKETPLACE_AGGREGATE_WINDOW_DAYS` | Snapshot window for published aggregates (default `90`) |
+
+#### Compute-to-Data (C2D) — on-chain publishing (optional)
+
+When a funded wallet, an RPC URL and an Ocean Node are configured, publishing a dataset deploys a real on-chain asset — an ERC721 data NFT + ERC20 datatoken (+ a fixed-rate exchange when the dataset has a price) — and registers a **`compute` service**, so buyers can run algorithms on the aggregate instead of downloading it. The aggregate JSON is uploaded to R2 first, so `R2_PUBLIC_URL` must be set for the node to reach it. Anything missing or failing falls back to metadata-first publishing (the dataset still becomes discoverable).
+
+| Variable | Purpose |
+|----------|---------|
+| `OCEAN_NODE_URL` | Ocean Node / provider endpoint used to encrypt files + DDO and to run compute jobs (default `https://compute1.oceanprotocol.com/`) |
+| `OCEAN_RPC_URL` | RPC of the chain the assets are deployed on (default `https://polygon-rpc.com` — Polygon mainnet, where the owner holds MATIC) |
+| `OCEAN_ERC721_FACTORY` | ERC721Factory address for the configured chain (default: Ocean's Polygon-mainnet factory) |
+| `OCEAN_FIXED_RATE_EXCHANGE` | FixedRateExchange address (default: Ocean's Polygon-mainnet FRE) |
+| `OCEAN_TOKEN_ADDRESS` | Ocean (base) token address (default: mOCEAN on Polygon) |
+| `OCEAN_C2D_ALLOW_RAW_ALGORITHM` | Allow buyers to submit raw algorithms (default `true` — safe on sanitized aggregates; disable to restrict) |
+| `OCEAN_C2D_ALLOW_NETWORK_ACCESS` | Allow compute jobs internet access (default `false` — blocks exfiltration) |
+| `OCEAN_C2D_TRUSTED_ALGORITHM_PUBLISHERS` | Comma-separated allowlist of algorithm publisher addresses (default empty = any published algorithm) |
+| `R2_PUBLIC_URL` | **Required for C2D** — public base URL of the R2 bucket the aggregate is uploaded to |
+
+> **Network note (2026)**: the Ocean ecosystem now runs on Ocean Nodes (the same `@oceanprotocol/lib` stack this module uses). Polygon mainnet (chain 137) is supported — 2 MATIC is enough gas for dozens of publishes. The current public mainnet node is `https://compute1.oceanprotocol.com/`; the legacy `aquarius.mainnet.oceanprotocol.com` endpoint is retired, so metadata-first DDOs are recorded as drafts for manual/CLI export.
 
 #### Idle-capacity Ocean Node (optional)
 

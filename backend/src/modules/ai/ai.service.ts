@@ -1,9 +1,8 @@
 /**
- * AI Service
- *
- * Uses OpenRouter as the unified gateway for all LLM providers.
- * OpenRouter provides a single API compatible with OpenAI SDK
- * to access models from OpenAI, Anthropic, Google, DeepSeek, and more.
+ * Unified LLM gateway. OpenRouter is the primary provider (one API for
+ * OpenAI, Anthropic, Google, DeepSeek and friends via the OpenAI-compatible
+ * protocol); a direct OpenAI client is kept as a fallback, and Whisper
+ * transcription always uses the direct client.
  */
 
 import {
@@ -19,7 +18,6 @@ import OpenAI from 'openai';
 import { DatabaseService } from '../database/database.service';
 import { v4 as uuidv4 } from 'uuid';
 
-// Default models
 const DEFAULT_MODEL = 'openai/gpt-4o-mini';
 const DEFAULT_VISION_MODEL = 'openai/gpt-4o';
 
@@ -57,10 +55,7 @@ export interface TranscriptionResponse {
 export class AiService implements OnModuleInit {
   private readonly logger = new Logger(AiService.name);
 
-  // OpenRouter client (PRIMARY gateway for all models)
   private openRouterClient: OpenAI | null = null;
-
-  // Direct OpenAI client (fallback only)
   private openaiClient: OpenAI | null = null;
 
   constructor(
@@ -68,12 +63,11 @@ export class AiService implements OnModuleInit {
     private readonly db: DatabaseService,
   ) {}
 
-  async onModuleInit() {
-    await this.initializeClients();
+  async onModuleInit(): Promise<void> {
+    this.initializeClients();
   }
 
-  private async initializeClients() {
-    // Initialize OpenRouter (PRIMARY gateway for all models)
+  private initializeClients(): void {
     const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY');
 
     if (openRouterKey && !openRouterKey.includes('your-')) {
@@ -82,14 +76,13 @@ export class AiService implements OnModuleInit {
         baseURL: 'https://openrouter.ai/api/v1',
         defaultHeaders: {
           'HTTP-Referer': this.configService.get<string>('FRONTEND_URL', 'http://localhost:5189'),
-          'X-Title': 'Studyield',
+          'X-Title': 'Study RPG',
         },
         timeout: 120000,
       });
       this.logger.log('OpenRouter client initialized (unified gateway for all models)');
     }
 
-    // Initialize direct OpenAI (FALLBACK only for OpenAI models)
     const openaiKey = this.configService.get<string>('OPENAI_API_KEY');
     if (openaiKey && !openaiKey.includes('your-')) {
       this.openaiClient = new OpenAI({
@@ -99,19 +92,16 @@ export class AiService implements OnModuleInit {
       this.logger.log('OpenAI direct client initialized (fallback)');
     }
 
-    // Log status
     if (!this.openRouterClient && !this.openaiClient) {
       this.logger.warn('No AI clients available! Set OPENROUTER_API_KEY or OPENAI_API_KEY in .env');
     }
   }
 
   private getClient(): OpenAI {
-    // Primary: Use OpenRouter for everything (unified gateway)
     if (this.openRouterClient) {
       return this.openRouterClient;
     }
 
-    // Fallback: Direct OpenAI
     if (this.openaiClient) {
       return this.openaiClient;
     }
@@ -122,14 +112,12 @@ export class AiService implements OnModuleInit {
   }
 
   private getModel(type: 'text' | 'vision' = 'text'): string {
-    // When using OpenRouter, use provider/model format
     if (this.openRouterClient) {
       return type === 'vision'
         ? this.configService.get('OPENROUTER_VISION_MODEL', DEFAULT_VISION_MODEL)
         : this.configService.get('OPENROUTER_DEFAULT_MODEL', DEFAULT_MODEL);
     }
 
-    // Direct OpenAI - use model name without provider prefix
     return type === 'vision'
       ? this.configService.get('OPENAI_VISION_MODEL', 'gpt-4o')
       : this.configService.get('OPENAI_MODEL', 'gpt-4o-mini');
@@ -152,22 +140,11 @@ export class AiService implements OnModuleInit {
         ...(options.responseFormat && { response_format: options.responseFormat }),
       });
 
-      const choice = response.choices[0];
-
-      return {
-        content: choice.message.content || '',
-        model: response.model,
-        usage: {
-          promptTokens: response.usage?.prompt_tokens || 0,
-          completionTokens: response.usage?.completion_tokens || 0,
-          totalTokens: response.usage?.total_tokens || 0,
-        },
-      };
+      return this.toCompletionResponse(response);
     } catch (error: unknown) {
       const err = error as Error;
       this.logger.error(`AI completion failed: ${err.message}`);
 
-      // Try fallback to direct OpenAI if OpenRouter fails
       if (this.openRouterClient && this.openaiClient) {
         this.logger.warn('Attempting fallback to direct OpenAI...');
         return this.completeFallback(messages, options);
@@ -197,8 +174,13 @@ export class AiService implements OnModuleInit {
       ...(options.responseFormat && { response_format: options.responseFormat }),
     });
 
-    const choice = response.choices[0];
+    return this.toCompletionResponse(response);
+  }
 
+  private toCompletionResponse(
+    response: OpenAI.Chat.Completions.ChatCompletion,
+  ): CompletionResponse {
+    const choice = response.choices[0];
     return {
       content: choice.message.content || '',
       model: response.model,
@@ -240,14 +222,14 @@ export class AiService implements OnModuleInit {
             ],
           },
         ],
-        temperature: params.temperature ?? 0.3, // Low temperature for accuracy
+        temperature: params.temperature ?? 0.3, // low temperature for accuracy
         max_tokens: params.maxTokens ?? 1000,
       });
 
       return response.choices[0]?.message?.content || '';
     } catch (error) {
       this.logger.error('Vision generation failed', error);
-      throw new BadRequestException(`Vision AI failed: ${error.message}`);
+      throw new BadRequestException(`Vision AI failed: ${(error as Error).message}`);
     }
   }
 
@@ -258,7 +240,7 @@ export class AiService implements OnModuleInit {
     });
 
     try {
-      // Clean up response if it has markdown code blocks
+      // Strip markdown fences if the model wrapped the JSON.
       let content = response.content.trim();
       if (content.startsWith('```json')) content = content.slice(7);
       else if (content.startsWith('```')) content = content.slice(3);
@@ -308,13 +290,13 @@ export class AiService implements OnModuleInit {
   ): Promise<CompletionResponse> {
     let lastError: Error | null = null;
 
-    for (let i = 0; i < maxRetries; i++) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         return await this.complete(messages, options);
       } catch (error) {
         lastError = error as Error;
-        this.logger.warn(`AI completion attempt ${i + 1} failed, retrying...`);
-        await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
+        this.logger.warn(`AI completion attempt ${attempt + 1} failed, retrying...`);
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
       }
     }
 
@@ -326,8 +308,8 @@ export class AiService implements OnModuleInit {
   }
 
   /**
-   * Transcribe audio using OpenAI Whisper API
-   * Note: Whisper requires direct OpenAI client (not available via OpenRouter)
+   * Transcribes audio via the OpenAI Whisper API. Whisper is only reachable
+   * through the direct OpenAI client — OpenRouter does not proxy it.
    */
   async transcribeAudio(
     audioBuffer: Buffer,
@@ -341,7 +323,6 @@ export class AiService implements OnModuleInit {
     }
 
     try {
-      // Use OpenAI SDK's toFile helper which handles Buffer properly
       const file = await OpenAI.toFile(audioBuffer, filename, { type: mimeType });
 
       const response = await this.openaiClient.audio.transcriptions.create({

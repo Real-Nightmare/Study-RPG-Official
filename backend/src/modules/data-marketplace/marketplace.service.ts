@@ -15,6 +15,7 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { DatabaseService } from '../database/database.service';
+import { StorageService } from '../storage/storage.service';
 import { assertPublishable, sanitizeAggregate } from './privacy-guard';
 import {
   ALLOWED_COHORT_FILTERS,
@@ -23,6 +24,7 @@ import {
   DatasetType,
   MARKETPLACE_DEFAULTS,
 } from './marketplace-config';
+import { OceanC2DService, C2DPolicy, ComputeAssetResult } from './ocean-c2d.service';
 import { OceanService } from './ocean.service';
 
 export interface ConsentView {
@@ -63,6 +65,13 @@ export interface DatasetView {
   did: string | null;
   privacyReport: Record<string, unknown> | null;
   checksum: string | null;
+  /** On-chain C2D artifact addresses (null when published metadata-first). */
+  nftAddress: string | null;
+  datatokenAddress: string | null;
+  exchangeId: string | null;
+  providerUrl: string | null;
+  c2dPolicy: Record<string, unknown> | null;
+  c2dError: string | null;
   createdAt: string;
   publishedAt: string | null;
   revokedAt: string | null;
@@ -77,6 +86,8 @@ export class MarketplaceService {
   constructor(
     private readonly db: DatabaseService,
     private readonly ocean: OceanService,
+    private readonly c2d: OceanC2DService,
+    private readonly storage: StorageService,
   ) {}
 
   // -------------------------------------------------------------------------
@@ -129,6 +140,7 @@ export class MarketplaceService {
     const rows = await this.db.queryMany<Record<string, unknown>>(
       `SELECT id, name, description, dataset_type, cohort_filters, price_currency,
               price_amount, status, did, privacy_report, checksum,
+              nft_address, datatoken_address, exchange_id, provider_url, c2d_policy, c2d_error,
               created_at, published_at, revoked_at
        FROM marketplace_datasets ${where}
        ORDER BY created_at DESC`,
@@ -171,7 +183,9 @@ export class MarketplaceService {
     this.logger.log(`Dataset created by ${actorId}: ${id}`);
     const created = await this.db.queryOne<Record<string, unknown>>(
       `SELECT id, name, description, dataset_type, cohort_filters, price_currency, price_amount,
-              status, did, privacy_report, checksum, created_at, published_at, revoked_at
+              status, did, privacy_report, checksum,
+              nft_address, datatoken_address, exchange_id, provider_url, c2d_policy, c2d_error,
+              created_at, published_at, revoked_at
        FROM marketplace_datasets WHERE id = $1`,
       [id],
     );
@@ -246,7 +260,12 @@ export class MarketplaceService {
   // Publish / revoke (the privacy-guarded path to Ocean)
   // -------------------------------------------------------------------------
 
-  async publishDataset(actorId: string, id: string, reason: string): Promise<DatasetView> {
+  async publishDataset(
+    actorId: string,
+    id: string,
+    reason: string,
+    c2dOverride?: Partial<C2DPolicy>,
+  ): Promise<DatasetView> {
     const existing = await this.getDatasetRow(id);
     if (!existing) throw new NotFoundException('Dataset not found');
 
@@ -283,20 +302,88 @@ export class MarketplaceService {
     // 3) Checksum the exact payload that would be delivered.
     const checksum = createHash('sha256').update(JSON.stringify(payload)).digest('hex');
 
-    // 4) Build + attempt Ocean publish (never blocks on network errors).
-    const ddo = this.ocean.buildDdo({
-      name: existing.name as string,
-      description: (existing.description as string) ?? '',
-      datasetType: existing.dataset_type as string,
-      priceCurrency: (existing.price_currency as string) || 'OCEAN',
-      priceAmount: Number(existing.price_amount ?? 0),
-      checksum,
-      cohortSize: verdict.cohortSize,
-      consentCoverage: verdict.consentCoverage,
-      license: cfg.license,
-      author: 'Study RPG (Real-Nightmare)',
-    });
-    const oceanResult = await this.ocean.publishMetadata(ddo);
+    // 4) Compute-to-Data: when a funded wallet + RPC + Ocean Node are
+    //    configured, deploy the on-chain asset (NFT + datatoken + fixed-rate
+    //    exchange) and register a real `compute` service so buyers can run
+    //    algorithms on the aggregate. The aggregate is uploaded to object
+    //    storage first so the node can fetch it. Any failure (or missing
+    //    config) falls back to the metadata-first path — publishing never
+    //    regresses because of C2D.
+    const c2dConfig = this.c2d.getConfig();
+    const c2dAttempted =
+      !!c2dConfig.publisherPrivateKey && !!c2dConfig.rpcUrl && !!c2dConfig.nodeUrl;
+    let c2dResult: ComputeAssetResult | null = null;
+    let c2dError: string | null = null;
+    let aggregateFileKey: string | null = null;
+
+    if (c2dAttempted) {
+      try {
+        const uploaded = await this.storage.upload(
+          Buffer.from(JSON.stringify(payload)),
+          `${existing.dataset_type}-aggregate.json`,
+          { contentType: 'application/json', folder: 'marketplace' },
+        );
+        if (!/^https?:\/\//.test(uploaded.url)) {
+          c2dError =
+            'C2D needs a public file URL for the Ocean Node — configure R2_PUBLIC_URL ' +
+            '(fell back to metadata-first publishing).';
+        } else {
+          aggregateFileKey = uploaded.key;
+          const policy: C2DPolicy = {
+            allowRawAlgorithm: c2dOverride?.allowRawAlgorithm ?? c2dConfig.c2d.allowRawAlgorithm,
+            allowNetworkAccess: c2dOverride?.allowNetworkAccess ?? c2dConfig.c2d.allowNetworkAccess,
+            trustedAlgorithmPublishers:
+              c2dOverride?.trustedAlgorithmPublishers ?? c2dConfig.c2d.trustedAlgorithmPublishers,
+          };
+          const result = await this.c2d.publishComputeAsset({
+            name: existing.name as string,
+            description: (existing.description as string) ?? '',
+            datasetType: existing.dataset_type as string,
+            priceCurrency: (existing.price_currency as string) || 'OCEAN',
+            priceAmount: Number(existing.price_amount ?? 0),
+            checksum,
+            cohortSize: verdict.cohortSize,
+            consentCoverage: verdict.consentCoverage,
+            license: cfg.license,
+            author: 'Study RPG (Real-Nightmare)',
+            fileUrl: uploaded.url,
+            policy,
+          });
+          if (result.ok) {
+            c2dResult = result;
+            this.logger.log(
+              `Dataset ${id} published as C2D asset ${result.did} ` +
+                `(nft=${result.nftAddress}, dt=${result.datatokenAddress})`,
+            );
+          } else {
+            c2dError = result.reason;
+          }
+        }
+      } catch (err) {
+        c2dError = `C2D publish failed: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
+
+    // 5) Build + attempt Ocean publish. With a C2D result the DDO is already
+    //    stored on-chain and indexed — nothing else to push. Otherwise use the
+    //    metadata-first path (never blocks on network errors).
+    const ddo = c2dResult
+      ? c2dResult.ddo
+      : this.ocean.buildDdo({
+          name: existing.name as string,
+          description: (existing.description as string) ?? '',
+          datasetType: existing.dataset_type as string,
+          priceCurrency: (existing.price_currency as string) || 'OCEAN',
+          priceAmount: Number(existing.price_amount ?? 0),
+          checksum,
+          cohortSize: verdict.cohortSize,
+          consentCoverage: verdict.consentCoverage,
+          license: cfg.license,
+          author: 'Study RPG (Real-Nightmare)',
+        });
+    const oceanResult = c2dResult
+      ? { published: true, did: ddo.id, reason: null }
+      : await this.ocean.publishMetadata(ddo as Parameters<OceanService['publishMetadata']>[0]);
 
     const privacyReport = {
       cohortSize: verdict.cohortSize,
@@ -307,14 +394,40 @@ export class MarketplaceService {
       fields: Object.keys(payload),
       payload,
       ocean: { published: oceanResult.published, reason: oceanResult.reason ?? null },
+      c2d: c2dResult
+        ? {
+            published: true,
+            nftAddress: c2dResult.nftAddress,
+            datatokenAddress: c2dResult.datatokenAddress,
+            exchangeId: c2dResult.exchangeId,
+            providerUrl: c2dResult.providerUrl,
+            chainId: c2dResult.chainId,
+            transactions: c2dResult.transactions,
+          }
+        : { published: false, error: c2dError },
     };
 
     await this.db.query(
       `UPDATE marketplace_datasets
        SET status = 'published', did = $1, ddo = $2, privacy_report = $3, checksum = $4,
+           nft_address = $5, datatoken_address = $6, exchange_id = $7, provider_url = $8,
+           c2d_policy = $9, aggregate_file_key = $10, c2d_error = $11,
            published_at = NOW(), revoked_at = NULL, updated_at = NOW()
-       WHERE id = $5`,
-      [ddo.id, JSON.stringify(ddo), JSON.stringify(privacyReport), checksum, id],
+       WHERE id = $12`,
+      [
+        ddo.id,
+        JSON.stringify(ddo),
+        JSON.stringify(privacyReport),
+        checksum,
+        c2dResult?.nftAddress ?? null,
+        c2dResult?.datatokenAddress ?? null,
+        c2dResult?.exchangeId ?? null,
+        c2dResult?.providerUrl ?? null,
+        c2dResult ? JSON.stringify(c2dResult.ddo.services[0]?.compute ?? {}) : null,
+        aggregateFileKey,
+        c2dError,
+        id,
+      ],
     );
     await this.audit(
       actorId,
@@ -325,11 +438,15 @@ export class MarketplaceService {
       {
         did: ddo.id,
         oceanPublished: oceanResult.published,
+        c2dPublished: Boolean(c2dResult),
+        c2dError,
         cohortSize: verdict.cohortSize,
         checksum,
       },
     );
-    this.logger.log(`Dataset published ${id} (ocean=${oceanResult.published})`);
+    this.logger.log(
+      `Dataset published ${id} (ocean=${oceanResult.published}, c2d=${Boolean(c2dResult)})`,
+    );
 
     return this.mapDataset((await this.getDatasetRow(id))!);
   }
@@ -485,6 +602,8 @@ export class MarketplaceService {
     return this.db.queryOne<Record<string, unknown>>(
       `SELECT id, name, description, dataset_type, cohort_filters, price_currency,
               price_amount, status, did, ddo, privacy_report, checksum,
+              nft_address, datatoken_address, exchange_id, provider_url, c2d_policy,
+              aggregate_file_key, c2d_error,
               created_at, published_at, revoked_at
        FROM marketplace_datasets WHERE id = $1`,
       [id],
@@ -504,6 +623,12 @@ export class MarketplaceService {
       did: (r.did ?? null) as string | null,
       privacyReport: this.parseJson(r.privacy_report),
       checksum: (r.checksum ?? null) as string | null,
+      nftAddress: (r.nft_address ?? null) as string | null,
+      datatokenAddress: (r.datatoken_address ?? null) as string | null,
+      exchangeId: (r.exchange_id ?? null) as string | null,
+      providerUrl: (r.provider_url ?? null) as string | null,
+      c2dPolicy: this.parseJson(r.c2d_policy),
+      c2dError: (r.c2d_error ?? null) as string | null,
       createdAt: new Date(r.created_at as string).toISOString(),
       publishedAt: r.published_at ? new Date(r.published_at as string).toISOString() : null,
       revokedAt: r.revoked_at ? new Date(r.revoked_at as string).toISOString() : null,

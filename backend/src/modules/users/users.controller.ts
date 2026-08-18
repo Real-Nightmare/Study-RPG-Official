@@ -40,48 +40,9 @@ export class UsersController {
       throw new NotFoundException('User not found');
     }
 
-    // Fetch full subscription details
-    let plan = 'free';
-    let subscriptionData = null;
-    try {
-      const subscription = await this.subscriptionService.getOrCreateSubscription(
-        user.sub,
-        profile.email || '',
-      );
-      plan = subscription?.plan || 'free';
+    const subscriptionData = await this.loadSubscription(user.sub, profile.email || '');
 
-      // Include full subscription object in response
-      subscriptionData = {
-        plan: subscription.plan,
-        status: subscription.status,
-        currentPeriodStart: subscription.currentPeriodStart,
-        currentPeriodEnd: subscription.currentPeriodEnd,
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-      };
-    } catch (err) {
-      this.logger.warn(
-        `Failed to fetch subscription for user ${user.sub}: ${(err as Error).message}`,
-      );
-    }
-
-    // Normalize: monthly/yearly → 'pro' for frontend, keep raw for billing
-    const planDisplay = plan === 'monthly' || plan === 'yearly' ? 'pro' : 'free';
-    return {
-      id: profile.id,
-      email: profile.email,
-      name: profile.name,
-      avatarUrl: profile.avatarUrl,
-      role: profile.role,
-      emailVerified: profile.emailVerified,
-      educationLevel: profile.educationLevel,
-      subjects: profile.subjects,
-      profileCompleted: profile.profileCompleted,
-      preferences: profile.preferences,
-      plan: planDisplay,
-      billingCycle: plan === 'free' ? null : plan,
-      subscription: subscriptionData,
-      createdAt: profile.createdAt,
-    };
+    return this.buildProfileResponse(profile, subscriptionData);
   }
 
   @Put('me')
@@ -98,47 +59,9 @@ export class UsersController {
 
     const profile = await this.usersService.update(user.sub, updateDto);
 
-    // Fetch full subscription details
-    let plan = 'free';
-    let subscriptionData = null;
-    try {
-      const subscription = await this.subscriptionService.getOrCreateSubscription(
-        user.sub,
-        profile.email || '',
-      );
-      plan = subscription?.plan || 'free';
+    const subscriptionData = await this.loadSubscription(user.sub, profile.email || '');
 
-      // Include full subscription object in response
-      subscriptionData = {
-        plan: subscription.plan,
-        status: subscription.status,
-        currentPeriodStart: subscription.currentPeriodStart,
-        currentPeriodEnd: subscription.currentPeriodEnd,
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-      };
-    } catch (err) {
-      this.logger.warn(
-        `Failed to fetch subscription for user ${user.sub}: ${(err as Error).message}`,
-      );
-    }
-
-    const planDisplay = plan === 'monthly' || plan === 'yearly' ? 'pro' : 'free';
-    return {
-      id: profile.id,
-      email: profile.email,
-      name: profile.name,
-      avatarUrl: profile.avatarUrl,
-      role: profile.role,
-      emailVerified: profile.emailVerified,
-      educationLevel: profile.educationLevel,
-      subjects: profile.subjects,
-      profileCompleted: profile.profileCompleted,
-      preferences: profile.preferences,
-      plan: planDisplay,
-      billingCycle: plan === 'free' ? null : plan,
-      subscription: subscriptionData,
-      createdAt: profile.createdAt,
-    };
+    return this.buildProfileResponse(profile, subscriptionData);
   }
 
   @Delete('me')
@@ -185,6 +108,74 @@ export class UsersController {
       name: user.name,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
+    };
+  }
+
+  /**
+   * Fetches the user's subscription; failures degrade to a free plan rather
+   * than breaking the profile request.
+   */
+  private async loadSubscription(
+    userId: string,
+    email: string,
+  ): Promise<{
+    plan: string;
+    status: string;
+    currentPeriodStart: Date | null;
+    currentPeriodEnd: Date | null;
+    cancelAtPeriodEnd: boolean;
+  } | null> {
+    try {
+      const subscription = await this.subscriptionService.getOrCreateSubscription(userId, email);
+      if (!subscription) return null;
+
+      return {
+        plan: subscription.plan,
+        status: subscription.status,
+        currentPeriodStart: subscription.currentPeriodStart,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `Failed to fetch subscription for user ${userId}: ${(error as Error).message}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Normalizes the raw billing plan for the frontend: monthly/yearly are
+   * presented as 'pro', while the raw cycle is kept for billing screens.
+   */
+  private buildProfileResponse(
+    profile: import('../users/users.service').User,
+    subscription: {
+      plan: string;
+      status: string;
+      currentPeriodStart: Date | null;
+      currentPeriodEnd: Date | null;
+      cancelAtPeriodEnd: boolean;
+    } | null,
+  ) {
+    const plan = subscription?.plan || 'free';
+    const planDisplay = plan === 'monthly' || plan === 'yearly' ? 'pro' : 'free';
+
+    return {
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      avatarUrl: profile.avatarUrl,
+      role: profile.role,
+      emailVerified: profile.emailVerified,
+      educationLevel: profile.educationLevel,
+      subjects: profile.subjects,
+      profileCompleted: profile.profileCompleted,
+      preferences: profile.preferences,
+      plan: planDisplay,
+      billingCycle: plan === 'free' ? null : plan,
+      subscription,
+      createdAt: profile.createdAt,
     };
   }
 }

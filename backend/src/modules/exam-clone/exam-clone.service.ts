@@ -1,17 +1,25 @@
 import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import pdfParse from 'pdf-parse';
 import { DatabaseService } from '../database/database.service';
 import { AiService } from '../ai/ai.service';
 import { StorageService } from '../storage/storage.service';
 import { QueueService } from '../queue/queue.service';
-import pdfParse from 'pdf-parse';
 import { PlayerService } from '../rpg/player.service';
 import { WalletService } from '../rpg/wallet.service';
 import { CampfireService } from '../integrity/campfire.service';
 import { getIntegrityConfig } from '../integrity/integrity-config';
-import { answerTimeSanity, computeReward, passesPremiumThreshold } from '../integrity';
-import type { MaterialDifficulty } from '../integrity';
+import {
+  answerTimeSanity,
+  computeReward,
+  passesPremiumThreshold,
+  type MaterialDifficulty,
+} from '../integrity';
 
+/**
+ * A cloned exam: source material (uploaded file or pasted text), the style
+ * profile extracted from it, and the pool of questions built on top.
+ */
 export interface ExamClone {
   id: string;
   userId: string;
@@ -27,6 +35,10 @@ export interface ExamClone {
   updatedAt: Date;
 }
 
+/**
+ * The fingerprint of an exam's format: question mix, difficulty split,
+ * typical length, topics, structural patterns and tone.
+ */
 export interface ExamStyle {
   questionTypes: string[];
   difficultyDistribution: { easy: number; medium: number; hard: number };
@@ -62,6 +74,39 @@ export interface GenerateQuestionsDto {
   topics?: string[];
 }
 
+interface SubmittedAnswer {
+  questionId: string;
+  answer: string;
+  timeSpent: number;
+}
+
+interface AttemptResult {
+  questionId: string;
+  isCorrect: boolean;
+  userAnswer: string;
+  correctAnswer: string;
+}
+
+export interface AttemptOutcome {
+  id: string;
+  score: number;
+  correct: number;
+  wrong: number;
+  unanswered: number;
+  totalQuestions: number;
+  timeSpent: number;
+  results: AttemptResult[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  newBadges: any[];
+  rewardXp?: number;
+  rewardStp?: number;
+}
+
+interface RewardGrant {
+  xp: number;
+  stp: number;
+}
+
 @Injectable()
 export class ExamCloneService {
   private readonly logger = new Logger(ExamCloneService.name);
@@ -76,23 +121,27 @@ export class ExamCloneService {
     private readonly campfire?: CampfireService,
   ) {}
 
+  // ─────────────────────────── Lifecycle ───────────────────────────
+
   async create(userId: string, dto: CreateExamCloneDto): Promise<ExamClone> {
     const id = uuidv4();
     const now = new Date();
 
-    const result = await this.db.queryOne<ExamClone>(
+    const row = await this.db.queryOne<ExamClone>(
       `INSERT INTO exam_clones (id, user_id, title, subject, original_text, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, 'pending', $6, $7)
        RETURNING *`,
       [id, userId, dto.title, dto.subject || null, dto.examText || null, now, now],
     );
 
+    // Pasted text goes straight to the analysis pipeline; uploaded files
+    // trigger their own processing job once stored.
     if (dto.examText) {
       await this.queueService.addJob('exam-clone', 'analyze', { examCloneId: id });
     }
 
     this.logger.log(`Exam clone created: ${id}`);
-    return this.mapExamClone(result!);
+    return this.mapExamClone(row!);
   }
 
   async uploadExam(
@@ -104,7 +153,6 @@ export class ExamCloneService {
   ): Promise<void> {
     await this.findByIdWithAccess(examCloneId, userId);
 
-    // Try to upload to storage, but if it fails, process directly
     try {
       const { url } = await this.storageService.upload(file, filename, {
         contentType: mimeType,
@@ -122,21 +170,20 @@ export class ExamCloneService {
         mimeType,
       });
     } catch (storageError) {
-      // Storage not configured - process file directly without storing
+      // Storage unavailable (e.g. dev without R2 creds) — fall back to an
+      // inline extraction so uploads never hard-fail.
       this.logger.warn(`Storage upload failed, processing file directly: ${storageError.message}`);
-
       await this.db.query(
         `UPDATE exam_clones SET status = 'pending', updated_at = $1 WHERE id = $2`,
         [new Date(), examCloneId],
       );
-
-      // Process file directly (extract text and analyze)
       await this.processFileDirectly(examCloneId, file, mimeType);
     }
   }
 
   /**
-   * Process file directly without storage (for development or when storage is unavailable)
+   * Extract text from a raw buffer (no storage round-trip) and run the
+   * analysis pipeline. Used when object storage is not configured.
    */
   async processFileDirectly(
     examCloneId: string,
@@ -146,22 +193,11 @@ export class ExamCloneService {
     await this.updateStatus(examCloneId, 'processing');
 
     try {
-      let extractedText = '';
-
-      // Extract text based on mime type
-      if (mimeType === 'application/pdf') {
-        extractedText = await this.extractTextFromPDF(fileBuffer);
-      } else if (mimeType.startsWith('text/')) {
-        extractedText = fileBuffer.toString('utf-8').trim();
-      } else {
-        throw new Error(`Unsupported file type: ${mimeType}`);
-      }
-
+      const extractedText = await this.extractText(fileBuffer, mimeType);
       if (!extractedText) {
         throw new Error('Could not extract text from file');
       }
 
-      // Save extracted text
       await this.db.query(
         `UPDATE exam_clones SET original_text = $1, updated_at = $2 WHERE id = $3`,
         [extractedText, new Date(), examCloneId],
@@ -170,8 +206,6 @@ export class ExamCloneService {
       this.logger.log(
         `Text extracted directly for exam ${examCloneId}: ${extractedText.length} chars`,
       );
-
-      // Now analyze
       await this.analyze(examCloneId);
     } catch (error) {
       this.logger.error(`Failed to process file directly for exam ${examCloneId}`, error);
@@ -181,56 +215,8 @@ export class ExamCloneService {
   }
 
   /**
-   * Extract text from PDF with error handling
-   */
-  private async extractTextFromPDF(fileBuffer: Buffer): Promise<string> {
-    const parseAttempts = [
-      // Attempt 1: Default options
-      { options: {}, description: 'default options' },
-      // Attempt 2: With max pages limit
-      { options: { max: 50 }, description: 'max 50 pages' },
-      // Attempt 3: Minimal options
-      { options: { pagerender: null }, description: 'no page render' },
-    ];
-
-    for (let i = 0; i < parseAttempts.length; i++) {
-      const attempt = parseAttempts[i];
-      try {
-        this.logger.debug(
-          `Attempting PDF parse with ${attempt.description} (attempt ${i + 1}/${parseAttempts.length})`,
-        );
-        const pdfData = await pdfParse(fileBuffer, attempt.options);
-        const text = pdfData.text.trim();
-
-        if (text.length > 0) {
-          this.logger.log(
-            `PDF parsed successfully with ${attempt.description}: ${text.length} chars`,
-          );
-          return text;
-        }
-
-        this.logger.warn(`PDF parsed but no text extracted with ${attempt.description}`);
-      } catch (error) {
-        this.logger.warn(
-          `PDF parse attempt ${i + 1} failed with ${attempt.description}: ${error.message}`,
-        );
-
-        // If this is the last attempt, throw a user-friendly error
-        if (i === parseAttempts.length - 1) {
-          throw new Error(
-            `Failed to parse PDF after ${parseAttempts.length} attempts. ` +
-              `The PDF file may be: (1) corrupted, (2) password-protected, (3) scanned images without OCR, or (4) using an unsupported format. ` +
-              `Please try: (1) Re-saving the PDF from your PDF reader, (2) Converting to text format, or (3) Copy-pasting the content directly.`,
-          );
-        }
-      }
-    }
-
-    throw new Error('Failed to extract text from PDF');
-  }
-
-  /**
-   * Process uploaded file - extract text and then analyze
+   * Fetch a stored file, extract its text, then hand off to analysis.
+   * Invoked by the queue worker after a successful upload.
    */
   async processFile(examCloneId: string, fileUrl: string, mimeType: string): Promise<void> {
     const examClone = await this.findById(examCloneId);
@@ -241,29 +227,15 @@ export class ExamCloneService {
     await this.updateStatus(examCloneId, 'processing');
 
     try {
-      // Download file from storage
-      // Extract key from URL using storage service helper
       const key = this.storageService.extractKeyFromUrl(fileUrl);
       this.logger.debug(`Processing file. URL: ${fileUrl}, Extracted Key: ${key}`);
 
       const fileBuffer = await this.storageService.download(key);
-
-      let extractedText = '';
-
-      // Extract text based on mime type
-      if (mimeType === 'application/pdf') {
-        extractedText = await this.extractTextFromPDF(fileBuffer);
-      } else if (mimeType.startsWith('text/')) {
-        extractedText = fileBuffer.toString('utf-8').trim();
-      } else {
-        throw new Error(`Unsupported file type: ${mimeType}`);
-      }
-
+      const extractedText = await this.extractText(fileBuffer, mimeType);
       if (!extractedText) {
         throw new Error('Could not extract text from file');
       }
 
-      // Save extracted text to exam clone
       await this.db.query(
         `UPDATE exam_clones SET original_text = $1, updated_at = $2 WHERE id = $3`,
         [extractedText, new Date(), examCloneId],
@@ -272,8 +244,6 @@ export class ExamCloneService {
       this.logger.log(
         `Text extracted from file for exam ${examCloneId}: ${extractedText.length} chars`,
       );
-
-      // Now analyze the extracted text
       await this.analyze(examCloneId);
     } catch (error) {
       this.logger.error(`Failed to process file for exam ${examCloneId}`, error);
@@ -282,6 +252,65 @@ export class ExamCloneService {
     }
   }
 
+  /** Pull plain text out of a PDF or text buffer. */
+  private async extractText(fileBuffer: Buffer, mimeType: string): Promise<string> {
+    if (mimeType === 'application/pdf') {
+      return this.extractTextFromPDF(fileBuffer);
+    }
+    if (mimeType.startsWith('text/')) {
+      return fileBuffer.toString('utf-8').trim();
+    }
+    throw new Error(`Unsupported file type: ${mimeType}`);
+  }
+
+  /**
+   * Parse a PDF with escalating fallback strategies. If every strategy
+   * fails, the user gets a friendly explanation of likely causes.
+   */
+  private async extractTextFromPDF(fileBuffer: Buffer): Promise<string> {
+    const strategies = [
+      { options: {}, label: 'default options' },
+      { options: { max: 50 }, label: 'max 50 pages' },
+      { options: { pagerender: null }, label: 'no page render' },
+    ];
+
+    for (let attempt = 0; attempt < strategies.length; attempt++) {
+      const strategy = strategies[attempt];
+      try {
+        this.logger.debug(
+          `Attempting PDF parse with ${strategy.label} (attempt ${attempt + 1}/${strategies.length})`,
+        );
+        const pdfData = await pdfParse(fileBuffer, strategy.options);
+        const text = pdfData.text.trim();
+        if (text.length > 0) {
+          this.logger.log(`PDF parsed successfully with ${strategy.label}: ${text.length} chars`);
+          return text;
+        }
+        this.logger.warn(`PDF parsed but no text extracted with ${strategy.label}`);
+      } catch (error) {
+        this.logger.warn(
+          `PDF parse attempt ${attempt + 1} failed with ${strategy.label}: ${error.message}`,
+        );
+
+        if (attempt === strategies.length - 1) {
+          throw new Error(
+            `Failed to parse PDF after ${strategies.length} attempts. ` +
+              `The PDF file may be: (1) corrupted, (2) password-protected, (3) scanned images without OCR, or (4) using an unsupported format. ` +
+              `Please try: (1) Re-saving the PDF from your PDF reader, (2) Converting to text format, or (3) Copy-pasting the content directly.`,
+          );
+        }
+      }
+    }
+
+    throw new Error('Failed to extract text from PDF');
+  }
+
+  // ─────────────────────────── Analysis ───────────────────────────
+
+  /**
+   * Analyze the exam source: profile its style and pull out every original
+   * question with its answer. Runs inline or via the queue.
+   */
   async analyze(examCloneId: string): Promise<void> {
     const examClone = await this.findById(examCloneId);
     if (!examClone) {
@@ -293,17 +322,19 @@ export class ExamCloneService {
     try {
       const examText = examClone.originalText || '';
 
-      const analysisPrompt = `Analyze this exam/test and extract:
-1. Question types used (multiple choice, short answer, essay, etc.)
-2. Difficulty distribution (percentage of easy, medium, hard questions)
-3. Average question length
-4. Topics covered
-5. Format patterns (how questions are structured)
-6. Language style (formal, conversational, technical)
+      const analysisPrompt = `Study this exam and produce two things:
 
-Also extract each individual question with its correct answer.
+1. A style profile describing:
+   - Question types used (multiple choice, short answer, essay, ...)
+   - Difficulty split (percentage of easy / medium / hard questions)
+   - Average question length
+   - Topics covered
+   - Format patterns (how questions are structured)
+   - Language style (formal, conversational, technical, ...)
 
-Return in this JSON format:
+2. Every individual question from the exam with its correct answer.
+
+Reply with JSON only, shaped exactly like this:
 {
   "style": {
     "questionTypes": ["multiple_choice", "short_answer"],
@@ -346,7 +377,8 @@ ${examText}`;
         { maxTokens: 4096 },
       );
 
-      // Filter out invalid questions (missing required fields that are NOT NULL in DB)
+      // The DB enforces NOT NULL on these columns — drop anything the model
+      // half-emitted so a single bad row doesn't sink the whole import.
       const validQuestions = (analysis.questions || []).filter((q) => {
         if (!q.question || !q.correctAnswer || !q.type) {
           this.logger.warn(
@@ -398,13 +430,14 @@ ${examText}`;
     }
   }
 
+  // ─────────────────────────── Generation ───────────────────────────
+
   async generateQuestions(
     examCloneId: string,
     userId: string,
     dto: GenerateQuestionsDto,
   ): Promise<ExamQuestion[]> {
     const examClone = await this.findByIdWithAccess(examCloneId, userId);
-
     if (!examClone.extractedStyle) {
       throw new Error('Exam has not been analyzed yet');
     }
@@ -412,7 +445,7 @@ ${examText}`;
     const style = examClone.extractedStyle;
     const originalQuestions = await this.getQuestions(examCloneId, true);
 
-    const generationPrompt = `Generate ${dto.count || 5} new exam questions that match this style:
+    const generationPrompt = `Create ${dto.count || 5} fresh exam questions that faithfully match this style:
 
 Style characteristics:
 - Question types: ${style.questionTypes.join(', ')}
@@ -421,7 +454,7 @@ Style characteristics:
 - Format: ${style.formatPatterns.join('; ')}
 - Language: ${style.languageStyle}
 
-Original questions for reference (match this style closely):
+Reference questions (match this style closely):
 ${originalQuestions
   .slice(0, 3)
   .map((q) => `- ${q.question}`)
@@ -429,7 +462,7 @@ ${originalQuestions
 
 ${dto.difficulty === 'match_original' ? 'Match the original difficulty distribution.' : `Generate ${dto.difficulty || 'mixed'} difficulty questions.`}
 
-Return in JSON format:
+Reply with JSON only:
 {
   "questions": [
     {
@@ -473,7 +506,6 @@ Return in JSON format:
     let order = parseInt(existingCount?.count || '0', 10);
 
     const newQuestions: ExamQuestion[] = [];
-
     for (const q of generated.questions) {
       const questionId = uuidv4();
       await this.db.query(
@@ -517,11 +549,11 @@ Return in JSON format:
     return newQuestions;
   }
 
+  // ─────────────────────────── Lookups ───────────────────────────
+
   async findById(id: string): Promise<ExamClone | null> {
-    const result = await this.db.queryOne<ExamClone>('SELECT * FROM exam_clones WHERE id = $1', [
-      id,
-    ]);
-    return result ? this.mapExamClone(result) : null;
+    const row = await this.db.queryOne<ExamClone>('SELECT * FROM exam_clones WHERE id = $1', [id]);
+    return row ? this.mapExamClone(row) : null;
   }
 
   async findByIdWithAccess(id: string, userId: string): Promise<ExamClone> {
@@ -536,11 +568,11 @@ Return in JSON format:
   }
 
   async findByUser(userId: string): Promise<ExamClone[]> {
-    const results = await this.db.queryMany<ExamClone>(
+    const rows = await this.db.queryMany<ExamClone>(
       'SELECT * FROM exam_clones WHERE user_id = $1 ORDER BY created_at DESC',
       [userId],
     );
-    return results.map((r) => this.mapExamClone(r));
+    return rows.map((r) => this.mapExamClone(r));
   }
 
   async getQuestions(examCloneId: string, originalOnly = false): Promise<ExamQuestion[]> {
@@ -550,8 +582,8 @@ Return in JSON format:
     }
     query += ' ORDER BY "order" ASC';
 
-    const results = await this.db.queryMany<ExamQuestion>(query, [examCloneId]);
-    return results.map((r) => this.mapQuestion(r));
+    const rows = await this.db.queryMany<ExamQuestion>(query, [examCloneId]);
+    return rows.map((r) => this.mapQuestion(r));
   }
 
   async delete(id: string, userId: string): Promise<void> {
@@ -563,32 +595,27 @@ Return in JSON format:
     this.logger.log(`Exam clone deleted: ${id}`);
   }
 
-  /**
-   * Get AI explanation for a question (why answer is correct/wrong)
-   */
+  // ─────────────────────────── Explanations ───────────────────────────
+
   async getExplanation(
     questionId: string,
     userAnswer: string,
     _userId: string,
   ): Promise<{ explanation: string; isCorrect: boolean; correctAnswer: string }> {
-    const question = await this.db.queryOne<ExamQuestion>(
-      'SELECT * FROM exam_questions WHERE id = $1',
-      [questionId],
-    );
-
-    if (!question) {
+    const row = await this.db.queryOne<ExamQuestion>('SELECT * FROM exam_questions WHERE id = $1', [
+      questionId,
+    ]);
+    if (!row) {
       throw new NotFoundException('Question not found');
     }
 
-    const q = this.mapQuestion(question);
+    const q = this.mapQuestion(row);
     const isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
 
-    // If already has explanation stored, return it
     if (q.explanation) {
       return { explanation: q.explanation, isCorrect, correctAnswer: q.correctAnswer };
     }
 
-    // Generate AI explanation
     const prompt = `Question: ${q.question}
 ${q.options ? `Options: ${q.options.join(', ')}` : ''}
 
@@ -613,7 +640,7 @@ Be concise and helpful.`;
 
     const explanation = response.content.trim();
 
-    // Cache the explanation in the database
+    // Cache so repeat visits skip the model call.
     await this.db.query('UPDATE exam_questions SET explanation = $1 WHERE id = $2', [
       explanation,
       questionId,
@@ -622,33 +649,20 @@ Be concise and helpful.`;
     return { explanation, isCorrect, correctAnswer: q.correctAnswer };
   }
 
+  // ─────────────────────────── Attempts ───────────────────────────
+
   /**
-   * Submit practice attempt and get results
+   * Grade a full practice run: exact-match for multiple choice, AI
+   * evaluation for written answers, then persist the attempt, feed wrong
+   * answers into the review queue, award badges and (when configured) the
+   * integrity reward for the pass.
    */
   async submitAttempt(
     examCloneId: string,
     userId: string,
-    answers: Array<{ questionId: string; answer: string; timeSpent: number }>,
+    answers: SubmittedAnswer[],
     totalTime: number,
-  ): Promise<{
-    id: string;
-    score: number;
-    correct: number;
-    wrong: number;
-    unanswered: number;
-    totalQuestions: number;
-    timeSpent: number;
-    results: Array<{
-      questionId: string;
-      isCorrect: boolean;
-      userAnswer: string;
-      correctAnswer: string;
-    }>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    newBadges: any[];
-    rewardXp?: number;
-    rewardStp?: number;
-  }> {
+  ): Promise<AttemptOutcome> {
     const examClone = await this.findByIdWithAccess(examCloneId, userId);
 
     const questions = await this.getQuestions(examCloneId);
@@ -656,25 +670,16 @@ Be concise and helpful.`;
 
     let correct = 0;
     let wrong = 0;
-    const results: Array<{
-      questionId: string;
-      isCorrect: boolean;
-      userAnswer: string;
-      correctAnswer: string;
-    }> = [];
+    const results: AttemptResult[] = [];
 
     for (const ans of answers) {
       const q = questionMap.get(ans.questionId);
       if (!q) continue;
 
       let isCorrect = false;
-
-      // For multiple choice questions, use exact match
       if (q.options && q.options.length > 0) {
         isCorrect = ans.answer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
-      }
-      // For written answers, use AI evaluation
-      else if (ans.answer && ans.answer.trim().length > 0) {
+      } else if (ans.answer && ans.answer.trim().length > 0) {
         isCorrect = await this.evaluateWrittenAnswer(q.question, q.correctAnswer, ans.answer);
       }
 
@@ -693,9 +698,8 @@ Be concise and helpful.`;
 
     const unanswered = answers.filter((a) => !a.answer).length;
     const totalQuestions = answers.length;
-    const score = Math.round((correct / totalQuestions) * 100);
+    const score = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
 
-    // Save attempt to database
     const attemptId = uuidv4();
     await this.db.query(
       `INSERT INTO exam_attempts (id, exam_clone_id, user_id, score, correct_count, wrong_count, unanswered_count, total_questions, time_spent, answers, created_at)
@@ -715,17 +719,16 @@ Be concise and helpful.`;
       ],
     );
 
-    // Update spaced repetition queue for wrong answers
+    // Wrong answers (that weren't skipped) go into spaced repetition.
     for (const result of results) {
       if (!result.isCorrect && result.userAnswer) {
         await this.addToReviewQueue(userId, result.questionId);
       }
     }
 
-    // Check and award badges
     const newBadges = await this.checkAndAwardBadges(userId, examCloneId);
 
-    // ── Integrity rewards (spec 014, US1/US2) ──────────────────────────────
+    // ── Integrity rewards (spec 014, US1/US2) ──────────────────────────
     // Accuracy-scaled XP + daily-capped STP for a practice-exam pass,
     // gated by a per-day attempt cap and answer-time sanity.
     const reward = await this.awardIntegrityRewards(
@@ -770,8 +773,9 @@ Be concise and helpful.`;
     totalQuestions: number,
     totalTime: number,
     examClone: ExamClone,
-  ): Promise<{ xp: number; stp: number } | null> {
+  ): Promise<RewardGrant | null> {
     if (!this.player || !this.wallet || totalQuestions === 0) return null;
+
     const config = await getIntegrityConfig(this.db);
     const accuracy = correct / totalQuestions;
 
@@ -787,6 +791,7 @@ Be concise and helpful.`;
     const multiplier = this.campfire
       ? await this.campfire.latestMultiplier(userId)
       : config.campfire.baseMultiplier;
+
     const xp = computeReward(config.rewards.exam.baseXp, {
       accuracy,
       difficulty: this.deriveDifficulty(examClone.extractedStyle),
@@ -819,6 +824,7 @@ Be concise and helpful.`;
         stp = granted;
       }
     }
+
     return { xp, stp };
   }
 
@@ -831,9 +837,8 @@ Be concise and helpful.`;
     return 'medium';
   }
 
-  /**
-   * Get user's performance analytics for an exam
-   */
+  // ─────────────────────────── Analytics ───────────────────────────
+
   async getAnalytics(
     examCloneId: string,
     userId: string,
@@ -854,7 +859,6 @@ Be concise and helpful.`;
   }> {
     await this.findByIdWithAccess(examCloneId, userId);
 
-    // Get all attempts
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const attempts = await this.db.queryMany<any>(
       'SELECT * FROM exam_attempts WHERE exam_clone_id = $1 AND user_id = $2 ORDER BY created_at DESC',
@@ -880,7 +884,7 @@ Be concise and helpful.`;
     const bestScore = Math.max(...scores);
     const totalTimeSpent = attempts.reduce((acc, a) => acc + parseInt(a.time_spent || 0, 10), 0);
 
-    // Calculate improvement trend (compare last 3 vs previous 3)
+    // Improvement trend: mean of the last 3 attempts minus the 3 before them.
     let improvementTrend = 0;
     if (attempts.length >= 2) {
       const recent = scores.slice(0, Math.min(3, scores.length));
@@ -892,17 +896,16 @@ Be concise and helpful.`;
       }
     }
 
-    // Get topic and difficulty performance from questions
+    // Per-topic / per-difficulty accuracy from the most recent attempt.
     const questions = await this.getQuestions(examCloneId);
     const topicStats = new Map<string, { correct: number; total: number }>();
     const difficultyStats = new Map<string, { correct: number; total: number }>();
 
-    // Analyze from most recent attempt
     const latestAttempt = attempts[0];
     const latestAnswers = JSON.parse(latestAttempt.answers || '[]');
 
     for (const ans of latestAnswers) {
-      const q = questions.find((q) => q.id === ans.questionId);
+      const q = questions.find((question) => question.id === ans.questionId);
       if (!q) continue;
 
       const isCorrect = ans.answer?.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
@@ -955,9 +958,8 @@ Be concise and helpful.`;
     };
   }
 
-  /**
-   * Add question to spaced repetition review queue
-   */
+  // ─────────────────────────── Spaced repetition ───────────────────────────
+
   private async addToReviewQueue(userId: string, questionId: string): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const existing = await this.db.queryOne<any>(
@@ -966,7 +968,7 @@ Be concise and helpful.`;
     );
 
     if (existing) {
-      // SM-2: Decrease ease factor and reset interval
+      // SM-2: a lapse resets repetition count and shrinks the ease factor.
       const newEaseFactor = Math.max(1.3, parseFloat(existing.ease_factor) - 0.2);
       await this.db.query(
         `UPDATE exam_review_queue SET
@@ -979,7 +981,6 @@ Be concise and helpful.`;
         [newEaseFactor, new Date(), new Date(), existing.id],
       );
     } else {
-      // New entry
       await this.db.query(
         `INSERT INTO exam_review_queue (id, user_id, question_id, repetitions, interval_days, ease_factor, next_review_at, created_at, updated_at)
          VALUES ($1, $2, $3, 0, 1, 2.5, $4, $5, $6)`,
@@ -988,9 +989,6 @@ Be concise and helpful.`;
     }
   }
 
-  /**
-   * Get questions due for spaced repetition review
-   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getReviewQueue(userId: string, limit = 10): Promise<any[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1016,8 +1014,9 @@ Be concise and helpful.`;
   }
 
   /**
-   * Mark review item as completed (correct or wrong)
-   * Uses modified SM-2 with shorter intervals for active learning
+   * Mark a review item as correct/incorrect. Uses a modified SM-2 schedule
+   * with short early intervals for active learning: 10 min → 1 h → 1 d →
+   * 3 d → exponential; a miss drops back to a 5-minute reinforcement.
    */
   async completeReview(userId: string, questionId: string, correct: boolean): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1025,38 +1024,29 @@ Be concise and helpful.`;
       'SELECT * FROM exam_review_queue WHERE user_id = $1 AND question_id = $2',
       [userId, questionId],
     );
-
     if (!item) return;
 
     let repetitions = parseInt(item.repetitions, 10);
     let easeFactor = parseFloat(item.ease_factor);
-
     const nextReview = new Date();
 
     if (correct) {
-      // Modified SM-2 with shorter initial intervals for active learning
       repetitions++;
       easeFactor = Math.max(1.3, easeFactor + 0.1 - (5 - 4) * (0.08 + (5 - 4) * 0.02));
 
       if (repetitions === 1) {
-        // First correct: review in 10 minutes
         nextReview.setMinutes(nextReview.getMinutes() + 10);
       } else if (repetitions === 2) {
-        // Second correct: review in 1 hour
         nextReview.setHours(nextReview.getHours() + 1);
       } else if (repetitions === 3) {
-        // Third correct: review in 1 day
         nextReview.setDate(nextReview.getDate() + 1);
       } else if (repetitions === 4) {
-        // Fourth correct: review in 3 days
         nextReview.setDate(nextReview.getDate() + 3);
       } else {
-        // After that: exponential growth (6 days, then * easeFactor)
         const intervalDays = Math.round(6 * Math.pow(easeFactor, repetitions - 4));
         nextReview.setDate(nextReview.getDate() + intervalDays);
       }
     } else {
-      // Wrong answer: review in 5 minutes for immediate reinforcement
       repetitions = 0;
       easeFactor = Math.max(1.3, easeFactor - 0.2);
       nextReview.setMinutes(nextReview.getMinutes() + 5);
@@ -1071,7 +1061,8 @@ Be concise and helpful.`;
   }
 
   /**
-   * Get questions with adaptive difficulty based on recent performance
+   * Pick the next batch of questions based on recent performance: strong
+   * runs skew hard, weak runs skew easy, middling runs stay mixed.
    */
   async getAdaptiveQuestions(
     examCloneId: string,
@@ -1081,45 +1072,34 @@ Be concise and helpful.`;
   ): Promise<ExamQuestion[]> {
     const questions = await this.getQuestions(examCloneId);
 
-    // Calculate recent success rate
     const recentCorrect = recentPerformance.filter((p) => p.correct).length;
     const recentTotal = recentPerformance.length;
     const successRate = recentTotal > 0 ? recentCorrect / recentTotal : 0.5;
 
-    // Determine target difficulty
     let targetDifficulties: string[];
     if (successRate >= 0.8) {
-      // Doing great - give harder questions
       targetDifficulties = ['hard', 'medium'];
     } else if (successRate >= 0.5) {
-      // Average - mix of medium
       targetDifficulties = ['medium', 'easy', 'hard'];
     } else {
-      // Struggling - give easier questions
       targetDifficulties = ['easy', 'medium'];
     }
 
-    // Filter and prioritize by difficulty
     const answeredIds = new Set(recentPerformance.map((p) => p.questionId));
     const unanswered = questions.filter((q) => !answeredIds.has(q.id));
 
-    // Sort by target difficulty priority
     const sorted = unanswered.sort((a, b) => {
       const aIndex = targetDifficulties.indexOf(a.difficulty);
       const bIndex = targetDifficulties.indexOf(b.difficulty);
       return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
     });
 
-    // Shuffle within same priority and return
     const result = sorted.slice(0, count);
     return result.sort(() => Math.random() - 0.5);
   }
 
-  // ==================== EXAM TEMPLATES ====================
+  // ─────────────────────────── Templates ───────────────────────────
 
-  /**
-   * Get all available exam templates
-   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getTemplates(): Promise<any[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1142,7 +1122,8 @@ Be concise and helpful.`;
   }
 
   /**
-   * Generate questions using a template style
+   * Generate questions in the style of a named exam template (e.g. a
+   * specific certification's format).
    */
   async generateFromTemplate(
     examCloneId: string,
@@ -1157,7 +1138,6 @@ Be concise and helpful.`;
     const template = await this.db.queryOne<any>('SELECT * FROM exam_templates WHERE slug = $1', [
       templateSlug,
     ]);
-
     if (!template) {
       throw new NotFoundException('Template not found');
     }
@@ -1176,7 +1156,7 @@ Template characteristics:
 Subject: ${subject}
 Topics to cover: ${topics.join(', ')}
 
-Return in JSON format:
+Reply with JSON only:
 {
   "questions": [
     {
@@ -1216,7 +1196,6 @@ Return in JSON format:
     let order = parseInt(existingCount?.count || '0', 10);
 
     const newQuestions: ExamQuestion[] = [];
-
     for (const q of generated.questions) {
       const questionId = uuidv4();
       await this.db.query(
@@ -1260,60 +1239,26 @@ Return in JSON format:
     return newQuestions;
   }
 
-  private async updateStatus(id: string, status: ExamClone['status']): Promise<void> {
-    await this.db.query('UPDATE exam_clones SET status = $1, updated_at = $2 WHERE id = $3', [
-      status,
-      new Date(),
-      id,
-    ]);
-  }
-
-  private mapExamClone(row: unknown): ExamClone {
-    const r = row as Record<string, unknown>;
-    return {
-      id: r.id as string,
-      userId: r.user_id as string,
-      title: r.title as string,
-      subject: r.subject as string | null,
-      originalFileUrl: r.original_file_url as string | null,
-      originalText: r.original_text as string | null,
-      extractedStyle: r.extracted_style
-        ? typeof r.extracted_style === 'string'
-          ? JSON.parse(r.extracted_style)
-          : (r.extracted_style as ExamStyle)
-        : null,
-      status: r.status as ExamClone['status'],
-      originalQuestionCount: parseInt(String(r.original_question_count || 0), 10),
-      generatedQuestionCount: parseInt(String(r.generated_question_count || 0), 10),
-      createdAt: new Date(r.created_at as string),
-      updatedAt: new Date(r.updated_at as string),
-    };
-  }
+  // ─────────────────────────── Answer evaluation ───────────────────────────
 
   /**
-   * Public method to evaluate a single answer using AI (for review queue)
+   * Public single-answer evaluation (used by the review queue flow).
+   * Multiple-choice answers are compared directly; written answers go to
+   * the AI grader with a string-match fallback.
    */
   async evaluateAnswerAI(
     questionId: string,
     userAnswer: string,
-  ): Promise<{
-    isCorrect: boolean;
-    score: number;
-    feedback: string;
-    correctAnswer: string;
-  }> {
-    const question = await this.db.queryOne<ExamQuestion>(
-      'SELECT * FROM exam_questions WHERE id = $1',
-      [questionId],
-    );
-
-    if (!question) {
+  ): Promise<{ isCorrect: boolean; score: number; feedback: string; correctAnswer: string }> {
+    const row = await this.db.queryOne<ExamQuestion>('SELECT * FROM exam_questions WHERE id = $1', [
+      questionId,
+    ]);
+    if (!row) {
       throw new NotFoundException('Question not found');
     }
 
-    const q = this.mapQuestion(question);
+    const q = this.mapQuestion(row);
 
-    // For multiple choice, simple comparison
     if (q.options && q.options.length > 0) {
       const isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
       return {
@@ -1324,7 +1269,6 @@ Return in JSON format:
       };
     }
 
-    // For written answers, use AI evaluation
     try {
       const evaluationPrompt = `You are evaluating a student's answer to an exam question.
 
@@ -1369,7 +1313,6 @@ Be fair and encouraging - if the student demonstrates understanding even with di
       };
     } catch (error) {
       this.logger.error(`AI evaluation failed for question ${questionId}: ${error.message}`);
-      // Fallback to string comparison
       const isCorrect = userAnswer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
       return {
         isCorrect,
@@ -1383,8 +1326,9 @@ Be fair and encouraging - if the student demonstrates understanding even with di
   }
 
   /**
-   * Evaluate written answer using AI semantic comparison
-   * Returns true if answer is semantically correct (>= 70% match)
+   * Semantic comparison for written answers: the AI grader decides, with a
+   * plain string comparison as the safety net if the model call fails.
+   * A score ≥ 70 counts as correct.
    */
   private async evaluateWrittenAnswer(
     question: string,
@@ -1436,33 +1380,11 @@ Be fair - if the student demonstrates understanding even with different wording,
       return evaluation.isCorrect;
     } catch (error) {
       this.logger.error(`AI evaluation failed, falling back to string match: ${error.message}`);
-      // Fallback to simple string comparison if AI fails
       return userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
     }
   }
 
-  private mapQuestion(row: unknown): ExamQuestion {
-    const r = row as Record<string, unknown>;
-    return {
-      id: r.id as string,
-      examCloneId: r.exam_clone_id as string,
-      isOriginal: r.is_original as boolean,
-      type: r.type as string,
-      question: r.question as string,
-      options: r.options
-        ? typeof r.options === 'string'
-          ? JSON.parse(r.options)
-          : (r.options as string[])
-        : null,
-      correctAnswer: r.correct_answer as string,
-      explanation: r.explanation as string | null,
-      difficulty: r.difficulty as string,
-      topic: r.topic as string | null,
-      order: r.order as number,
-    };
-  }
-
-  // ==================== BOOKMARKS ====================
+  // ─────────────────────────── Bookmarks ───────────────────────────
 
   async bookmarkQuestion(userId: string, questionId: string, note?: string): Promise<void> {
     await this.db.query(
@@ -1509,7 +1431,7 @@ Be fair - if the student demonstrates understanding even with different wording,
     return parseInt(result?.count || '0', 10) > 0;
   }
 
-  // ==================== BADGES ====================
+  // ─────────────────────────── Badges ───────────────────────────
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getBadges(): Promise<any[]> {
@@ -1557,12 +1479,15 @@ Be fair - if the student demonstrates understanding even with different wording,
     }));
   }
 
+  /**
+   * Evaluate every unearned badge against the user's lifetime stats and
+   * award any that now qualify. Returns the freshly earned badges.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async checkAndAwardBadges(userId: string, examCloneId?: string): Promise<any[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newBadges: any[] = [];
 
-    // Get user stats
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stats = await this.db.queryOne<any>(
       `SELECT
@@ -1578,7 +1503,6 @@ Be fair - if the student demonstrates understanding even with different wording,
     const bestScore = parseInt(stats?.best_score || '0', 10);
     const totalCorrect = parseInt(stats?.total_correct || '0', 10);
 
-    // Get review stats
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const reviewStats = await this.db.queryOne<any>(
       `SELECT COUNT(*) as review_count FROM exam_review_queue WHERE user_id = $1 AND repetitions > 0`,
@@ -1586,14 +1510,12 @@ Be fair - if the student demonstrates understanding even with different wording,
     );
     const reviewCount = parseInt(reviewStats?.review_count || '0', 10);
 
-    // Get already earned badges
     const earnedBadges = await this.db.queryMany<{ badge_id: string }>(
       'SELECT badge_id FROM user_exam_badges WHERE user_id = $1',
       [userId],
     );
     const earnedBadgeIds = new Set(earnedBadges.map((b) => b.badge_id));
 
-    // Get all badges
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const allBadges = await this.db.queryMany<any>(
       'SELECT * FROM exam_badges WHERE is_active = true',
@@ -1604,7 +1526,6 @@ Be fair - if the student demonstrates understanding even with different wording,
       if (earnedBadgeIds.has(badge.id)) continue;
 
       let earned = false;
-
       switch (badge.slug) {
         case 'first_exam':
           earned = totalExams >= 1;
@@ -1658,12 +1579,12 @@ Be fair - if the student demonstrates understanding even with different wording,
     return newBadges;
   }
 
-  // ==================== LEADERBOARD ====================
+  // ─────────────────────────── Leaderboard ───────────────────────────
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getLeaderboard(
     period: 'weekly' | 'monthly' | 'all_time' = 'weekly',
     limit = 10,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any[]> {
     let dateFilter = '';
     if (period === 'weekly') {
@@ -1704,10 +1625,10 @@ Be fair - if the student demonstrates understanding even with different wording,
     }));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getUserRank(
     userId: string,
     period: 'weekly' | 'monthly' | 'all_time' = 'weekly',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     let dateFilter = '';
     if (period === 'weekly') {
@@ -1741,6 +1662,59 @@ Be fair - if the student demonstrates understanding even with different wording,
       rank: parseInt(result.rank, 10),
       avgScore: parseInt(result.avg_score, 10),
       totalCorrect: parseInt(result.total_correct, 10),
+    };
+  }
+
+  // ─────────────────────────── Mapping helpers ───────────────────────────
+
+  private async updateStatus(id: string, status: ExamClone['status']): Promise<void> {
+    await this.db.query('UPDATE exam_clones SET status = $1, updated_at = $2 WHERE id = $3', [
+      status,
+      new Date(),
+      id,
+    ]);
+  }
+
+  private mapExamClone(row: unknown): ExamClone {
+    const r = row as Record<string, unknown>;
+    return {
+      id: r.id as string,
+      userId: r.user_id as string,
+      title: r.title as string,
+      subject: r.subject as string | null,
+      originalFileUrl: r.original_file_url as string | null,
+      originalText: r.original_text as string | null,
+      extractedStyle: r.extracted_style
+        ? typeof r.extracted_style === 'string'
+          ? JSON.parse(r.extracted_style)
+          : (r.extracted_style as ExamStyle)
+        : null,
+      status: r.status as ExamClone['status'],
+      originalQuestionCount: parseInt(String(r.original_question_count || 0), 10),
+      generatedQuestionCount: parseInt(String(r.generated_question_count || 0), 10),
+      createdAt: new Date(r.created_at as string),
+      updatedAt: new Date(r.updated_at as string),
+    };
+  }
+
+  private mapQuestion(row: unknown): ExamQuestion {
+    const r = row as Record<string, unknown>;
+    return {
+      id: r.id as string,
+      examCloneId: r.exam_clone_id as string,
+      isOriginal: r.is_original as boolean,
+      type: r.type as string,
+      question: r.question as string,
+      options: r.options
+        ? typeof r.options === 'string'
+          ? JSON.parse(r.options)
+          : (r.options as string[])
+        : null,
+      correctAnswer: r.correct_answer as string,
+      explanation: r.explanation as string | null,
+      difficulty: r.difficulty as string,
+      topic: r.topic as string | null,
+      order: r.order as number,
     };
   }
 }

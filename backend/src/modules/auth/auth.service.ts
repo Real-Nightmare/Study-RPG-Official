@@ -11,12 +11,12 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+import { OAuth2Client } from 'google-auth-library';
 import { UsersService } from '../users/users.service';
 import { RedisService } from '../redis/redis.service';
 import { EmailService } from '../email/email.service';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { RegisterDto, LoginDto, RefreshTokenDto, OAuthDto, SubscriptionDto } from './dto';
-import { OAuth2Client } from 'google-auth-library';
 
 export interface TokenPair {
   accessToken: string;
@@ -30,6 +30,17 @@ export interface JwtPayload {
   role: string;
 }
 
+const PASSWORD_ROUNDS = 12;
+const ACCESS_TOKEN_TTL_SECONDS = 604800; // 7 days
+const VERIFY_TOKEN_TTL_SECONDS = 24 * 60 * 60;
+const RESET_TOKEN_TTL_SECONDS = 60 * 60;
+
+/**
+ * Credential and social authentication. Emails are optional for accounts
+ * (Phase 6): verification/welcome emails are only sent when an email exists,
+ * otherwise website notifications are the channel. Registration and login both
+ * attach the user's current subscription details to the response.
+ */
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -47,7 +58,7 @@ export class AuthService {
   ) {
     this.googleClient = new OAuth2Client(this.configService.get<string>('GOOGLE_CLIENT_ID'));
 
-    // Apple Sign In JWKS client
+    // Apple Sign In public keys (rotated by Apple, cached for 24h).
     this.appleJwksClient = jwksClient({
       jwksUri: 'https://appleid.apple.com/auth/keys',
       cache: true,
@@ -66,20 +77,9 @@ export class AuthService {
       throw new BadRequestException('Provide an email or a username to register');
     }
 
-    if (dto.email) {
-      const existing = await this.usersService.findByEmail(dto.email);
-      if (existing) {
-        throw new ConflictException('Email already registered');
-      }
-    }
-    if (dto.username) {
-      const existing = await this.usersService.findByUsername(dto.username);
-      if (existing) {
-        throw new ConflictException('Username already taken');
-      }
-    }
+    await this.ensureIdentifiersAvailable(dto);
 
-    const hashedPassword = await bcrypt.hash(dto.password, 12);
+    const hashedPassword = await bcrypt.hash(dto.password, PASSWORD_ROUNDS);
     const user = await this.usersService.create({
       email: dto.email,
       username: dto.username,
@@ -89,16 +89,11 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user.id, user.email || '', user.role);
 
-    // Emails are optional (Phase 6): only send verification/welcome when an
-    // email exists; otherwise website notifications are the channel.
     if (user.email) {
-      const verifyToken = uuidv4();
-      await this.redisService.set(`email-verify:${verifyToken}`, user.id, 24 * 60 * 60);
-      await this.emailService.sendVerificationEmail(user.email, verifyToken);
+      await this.sendVerificationEmail(user.email, user.id);
       await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
     }
 
-    // Get subscription details
     const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
     return {
@@ -121,16 +116,14 @@ export class AuthService {
       throw new UnauthorizedException('Account disabled — contact an administrator');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordValid) {
+    const passwordMatches = await bcrypt.compare(dto.password, user.password);
+    if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const tokens = await this.generateTokens(user.id, user.email || '', user.role);
-
     await this.usersService.updateLastLogin(user.id);
 
-    // Get subscription details
     const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
     return {
@@ -146,8 +139,7 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
 
-      const isBlacklisted = await this.redisService.exists(`blacklist:${dto.refreshToken}`);
-      if (isBlacklisted) {
+      if (await this.redisService.exists(`blacklist:${dto.refreshToken}`)) {
         throw new UnauthorizedException('Token has been revoked');
       }
 
@@ -156,6 +148,7 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
+      // Rotate: the presented refresh token is invalidated after use.
       await this.blacklistToken(dto.refreshToken);
 
       return this.generateTokens(user.id, user.email || '', user.role);
@@ -188,7 +181,7 @@ export class AuthService {
       }
 
       let user = await this.usersService.findByEmail(payload.email);
-      let isNewUser = false;
+      const isNewUser = !user;
 
       if (!user) {
         user = await this.usersService.create({
@@ -198,7 +191,6 @@ export class AuthService {
           avatarUrl: payload.picture,
           emailVerified: true,
         });
-        isNewUser = true;
       } else if (!user.googleId) {
         await this.usersService.linkGoogleAccount(user.id, payload.sub);
       }
@@ -206,12 +198,10 @@ export class AuthService {
       const tokens = await this.generateTokens(user.id, user.email || '', user.role);
       await this.usersService.updateLastLogin(user.id);
 
-      // Send welcome email for new users
       if (isNewUser && user.email) {
         await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
       }
 
-      // Get subscription details
       const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
       return {
@@ -231,53 +221,33 @@ export class AuthService {
     subscription: SubscriptionDto;
   }> {
     try {
-      // Decode the identity token header to get the key ID
-      const decoded = jwt.decode(dto.idToken, { complete: true });
-      if (!decoded || typeof decoded === 'string' || !decoded.header.kid) {
-        throw new BadRequestException('Invalid Apple token');
-      }
-
-      // Get the signing key from Apple's JWKS
-      const key = await this.appleJwksClient.getSigningKey(decoded.header.kid);
-      const publicKey = key.getPublicKey();
-
-      // Verify the token
-      const payload = jwt.verify(dto.idToken, publicKey, {
-        algorithms: ['RS256'],
-        issuer: 'https://appleid.apple.com',
-        audience: this.appleClientId,
-      }) as jwt.JwtPayload;
-
-      if (!payload.email) {
+      const identity = await this.verifyAppleIdentityToken(dto.idToken);
+      if (!identity.email) {
         throw new BadRequestException('Email not provided by Apple');
       }
 
-      // Find or create user
-      let user = await this.usersService.findByEmail(payload.email);
+      let user = await this.usersService.findByEmail(identity.email);
 
       if (!user) {
-        // Apple only provides name on first auth, use it if available
-        const name = dto.userData?.name || payload.email.split('@')[0];
+        // Apple only provides a name on the first authorization.
+        const name = dto.userData?.name || identity.email.split('@')[0];
         user = await this.usersService.create({
-          email: payload.email,
+          email: identity.email,
           name,
-          appleId: payload.sub,
-          emailVerified: payload.email_verified === 'true' || payload.email_verified === true,
+          appleId: identity.sub,
+          emailVerified: identity.emailVerified,
         });
 
-        // Send welcome email
         if (user.email) {
           await this.emailService.sendWelcomeEmail(user.email, user.name || user.email);
         }
       } else if (!user.appleId) {
-        // Link Apple account to existing user
-        await this.usersService.linkAppleAccount(user.id, payload.sub!);
+        await this.usersService.linkAppleAccount(user.id, identity.sub);
       }
 
       const tokens = await this.generateTokens(user.id, user.email || '', user.role);
       await this.usersService.updateLastLogin(user.id);
 
-      // Get subscription details
       const subscription = await this.getSubscriptionDto(user.id, user.email || '');
 
       return {
@@ -295,16 +265,13 @@ export class AuthService {
   async forgotPassword(email: string): Promise<void> {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      // Don't reveal if email exists
+      // Never reveal whether an address is registered.
       return;
     }
 
     const resetToken = uuidv4();
-    const resetExpiry = 60 * 60; // 1 hour
+    await this.redisService.set(`password-reset:${resetToken}`, user.id, RESET_TOKEN_TTL_SECONDS);
 
-    await this.redisService.set(`password-reset:${resetToken}`, user.id, resetExpiry);
-
-    // Send password reset email
     const emailSent = await this.emailService.sendPasswordResetEmail(email, resetToken);
     if (emailSent) {
       this.logger.log(`Password reset email sent to ${email}`);
@@ -319,7 +286,7 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    const hashedPassword = await bcrypt.hash(newPassword, PASSWORD_ROUNDS);
     await this.usersService.updatePassword(userId, hashedPassword);
     await this.redisService.del(`password-reset:${token}`);
 
@@ -332,12 +299,12 @@ export class AuthService {
       throw new BadRequestException('Cannot change password for this account');
     }
 
-    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isPasswordValid) {
+    const passwordMatches = await bcrypt.compare(oldPassword, user.password);
+    if (!passwordMatches) {
       throw new UnauthorizedException('Invalid current password');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    const hashedPassword = await bcrypt.hash(newPassword, PASSWORD_ROUNDS);
     await this.usersService.updatePassword(userId, hashedPassword);
   }
 
@@ -366,18 +333,60 @@ export class AuthService {
       throw new BadRequestException('Email already verified');
     }
 
+    await this.sendVerificationEmail(user.email, user.id);
+  }
+
+  private async sendVerificationEmail(email: string, userId: string): Promise<void> {
     const verifyToken = uuidv4();
-    const verifyExpiry = 24 * 60 * 60; // 24 hours
-
-    await this.redisService.set(`email-verify:${verifyToken}`, user.id, verifyExpiry);
-
-    // Send verification email
-    const emailSent = await this.emailService.sendVerificationEmail(user.email, verifyToken);
+    await this.redisService.set(`email-verify:${verifyToken}`, userId, VERIFY_TOKEN_TTL_SECONDS);
+    const emailSent = await this.emailService.sendVerificationEmail(email, verifyToken);
     if (emailSent) {
-      this.logger.log(`Verification email sent to ${user.email}`);
+      this.logger.log(`Verification email sent to ${email}`);
     } else {
-      this.logger.warn(`Failed to send verification email to ${user.email}`);
+      this.logger.warn(`Failed to send verification email to ${email}`);
     }
+  }
+
+  private async ensureIdentifiersAvailable(dto: RegisterDto): Promise<void> {
+    if (dto.email) {
+      const existing = await this.usersService.findByEmail(dto.email);
+      if (existing) {
+        throw new ConflictException('Email already registered');
+      }
+    }
+    if (dto.username) {
+      const existing = await this.usersService.findByUsername(dto.username);
+      if (existing) {
+        throw new ConflictException('Username already taken');
+      }
+    }
+  }
+
+  private async verifyAppleIdentityToken(idToken: string): Promise<{
+    email: string | null;
+    sub: string;
+    emailVerified: boolean;
+  }> {
+    // Read the key id from the JWT header so we can fetch Apple's signing key.
+    const decoded = jwt.decode(idToken, { complete: true });
+    if (!decoded || typeof decoded === 'string' || !decoded.header.kid) {
+      throw new BadRequestException('Invalid Apple token');
+    }
+
+    const key = await this.appleJwksClient.getSigningKey(decoded.header.kid);
+    const publicKey = key.getPublicKey();
+
+    const payload = jwt.verify(idToken, publicKey, {
+      algorithms: ['RS256'],
+      issuer: 'https://appleid.apple.com',
+      audience: this.appleClientId,
+    }) as jwt.JwtPayload;
+
+    return {
+      email: payload.email ?? null,
+      sub: payload.sub!,
+      emailVerified: payload.email_verified === 'true' || payload.email_verified === true,
+    };
   }
 
   private async generateTokens(userId: string, email: string, role: string): Promise<TokenPair> {
@@ -397,7 +406,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: 604800, // 7 days in seconds
+      expiresIn: ACCESS_TOKEN_TTL_SECONDS,
     };
   }
 
@@ -421,7 +430,7 @@ export class AuthService {
         await this.redisService.set(`blacklist:${token}`, '1', ttl);
       }
     } catch {
-      // Token invalid, no need to blacklist
+      // Token invalid, nothing to blacklist.
     }
   }
 }

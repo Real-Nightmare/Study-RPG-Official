@@ -22,6 +22,10 @@ export interface ExecuteCodeDto {
   stdin?: string;
 }
 
+/**
+ * Proxies user code to the external sandbox runner and records every
+ * execution (success, error, timeout) for the user's history.
+ */
 @Injectable()
 export class CodeSandboxService {
   private readonly logger = new Logger(CodeSandboxService.name);
@@ -117,6 +121,10 @@ export class CodeSandboxService {
     }
   }
 
+  /**
+   * Streaming variant: relays the sandbox's chunked stdout/stderr to the
+   * caller as it arrives. Errors and completion are also yielded as events.
+   */
   async *executeStream(
     userId: string,
     dto: ExecuteCodeDto,

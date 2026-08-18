@@ -15,9 +15,11 @@
  *      publishes are recorded as drafts with `published: false` — the DDO is
  *      still stored so it can be re-submitted or exported for manual upload.
  *   4. Publisher credentials (wallet address/key) are optional and never
- *      logged; the on-chain datatoken mint is intentionally left to the admin
- *      (needs a funded wallet + Ocean SDK) — this service completes the
- *      metadata-first publish step and keeps the DDO re-submittable.
+ *      logged. This service completes the *metadata-first* publish step and
+ *      keeps the DDO re-submittable; the real on-chain path — deploying the
+ *      ERC721 + datatoken and registering a compute-to-data service — lives in
+ *      `ocean-c2d.service.ts` and is used automatically when a funded wallet,
+ *      an RPC URL and an Ocean Node are configured.
  */
 
 import { Injectable, Logger } from '@nestjs/common';

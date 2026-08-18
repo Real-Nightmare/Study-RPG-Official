@@ -34,6 +34,12 @@ function transformKeys(obj: unknown, transformer: (key: string) => string): unkn
   return obj;
 }
 
+/**
+ * Historically the API negotiated snake_case DB rows against camelCase
+ * clients. Today both sides speak camelCase natively, so the interceptor is a
+ * transparent passthrough; the transformer utilities remain for places that
+ * still need explicit conversion.
+ */
 @Injectable()
 export class CamelCaseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {

@@ -22,8 +22,14 @@ export interface Flashcard {
   updatedAt: Date;
 }
 
-// DTOs moved to dto/flashcard.dto.ts for proper validation
+const DEFAULT_EASE_FACTOR = 2.5;
+const MASTERY_MILESTONES = [10, 25, 50, 100, 250, 500, 1000];
 
+/**
+ * Spaced-repetition flashcards using the SM-2 scheduling algorithm. Reviewing
+ * a card advances its interval/ease factor; failed reviews reset it. Mastery
+ * milestones and the first mastered card trigger achievement notifications.
+ */
 @Injectable()
 export class FlashcardsService {
   private readonly logger = new Logger(FlashcardsService.name);
@@ -39,7 +45,7 @@ export class FlashcardsService {
 
     const result = await this.db.queryOne<Flashcard>(
       `INSERT INTO flashcards (id, study_set_id, front, back, notes, tags, type, difficulty, interval, repetitions, ease_factor, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, 0, 2.5, $8, $9)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, 0, ${DEFAULT_EASE_FACTOR}, $8, $9)
        RETURNING *`,
       [
         id,
@@ -64,13 +70,13 @@ export class FlashcardsService {
     cards: Array<{ front: string; back: string; notes?: string; tags?: string[]; type?: string }>,
   ): Promise<Flashcard[]> {
     const now = new Date();
-    const results: Flashcard[] = [];
+    const created: Flashcard[] = [];
 
     for (const card of cards) {
       const id = uuidv4();
       const result = await this.db.queryOne<Flashcard>(
         `INSERT INTO flashcards (id, study_set_id, front, back, notes, tags, type, difficulty, interval, repetitions, ease_factor, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, 0, 2.5, $8, $9)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, 0, ${DEFAULT_EASE_FACTOR}, $8, $9)
          RETURNING *`,
         [
           id,
@@ -84,11 +90,11 @@ export class FlashcardsService {
           now,
         ],
       );
-      results.push(this.mapFlashcard(result!));
+      created.push(this.mapFlashcard(result!));
     }
 
-    this.logger.log(`${results.length} flashcards created for study set: ${studySetId}`);
-    return results;
+    this.logger.log(`${created.length} flashcards created for study set: ${studySetId}`);
+    return created;
   }
 
   async findById(id: string): Promise<Flashcard | null> {
@@ -103,7 +109,7 @@ export class FlashcardsService {
       'SELECT * FROM flashcards WHERE study_set_id = $1 ORDER BY created_at ASC',
       [studySetId],
     );
-    return results.map((r) => this.mapFlashcard(r));
+    return results.map((row) => this.mapFlashcard(row));
   }
 
   async findDueForReview(userId: string, limit = 20): Promise<Flashcard[]> {
@@ -116,7 +122,7 @@ export class FlashcardsService {
        LIMIT $2`,
       [userId, limit],
     );
-    return results.map((r) => this.mapFlashcard(r));
+    return results.map((row) => this.mapFlashcard(row));
   }
 
   async findByStudySetDueForReview(studySetId: string, limit = 20): Promise<Flashcard[]> {
@@ -128,43 +134,37 @@ export class FlashcardsService {
        LIMIT $2`,
       [studySetId, limit],
     );
-    return results.map((r) => this.mapFlashcard(r));
+    return results.map((row) => this.mapFlashcard(row));
   }
 
   async update(id: string, userId: string, dto: UpdateFlashcardDto): Promise<Flashcard> {
     await this.verifyOwnership(id, userId);
 
-    const updates: string[] = [];
+    const assignments: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
 
-    if (dto.front !== undefined) {
-      updates.push(`front = $${paramIndex++}`);
-      values.push(dto.front);
-    }
-    if (dto.back !== undefined) {
-      updates.push(`back = $${paramIndex++}`);
-      values.push(dto.back);
-    }
-    if (dto.notes !== undefined) {
-      updates.push(`notes = $${paramIndex++}`);
-      values.push(dto.notes);
-    }
-    if (dto.tags !== undefined) {
-      updates.push(`tags = $${paramIndex++}`);
-      values.push(JSON.stringify(dto.tags));
-    }
-    if (dto.type !== undefined) {
-      updates.push(`type = $${paramIndex++}`);
-      values.push(dto.type);
+    const fieldAssignments: Array<[keyof UpdateFlashcardDto, string, (v: unknown) => unknown]> = [
+      ['front', 'front', (v) => v],
+      ['back', 'back', (v) => v],
+      ['notes', 'notes', (v) => v],
+      ['tags', 'tags', (v) => JSON.stringify(v)],
+      ['type', 'type', (v) => v],
+    ];
+
+    for (const [key, column, transform] of fieldAssignments) {
+      if (dto[key] !== undefined) {
+        assignments.push(`${column} = $${paramIndex++}`);
+        values.push(transform(dto[key]));
+      }
     }
 
-    updates.push(`updated_at = $${paramIndex++}`);
+    assignments.push(`updated_at = $${paramIndex++}`);
     values.push(new Date());
     values.push(id);
 
     const result = await this.db.queryOne<Flashcard>(
-      `UPDATE flashcards SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      `UPDATE flashcards SET ${assignments.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
       values,
     );
 
@@ -197,7 +197,6 @@ export class FlashcardsService {
       [interval, repetitions, easeFactor, nextReviewAt, new Date(), new Date(), id],
     );
 
-    // Send achievement notifications for mastery milestones
     await this.checkAndSendMasteryAchievement(userId, interval);
 
     return this.mapFlashcard(result!);
@@ -247,6 +246,11 @@ export class FlashcardsService {
     };
   }
 
+  /**
+   * SM-2 scheduling. Quality < 3 fails the card (reset to interval 1);
+   * otherwise repetitions advance 1 → 6 → interval×ease. Ease factor moves
+   * with the quality score and floors at 1.3.
+   */
   private calculateSM2(
     quality: number,
     prevInterval: number,
@@ -296,7 +300,6 @@ export class FlashcardsService {
 
   private async checkAndSendMasteryAchievement(userId: string, interval: number): Promise<void> {
     try {
-      // Get user's total mastered flashcards count (interval >= 30 days)
       const result = await this.db.queryOne<{ count: string }>(
         `SELECT COUNT(*) as count FROM flashcards f
          JOIN study_sets s ON f.study_set_id = s.id
@@ -306,16 +309,13 @@ export class FlashcardsService {
 
       const masteredCount = parseInt(result?.count || '0', 10);
 
-      // Send achievement notifications at milestones
-      const milestones = [10, 25, 50, 100, 250, 500, 1000];
-      if (milestones.includes(masteredCount)) {
+      if (MASTERY_MILESTONES.includes(masteredCount)) {
         await this.notificationsService.sendAchievementNotification(
           userId,
           `You've mastered ${masteredCount} flashcards! 🎉`,
         );
       }
 
-      // Send notification for first mastered card
       if (interval >= 30 && masteredCount === 1) {
         await this.notificationsService.create({
           userId,
@@ -326,7 +326,7 @@ export class FlashcardsService {
         });
       }
     } catch (error) {
-      this.logger.error(`Failed to send mastery achievement: ${error.message}`);
+      this.logger.error(`Failed to send mastery achievement: ${(error as Error).message}`);
     }
   }
 

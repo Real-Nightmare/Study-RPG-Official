@@ -8,6 +8,11 @@ export interface SearchResult {
   source: string;
 }
 
+/**
+ * Thin facade over the configured web-search providers. Tavily is preferred
+ * when its key exists; Serper is the fallback; with neither configured the
+ * service reports the gap and returns no results.
+ */
 @Injectable()
 export class WebSearchService {
   private readonly logger = new Logger(WebSearchService.name);

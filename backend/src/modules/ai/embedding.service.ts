@@ -4,6 +4,11 @@ import { EmbeddingProvider, EmbeddingResult } from './embedding-provider.interfa
 
 export { EmbeddingResult } from './embedding-provider.interface';
 
+/**
+ * Text-embedding adapter backed by OpenRouter's embeddings endpoint. The
+ * vector dimension is fixed at construction time and must match the Qdrant
+ * collection schema (see the reindex pipeline).
+ */
 @Injectable()
 export class EmbeddingService implements EmbeddingProvider {
   private readonly logger = new Logger(EmbeddingService.name);
@@ -37,18 +42,21 @@ export class EmbeddingService implements EmbeddingProvider {
     return `${this.embeddingModel}@${this.vectorDimension}`;
   }
 
-  async embed(text: string): Promise<EmbeddingResult> {
+  private async request(input: string | string[]): Promise<{
+    vectors: number[][];
+    tokens: number;
+  }> {
     const response = await fetch(`${this.baseUrl}/embeddings`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://studyield.com',
-        'X-Title': 'Studyield',
+        'HTTP-Referer': 'https://studyrpg.app',
+        'X-Title': 'Study RPG',
       },
       body: JSON.stringify({
         model: this.embeddingModel,
-        input: text,
+        input,
       }),
     });
 
@@ -59,43 +67,25 @@ export class EmbeddingService implements EmbeddingProvider {
     }
 
     const data = await response.json();
+    const inputs = Array.isArray(input) ? input : [input];
+    const tokensPerInput = Math.ceil((data.usage?.total_tokens || 0) / inputs.length);
 
     return {
-      vector: data.data[0].embedding,
-      tokens: data.usage?.total_tokens || 0,
+      vectors: data.data.map((item: { embedding: number[] }) => item.embedding),
+      tokens: tokensPerInput,
     };
+  }
+
+  async embed(text: string): Promise<EmbeddingResult> {
+    const { vectors, tokens } = await this.request(text);
+    return { vector: vectors[0], tokens };
   }
 
   async embedBatch(texts: string[]): Promise<EmbeddingResult[]> {
     if (texts.length === 0) return [];
 
-    const response = await fetch(`${this.baseUrl}/embeddings`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://studyield.com',
-        'X-Title': 'Studyield',
-      },
-      body: JSON.stringify({
-        model: this.embeddingModel,
-        input: texts,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      this.logger.error(`Batch embedding failed: ${error}`);
-      throw new Error(`Batch embedding failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const tokensPerText = Math.ceil((data.usage?.total_tokens || 0) / texts.length);
-
-    return data.data.map((item: { embedding: number[] }) => ({
-      vector: item.embedding,
-      tokens: tokensPerText,
-    }));
+    const { vectors, tokens } = await this.request(texts);
+    return vectors.map((vector) => ({ vector, tokens }));
   }
 
   async embedWithChunking(texts: string[], batchSize = 100): Promise<EmbeddingResult[]> {

@@ -44,9 +44,9 @@ export class StripeWebhookController {
 
     try {
       event = this.stripe.webhooks.constructEvent(req.rawBody, signature, this.webhookSecret);
-    } catch (err) {
+    } catch (error) {
       throw new BadRequestException(
-        `Webhook signature verification failed: ${(err as Error).message}`,
+        `Webhook signature verification failed: ${(error as Error).message}`,
       );
     }
 

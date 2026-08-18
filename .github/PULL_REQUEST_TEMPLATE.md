@@ -1,41 +1,37 @@
-## Description
+## Summary
 
-<!-- Provide a brief description of your changes -->
+<!-- What does this change do, and why? -->
 
-## Type of Change
+## Type of change
 
-- [ ] Bug fix (non-breaking change that fixes an issue)
-- [ ] New feature (non-breaking change that adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to change)
-- [ ] Documentation update
-- [ ] Refactoring (no functional changes)
-- [ ] CI/CD or infrastructure changes
+- [ ] Bug fix (non-breaking)
+- [ ] New feature (non-breaking)
+- [ ] Breaking change
+- [ ] Documentation
+- [ ] Refactor (no behaviour change)
+- [ ] CI / infrastructure
 
-## Related Issues
+## Related work
 
-<!-- Link any related issues: Fixes #123, Closes #456 -->
+<!-- Link related issues: Fixes #123, Closes #456 -->
 
-## Changes Made
+## What changed
 
-<!-- List the key changes in bullet points -->
+<!-- Bullet-point the key changes -->
 
 -
 
-## Screenshots / Videos
+## Verification
 
-<!-- If applicable, add screenshots or videos to demonstrate the changes -->
-
-## Testing
-
-- [ ] I have tested these changes locally
-- [ ] I have added/updated tests that prove my fix is effective or my feature works
-- [ ] New and existing tests pass locally
+- [ ] Tested locally
+- [ ] Added or updated tests covering the change
+- [ ] Existing tests still pass
 
 ## Checklist
 
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code where necessary (particularly complex areas)
-- [ ] I have updated the documentation accordingly
-- [ ] My changes generate no new warnings
-- [ ] I have checked that my changes don't introduce any security vulnerabilities
+- [ ] Code follows the project's conventions
+- [ ] Self-reviewed the diff
+- [ ] Complex logic is commented
+- [ ] Docs updated where relevant
+- [ ] No new lint or type warnings
+- [ ] No new security concerns introduced

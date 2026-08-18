@@ -48,6 +48,11 @@ const PLAN_LIMITS = {
   },
 };
 
+/**
+ * Plans, billing, and usage metering. Works without Stripe configured: users
+ * get a free plan and a local `local_<userId>` customer id; once a Stripe key
+ * exists, customers are created on demand and webhooks keep the DB in sync.
+ */
 @Injectable()
 export class SubscriptionService implements OnModuleInit {
   private readonly logger = new Logger(SubscriptionService.name);
@@ -67,7 +72,7 @@ export class SubscriptionService implements OnModuleInit {
     this.yearlyPriceId = this.configService.get<string>('STRIPE_PRICE_ID_YEARLY', '');
   }
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     try {
       await this.db.query(`
         CREATE TABLE IF NOT EXISTS subscriptions (
@@ -94,8 +99,8 @@ export class SubscriptionService implements OnModuleInit {
         )
       `);
       this.logger.log('Subscription tables verified');
-    } catch (err) {
-      this.logger.warn(`Could not verify subscription tables: ${(err as Error).message}`);
+    } catch (error) {
+      this.logger.warn(`Could not verify subscription tables: ${(error as Error).message}`);
     }
   }
 
@@ -105,30 +110,28 @@ export class SubscriptionService implements OnModuleInit {
     if (!subscription) {
       let customerId = `local_${userId}`;
 
-      // Only create Stripe customer if key is configured
       const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
       if (secretKey) {
         try {
           const customer = await this.stripe.customers.create({ email, metadata: { userId } });
           customerId = customer.id;
-        } catch (err) {
+        } catch (error) {
           this.logger.warn(
-            `Stripe customer creation failed, using local ID: ${(err as Error).message}`,
+            `Stripe customer creation failed, using local ID: ${(error as Error).message}`,
           );
         }
       }
 
-      const id = uuidv4();
       try {
         await this.db.query(
           `INSERT INTO subscriptions (id, user_id, stripe_customer_id, plan, status, created_at, updated_at)
            VALUES ($1, $2, $3, 'free', 'active', $4, $5)
            ON CONFLICT (user_id) DO NOTHING`,
-          [id, userId, customerId, new Date(), new Date()],
+          [uuidv4(), userId, customerId, new Date(), new Date()],
         );
-      } catch (err) {
+      } catch (error) {
         this.logger.warn(
-          `Subscription insert failed (may already exist): ${(err as Error).message}`,
+          `Subscription insert failed (may already exist): ${(error as Error).message}`,
         );
       }
 
@@ -148,7 +151,7 @@ export class SubscriptionService implements OnModuleInit {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     const priceId = plan === 'monthly' ? this.monthlyPriceId : this.yearlyPriceId;
 
-    // Check if Stripe is properly configured (not placeholder values)
+    // Reject placeholder/absent config so the UI can say "all features free".
     const isPlaceholder =
       !secretKey ||
       secretKey.includes('your-') ||
@@ -162,43 +165,11 @@ export class SubscriptionService implements OnModuleInit {
       );
     }
 
-    // Verify customer exists in Stripe, recreate if needed
-    let customerId = subscription.stripeCustomerId;
-
-    try {
-      // Check if customer exists in Stripe
-      if (customerId.startsWith('cus_')) {
-        try {
-          await this.stripe.customers.retrieve(customerId);
-        } catch (err) {
-          // Customer not found in Stripe, recreate
-          this.logger.warn(`Customer ${customerId} not found, recreating`);
-          const newCustomer = await this.stripe.customers.create({
-            email,
-            metadata: { userId },
-          });
-          customerId = newCustomer.id;
-          await this.db.query(
-            `UPDATE subscriptions SET stripe_customer_id = $1, updated_at = $2 WHERE user_id = $3`,
-            [customerId, new Date(), userId],
-          );
-        }
-      } else if (customerId.startsWith('local_')) {
-        // Create new Stripe customer
-        const customer = await this.stripe.customers.create({
-          email,
-          metadata: { userId },
-        });
-        customerId = customer.id;
-        await this.db.query(
-          `UPDATE subscriptions SET stripe_customer_id = $1, updated_at = $2 WHERE user_id = $3`,
-          [customerId, new Date(), userId],
-        );
-      }
-    } catch (err) {
-      this.logger.error(`Stripe customer setup failed: ${(err as Error).message}`);
-      throw new BadRequestException('Unable to initialize payment. Please try again.');
-    }
+    const customerId = await this.ensureStripeCustomer(
+      subscription.stripeCustomerId,
+      userId,
+      email,
+    );
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
@@ -229,7 +200,7 @@ export class SubscriptionService implements OnModuleInit {
       );
     }
 
-    // If customer ID is a local fallback, create a real Stripe customer first
+    // A local fallback id means we never created a real customer — do so now.
     let customerId = subscription.stripeCustomerId;
     if (customerId.startsWith('local_')) {
       try {
@@ -239,8 +210,10 @@ export class SubscriptionService implements OnModuleInit {
           `UPDATE subscriptions SET stripe_customer_id = $1, updated_at = $2 WHERE user_id = $3`,
           [customerId, new Date(), userId],
         );
-      } catch (err) {
-        this.logger.error(`Failed to create Stripe customer for portal: ${(err as Error).message}`);
+      } catch (error) {
+        this.logger.error(
+          `Failed to create Stripe customer for portal: ${(error as Error).message}`,
+        );
         throw new BadRequestException('Unable to access billing portal. Please try again later.');
       }
     }
@@ -271,19 +244,16 @@ export class SubscriptionService implements OnModuleInit {
   async handleWebhook(event: Stripe.Event): Promise<void> {
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        await this.handleCheckoutComplete(session);
+        await this.handleCheckoutComplete(event.data.object as Stripe.Checkout.Session);
         break;
       }
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
-        await this.syncSubscription(subscription);
+        await this.syncSubscription(event.data.object as Stripe.Subscription);
         break;
       }
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
-        await this.handlePaymentFailed(invoice);
+        await this.handlePaymentFailed(event.data.object as Stripe.Invoice);
         break;
       }
     }
@@ -350,7 +320,6 @@ export class SubscriptionService implements OnModuleInit {
     const plan = subscription?.plan || 'free';
     const limitBytes = PLAN_LIMITS[plan].storage_bytes;
 
-    // Get current storage usage from documents
     const result = await this.db.queryOne<{ total: string }>(
       `SELECT COALESCE(SUM(file_size), 0) as total FROM documents WHERE user_id = $1`,
       [userId],
@@ -373,7 +342,7 @@ export class SubscriptionService implements OnModuleInit {
     const plan = session.metadata?.plan || 'free';
     const paymentStatus = session.payment_status;
 
-    // Activate the plan in DB (works without webhooks)
+    // Activate the plan directly so checkout works even without webhooks.
     if (session.status === 'complete') {
       await this.handleCheckoutComplete(session);
     }
@@ -395,6 +364,44 @@ export class SubscriptionService implements OnModuleInit {
       [userId],
     );
     return result ? this.mapSubscription(result) : null;
+  }
+
+  /**
+   * Guarantees a real Stripe customer id for a subscription row. Handles
+   * customers that vanished from Stripe (recreate + update the row) and local
+   * fallback ids (promote to a real customer).
+   */
+  private async ensureStripeCustomer(
+    currentId: string,
+    userId: string,
+    email: string,
+  ): Promise<string> {
+    try {
+      if (currentId.startsWith('cus_')) {
+        try {
+          await this.stripe.customers.retrieve(currentId);
+          return currentId;
+        } catch {
+          this.logger.warn(`Customer ${currentId} not found, recreating`);
+          const fresh = await this.stripe.customers.create({ email, metadata: { userId } });
+          await this.db.query(
+            `UPDATE subscriptions SET stripe_customer_id = $1, updated_at = $2 WHERE user_id = $3`,
+            [fresh.id, new Date(), userId],
+          );
+          return fresh.id;
+        }
+      }
+
+      const customer = await this.stripe.customers.create({ email, metadata: { userId } });
+      await this.db.query(
+        `UPDATE subscriptions SET stripe_customer_id = $1, updated_at = $2 WHERE user_id = $3`,
+        [customer.id, new Date(), userId],
+      );
+      return customer.id;
+    } catch (error) {
+      this.logger.error(`Stripe customer setup failed: ${(error as Error).message}`);
+      throw new BadRequestException('Unable to initialize payment. Please try again.');
+    }
   }
 
   private async getUsage(userId: string, feature: string): Promise<number> {

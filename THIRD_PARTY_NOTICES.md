@@ -21,6 +21,8 @@ This project incorporates the following third-party open-source components. See 
 | Qdrant JS client | Apache-2.0 | https://qdrant.tech |
 | ClickHouse client | Apache-2.0 | https://clickhouse.com |
 | class-validator / class-transformer | MIT | https://github.com/typestack/class-validator |
+| Ocean.js (`@oceanprotocol/lib`) + `@oceanprotocol/ddo-js` | Apache-2.0 | https://github.com/oceanprotocol/ocean-lib-js |
+| ethers.js | MIT | https://ethers.org |
 
 ## Frontend
 

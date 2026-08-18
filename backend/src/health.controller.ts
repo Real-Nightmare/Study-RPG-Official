@@ -59,7 +59,7 @@ export class HealthController {
   @ApiResponse({ status: 200, description: 'API info' })
   root() {
     return {
-      name: 'Studyield API',
+      name: 'Study RPG API',
       version: this.config.get<string>('npm_package_version') || '1.0.0',
       documentation: '/api/docs',
     };

@@ -11,6 +11,10 @@ export interface QueueConfig {
   concurrency?: number;
 }
 
+/**
+ * Central BullMQ facade. Owns the Redis connection, lazily instantiates
+ * queues, registers workers, and exposes job/queue administration helpers.
+ */
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(QueueService.name);
@@ -21,7 +25,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     this.connection = new IORedis({
       host: this.configService.get<string>('REDIS_HOST'),
       port: this.configService.get<number>('REDIS_PORT'),
@@ -36,7 +40,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.logger.log('BullMQ connection initialized');
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     for (const worker of this.workers.values()) {
       await worker.close();
     }
@@ -50,22 +54,26 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.logger.log('BullMQ connections closed');
   }
 
+  /** Returns the named queue, creating it on first use. */
   getQueue(name: string): Queue {
-    if (!this.queues.has(name)) {
-      const queue = new Queue(name, { connection: this.connection });
+    let queue = this.queues.get(name);
+    if (!queue) {
+      queue = new Queue(name, { connection: this.connection });
       this.queues.set(name, queue);
       this.logger.debug(`Queue ${name} created`);
     }
-    return this.queues.get(name)!;
+    return queue;
   }
 
+  /** Registers a processor for a queue (idempotent per queue name). */
   registerWorker<T = unknown, R = unknown>(
     queueName: string,
     processor: JobProcessor<T, R>,
     concurrency = 1,
   ): Worker<T, R> {
-    if (this.workers.has(queueName)) {
-      return this.workers.get(queueName) as Worker<T, R>;
+    const existing = this.workers.get(queueName);
+    if (existing) {
+      return existing as Worker<T, R>;
     }
 
     const worker = new Worker<T, R>(queueName, processor, {
@@ -87,6 +95,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     return worker;
   }
 
+  /** Enqueues a single job with sensible retention defaults. */
   async addJob<T = unknown>(
     queueName: string,
     name: string,
@@ -103,24 +112,25 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     return job;
   }
 
+  /** Enqueues many jobs in one round-trip. */
   async addBulkJobs<T = unknown>(
     queueName: string,
     jobs: Array<{ name: string; data: T; options?: JobsOptions }>,
   ): Promise<Job<T>[]> {
     const queue = this.getQueue(queueName);
-    const result = await queue.addBulk(
-      jobs.map((j) => ({
-        name: j.name,
-        data: j.data,
+    const enqueued = await queue.addBulk(
+      jobs.map((job) => ({
+        name: job.name,
+        data: job.data,
         opts: {
           removeOnComplete: 100,
           removeOnFail: 1000,
-          ...j.options,
+          ...job.options,
         },
       })),
     );
-    this.logger.debug(`${result.length} jobs added to ${queueName}`);
-    return result;
+    this.logger.debug(`${enqueued.length} jobs added to ${queueName}`);
+    return enqueued;
   }
 
   async getJob<T = unknown>(queueName: string, jobId: string): Promise<Job<T> | undefined> {
@@ -130,14 +140,12 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   async getJobState(queueName: string, jobId: string): Promise<string | null> {
     const job = await this.getJob(queueName, jobId);
-    if (!job) return null;
-    return job.getState();
+    return job ? job.getState() : null;
   }
 
   async getJobProgress(queueName: string, jobId: string): Promise<number | null> {
     const job = await this.getJob(queueName, jobId);
-    if (!job) return null;
-    return job.progress as number;
+    return job ? (job.progress as number) : null;
   }
 
   async getQueueStats(queueName: string): Promise<{
@@ -184,6 +192,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(`Queue ${queueName} drained`);
   }
 
+  /**
+   * Attaches event listeners to a queue's event stream. Safe to call multiple
+   * times — the underlying QueueEvents instance is created once per queue.
+   */
   subscribeToEvents(
     queueName: string,
     callbacks: {
@@ -192,12 +204,11 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       onProgress?: (jobId: string, progress: number) => void;
     },
   ): QueueEvents {
-    if (!this.queueEvents.has(queueName)) {
-      const events = new QueueEvents(queueName, { connection: this.connection });
+    let events = this.queueEvents.get(queueName);
+    if (!events) {
+      events = new QueueEvents(queueName, { connection: this.connection });
       this.queueEvents.set(queueName, events);
     }
-
-    const events = this.queueEvents.get(queueName)!;
 
     if (callbacks.onCompleted) {
       events.on('completed', ({ jobId, returnvalue }) => {

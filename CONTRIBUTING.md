@@ -1,175 +1,140 @@
-# Contributing to Studyield
+# Contributing to Study RPG
 
-Thank you for your interest in contributing to Studyield! This guide will help you get started.
+Thanks for helping build Study RPG! This guide covers how to contribute
+cleanly and consistently.
 
-## Code of Conduct
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
+## Ways to contribute
 
-## How to Contribute
+### Reporting bugs
 
-### Reporting Bugs
+Open a [Bug Report](https://github.com/Real-Nightmare/Study-RPG-Official/issues/new?template=bug_report.yml) with:
 
-Open a [Bug Report](https://github.com/studyield/studyield/issues/new?template=bug_report.yml) with:
-- Clear description of the issue
+- A clear description of the issue
 - Steps to reproduce
-- Expected vs actual behavior
-- Environment details (OS, Node.js version, browser, device)
-- Screenshots or logs if applicable
+- Expected vs actual behaviour
+- Environment details (OS, Node version, browser, device)
+- Logs or screenshots where useful
 
-### Suggesting Features
+### Suggesting features
 
-Open a [Feature Request](https://github.com/studyield/studyield/issues/new?template=feature_request.yml) with:
-- Description of the feature
-- Use case and motivation
-- Suggested implementation approach (optional)
+Open a [Feature Request](https://github.com/Real-Nightmare/Study-RPG-Official/issues/new?template=feature_request.yml) with:
 
-### Submitting Pull Requests
+- The problem you want to solve
+- The use case and motivation
+- A suggested approach (optional)
 
-1. Fork the repository
-2. Create a feature branch from `develop`: `git checkout -b feature/your-feature`
-3. Make your changes
-4. Run linting: `cd backend && npm run lint` and `cd frontend && npm run lint`
-5. Commit with a descriptive message using [Conventional Commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`, `docs:`)
-6. Push and open a Pull Request against `develop`
+### Submitting pull requests
 
-## Development Setup
+1. Fork the repository.
+2. Create a branch from `main`: `git checkout -b feat/your-change`.
+3. Make focused changes.
+4. Run the checks below.
+5. Commit with [Conventional Commits](https://www.conventionalcommits.org/)
+   (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
+6. Push and open a PR against `main`.
+
+## Local development
 
 ### Prerequisites
 
 - Node.js 20+
-- PostgreSQL 15+
-- Redis 7+
-- Qdrant (optional, for vector search)
-- ClickHouse (optional, for analytics)
-- Docker & Docker Compose (recommended for infrastructure)
+- PostgreSQL 15+ (or Docker)
+- Redis 7+ (or Docker)
+- Qdrant and ClickHouse (optional, used by RAG and analytics)
 
-### Quick Start (Docker)
+### Quick start (Docker infra + local dev servers)
 
 ```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/studyield.git
-cd studyield
-
-# Start infrastructure services
+# Start infrastructure only
 docker compose --env-file .env.docker up -d postgres redis qdrant clickhouse
 
-# Setup backend
+# Backend
 cd backend
-cp .env.example .env
-# Edit .env with your local database credentials
+cp .env.example .env        # then fill in credentials
 npm install
 npm run migrate
 npm run start:dev
 
-# Setup frontend (new terminal)
+# Frontend (second terminal)
 cd frontend
 cp .env.example .env
 npm install
 npm run dev
-
-cp .env.example .env
 ```
 
-### One-Command Start
+### One-command start
 
 ```bash
 ./start.sh
 ```
 
-### Project Structure
+### Project layout
 
 ```
-studyield/
-  backend/                    # NestJS backend API
-    src/
-      modules/
-        auth/                 # JWT + OAuth authentication
-        database/             # PostgreSQL service (raw SQL)
-        redis/                # Cache service
-        qdrant/               # Vector database for semantic search
-        clickhouse/           # Analytics
-        ai/                   # OpenRouter LLM + Embeddings
-        content/              # Study sets, flashcards
-        knowledge-base/       # Document processing & RAG
-        chat/                 # RAG conversations with citations
-        quiz/                 # Quiz generation
-        exam-clone/           # Past exam upload & question generation
-        problem-solver/       # Multi-agent problem solving
-        teach-back/           # Feynman technique evaluation
-        research/             # Deep research with web search
-        code-sandbox/         # Python execution
-        learning-paths/       # AI study routes
-        subscription/         # Stripe billing
-        analytics/            # Usage tracking
-      common/
-        guards/               # Auth guards
-        interceptors/         # Response transformation
-        decorators/           # Custom decorators
-    migrations/               # Database migrations
-  frontend/                   # React web app
-    src/
-      components/ui/          # Radix UI components (shadcn pattern)
-      pages/                  # Route pages
-      services/               # API clients
-      stores/                 # Zustand state management
-      locales/                # i18n translations (12 languages)
-      hooks/                  # Custom React hooks
-      contexts/               # Auth context
-    lib/
-      api/                    # Dio HTTP client
-      models/                 # Data models
-      providers/              # State management (Provider + BLoC)
-      screens/                # App screens
-      services/               # Business logic
-      widgets/                # Reusable widgets
+backend/                NestJS API (raw SQL via pg — no ORM)
+  src/common/           Guards, interceptors, decorators, filters, gateways
+  src/modules/          Feature modules (auth, content, rpg, economy, ...)
+  migrations/           Versioned SQL migrations
+frontend/               React 19 + Vite + Tailwind + Radix UI
+  src/pages/            Route pages
+  src/components/       Shared and feature components
+  src/services/         API clients
+  src/stores/           Zustand stores
+  src/locales/          i18n (15 locales)
+docs/                   Architecture, getting-started, runbooks, audits
+specs/                  Feature specs (Spec Kit)
 ```
 
-## Adding Translations
+## Adding translations
 
-Studyield supports 12 languages and we welcome translation contributions!
+Study RPG supports 15 languages; translation PRs are welcome.
 
-### Web (Frontend)
-1. Copy `frontend/src/locales/en.json` to a new file (e.g., `fr.json`)
-2. Translate all values (keep the keys the same)
-3. Register the new locale in the i18n configuration
-4. Add the language option to the language switcher
+1. Copy `frontend/src/locales/en.json` to a new file (`fr.json`).
+2. Translate the values — **keep the keys unchanged** (code depends on them).
+3. Register the locale in the i18n config and language switcher.
+4. When adding keys, add them to **every** locale file to keep parity.
 
-## Code Style
+## Code style
 
-- **TypeScript** for backend and frontend
-- **Prettier** for formatting (`npm run format` in backend)
-- **ESLint** for linting (`npm run lint`)
-- Follow existing patterns in the codebase
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages
+- TypeScript across backend and frontend.
+- Prettier for formatting, ESLint for linting.
+- Backend: NestJS module layout, raw SQL, camelCase response interceptor in
+  mind (DTOs enforced via class-validator with `forbidNonWhitelisted`).
+- Frontend: shadcn-style Radix components, Zustand stores, TanStack Query,
+  i18n via locale files.
+- Follow the Study RPG philosophy: depth over length, mastery over
+  memorisation, health-first (see `docs/STUDY_RPG_PHILOSOPHY.md`).
 
-## Testing
+## Checking your work
 
 ```bash
 # Backend
 cd backend
-npm test                    # Run all tests
-npm test -- --watch         # Watch mode
-npm test -- --coverage      # Coverage report
+npm run build
+npm run lint
+npm test
 
 # Frontend
 cd frontend
-npm run lint                # Lint check
-npm run typecheck           # Type check
+npm run build
+npm run lint
+npm test
 ```
 
-## Pull Request Guidelines
+New features are authored spec-first via the Spec Kit workflow in `specs/`
+(spec → plan → tasks → implementation).
 
-- Keep PRs focused on a single change
-- Include a clear description of what and why
-- Reference related issues (e.g., "Fixes #123")
-- Ensure all CI checks pass
-- Add tests for new functionality
-- Update documentation if needed
+## PR guidelines
+
+- One focused change per PR.
+- Describe what and why.
+- Reference related issues ("Fixes #123").
+- Add tests for new behaviour.
+- Keep all CI checks green.
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/studyield/studyield/discussions)
-- Check the [Documentation](https://docs.studyield.com)
-
-Thank you for contributing!
+Open a [Discussion](https://github.com/Real-Nightmare/Study-RPG-Official/discussions)
+or check the docs in `docs/`.

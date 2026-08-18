@@ -93,7 +93,6 @@ export class DocumentsController {
       );
     }
 
-    // Check storage quota
     await this.subscriptionService.checkStorageQuota(user.sub, file.size);
 
     const { url } = await this.storageService.upload(file.buffer, file.originalname, {

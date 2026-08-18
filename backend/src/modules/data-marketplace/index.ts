@@ -1,6 +1,14 @@
 export { DataMarketplaceModule } from './marketplace.module';
 export { OceanService, mintDid } from './ocean.service';
 export type { DdoInput, OceanPublishResult, OceanDdo } from './ocean.service';
+export { OceanC2DService } from './ocean-c2d.service';
+export type {
+  C2DPolicy,
+  ComputeAssetInput,
+  ComputeAssetResult,
+  ComputeAssetFailure,
+  C2DStatus,
+} from './ocean-c2d.service';
 export { MarketplaceService } from './marketplace.service';
 export type { ConsentView, DatasetView, CreateDatasetInput } from './marketplace.service';
 export { BenchmarkService } from './benchmark.service';

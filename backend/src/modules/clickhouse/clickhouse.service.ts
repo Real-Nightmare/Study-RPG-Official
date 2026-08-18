@@ -10,6 +10,11 @@ export interface AnalyticsEvent {
   timestamp?: Date;
 }
 
+/**
+ * Analytics sink backed by ClickHouse. Event ingestion is best-effort by
+ * design: a failing analytics store must never take down the API, so every
+ * tracking helper swallows errors and only logs them.
+ */
 @Injectable()
 export class ClickhouseService implements OnModuleInit {
   private readonly logger = new Logger(ClickhouseService.name);
@@ -18,12 +23,12 @@ export class ClickhouseService implements OnModuleInit {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const host = this.configService.get<string>('CLICKHOUSE_HOST', 'localhost');
     const port = this.configService.get<number>('CLICKHOUSE_PORT', 8123);
     const user = this.configService.get<string>('CLICKHOUSE_USER', 'default');
     const password = this.configService.get<string>('CLICKHOUSE_PASSWORD', '');
-    this.database = this.configService.get<string>('CLICKHOUSE_DATABASE', 'studyield');
+    this.database = this.configService.get<string>('CLICKHOUSE_DATABASE', 'study_rpg');
 
     this.client = new ClickHouse({
       url: `http://${host}`,
@@ -67,15 +72,7 @@ export class ClickhouseService implements OnModuleInit {
 
   async trackEvent(event: AnalyticsEvent): Promise<void> {
     try {
-      await this.insert('events', [
-        {
-          event_type: event.eventType,
-          user_id: event.userId,
-          session_id: event.sessionId || '',
-          metadata: JSON.stringify(event.metadata || {}),
-          timestamp: event.timestamp || new Date(),
-        },
-      ]);
+      await this.insert('events', [this.toRow(event)]);
     } catch (error) {
       this.logger.warn('Failed to track event', error);
     }
@@ -85,17 +82,21 @@ export class ClickhouseService implements OnModuleInit {
     try {
       await this.insert(
         'events',
-        events.map((e) => ({
-          event_type: e.eventType,
-          user_id: e.userId,
-          session_id: e.sessionId || '',
-          metadata: JSON.stringify(e.metadata || {}),
-          timestamp: e.timestamp || new Date(),
-        })),
+        events.map((event) => this.toRow(event)),
       );
     } catch (error) {
       this.logger.warn('Failed to track events', error);
     }
+  }
+
+  private toRow(event: AnalyticsEvent): Record<string, unknown> {
+    return {
+      event_type: event.eventType,
+      user_id: event.userId,
+      session_id: event.sessionId || '',
+      metadata: JSON.stringify(event.metadata || {}),
+      timestamp: event.timestamp || new Date(),
+    };
   }
 
   async getEventCount(
@@ -104,18 +105,18 @@ export class ClickhouseService implements OnModuleInit {
     startDate?: Date,
     endDate?: Date,
   ): Promise<number> {
-    let query = `SELECT count() as count FROM events WHERE event_type = '${eventType}'`;
+    let sql = `SELECT count() as count FROM events WHERE event_type = '${eventType}'`;
     if (userId) {
-      query += ` AND user_id = '${userId}'`;
+      sql += ` AND user_id = '${userId}'`;
     }
     if (startDate) {
-      query += ` AND timestamp >= '${startDate.toISOString()}'`;
+      sql += ` AND timestamp >= '${startDate.toISOString()}'`;
     }
     if (endDate) {
-      query += ` AND timestamp <= '${endDate.toISOString()}'`;
+      sql += ` AND timestamp <= '${endDate.toISOString()}'`;
     }
 
-    const result = await this.query<{ count: string }>(query);
+    const result = await this.query<{ count: string }>(sql);
     return parseInt(result[0]?.count || '0', 10);
   }
 
@@ -123,7 +124,7 @@ export class ClickhouseService implements OnModuleInit {
     userId: string,
     days = 30,
   ): Promise<Array<{ date: string; count: number }>> {
-    const query = `
+    const sql = `
       SELECT
         toDate(timestamp) as date,
         count() as count
@@ -134,15 +135,15 @@ export class ClickhouseService implements OnModuleInit {
       ORDER BY date
     `;
 
-    const result = await this.query<{ date: string; count: string }>(query);
-    return result.map((r) => ({
-      date: r.date,
-      count: parseInt(r.count, 10),
+    const result = await this.query<{ date: string; count: string }>(sql);
+    return result.map((row) => ({
+      date: row.date,
+      count: parseInt(row.count, 10),
     }));
   }
 
   async getTopEvents(limit = 10, days = 7): Promise<Array<{ eventType: string; count: number }>> {
-    const query = `
+    const sql = `
       SELECT
         event_type,
         count() as count
@@ -153,10 +154,10 @@ export class ClickhouseService implements OnModuleInit {
       LIMIT ${limit}
     `;
 
-    const result = await this.query<{ event_type: string; count: string }>(query);
-    return result.map((r) => ({
-      eventType: r.event_type,
-      count: parseInt(r.count, 10),
+    const result = await this.query<{ event_type: string; count: string }>(sql);
+    return result.map((row) => ({
+      eventType: row.event_type,
+      count: parseInt(row.count, 10),
     }));
   }
 

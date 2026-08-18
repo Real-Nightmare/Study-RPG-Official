@@ -57,6 +57,18 @@ export interface GenerateLearningPathDto {
   studySetIds?: string[];
 }
 
+const STEP_TYPES = ['study', 'quiz', 'practice', 'review'] as const;
+const MAX_PROGRAMME_STEPS = 14;
+const MIN_STEP_MINUTES = 10;
+const MAX_STEP_MINUTES = 180;
+const REVIEW_REJECT_THRESHOLD = 60;
+
+/**
+ * AI-generated study plans. Paths are designed with the Study RPG philosophy
+ * baked into the generator prompt (spaced, bounded, rested sessions — never
+ * marathon cramming) and, when built from a programme, self-reviewed by the
+ * AI with a needsRegeneration flag for low-quality output.
+ */
 @Injectable()
 export class LearningPathsService {
   private readonly logger = new Logger(LearningPathsService.name);
@@ -194,13 +206,13 @@ Return in JSON format:
        ORDER BY lp.updated_at DESC`,
       [userId],
     );
-    return results.map((r) => this.mapPath(r));
+    return results.map((row) => this.mapPath(row));
   }
 
   /**
    * Phase 8: turn an active AI-built programme into a personal learning path.
-   * The AI maps the programme's objectives + milestones to ordered study steps
-   * and reviews its own output (score < 60 → needsRegeneration flag, saved).
+   * The AI maps the programme's objectives + milestones to ordered study
+   * steps and reviews its own output (score < 60 → needsRegeneration flag).
    */
   async generateFromProgramme(userId: string, programmeId: string): Promise<LearningPath> {
     const programme = await this.programmes.findOne(programmeId, userId);
@@ -259,7 +271,7 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
         { temperature: 0.4, maxTokens: 3000 },
       );
 
-      const steps = (response.steps || []).slice(0, 14).map((s, i) => ({
+      const steps = (response.steps || []).slice(0, MAX_PROGRAMME_STEPS).map((s, i) => ({
         id: uuidv4(),
         order: s.order || i + 1,
         title: s.title,
@@ -267,7 +279,10 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
         type: this.isStepType(s.type) ? s.type : 'study',
         resourceId: null,
         resourceType: null,
-        estimatedMinutes: Math.max(10, Math.min(180, Number(s.estimatedMinutes) || 45)),
+        estimatedMinutes: Math.max(
+          MIN_STEP_MINUTES,
+          Math.min(MAX_STEP_MINUTES, Number(s.estimatedMinutes) || 45),
+        ),
         isCompleted: false,
         completedAt: null,
       }));
@@ -293,7 +308,7 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
           JSON.stringify(steps),
           programmeId,
           JSON.stringify(review),
-          review.score !== null && review.score < 60,
+          review.score !== null && review.score < REVIEW_REJECT_THRESHOLD,
           now,
         ],
       );
@@ -302,7 +317,6 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
       );
       return this.findById(id) as Promise<LearningPath>;
     } catch (error) {
-      // AI failure: save a minimal path from milestones so studying never blocks.
       this.logger.warn(
         `Path generation from programme ${programmeId} failed: ${(error as Error).message}`,
       );
@@ -311,7 +325,7 @@ Rules: 8-14 steps, real actions inside the study platform (flashcards, quizzes, 
   }
 
   private isStepType(type: string): type is LearningStep['type'] {
-    return type === 'study' || type === 'quiz' || type === 'practice' || type === 'review';
+    return (STEP_TYPES as readonly string[]).includes(type);
   }
 
   /** AI self-review of a generated path (best-effort; never blocks). */

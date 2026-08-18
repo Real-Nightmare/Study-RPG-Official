@@ -1,18 +1,18 @@
 name: Feature Request
-description: Suggest an idea for Studyield
+description: Propose a new capability or improvement
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a feature! We appreciate your input in making Studyield better.
+        Thanks for proposing an idea. Describe the problem you are trying to solve and the outcome you want.
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem Statement
-      description: Is your feature request related to a problem? Please describe.
+      label: Problem statement
+      description: What need or pain point does this address?
       placeholder: I'm always frustrated when...
     validations:
       required: true
@@ -20,29 +20,29 @@ body:
   - type: textarea
     id: solution
     attributes:
-      label: Proposed Solution
-      description: Describe the solution you'd like.
+      label: Proposed solution
+      description: How should the feature work from the user's point of view?
     validations:
       required: true
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives Considered
-      description: Describe any alternative solutions or features you've considered.
+      label: Alternatives considered
+      description: Other approaches or workarounds you have thought about.
 
   - type: dropdown
     id: category
     attributes:
       label: Category
       options:
-        - AI Features (Exam Clone, Problem Solver, Research, etc.)
-        - Knowledge Base & RAG
-        - Quiz & Flashcards
-        - Study Tools
-        - UI/UX (Web)
+        - AI features (Exam Clone, Problem Solver, Research, ...)
+        - Knowledge base & RAG
+        - Quiz & flashcards
+        - Study tools
+        - UI/UX
         - API
-        - Self-Hosting / Deployment
+        - Self-hosting / deployment
         - Internationalization (i18n)
         - Documentation
         - Performance
@@ -54,14 +54,14 @@ body:
   - type: dropdown
     id: priority
     attributes:
-      label: How important is this feature to you?
+      label: How important is this to you?
       options:
         - Nice to have
         - Important
         - Critical for my use case
 
   - type: textarea
-    id: additional
+    id: context
     attributes:
-      label: Additional Context
-      description: Add any other context, mockups, or screenshots about the feature request.
+      label: Additional context
+      description: Mock-ups, references, or screenshots that illustrate the idea.

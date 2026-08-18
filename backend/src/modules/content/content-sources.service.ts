@@ -35,6 +35,10 @@ export interface CreateContentSourceDto {
   extractedText?: string;
 }
 
+/**
+ * Tracks every material (file, video, website, audio, handwriting) that a
+ * study set was built from, plus how many flashcards/notes it produced.
+ */
 @Injectable()
 export class ContentSourcesService {
   private readonly logger = new Logger(ContentSourcesService.name);
@@ -62,7 +66,6 @@ export class ContentSourcesService {
       )
     `);
 
-    // Create indexes
     await this.db.query(`
       CREATE INDEX IF NOT EXISTS idx_content_sources_user_id ON content_sources(user_id);
       CREATE INDEX IF NOT EXISTS idx_content_sources_study_set_id ON content_sources(study_set_id);
@@ -70,7 +73,6 @@ export class ContentSourcesService {
   }
 
   async create(userId: string, dto: CreateContentSourceDto): Promise<ContentSource> {
-    // Verify study set ownership
     await this.verifyStudySetOwnership(dto.studySetId, userId);
 
     const id = uuidv4();
@@ -111,7 +113,7 @@ export class ContentSourcesService {
       [studySetId],
     );
 
-    return results.map((r) => this.mapSource(r));
+    return results.map((row) => this.mapSource(row));
   }
 
   async findById(id: string): Promise<ContentSource | null> {
@@ -127,24 +129,24 @@ export class ContentSourcesService {
     flashcardsGenerated?: number,
     notesGenerated?: number,
   ): Promise<void> {
-    const updates: string[] = [];
+    const assignments: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
 
     if (flashcardsGenerated !== undefined) {
-      updates.push(`flashcards_generated = flashcards_generated + $${paramIndex++}`);
+      assignments.push(`flashcards_generated = flashcards_generated + $${paramIndex++}`);
       values.push(flashcardsGenerated);
     }
     if (notesGenerated !== undefined) {
-      updates.push(`notes_generated = notes_generated + $${paramIndex++}`);
+      assignments.push(`notes_generated = notes_generated + $${paramIndex++}`);
       values.push(notesGenerated);
     }
 
-    if (updates.length === 0) return;
+    if (assignments.length === 0) return;
 
     values.push(id);
     await this.db.query(
-      `UPDATE content_sources SET ${updates.join(', ')} WHERE id = $${paramIndex}`,
+      `UPDATE content_sources SET ${assignments.join(', ')} WHERE id = $${paramIndex}`,
       values,
     );
   }

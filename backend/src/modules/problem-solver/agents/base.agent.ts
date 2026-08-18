@@ -24,6 +24,11 @@ export interface AgentResult {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * Shared scaffolding for the solver's specialist agents: builds the message
+ * list (system prompt + previous agent outputs + the problem), runs the
+ * model in JSON or streaming mode, and normalizes the result.
+ */
 @Injectable()
 export abstract class BaseAgent {
   protected abstract readonly agentName: string;
@@ -54,6 +59,7 @@ export abstract class BaseAgent {
     };
   }
 
+  /** Streaming variant: relays model tokens as they arrive, then the parsed result. */
   async *executeStream(
     context: AgentContext,
   ): AsyncGenerator<{ type: 'chunk' | 'result'; data: unknown }> {

@@ -54,12 +54,22 @@ export interface CreateResearchDto {
   outputFormat?: 'detailed' | 'summary' | 'bullets';
 }
 
+interface ResearchPlan {
+  subtopics: string[];
+  searchQueries: string[];
+}
+
 const DEPTH_CONFIG = {
   quick: { maxSources: 3, maxTokens: 4096 },
   standard: { maxSources: 5, maxTokens: 8192 },
   comprehensive: { maxSources: 10, maxTokens: 16384 },
 };
 
+/**
+ * Multi-phase deep research: plan subtopics, harvest knowledge-base and web
+ * sources, then synthesize a citation-rich report. Progress streams to the
+ * client over the research socket namespace.
+ */
 @Injectable()
 export class ResearchService {
   private readonly logger = new Logger(ResearchService.name);
@@ -122,10 +132,7 @@ export class ResearchService {
         message: 'Generating research plan and subtopics...',
       });
 
-      const planResult = await this.aiService.completeJson<{
-        subtopics: string[];
-        searchQueries: string[];
-      }>(
+      const planResult = await this.aiService.completeJson<ResearchPlan>(
         [
           {
             role: 'system',
@@ -154,7 +161,6 @@ export class ResearchService {
         message: 'Searching knowledge base and web sources...',
       });
 
-      // Search knowledge base
       if (session.knowledgeBaseIds.length > 0) {
         const kbResults = await this.kbService.searchMultiple(
           session.knowledgeBaseIds,
@@ -178,7 +184,6 @@ export class ResearchService {
         message: `Found ${sources.length} knowledge base results. Searching web...`,
       });
 
-      // Web search with multiple queries
       if (webEnabled) {
         const queries = planResult.searchQueries?.length
           ? planResult.searchQueries.slice(0, Math.ceil(depthCfg.maxSources / 2))
@@ -201,7 +206,6 @@ export class ResearchService {
         }
       }
 
-      // Deduplicate and limit sources
       const uniqueSources = sources.slice(0, depthCfg.maxSources);
 
       await this.db.query(
@@ -277,7 +281,7 @@ Return in JSON format:
         );
       } catch (synthError) {
         this.logger.warn(`Synthesis JSON parse failed, retrying with higher token limit...`);
-        // Retry with higher token limit in case response was truncated
+        // The first pass may have been truncated — retry with more room.
         result = await this.aiService.completeJson<{ synthesis: string; outline: ResearchOutline }>(
           [
             {

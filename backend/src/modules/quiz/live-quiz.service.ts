@@ -53,6 +53,18 @@ export interface QuestionResultData {
   leaderboard: LivePlayer[];
 }
 
+const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const START_COUNTDOWN_MS = 3000;
+const RESULT_PAUSE_MS = 4000;
+const NEXT_QUESTION_COUNTDOWN_MS = 2000;
+const BASE_POINTS = 1000;
+const MAX_TIME_BONUS = 500;
+
+/**
+ * In-memory host for live quiz rooms: join codes, the question state
+ * machine (countdown → question → result → next), speed-scored answers,
+ * leaderboards and post-game history persistence.
+ */
 @Injectable()
 export class LiveQuizService {
   private readonly logger = new Logger(LiveQuizService.name);
@@ -76,11 +88,11 @@ export class LiveQuizService {
     }
   }
 
+  /** Six-character code from an ambiguity-free alphabet (no 0/O/1/I). */
   generateRoomCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
     for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+      code += ROOM_CODE_ALPHABET.charAt(Math.floor(Math.random() * ROOM_CODE_ALPHABET.length));
     }
     if (this.rooms.has(code)) return this.generateRoomCode();
     return code;
@@ -114,6 +126,7 @@ export class LiveQuizService {
     return this.rooms.get(code.toUpperCase());
   }
 
+  /** Only joinable while the room is still in the waiting lobby. */
   addPlayer(code: string, player: LivePlayer): LiveRoom | null {
     const room = this.rooms.get(code.toUpperCase());
     if (!room || room.status !== 'waiting') return null;
@@ -126,6 +139,7 @@ export class LiveQuizService {
     const room = this.rooms.get(code.toUpperCase());
     if (!room) return null;
     room.players.delete(playerId);
+    // An emptied room (host left last) is torn down entirely.
     if (room.players.size === 0 && room.hostId === playerId) {
       this.clearRoomTimers(room);
       this.rooms.delete(code.toUpperCase());
@@ -154,12 +168,11 @@ export class LiveQuizService {
     room.status = 'countdown';
     room.currentQuestionIndex = 0;
 
-    // Emit countdown, then start first question after 3 seconds
     this.emit(code, 'game:countdown', { countdown: 3 });
 
     setTimeout(() => {
       this.startQuestion(code);
-    }, 3000);
+    }, START_COUNTDOWN_MS);
 
     return room;
   }
@@ -171,15 +184,12 @@ export class LiveQuizService {
     const question = room.questions[room.currentQuestionIndex];
     room.status = 'question';
     room.questionStartTime = Date.now();
-
-    // Clear any existing answers for this question
     question.playerAnswers.clear();
 
     this.logger.log(
       `Starting question ${room.currentQuestionIndex + 1}/${room.questions.length} for room ${code}`,
     );
 
-    // Emit question to all players
     this.emit(code, 'question:start', {
       index: room.currentQuestionIndex,
       question: question.question,
@@ -188,7 +198,7 @@ export class LiveQuizService {
       total: room.questions.length,
     });
 
-    // Set timer for auto-advance
+    // Auto-advance when the question's time budget runs out.
     room.questionTimer = setTimeout(() => {
       this.endQuestion(code);
     }, question.timeLimit * 1000);
@@ -203,7 +213,7 @@ export class LiveQuizService {
 
     const question = room.questions[room.currentQuestionIndex];
 
-    // Players who didn't answer get 0 points
+    // Anyone who didn't answer earns nothing and is recorded as no-answer.
     room.players.forEach((player, playerId) => {
       if (!question.playerAnswers.has(playerId)) {
         question.playerAnswers.set(playerId, {
@@ -230,10 +240,9 @@ export class LiveQuizService {
     this.logger.log(`Question ${room.currentQuestionIndex + 1} ended for room ${code}`);
     this.emit(code, 'question:result', resultData);
 
-    // Auto-advance to next question after 4 seconds
     room.resultTimer = setTimeout(() => {
       this.advanceToNextQuestion(code);
-    }, 4000);
+    }, RESULT_PAUSE_MS);
   }
 
   private advanceToNextQuestion(code: string) {
@@ -243,7 +252,6 @@ export class LiveQuizService {
     room.currentQuestionIndex++;
 
     if (room.currentQuestionIndex >= room.questions.length) {
-      // Game finished
       room.status = 'finished';
       this.logger.log(`Game finished for room ${code}`);
       this.emit(code, 'game:finished', {
@@ -251,14 +259,12 @@ export class LiveQuizService {
         totalQuestions: room.questions.length,
       });
 
-      // Save to database
       this.saveHistory(room).catch((err) => {
         this.logger.error(`Failed to save quiz history: ${err.message}`);
       });
       return;
     }
 
-    // Start next question with brief countdown
     room.status = 'countdown';
     this.emit(code, 'question:next', {
       nextIndex: room.currentQuestionIndex,
@@ -267,9 +273,13 @@ export class LiveQuizService {
 
     setTimeout(() => {
       this.startQuestion(code);
-    }, 2000);
+    }, NEXT_QUESTION_COUNTDOWN_MS);
   }
 
+  /**
+   * Grade an in-flight answer. Correct answers earn the base points plus a
+   * time bonus (up to 500) scaled by how much of the budget remained.
+   */
   submitAnswer(
     code: string,
     playerId: string,
@@ -285,27 +295,24 @@ export class LiveQuizService {
 
     const question = room.questions[questionIndex];
 
-    // Check if already answered
+    // One answer per player per question.
     if (question.playerAnswers.has(playerId)) {
-      return null; // Already answered
+      return null;
     }
 
-    // Calculate time remaining
     const elapsed = room.questionStartTime
       ? (Date.now() - room.questionStartTime) / 1000
       : question.timeLimit;
     const timeRemaining = Math.max(0, question.timeLimit - elapsed);
 
     const correct = answerIndex === question.correctIndex;
-    const timeBonus = Math.round((timeRemaining / question.timeLimit) * 500);
-    const points = correct ? 1000 + timeBonus : 0;
+    const timeBonus = Math.round((timeRemaining / question.timeLimit) * MAX_TIME_BONUS);
+    const points = correct ? BASE_POINTS + timeBonus : 0;
 
-    // Update player stats
     player.answers++;
     if (correct) player.correctAnswers++;
     player.score += points;
 
-    // Store the answer
     const playerAnswer: PlayerAnswer = {
       playerId,
       playerName: player.name,
@@ -321,15 +328,13 @@ export class LiveQuizService {
       `Player ${player.name} answered Q${questionIndex + 1}: ${correct ? 'correct' : 'wrong'} (+${points})`,
     );
 
-    // Check if all players have answered
+    // When the whole room has answered, close the question early.
     if (question.playerAnswers.size >= room.players.size) {
       this.logger.log(`All players answered for Q${questionIndex + 1}, ending early`);
-      // Clear existing timer and end question early
       if (room.questionTimer) {
         clearTimeout(room.questionTimer);
         room.questionTimer = null;
       }
-      // Small delay before showing results
       setTimeout(() => this.endQuestion(code), 500);
     }
 
@@ -415,11 +420,11 @@ export class LiveQuizService {
   }
 
   /**
-   * Save completed game to database for history
+   * Persist a finished game: one session row, one participant row per
+   * player, and per-question answer rows.
    */
   private async saveHistory(room: LiveRoom): Promise<void> {
     try {
-      // 1. Create session record
       const sessionResult = await this.db.queryOne<{ id: string }>(
         `INSERT INTO live_quiz_sessions (room_code, host_id, study_set_id, total_questions, status, started_at, finished_at)
          VALUES ($1, $2, $3, $4, 'completed', $5, NOW())
@@ -434,7 +439,6 @@ export class LiveQuizService {
       const sessionId = sessionResult.id;
       const leaderboard = this.getLeaderboard(room.code);
 
-      // 2. Create participant records
       for (let i = 0; i < leaderboard.length; i++) {
         const player = leaderboard[i];
         const participantResult = await this.db.queryOne<{ id: string }>(
@@ -454,7 +458,6 @@ export class LiveQuizService {
 
         if (!participantResult) continue;
 
-        // 3. Save individual answers for each participant
         for (let qIdx = 0; qIdx < room.questions.length; qIdx++) {
           const question = room.questions[qIdx];
           const answer = question.playerAnswers.get(player.id);
@@ -488,9 +491,6 @@ export class LiveQuizService {
     }
   }
 
-  /**
-   * Get user's live quiz history
-   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getUserHistory(userId: string, limit = 20): Promise<any[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

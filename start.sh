@@ -1,129 +1,96 @@
 #!/bin/bash
+# Study RPG dev bootstrap: infra containers + backend + frontend dev servers.
 
-echo "Starting Studyield Platform..."
-echo ""
+set -u
 
-# Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Check if Docker is running
+# Docker must be running first.
 if ! docker info > /dev/null 2>&1; then
-    echo -e "${RED}Docker is not running. Please start Docker Desktop first.${NC}"
+    echo -e "${RED}Docker is not running. Start Docker Desktop first.${NC}"
     exit 1
 fi
 
-echo -e "${BLUE}Starting Infrastructure Services (Docker)...${NC}"
-
-# Check if backend .env file exists
+# Prepare backend env if missing.
 if [ ! -f backend/.env ]; then
-    echo -e "${YELLOW}No backend .env file found. Creating from .env.example...${NC}"
+    echo -e "${YELLOW}No backend/.env found — creating from .env.example.${NC}"
     cp backend/.env.example backend/.env
-    echo -e "${GREEN}Created backend/.env file. Please update it with your credentials.${NC}"
+    echo -e "${GREEN}Created backend/.env — add your credentials before the API runs.${NC}"
 fi
 
-# Start infrastructure services with docker-compose
+echo -e "${BLUE}Starting infrastructure (postgres, redis, qdrant, clickhouse)...${NC}"
 docker compose --env-file .env.docker up -d postgres redis qdrant clickhouse
 
-# Wait for services to be healthy
-echo -e "${BLUE}Waiting for services to be healthy...${NC}"
-sleep 5
-
-# Check PostgreSQL health
+# Wait for PostgreSQL to become healthy.
 timeout=60
 counter=0
-while [ $counter -lt $timeout ]; do
-    if docker compose --env-file .env.docker ps | grep -q "studyield-postgres.*healthy"; then
-        echo -e "${GREEN}PostgreSQL is healthy!${NC}"
-        break
-    fi
+until docker compose --env-file .env.docker ps | grep -q "studyield-postgres.*healthy" || [ "$counter" -ge "$timeout" ]; do
     echo -n "."
     sleep 2
-    ((counter+=2))
+    counter=$((counter + 2))
 done
+echo ""
 
-if [ $counter -ge $timeout ]; then
-    echo -e "${RED}PostgreSQL failed to start within ${timeout}s${NC}"
-    echo -e "${YELLOW}Check logs with: docker compose logs postgres${NC}"
+if [ "$counter" -ge "$timeout" ]; then
+    echo -e "${RED}PostgreSQL did not become healthy within ${timeout}s.${NC}"
+    echo -e "${YELLOW}Inspect with: docker compose logs postgres${NC}"
     exit 1
 fi
+echo -e "${GREEN}PostgreSQL is healthy.${NC}"
 
-# Check Redis health
 echo -n "Checking Redis... "
 if docker compose --env-file .env.docker ps | grep -q "studyield-redis.*healthy"; then
-    echo -e "${GREEN}healthy!${NC}"
+    echo -e "${GREEN}healthy.${NC}"
 else
-    echo -e "${YELLOW}waiting...${NC}"
-    sleep 5
+    echo -e "${YELLOW}not yet — continuing anyway.${NC}"
 fi
 
-# Show service URLs
 echo ""
-echo -e "${GREEN}================================================${NC}"
-echo -e "${GREEN}Infrastructure Services Started Successfully!${NC}"
-echo -e "${GREEN}================================================${NC}"
-echo ""
-echo -e "${BLUE}Service URLs:${NC}"
-echo -e "   PostgreSQL:     ${GREEN}localhost:5432${NC}"
-echo -e "   Redis:          ${GREEN}localhost:6379${NC}"
-echo -e "   Qdrant:         ${GREEN}http://localhost:6333/dashboard${NC}"
-echo -e "   ClickHouse:     ${GREEN}localhost:8123${NC}"
+echo -e "${GREEN}Infrastructure is up.${NC}"
+echo "   PostgreSQL: localhost:5432"
+echo "   Redis:      localhost:6379"
+echo "   Qdrant:     http://localhost:6333/dashboard"
+echo "   ClickHouse: localhost:8123"
 echo ""
 
-# Start backend
-cd backend
-echo -e "${BLUE}Setting up Backend...${NC}"
-
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
+# --- Backend ---
+cd backend || exit 1
+if [ ! -d node_modules ]; then
     echo -e "${YELLOW}Installing backend dependencies...${NC}"
     npm install
 fi
 
-# Run migrations
-echo -e "${BLUE}Running database migrations...${NC}"
-npm run migrate 2>/dev/null || echo -e "${YELLOW}No pending migrations (or migration script not found).${NC}"
+echo -e "${BLUE}Running migrations...${NC}"
+npm run migrate 2>/dev/null || echo -e "${YELLOW}No pending migrations (or the script is unavailable).${NC}"
 
 echo -e "${BLUE}Starting backend (NestJS)...${NC}"
 npm run start:dev &
 BACKEND_PID=$!
-
-# Wait for backend to start
 sleep 5
-
 cd ..
 
-# Start frontend
-cd frontend
-echo -e "${BLUE}Setting up Frontend...${NC}"
-
-# Check if .env file exists in frontend
+# --- Frontend ---
+cd frontend || exit 1
 if [ ! -f .env ]; then
-    echo -e "${YELLOW}No frontend .env file found. Creating from .env.example...${NC}"
+    echo -e "${YELLOW}No frontend/.env found — creating from .env.example.${NC}"
     cp .env.example .env
-    echo -e "${GREEN}Created frontend/.env file${NC}"
+    echo -e "${GREEN}Created frontend/.env.${NC}"
 fi
 
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
+if [ ! -d node_modules ]; then
     echo -e "${YELLOW}Installing frontend dependencies...${NC}"
     npm install
 fi
 
 echo ""
-echo -e "${GREEN}================================================${NC}"
-echo -e "${GREEN}Starting Studyield Dev Servers...${NC}"
-echo -e "${GREEN}================================================${NC}"
-echo ""
-echo -e "${BLUE}   Backend API:    ${GREEN}http://localhost:3010${NC}"
-echo -e "${BLUE}   Frontend:       ${GREEN}http://localhost:5189${NC}"
-echo ""
-echo -e "${YELLOW}Tip: Press Ctrl+C to stop the frontend${NC}"
-echo -e "${YELLOW}Tip: To stop all services: docker compose down${NC}"
+echo -e "${GREEN}Dev servers starting.${NC}"
+echo -e "${BLUE}   Backend API: ${GREEN}http://localhost:3010${NC}"
+echo -e "${BLUE}   Frontend:    ${GREEN}http://localhost:5189${NC}"
+echo -e "${YELLOW}Ctrl+C stops the frontend; stop infra with: docker compose down${NC}"
 echo ""
 
-# Start frontend dev server
 npm run dev

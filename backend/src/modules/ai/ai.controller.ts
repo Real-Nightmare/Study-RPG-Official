@@ -46,6 +46,8 @@ interface GenerateMindMapDto {
   saveToHistory?: boolean;
 }
 
+const MIN_CONTENT_LENGTH = 50;
+
 @ApiTags('AI')
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
@@ -59,12 +61,10 @@ export class AiController {
   @ApiOperation({ summary: 'Generate flashcards from content using AI' })
   @ApiResponse({ status: 201, description: 'Flashcards generated' })
   async generateFlashcards(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() _user: JwtPayload,
     @Body() dto: GenerateFlashcardsDto,
   ): Promise<{ flashcards: GeneratedFlashcard[] }> {
-    if (!dto.content || dto.content.trim().length < 50) {
-      throw new BadRequestException('Content must be at least 50 characters long');
-    }
+    this.requireContent(dto.content);
 
     const count = Math.min(Math.max(dto.count || 10, 5), 50);
 
@@ -112,12 +112,10 @@ Output format: Return a JSON object with a "flashcards" array containing objects
   @ApiOperation({ summary: 'Summarize content using AI' })
   @ApiResponse({ status: 201, description: 'Content summarized' })
   async summarize(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() _user: JwtPayload,
     @Body() dto: { content: string; length?: 'short' | 'medium' | 'long' },
   ): Promise<{ summary: string }> {
-    if (!dto.content || dto.content.trim().length < 50) {
-      throw new BadRequestException('Content must be at least 50 characters long');
-    }
+    this.requireContent(dto.content);
 
     const lengthInstructions = {
       short: 'Create a brief summary in 2-3 sentences.',
@@ -257,9 +255,7 @@ Output format: Return a JSON object with a "flashcards" array containing objects
       notes: string;
     }>;
   }> {
-    if (!dto.content || dto.content.trim().length < 50) {
-      throw new BadRequestException('Content must be at least 50 characters long');
-    }
+    this.requireContent(dto.content);
 
     const slideCount = Math.min(Math.max(dto.slideCount || 8, 3), 20);
 
@@ -309,9 +305,7 @@ Output format: Return a JSON object with a "slides" array containing objects wit
   @ApiOperation({ summary: 'Generate mind map from content using AI' })
   @ApiResponse({ status: 201, description: 'Mind map generated' })
   async generateMindMap(@CurrentUser() user: JwtPayload, @Body() dto: GenerateMindMapDto) {
-    if (!dto.content || dto.content.trim().length < 50) {
-      throw new BadRequestException('Content must be at least 50 characters long');
-    }
+    this.requireContent(dto.content);
 
     const prompt = `Based on this content, generate a mind map structure:
 
@@ -357,7 +351,6 @@ Return JSON:
       { role: 'user', content: prompt },
     ]);
 
-    // Save to history if requested (default true)
     if (dto.saveToHistory !== false) {
       try {
         await this.aiService.saveMindMapToHistory({
@@ -369,7 +362,6 @@ Return JSON:
           noteId: dto.noteId,
         });
       } catch (error) {
-        // Log but don't fail the request
         this.logger.error('Failed to save mind map to history:', error);
       }
     }
@@ -403,7 +395,7 @@ Return JSON:
   @ApiOperation({ summary: 'Generate quiz questions from content using AI' })
   @ApiResponse({ status: 201, description: 'Quiz generated' })
   async generateQuiz(
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() _user: JwtPayload,
     @Body()
     dto: { content: string; count?: number; type?: 'multiple_choice' | 'true_false' | 'mixed' },
   ): Promise<{
@@ -415,9 +407,7 @@ Return JSON:
       explanation: string;
     }>;
   }> {
-    if (!dto.content || dto.content.trim().length < 50) {
-      throw new BadRequestException('Content must be at least 50 characters long');
-    }
+    this.requireContent(dto.content);
 
     const count = Math.min(Math.max(dto.count || 10, 5), 30);
     const type = dto.type || 'mixed';
@@ -469,6 +459,14 @@ Output format: Return a JSON object with a "questions" array containing objects 
       return { questions: result.questions.slice(0, count) };
     } catch (error) {
       throw new BadRequestException('Failed to generate quiz. Please try again.');
+    }
+  }
+
+  private requireContent(content: string): void {
+    if (!content || content.trim().length < MIN_CONTENT_LENGTH) {
+      throw new BadRequestException(
+        `Content must be at least ${MIN_CONTENT_LENGTH} characters long`,
+      );
     }
   }
 }

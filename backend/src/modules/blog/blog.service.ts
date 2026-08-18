@@ -38,6 +38,11 @@ export interface BlogComment {
   createdAt: Date;
 }
 
+/**
+ * Public blog: published posts with category filtering and search, plus
+ * per-post ratings and comments. All read paths are public; comment deletion
+ * is owner-only (enforced here, not just in the controller).
+ */
 @Injectable()
 export class BlogService {
   private readonly logger = new Logger(BlogService.name);
@@ -90,7 +95,7 @@ export class BlogService {
     ]);
 
     return {
-      data: results.map((r) => this.mapBlogPost(r)),
+      data: results.map((row) => this.mapBlogPost(row)),
       total: parseInt(countResult?.count || '0', 10),
     };
   }
@@ -113,9 +118,9 @@ export class BlogService {
       `SELECT category, COUNT(*) as count FROM blog_posts WHERE is_published = true GROUP BY category ORDER BY count DESC`,
     );
 
-    return results.map((r) => ({
-      category: r.category,
-      count: parseInt(r.count, 10),
+    return results.map((row) => ({
+      category: row.category,
+      count: parseInt(row.count, 10),
     }));
   }
 
@@ -129,7 +134,7 @@ export class BlogService {
       [slug, post.category, limit],
     );
 
-    return results.map((r) => this.mapBlogPost(r));
+    return results.map((row) => this.mapBlogPost(row));
   }
 
   // --- Ratings ---
@@ -211,7 +216,7 @@ export class BlogService {
     ]);
 
     return {
-      data: results.map((r) => this.mapBlogComment(r)),
+      data: results.map((row) => this.mapBlogComment(row)),
       total: parseInt(countResult?.count || '0', 10),
     };
   }

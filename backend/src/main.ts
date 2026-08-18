@@ -78,7 +78,7 @@ async function bootstrap() {
 
   // Swagger Documentation
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Studyield API')
+    .setTitle('Study RPG API')
     .setDescription('AI-powered learning platform API')
     .setVersion('1.0.0')
     .addBearerAuth()

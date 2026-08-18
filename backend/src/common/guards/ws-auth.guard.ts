@@ -5,6 +5,11 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { JwtPayload } from '../decorators/current-user.decorator';
 
+/**
+ * Authenticates socket connections from either the handshake `auth.token`
+ * field or an `Authorization: Bearer <jwt>` header. Verified payloads are
+ * attached to the socket's `data.user` for downstream handlers and guards.
+ */
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   private readonly logger = new Logger(WsAuthGuard.name);

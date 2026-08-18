@@ -37,6 +37,17 @@ export interface SolveProblemDto {
   imageUrl?: string;
 }
 
+interface SolveStreamEvent {
+  stage: string;
+  type: 'start' | 'chunk' | 'result';
+  data: unknown;
+}
+
+/**
+ * Multi-agent problem solver: an Analysis agent frames the problem, a Solver
+ * works it, a Verifier double-checks it — with hints, alternative methods,
+ * practice quizzes, concept maps and a study-buddy chat layered on top.
+ */
 @Injectable()
 export class ProblemSolverService {
   private readonly logger = new Logger(ProblemSolverService.name);
@@ -61,11 +72,9 @@ export class ProblemSolverService {
     try {
       this.logger.log('Extracting text from image using AI vision...');
 
-      // Convert image buffer to base64
       const base64Image = file.buffer.toString('base64');
       const mimeType = file.mimetype || 'image/jpeg';
 
-      // Use AI vision to analyze the image
       const prompt = `You are a precise multilingual OCR system for academic content. Analyze this image and extract the question or problem shown.
 
 LANGUAGE SUPPORT:
@@ -106,7 +115,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
       });
 
       const extractedText = response.trim();
-
       this.logger.log(`Text extracted: ${extractedText}`);
 
       return {
@@ -204,14 +212,8 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
     }
   }
 
-  async *solveStream(
-    sessionId: string,
-    userId: string,
-  ): AsyncGenerator<{
-    stage: string;
-    type: 'start' | 'chunk' | 'result';
-    data: unknown;
-  }> {
+  /** Streaming variant of {@link solve}: relays each agent's token chunks. */
+  async *solveStream(sessionId: string, userId: string): AsyncGenerator<SolveStreamEvent> {
     const session = await this.findByIdWithAccess(sessionId, userId);
 
     const context: AgentContext = {
@@ -225,7 +227,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
       await this.updateStatus(sessionId, 'analyzing');
 
       let analysisResult: AgentResult | null = null;
-
       for await (const chunk of this.analysisAgent.executeStream(context)) {
         if (chunk.type === 'chunk') {
           yield { stage: 'analysis', type: 'chunk', data: chunk.data };
@@ -234,7 +235,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
           yield { stage: 'analysis', type: 'result', data: analysisResult };
         }
       }
-
       if (!analysisResult) throw new Error('Analysis failed');
 
       const analysisStep: AgentStep = {
@@ -252,7 +252,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
       context.previousSteps = [analysisStep];
 
       let solverResult: AgentResult | null = null;
-
       for await (const chunk of this.solverAgent.executeStream(context)) {
         if (chunk.type === 'chunk') {
           yield { stage: 'solving', type: 'chunk', data: chunk.data };
@@ -261,7 +260,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
           yield { stage: 'solving', type: 'result', data: solverResult };
         }
       }
-
       if (!solverResult) throw new Error('Solving failed');
 
       const solverStep: AgentStep = {
@@ -279,7 +277,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
       context.previousSteps = [analysisStep, solverStep];
 
       let verifierResult: AgentResult | null = null;
-
       for await (const chunk of this.verifierAgent.executeStream(context)) {
         if (chunk.type === 'chunk') {
           yield { stage: 'verification', type: 'chunk', data: chunk.data };
@@ -288,7 +285,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
           yield { stage: 'verification', type: 'result', data: verifierResult };
         }
       }
-
       if (!verifierResult) throw new Error('Verification failed');
 
       const verifierStep: AgentStep = {
@@ -434,7 +430,6 @@ Return ONLY the extracted text exactly as shown in the image, preserving the ori
   async getAlternativeMethods(sessionId: string, userId: string) {
     const session = await this.findByIdWithAccess(sessionId, userId);
 
-    // Check cache first
     const cached = await this.db.queryMany(
       'SELECT * FROM solution_alternative_methods WHERE session_id = $1',
       [sessionId],
@@ -548,12 +543,12 @@ CRITICAL LaTeX Formatting Rules:
 1. ALWAYS wrap math expressions in $...$ delimiters
 2. Use double backslashes in JSON strings for LaTeX commands
 3. Examples:
-   - Good: "What is the derivative of $\\sin(x)$?"
-   - Bad: "What is the derivative of \\sin(x)?"
-   - Good: "Answer: $\\frac{d}{dx}[\\sin(x)] = \\cos(x)$"
-   - Bad: "Answer: \\frac{d}{dx}[\\sin(x)] = \\cos(x)"
-   - Good option: "$\\sec^2(x)$"
-   - Bad option: "\\sec^2(x)"`;
+   - Good: "What is the derivative of $\\\\sin(x)$?"
+   - Bad: "What is the derivative of \\\\sin(x)?"
+   - Good: "Answer: $\\\\frac{d}{dx}[\\\\sin(x)] = \\\\cos(x)$"
+   - Bad: "Answer: \\\\frac{d}{dx}[\\\\sin(x)] = \\\\cos(x)"
+   - Good option: "$\\\\sec^2(x)$"
+   - Bad option: "\\\\sec^2(x)"`;
 
     const result = await this.aiService.completeJson<{
       questions: Array<{
@@ -570,15 +565,15 @@ CRITICAL LaTeX Formatting Rules:
         content: `You are a quiz generator. Create practice questions in JSON format. Write all text in ${detectedLang}.
 
 CRITICAL: When writing LaTeX in JSON strings, you MUST use double backslashes:
-- Correct: "\\\\frac{1}{2}", "\\\\tan(x)", "\\\\sin(x)"
-- Wrong: "\\frac{1}{2}", "\\tan(x)", "\\sin(x)"
+- Correct: "\\\\\\\\frac{1}{2}", "\\\\\\\\tan(x)", "\\\\\\\\sin(x)"
+- Wrong: "\\\\frac{1}{2}", "\\\\tan(x)", "\\\\sin(x)"
 
 This is because JSON parsing treats single backslash as escape characters.
 
 EXPLANATION GUIDELINES:
 1. For derivative questions: Always STATE the derivative first, then explain
-   - Good: "The derivative of $\\\\sin(x)$ is $\\\\cos(x)$. Since $\\\\cos(x)$ can be negative in quadrants II and III, the statement is false."
-   - Bad: "The derivative $\\\\cos(x)$ can take on negative values..." (doesn't state what it's the derivative OF)
+   - Good: "The derivative of $\\\\\\\\sin(x)$ is $\\\\\\\\cos(x)$. Since $\\\\\\\\cos(x)$ can be negative in quadrants II and III, the statement is false."
+   - Bad: "The derivative $\\\\\\\\cos(x)$ can take on negative values..." (doesn't state what it's the derivative OF)
 
 2. For true/false: Clearly state why the statement is true or false
 3. For MCQ: Explain why the correct answer is right
@@ -589,7 +584,8 @@ EXPLANATION GUIDELINES:
 
     const questions = result?.questions || [];
 
-    // Helper function to fix LaTeX formatting (restore missing backslashes and add $ delimiters)
+    // Restore LaTeX that got mangled in transit: re-add missing backslashes
+    // and wrap bare commands in $...$ delimiters.
     const fixLatex = (text: string): string => {
       if (!text) return text;
 
@@ -631,7 +627,6 @@ EXPLANATION GUIDELINES:
     for (const q of questions) {
       const id = uuidv4();
 
-      // Sanitize LaTeX in all text fields
       const sanitizedQuestion = fixLatex(q.question);
       const sanitizedOptions = (q.options || []).map((opt) => fixLatex(opt));
       const sanitizedCorrectAnswer = fixLatex(q.correctAnswer);
@@ -818,7 +813,7 @@ Return a JSON array:
 [
   {
     "front": "Formula/concept name (e.g., 'Quadratic Formula')",
-    "back": "The formula or definition using LaTeX: $x = \\\\frac{-b \\\\pm \\\\sqrt{b^2-4ac}}{2a}$\\n\\nWhen to use: ...",
+    "back": "The formula or definition using LaTeX: $x = \\\\\\\\frac{-b \\\\\\\\pm \\\\\\\\sqrt{b^2-4ac}}{2a}$\\\\n\\\\nWhen to use: ...",
     "category": "formula|theorem|rule|definition|concept",
     "subject": "math|physics|chemistry|etc"
   }
@@ -844,16 +839,15 @@ Return a JSON array:
   async getGraphData(sessionId: string, userId: string) {
     const session = await this.findByIdWithAccess(sessionId, userId);
 
-    // Check if already cached
+    // Serve the cached result when it already carries plotted points;
+    // otherwise regenerate (cache with points only).
     if (session.graphData) {
-      // If cached data has points, return it
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cached = session.graphData as any;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (cached.functions && cached.functions.some((f: any) => f.points && f.points.length > 0)) {
         return cached;
       }
-      // If cached but no points, regenerate with points
     }
 
     const prompt = `Analyze this math/science problem and extract any equations or functions that can be plotted on a graph.
@@ -903,7 +897,7 @@ The "expression" must use standard math notation: use * for multiplication, ^ fo
     ]);
 
     if (result && result.canPlot && result.functions) {
-      // Generate points for each function
+      // Sample each function across the requested range.
       const functionsWithPoints = result.functions.map((func) => ({
         ...func,
         points: this.evaluateFunctionPoints(
@@ -937,7 +931,8 @@ The "expression" must use standard math notation: use * for multiplication, ^ fo
   }
 
   /**
-   * Evaluate a mathematical expression and generate points for plotting
+   * Evaluate a mathematical expression across a range and return plottable
+   * points. Non-finite or un-evaluable samples are skipped silently.
    */
   private evaluateFunctionPoints(
     expression: string,
@@ -949,13 +944,12 @@ The "expression" must use standard math notation: use * for multiplication, ^ fo
     const step = (maxX - minX) / (numPoints - 1);
 
     try {
-      // mathjs already understands standard notation
-      // Just replace ^ with ** for power
+      // mathjs already understands standard notation — only ^ needs
+      // translating to ** for power.
       const normalizedExpr = expression.replace(/\^/g, '**');
 
       this.logger.debug(`Evaluating expression: ${normalizedExpr}`);
 
-      // Compile the expression
       const node = math.parse(normalizedExpr);
       const code = node.compile();
 
@@ -965,7 +959,6 @@ The "expression" must use standard math notation: use * for multiplication, ^ fo
         try {
           const y = code.evaluate({ x });
 
-          // Skip invalid points (NaN, Infinity, undefined)
           if (typeof y === 'number' && isFinite(y)) {
             points.push({
               x: Math.round(x * 10000) / 10000, // Round to 4 decimal places
@@ -982,7 +975,6 @@ The "expression" must use standard math notation: use * for multiplication, ^ fo
       return points;
     } catch (error) {
       this.logger.error(`Failed to evaluate expression "${expression}": ${error.message}`);
-      // Return empty points array if expression can't be evaluated
       return [];
     }
   }
@@ -1083,6 +1075,7 @@ Return a JSON array with objects having these fields:
   // STUDY BUDDY CHAT
   // ═══════════════════════════════════════════
 
+  /** Best-effort script detection so the tutor replies in the user's language. */
   private detectLanguage(text: string): string {
     const counts: Record<string, number> = {
       bengali: 0,

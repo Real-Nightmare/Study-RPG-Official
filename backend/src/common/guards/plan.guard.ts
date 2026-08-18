@@ -3,6 +3,11 @@ import { Reflector } from '@nestjs/core';
 import { PLAN_FEATURE_KEY, PlanFeatureMeta } from '../decorators/plan-feature.decorator';
 import { SubscriptionService } from '../../modules/subscription/subscription.service';
 
+/**
+ * Gates @PlanFeature(...) routes behind a paid plan. Ungated routes pass
+ * through; gated routes require an active subscription and reject with an
+ * upgrade signal the client can use to prompt checkout.
+ */
 @Injectable()
 export class PlanGuard implements CanActivate {
   constructor(

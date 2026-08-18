@@ -21,6 +21,7 @@ import { DATASET_TYPES, DatasetType } from './marketplace-config';
 import { MarketplaceService } from './marketplace.service';
 import { BenchmarkService } from './benchmark.service';
 import { OceanNodeMonitorService } from './ocean-node-monitor.service';
+import { OceanC2DService } from './ocean-c2d.service';
 import { OceanService } from './ocean.service';
 
 class ConsentDto {
@@ -105,6 +106,26 @@ class ReasonDto {
   reason: string;
 }
 
+class C2DPolicyDto {
+  @IsOptional()
+  @IsBoolean()
+  allowRawAlgorithm?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  allowNetworkAccess?: boolean;
+
+  @IsOptional()
+  @IsString({ each: true })
+  trustedAlgorithmPublishers?: string[];
+}
+
+class PublishDatasetDto extends ReasonDto {
+  @IsOptional()
+  @IsObject()
+  c2d?: C2DPolicyDto;
+}
+
 class StartBenchmarkDto {
   @IsOptional()
   @IsInt()
@@ -132,6 +153,7 @@ export class DataMarketplaceController {
     private readonly benchmarks: BenchmarkService,
     private readonly oceanNode: OceanNodeMonitorService,
     private readonly ocean: OceanService,
+    private readonly oceanC2d: OceanC2DService,
   ) {}
 
   // ---------------------------------------------------------------------
@@ -188,10 +210,17 @@ export class DataMarketplaceController {
   @Post('datasets/:id/publish')
   @Roles(Role.ADMIN)
   @ApiOperation({
-    summary: 'Compute the privacy-guarded aggregate and publish it to the Ocean ecosystem (admin)',
+    summary:
+      'Compute the privacy-guarded aggregate and publish it to the Ocean ecosystem (admin). ' +
+      'When a funded wallet is configured this deploys an on-chain Compute-to-Data asset ' +
+      '(ERC721 + datatoken + fixed-rate exchange) so buyers can run algorithms on the aggregate.',
   })
-  publishDataset(@CurrentUser() user: JwtPayload, @Param('id') id: string, @Body() dto: ReasonDto) {
-    return this.marketplace.publishDataset(user.sub, id, dto.reason);
+  publishDataset(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() dto: PublishDatasetDto,
+  ) {
+    return this.marketplace.publishDataset(user.sub, id, dto.reason, dto.c2d);
   }
 
   @Post('datasets/:id/revoke')
@@ -235,11 +264,13 @@ export class DataMarketplaceController {
   @Get('status')
   @Roles(Role.ADMIN)
   @ApiOperation({
-    summary: 'Marketplace publish mode (wallet-optional metadata-first vs on-chain-ready)',
+    summary:
+      'Marketplace publish mode (metadata-first vs on-chain Compute-to-Data) plus idle-capacity node state',
   })
   status() {
     return {
       ...this.ocean.getStatus(),
+      c2d: this.oceanC2d.getStatus(),
       oceanNode: this.oceanNode.status(),
     };
   }

@@ -65,6 +65,17 @@ export interface FileAttachment {
   analysisResult?: string;
 }
 
+const HISTORY_LIMIT = 10;
+const FILE_TEXT_LIMIT = 4000;
+const DEFAULT_TITLE_PREFIX = 'Chat ';
+
+/**
+ * RAG chat over the user's knowledge bases, with file analysis (PDF text
+ * extraction and vision-based image description). The assistant persona is
+ * philosophy-aware and doubles as an anti-overstudy guardian: it will push
+ * back on marathon sessions. Admin-published universal notes (Phase 6) are
+ * injected as a verified source the model may cite.
+ */
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
@@ -81,10 +92,9 @@ export class ChatService {
     const id = uuidv4();
     const now = new Date();
 
-    // Generate a better default title based on timestamp
     const defaultTitle =
       dto.title ||
-      `Chat ${new Date().toLocaleDateString('en-US', {
+      `${DEFAULT_TITLE_PREFIX.trim()} ${new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         hour: 'numeric',
@@ -125,7 +135,7 @@ export class ChatService {
       'SELECT * FROM conversations WHERE user_id = $1 ORDER BY updated_at DESC',
       [userId],
     );
-    return results.map((r) => this.mapConversation(r));
+    return results.map((row) => this.mapConversation(row));
   }
 
   async getMessages(conversationId: string, userId: string): Promise<Message[]> {
@@ -135,7 +145,7 @@ export class ChatService {
       'SELECT * FROM messages WHERE conversation_id = $1 ORDER BY created_at ASC',
       [conversationId],
     );
-    return results.map((r) => this.mapMessage(r));
+    return results.map((row) => this.mapMessage(row));
   }
 
   async sendMessage(conversationId: string, userId: string, dto: SendMessageDto): Promise<Message> {
@@ -143,27 +153,7 @@ export class ChatService {
 
     await this.saveMessage(conversationId, 'user', dto.content);
 
-    let context = '';
-    let citations: Citation[] = [];
-
-    if (conversation.knowledgeBaseIds.length > 0) {
-      const searchResults = await this.knowledgeBaseService.searchMultiple(
-        conversation.knowledgeBaseIds,
-        userId,
-        dto.content,
-        5,
-      );
-
-      if (searchResults.length > 0) {
-        context = searchResults.map((r, i) => `[${i + 1}] ${r.content}`).join('\n\n');
-        citations = searchResults.map((r) => ({
-          chunkId: r.chunkId,
-          content: r.content.substring(0, 200) + '...',
-          documentId: r.documentId,
-          score: r.score,
-        }));
-      }
-    }
+    const { context, citations } = await this.retrieveContext(conversation, userId, dto.content);
 
     const messages = await this.buildMessageHistory(conversationId, context);
     messages.push({ role: 'user', content: dto.content });
@@ -181,7 +171,6 @@ export class ChatService {
 
     await this.updateConversationTimestamp(conversationId);
 
-    // Auto-generate title from first message if still using default
     await this.autoGenerateTitleIfNeeded(conversationId, dto.content);
 
     return assistantMessage;
@@ -197,9 +186,8 @@ export class ChatService {
         [conversationId],
       );
 
-      // Only update if title starts with "Chat " (default title)
+      // Only replace the auto-generated default title.
       if (conversation && conversation.title && conversation.title.startsWith('Chat ')) {
-        // Generate title from first message (take first 50 chars)
         const title =
           firstMessage.length > 50 ? firstMessage.substring(0, 50) + '...' : firstMessage;
 
@@ -211,7 +199,6 @@ export class ChatService {
         this.logger.log(`Auto-generated title for conversation ${conversationId}: ${title}`);
       }
     } catch (error) {
-      // Non-critical, log and continue
       this.logger.warn(`Failed to auto-generate title: ${(error as Error).message}`);
     }
   }
@@ -228,7 +215,6 @@ export class ChatService {
       throw new BadRequestException('No files provided');
     }
 
-    // Process each file
     const fileAttachments: FileAttachment[] = [];
     let fileContext = '';
 
@@ -240,7 +226,6 @@ export class ChatService {
       let analysisResult = '';
       let fileUrl = '';
 
-      // Upload file to storage for later retrieval
       try {
         const result = await this.storageService.upload(file.buffer, file.originalname, {
           folder: `chat-attachments/${userId}`,
@@ -250,10 +235,8 @@ export class ChatService {
         this.logger.log(`Uploaded file to storage: ${fileUrl}`);
       } catch (error) {
         this.logger.warn(`Failed to upload file to storage: ${(error as Error).message}`);
-        // Continue anyway - file URL will be empty
       }
 
-      // Handle PDF files
       if (mimeType === 'application/pdf') {
         try {
           const pdfData = await pdf(file.buffer);
@@ -262,22 +245,19 @@ export class ChatService {
             `Extracted ${extractedText.length} characters from PDF: ${file.originalname}`,
           );
 
-          // If PDF has very little text (< 100 chars), it's likely a scanned image
+          // Very little text means the PDF is probably scanned images.
           if (extractedText.trim().length < 100) {
             this.logger.warn(
               `PDF appears to be scanned/image-based with minimal text (${extractedText.length} chars)`,
             );
 
-            // Add note to help AI inform user
             analysisResult = `[NOTE: This PDF appears to be a scanned document or image-based PDF with minimal extractable text. Only "${extractedText.trim()}" was extracted. For better results with scanned documents, the user should take a photo or screenshot and upload it as an image (JPG/PNG) instead of PDF.]`;
           }
         } catch (error) {
           this.logger.error(`Failed to extract PDF text: ${(error as Error).message}`);
           throw new BadRequestException('Failed to process PDF file');
         }
-      }
-      // Handle image files
-      else if (mimeType.startsWith('image/')) {
+      } else if (mimeType.startsWith('image/')) {
         try {
           const base64Image = file.buffer.toString('base64');
           analysisResult = await this.aiService.generateWithVision({
@@ -316,7 +296,6 @@ Now analyze this image and describe what you see:`,
         );
       }
 
-      // Store file metadata with URL
       fileAttachments.push({
         id: fileId,
         filename: file.originalname,
@@ -327,16 +306,14 @@ Now analyze this image and describe what you see:`,
         analysisResult,
       });
 
-      // Build context from file
       if (extractedText) {
-        fileContext += `\n\n[Document: ${file.originalname}]\n${extractedText.substring(0, 4000)}\n`;
+        fileContext += `\n\n[Document: ${file.originalname}]\n${extractedText.substring(0, FILE_TEXT_LIMIT)}\n`;
       }
       if (analysisResult) {
         fileContext += `\n\n[Image Analysis: ${file.originalname}]\n${analysisResult}\n`;
       }
     }
 
-    // Save user message with file references
     await this.saveMessage(
       conversationId,
       'user',
@@ -345,11 +322,9 @@ Now analyze this image and describe what you see:`,
       { files: fileAttachments },
     );
 
-    // Build message history with file context
     let contextText = fileContext;
     let citations: Citation[] = [];
 
-    // Also search knowledge base if configured
     if (conversation.knowledgeBaseIds.length > 0 && dto.content) {
       const searchResults = await this.knowledgeBaseService.searchMultiple(
         conversation.knowledgeBaseIds,
@@ -401,30 +376,10 @@ Now analyze this image and describe what you see:`,
 
     await this.saveMessage(conversationId, 'user', dto.content);
 
-    let context = '';
-    let citations: Citation[] = [];
+    const { context, citations } = await this.retrieveContext(conversation, userId, dto.content);
 
-    if (conversation.knowledgeBaseIds.length > 0) {
-      const searchResults = await this.knowledgeBaseService.searchMultiple(
-        conversation.knowledgeBaseIds,
-        userId,
-        dto.content,
-        5,
-      );
-
-      if (searchResults.length > 0) {
-        context = searchResults.map((r, i) => `[${i + 1}] ${r.content}`).join('\n\n');
-        citations = searchResults.map((r) => ({
-          chunkId: r.chunkId,
-          content: r.content.substring(0, 200) + '...',
-          documentId: r.documentId,
-          score: r.score,
-        }));
-
-        for (const citation of citations) {
-          yield { type: 'citation', data: citation };
-        }
-      }
+    for (const citation of citations) {
+      yield { type: 'citation', data: citation };
     }
 
     const messages = await this.buildMessageHistory(conversationId, context);
@@ -466,6 +421,37 @@ Now analyze this image and describe what you see:`,
     return this.mapConversation(result!);
   }
 
+  private async retrieveContext(
+    conversation: Conversation,
+    userId: string,
+    query: string,
+  ): Promise<{ context: string; citations: Citation[] }> {
+    if (conversation.knowledgeBaseIds.length === 0) {
+      return { context: '', citations: [] };
+    }
+
+    const searchResults = await this.knowledgeBaseService.searchMultiple(
+      conversation.knowledgeBaseIds,
+      userId,
+      query,
+      5,
+    );
+
+    if (searchResults.length === 0) {
+      return { context: '', citations: [] };
+    }
+
+    return {
+      context: searchResults.map((r, i) => `[${i + 1}] ${r.content}`).join('\n\n'),
+      citations: searchResults.map((r) => ({
+        chunkId: r.chunkId,
+        content: r.content.substring(0, 200) + '...',
+        documentId: r.documentId,
+        score: r.score,
+      })),
+    };
+  }
+
   private async saveMessage(
     conversationId: string,
     role: 'user' | 'assistant' | 'system',
@@ -493,7 +479,7 @@ Now analyze this image and describe what you see:`,
     const messages: ChatMessage[] = [];
 
     let systemPrompt = withPhilosophy(
-      `You are a helpful AI learning assistant for Studyield, an AI-powered study platform.
+      `You are a helpful AI learning assistant for Study RPG, an AI-powered study platform.
 Your goal is to help students learn and understand their study materials.
 Be concise, accurate, and educational in your responses.
 When explaining concepts, use clear examples and break down complex ideas.
@@ -541,7 +527,7 @@ Instructions:
     messages.push({ role: 'system', content: systemPrompt });
 
     const recentMessages = await this.db.queryMany<Message>(
-      `SELECT * FROM messages WHERE conversation_id = $1 ORDER BY created_at DESC LIMIT 10`,
+      `SELECT * FROM messages WHERE conversation_id = $1 ORDER BY created_at DESC LIMIT ${HISTORY_LIMIT}`,
       [conversationId],
     );
 

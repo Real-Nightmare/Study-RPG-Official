@@ -11,6 +11,10 @@ import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
 import { SubscriptionService } from '../subscription/subscription.service';
 
+/**
+ * Realtime channel for teach-back sessions — primarily used to push
+ * evaluation results to the open session page.
+ */
 @WebSocketGateway({ namespace: 'teach-back', cors: { origin: '*', credentials: true } })
 @UseGuards(WsAuthGuard)
 @UseFilters(WsExceptionFilter)

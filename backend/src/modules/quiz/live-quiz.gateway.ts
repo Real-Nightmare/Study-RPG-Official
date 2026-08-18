@@ -12,6 +12,10 @@ import { LiveQuizService, LiveQuestion } from './live-quiz.service';
 import { QuizService } from './quiz.service';
 import { SubscriptionService } from '../subscription/subscription.service';
 
+/**
+ * Socket front door for live quiz rooms: creation, joining, game control
+ * and answer submission, with events relayed through the room service.
+ */
 @WebSocketGateway({
   namespace: 'live-quiz',
   cors: {
@@ -31,7 +35,7 @@ export class LiveQuizGateway extends BaseGateway implements OnModuleInit {
   }
 
   onModuleInit() {
-    // Set up emit callback so service can emit events
+    // The service drives the game state machine; route its emits through us.
     this.liveQuizService.setEmitCallback((roomCode, event, data) => {
       this.emitToRoom(`live-quiz:${roomCode}`, event, data);
     });
@@ -77,7 +81,7 @@ export class LiveQuizGateway extends BaseGateway implements OnModuleInit {
     }
 
     try {
-      // Generate quiz questions from study set
+      // Build the question deck from the study set, then stand up the room.
       const quiz = await this.quizService.generate(user.sub, {
         studySetId: data.studySetId,
         title: 'Live Quiz',
@@ -99,7 +103,7 @@ export class LiveQuizGateway extends BaseGateway implements OnModuleInit {
 
       const room = this.liveQuizService.createRoom(user.sub, data.studySetId, questions);
 
-      // Add host as player
+      // The host joins as the first player.
       this.liveQuizService.addPlayer(room.code, {
         id: user.sub,
         name: user.email.split('@')[0],
@@ -197,7 +201,7 @@ export class LiveQuizGateway extends BaseGateway implements OnModuleInit {
       return;
     }
 
-    // Emit to player privately that their answer was locked
+    // Lock the answer in privately for this player.
     client.emit('answer:locked', {
       questionIndex: data.questionIndex,
       answerIndex: data.answerIndex,
@@ -205,7 +209,7 @@ export class LiveQuizGateway extends BaseGateway implements OnModuleInit {
       score: result.score,
     });
 
-    // Emit updated player count who answered
+    // Broadcast how many have answered so far.
     const room = result.room;
     const question = room.questions[data.questionIndex];
     this.emitToRoom(`live-quiz:${data.code}`, 'answers:update', {

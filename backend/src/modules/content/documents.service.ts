@@ -35,6 +35,10 @@ export interface UpdateDocumentDto {
   processingStatus?: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
+/**
+ * Uploaded study documents: metadata rows plus the backing object in R2.
+ * Deletion removes the stored file first, then the row.
+ */
 @Injectable()
 export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
@@ -91,7 +95,7 @@ export class DocumentsService {
       'SELECT * FROM documents WHERE study_set_id = $1 ORDER BY created_at DESC',
       [studySetId],
     );
-    return results.map((r) => this.mapDocument(r));
+    return results.map((row) => this.mapDocument(row));
   }
 
   async findByUser(
@@ -113,7 +117,7 @@ export class DocumentsService {
     ]);
 
     return {
-      data: results.map((r) => this.mapDocument(r)),
+      data: results.map((row) => this.mapDocument(row)),
       total: parseInt(countResult?.count || '0', 10),
     };
   }
@@ -121,33 +125,11 @@ export class DocumentsService {
   async update(id: string, userId: string, dto: UpdateDocumentDto): Promise<Document> {
     await this.findByIdWithAccess(id, userId);
 
-    const updates: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
-
-    if (dto.title !== undefined) {
-      updates.push(`title = $${paramIndex++}`);
-      values.push(dto.title);
-    }
-    if (dto.extractedText !== undefined) {
-      updates.push(`extracted_text = $${paramIndex++}`);
-      values.push(dto.extractedText);
-    }
-    if (dto.pageCount !== undefined) {
-      updates.push(`page_count = $${paramIndex++}`);
-      values.push(dto.pageCount);
-    }
-    if (dto.processingStatus !== undefined) {
-      updates.push(`processing_status = $${paramIndex++}`);
-      values.push(dto.processingStatus);
-    }
-
-    updates.push(`updated_at = $${paramIndex++}`);
-    values.push(new Date());
-    values.push(id);
+    const assignments = this.buildAssignments(dto);
+    const values = [...assignments.values, new Date(), id];
 
     const result = await this.db.queryOne<Document>(
-      `UPDATE documents SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      `UPDATE documents SET ${assignments.sql}, updated_at = $${assignments.values.length + 1} WHERE id = $${assignments.values.length + 2} RETURNING *`,
       values,
     );
 
@@ -160,23 +142,23 @@ export class DocumentsService {
     extractedText?: string,
     pageCount?: number,
   ): Promise<void> {
-    const updates = ['processing_status = $1', 'updated_at = $2'];
+    const assignments = ['processing_status = $1', 'updated_at = $2'];
     const values: unknown[] = [status, new Date()];
     let paramIndex = 3;
 
     if (extractedText !== undefined) {
-      updates.push(`extracted_text = $${paramIndex++}`);
+      assignments.push(`extracted_text = $${paramIndex++}`);
       values.push(extractedText);
     }
     if (pageCount !== undefined) {
-      updates.push(`page_count = $${paramIndex++}`);
+      assignments.push(`page_count = $${paramIndex++}`);
       values.push(pageCount);
     }
 
     values.push(id);
 
     await this.db.query(
-      `UPDATE documents SET ${updates.join(', ')} WHERE id = $${paramIndex}`,
+      `UPDATE documents SET ${assignments.join(', ')} WHERE id = $${paramIndex}`,
       values,
     );
   }
@@ -204,6 +186,31 @@ export class DocumentsService {
       throw new Error('Invalid file URL');
     }
     return this.storageService.getSignedDownloadUrl(key);
+  }
+
+  private buildAssignments(dto: UpdateDocumentDto): { sql: string; values: unknown[] } {
+    const assignments: string[] = [];
+    const values: unknown[] = [];
+    let paramIndex = 1;
+
+    if (dto.title !== undefined) {
+      assignments.push(`title = $${paramIndex++}`);
+      values.push(dto.title);
+    }
+    if (dto.extractedText !== undefined) {
+      assignments.push(`extracted_text = $${paramIndex++}`);
+      values.push(dto.extractedText);
+    }
+    if (dto.pageCount !== undefined) {
+      assignments.push(`page_count = $${paramIndex++}`);
+      values.push(dto.pageCount);
+    }
+    if (dto.processingStatus !== undefined) {
+      assignments.push(`processing_status = $${paramIndex++}`);
+      values.push(dto.processingStatus);
+    }
+
+    return { sql: assignments.join(', '), values };
   }
 
   private mapDocument(row: unknown): Document {

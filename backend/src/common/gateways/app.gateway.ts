@@ -9,6 +9,10 @@ import { Socket } from 'socket.io';
 import { BaseGateway } from './base.gateway';
 import { parseCorsOrigins } from '../config/cors-origins';
 
+/**
+ * The default 'app' namespace: liveness pings, scoped channel
+ * subscribe/unsubscribe, and targeted notifications to users or channels.
+ */
 @WebSocketGateway({
   namespace: 'app',
   cors: {

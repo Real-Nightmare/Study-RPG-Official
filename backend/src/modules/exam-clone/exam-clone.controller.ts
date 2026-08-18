@@ -197,7 +197,7 @@ export class ExamCloneController {
       );
       return { message: 'File uploaded and queued for processing' };
     } catch (error) {
-      // Handle PDF parsing errors with user-friendly messages
+      // Surface PDF/parse failures as friendly 400s instead of 500s.
       if (
         error.message?.includes('Failed to parse PDF') ||
         error.message?.includes('Command token too long')

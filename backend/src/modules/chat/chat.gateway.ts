@@ -12,6 +12,10 @@ import { ChatService, SendMessageDto } from './chat.service';
 import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
 
+/**
+ * Realtime chat channel: clients join a conversation room and stream the
+ * AI response token-by-token via `message:chunk` events.
+ */
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
@@ -26,6 +30,8 @@ export class ChatGateway {
 
   @WebSocketServer()
   server: Server;
+
+  constructor(private readonly chatService: ChatService) {}
 
   @SubscribeMessage('join')
   handleJoin(@MessageBody() data: { conversationId: string }, @ConnectedSocket() client: Socket) {
@@ -71,6 +77,4 @@ export class ChatGateway {
       return { event: 'error', data: { message: (error as Error).message } };
     }
   }
-
-  constructor(private readonly chatService: ChatService) {}
 }

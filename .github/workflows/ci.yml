@@ -19,17 +19,17 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: Checkout code
+      - name: Fetch repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Configure Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install dependencies
+      - name: Restore dependencies
         run: npm ci
 
       - name: Lint
@@ -38,10 +38,10 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit --skipLibCheck
 
-      - name: Build
+      - name: Compile
         run: npm run build
 
-      - name: Tests + coverage
+      - name: Unit tests with coverage
         run: npm run test:cov -- --runInBand
 
       - name: Upload coverage artifact
@@ -59,17 +59,17 @@ jobs:
         working-directory: frontend
 
     steps:
-      - name: Checkout code
+      - name: Fetch repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Configure Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Restore dependencies
         run: npm ci
 
       - name: Lint
@@ -78,8 +78,8 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit --skipLibCheck
 
-      - name: Build
+      - name: Compile
         run: npm run build
 
-      - name: Tests
+      - name: Unit tests
         run: npm test

@@ -2,6 +2,10 @@ import { ArgumentsHost, Catch, Logger } from '@nestjs/common';
 import { BaseWsExceptionFilter, WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
+/**
+ * Turns WsExceptions into an 'error' socket event with a { message, timestamp }
+ * payload, mirroring the HTTP error envelope for socket clients.
+ */
 @Catch(WsException)
 export class WsExceptionFilter extends BaseWsExceptionFilter {
   private readonly logger = new Logger(WsExceptionFilter.name);

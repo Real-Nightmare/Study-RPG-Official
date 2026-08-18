@@ -30,6 +30,11 @@ export interface SESEmailResponse {
   details?: Record<string, unknown>;
 }
 
+/**
+ * AWS SES adapter. Degrades gracefully when AWS credentials are absent:
+ * `sendEmail` then returns a `failed` response instead of throwing, so callers
+ * can decide how to handle environments without email configured.
+ */
 @Injectable()
 export class SESService {
   private readonly logger = new Logger(SESService.name);
@@ -61,7 +66,7 @@ export class SESService {
       this.logger.log(`SES Service initialized with region: ${sesConfig.region}`);
     }
 
-    this.defaultFrom = this.configService.get('EMAIL_DEFAULT_FROM', 'noreply@studyield.com');
+    this.defaultFrom = this.configService.get('EMAIL_DEFAULT_FROM', 'noreply@studyrpg.app');
     this.configurationSet = this.configService.get('SES_CONFIGURATION_SET');
   }
 

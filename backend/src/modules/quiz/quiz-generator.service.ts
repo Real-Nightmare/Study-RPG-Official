@@ -20,6 +20,10 @@ export interface GenerateQuizOptions {
   focusTopics?: string[];
 }
 
+/**
+ * AI question authoring. All generation goes through `completeJson` with an
+ * explicit output schema so downstream consumers get predictable shapes.
+ */
 @Injectable()
 export class QuizGeneratorService {
   private readonly logger = new Logger(QuizGeneratorService.name);

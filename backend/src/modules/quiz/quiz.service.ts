@@ -93,6 +93,12 @@ export interface SubmitAttemptDto {
   totalTimeSpent: number;
 }
 
+/**
+ * Quizzes with AI generation and spaced-repetition-friendly attempts. Every
+ * attempt runs the integrity reward pipeline (spec 014): hourly rate limit,
+ * answer-time sanity, accuracy-scaled exponential XP, and daily-capped STP
+ * on premium mastery — so honest retrieval, not spam, is what pays out.
+ */
 @Injectable()
 export class QuizService {
   private readonly logger = new Logger(QuizService.name);
@@ -165,7 +171,7 @@ export class QuizService {
       difficulty: dto.difficulty || 'mixed',
     });
 
-    const quiz = await this.create(userId, {
+    return this.create(userId, {
       title: dto.title,
       studySetId: dto.studySetId,
       questions: questions.map((q) => ({
@@ -177,8 +183,6 @@ export class QuizService {
         difficulty: q.difficulty,
       })),
     });
-
-    return quiz;
   }
 
   async findById(id: string): Promise<Quiz | null> {
@@ -211,7 +215,7 @@ export class QuizService {
        ORDER BY q.updated_at DESC`,
       [userId],
     );
-    return results.map((r) => this.mapQuiz(r));
+    return results.map((row) => this.mapQuiz(row));
   }
 
   async findByStudySet(studySetId: string): Promise<Quiz[]> {
@@ -223,7 +227,7 @@ export class QuizService {
        ORDER BY q.created_at DESC`,
       [studySetId],
     );
-    return results.map((r) => this.mapQuiz(r));
+    return results.map((row) => this.mapQuiz(row));
   }
 
   async getQuestions(quizId: string): Promise<QuizQuestion[]> {
@@ -231,7 +235,7 @@ export class QuizService {
       'SELECT * FROM quiz_questions WHERE quiz_id = $1 ORDER BY "order" ASC',
       [quizId],
     );
-    return results.map((r) => this.mapQuestion(r));
+    return results.map((row) => this.mapQuestion(row));
   }
 
   async submitAttempt(quizId: string, userId: string, dto: SubmitAttemptDto): Promise<QuizAttempt> {
@@ -302,7 +306,6 @@ export class QuizService {
       mapped.rewardStp = reward.stp;
     }
 
-    // Send notification based on score
     await this.sendQuizCompletionNotification(
       userId,
       score,
@@ -416,7 +419,7 @@ export class QuizService {
        ORDER BY created_at DESC`,
       [quizId, userId],
     );
-    return results.map((r) => this.mapAttempt(r));
+    return results.map((row) => this.mapAttempt(row));
   }
 
   async getAttemptDetails(
@@ -497,9 +500,9 @@ export class QuizService {
   }
 
   /**
-   * Mastery-oriented notification copy (US4 / FR-010): every message bridges
-   * the quiz outcome to a real-world cognitive outcome — recall strength,
-   * retention checkpoint, retrieval practice — never detached cheerleading.
+   * Mastery-oriented notification copy: every message bridges the quiz
+   * outcome to a real-world cognitive outcome — recall strength, retention
+   * checkpoint, retrieval practice — never detached cheerleading.
    */
   private async sendQuizCompletionNotification(
     userId: string,
@@ -540,7 +543,7 @@ export class QuizService {
         link: `/dashboard/quiz/${quizId}`,
       });
     } catch (error) {
-      this.logger.error(`Failed to send quiz completion notification: ${error.message}`);
+      this.logger.error(`Failed to send quiz completion notification: ${(error as Error).message}`);
     }
   }
 

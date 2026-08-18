@@ -5,6 +5,11 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
 import { JwtPayload } from '../../../common/decorators/current-user.decorator';
 
+/**
+ * Validates bearer access tokens on every guarded route. Besides verifying the
+ * JWT signature/expiry, it confirms the subject still has an account — deleted
+ * users lose access immediately even with an unexpired token.
+ */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(

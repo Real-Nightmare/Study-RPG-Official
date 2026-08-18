@@ -8,4 +8,6 @@ export enum Role {
 }
 
 export const ROLES_KEY = 'roles';
+
+/** Declares which roles may access the decorated route. */
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);

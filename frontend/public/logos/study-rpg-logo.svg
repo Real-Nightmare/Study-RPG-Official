@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Study RPG logo">
+  <defs>
+    <linearGradient id="srg-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="srg-edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="srg-book" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="srg-star" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield -->
+  <path d="M256 40 L424 104 V256 C424 340 356 404 256 448 C156 404 88 340 88 256 V104 Z"
+        fill="url(#srg-bg)" stroke="url(#srg-edge)" stroke-width="20" stroke-linejoin="round"/>
+  <!-- Inner shield line -->
+  <path d="M256 84 L392 134 V256 C392 322 336 374 256 412 C176 374 120 322 120 256 V134 Z"
+        fill="none" stroke="#f59e0b" stroke-width="6" stroke-linejoin="round" opacity="0.55"/>
+
+  <!-- Open book -->
+  <g transform="translate(256 224)">
+    <path d="M-96 8 C-64 -24 -24 -32 0 -16 C24 -32 64 -24 96 8 L96 96 C64 68 28 60 0 76 C-28 60 -64 68 -96 96 Z"
+          fill="url(#srg-book)" stroke="#92400e" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M0 -16 V76" stroke="#92400e" stroke-width="8" stroke-linecap="round"/>
+    <!-- Page lines left -->
+    <path d="M-70 28 C-48 12 -24 8 -8 14" stroke="#92400e" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M-70 48 C-48 34 -24 30 -8 36" stroke="#92400e" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- Page lines right -->
+    <path d="M70 28 C48 12 24 8 8 14" stroke="#92400e" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M70 48 C48 34 24 30 8 36" stroke="#92400e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Star (mastery) -->
+  <path d="M256 96 l14 34 36 2 -28 22 9 35 -31 -18 -31 18 9 -35 -28 -22 36 -2 Z"
+        fill="url(#srg-star)" stroke="#92400e" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- Small side stars -->
+  <path d="M140 180 l6 14 15 1 -12 9 4 15 -13 -8 -13 8 4 -15 -12 -9 15 -1 Z"
+        fill="#fbbf24" opacity="0.8"/>
+  <path d="M372 180 l6 14 15 1 -12 9 4 15 -13 -8 -13 8 4 -15 -12 -9 15 -1 Z"
+        fill="#fbbf24" opacity="0.8"/>
+</svg>

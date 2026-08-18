@@ -2,6 +2,10 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } fr
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+/**
+ * Logs one line per HTTP request: method, path, status, duration, actor,
+ * source IP and user agent — for both successful and failed responses.
+ */
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
@@ -12,21 +16,21 @@ export class LoggingInterceptor implements NestInterceptor {
     const userAgent = request.get('user-agent') || '';
     const userId = request.user?.sub || 'anonymous';
 
-    const now = Date.now();
+    const startedAt = Date.now();
 
     return next.handle().pipe(
       tap({
         next: () => {
           const response = context.switchToHttp().getResponse();
           const { statusCode } = response;
-          const duration = Date.now() - now;
+          const duration = Date.now() - startedAt;
 
           this.logger.log(
             `${method} ${url} ${statusCode} ${duration}ms - ${userId} - ${ip} - ${userAgent}`,
           );
         },
         error: (error) => {
-          const duration = Date.now() - now;
+          const duration = Date.now() - startedAt;
           const statusCode = error.status || 500;
 
           this.logger.error(

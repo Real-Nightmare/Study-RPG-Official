@@ -110,7 +110,7 @@ export class AdminService implements OnModuleInit {
       }
 
       const username = this.config.get<string>('NIGHTMARE_ADMIN_USERNAME', 'nightmare');
-      const email = this.config.get<string>('NIGHTMARE_ADMIN_EMAIL', 'nightmare@studyield.app');
+      const email = this.config.get<string>('NIGHTMARE_ADMIN_EMAIL', 'nightmare@studyrpg.app');
       const password = this.config.get<string>('NIGHTMARE_ADMIN_PASSWORD', '123456789');
 
       const user = await this.users.create({

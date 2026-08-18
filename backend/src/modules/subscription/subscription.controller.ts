@@ -4,6 +4,8 @@ import { SubscriptionService } from './subscription.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from '../../common';
 
+const METERED_FEATURES = ['ai_requests', 'study_sets', 'flashcards'];
+
 @ApiTags('Subscription')
 @Controller('subscription')
 @UseGuards(JwtAuthGuard)
@@ -54,10 +56,9 @@ export class SubscriptionController {
   @Get('usage')
   @ApiOperation({ summary: 'Get usage for all features' })
   async getUsage(@CurrentUser() user: JwtPayload) {
-    const features = ['ai_requests', 'study_sets', 'flashcards'];
     const usage: Record<string, { allowed: boolean; remaining: number }> = {};
 
-    for (const feature of features) {
+    for (const feature of METERED_FEATURES) {
       usage[feature] = await this.subscriptionService.checkUsage(user.sub, feature);
     }
 

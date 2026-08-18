@@ -50,7 +50,15 @@ const ALLOWED_AUDIO_TYPES = [
 ];
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const MAX_AUDIO_FILE_SIZE = 50 * 1024 * 1024; // 50MB for audio
+const OCR_MODEL = 'openai/gpt-4o';
+const OCR_MAX_TOKENS = 4096;
+const OCR_TEMPERATURE = 0.1;
 
+/**
+ * Converts raw study material into text: PDFs, images (OCR via vision LLM),
+ * plain text files, handwritten notes, webpages, YouTube videos (captions
+ * first, Whisper fallback), and audio uploads.
+ */
 @ApiTags('Content')
 @Controller('content')
 @UseGuards(JwtAuthGuard)
@@ -59,6 +67,7 @@ export class ContentExtractController {
   private readonly logger = new Logger(ContentExtractController.name);
 
   constructor(private readonly aiService: AiService) {}
+
   @Post('extract')
   @ApiOperation({ summary: 'Extract text from uploaded file (PDF, image, or text)' })
   @ApiConsumes('multipart/form-data')
@@ -85,17 +94,14 @@ export class ContentExtractController {
 
     const mimeType = file.mimetype.toLowerCase();
 
-    // Handle PDF files
     if (ALLOWED_PDF_TYPES.includes(mimeType)) {
       return this.extractFromPdf(file);
     }
 
-    // Handle image files (OCR)
     if (ALLOWED_IMAGE_TYPES.includes(mimeType)) {
       return this.extractFromImage(file);
     }
 
-    // Handle text files
     if (ALLOWED_TEXT_TYPES.includes(mimeType)) {
       return this.extractFromText(file);
     }
@@ -154,7 +160,7 @@ export class ContentExtractController {
             ] as unknown as string,
           },
         ],
-        { model: 'openai/gpt-4o', maxTokens: 4096, temperature: 0.1 },
+        { model: OCR_MODEL, maxTokens: OCR_MAX_TOKENS, temperature: OCR_TEMPERATURE },
       );
 
       const text = response.content.trim();
@@ -243,7 +249,7 @@ export class ContentExtractController {
               ] as unknown as string,
             },
           ],
-          { model: 'openai/gpt-4o', maxTokens: 4096, temperature: 0.1 },
+          { model: OCR_MODEL, maxTokens: OCR_MAX_TOKENS, temperature: OCR_TEMPERATURE },
         );
 
         results.push({ filename: file.originalname, text: response.content.trim() });
@@ -291,15 +297,12 @@ export class ContentExtractController {
       const html = await response.text();
       const $ = cheerio.load(html);
 
-      // Remove non-content elements
       $(
         'script, style, nav, footer, header, aside, noscript, iframe, svg, form, button, input, [role="navigation"], [role="banner"], [role="contentinfo"], .nav, .navbar, .footer, .header, .sidebar, .advertisement, .ad, .ads, .social-share, .comments',
       ).remove();
 
-      // Extract title
       const title = $('title').text().trim() || $('h1').first().text().trim() || undefined;
 
-      // Extract main content with priority
       const mainContent =
         $('article').text() ||
         $('main').text() ||
@@ -309,7 +312,6 @@ export class ContentExtractController {
         $('.entry-content').text() ||
         $('body').text();
 
-      // Clean up the text
       const text = mainContent
         .replace(/\s+/g, ' ')
         .replace(/\n{3,}/g, '\n\n')
@@ -342,7 +344,6 @@ export class ContentExtractController {
   async extractYouTube(@Body() dto: ExtractYouTubeDto): Promise<ExtractYouTubeResponseDto> {
     this.logger.log(`YouTube extraction requested for: ${dto.url}`);
 
-    // Extract video ID from various YouTube URL formats
     const videoId = this.extractYouTubeVideoId(dto.url);
     if (!videoId) {
       throw new BadRequestException(
@@ -350,7 +351,6 @@ export class ContentExtractController {
       );
     }
 
-    // First, try to get captions
     try {
       const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
 
@@ -369,14 +369,12 @@ export class ContentExtractController {
       );
     }
 
-    // Fallback: Download audio and transcribe with Whisper
     try {
       this.logger.log(`Downloading audio for video: ${videoId}`);
 
       const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
       const info = await ytdl.getInfo(videoUrl);
 
-      // Get audio-only format
       const audioFormat = ytdl.chooseFormat(info.formats, {
         quality: 'lowestaudio',
         filter: 'audioonly',
@@ -386,7 +384,6 @@ export class ContentExtractController {
         throw new Error('No audio format available');
       }
 
-      // Download audio to buffer
       const chunks: Buffer[] = [];
       const audioStream = ytdl(videoUrl, { format: audioFormat });
 
@@ -399,7 +396,6 @@ export class ContentExtractController {
       const audioBuffer = Buffer.concat(chunks);
       this.logger.log(`Audio downloaded: ${(audioBuffer.length / 1024 / 1024).toFixed(2)} MB`);
 
-      // Transcribe with Whisper
       const result = await this.aiService.transcribeAudio(
         audioBuffer,
         `${videoId}.webm`,
@@ -472,7 +468,7 @@ export class ContentExtractController {
   private extractYouTubeVideoId(url: string): string | null {
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
-      /^([a-zA-Z0-9_-]{11})$/, // Just the video ID
+      /^([a-zA-Z0-9_-]{11})$/, // bare video ID
     ];
 
     for (const pattern of patterns) {
@@ -486,11 +482,11 @@ export class ContentExtractController {
   private cleanText(text: string): string {
     return (
       text
-        // Remove excessive whitespace
+        // Collapse whitespace runs
         .replace(/\s+/g, ' ')
-        // Remove page numbers patterns
+        // Drop page-number markers
         .replace(/\b(Page|Pg\.?)\s*\d+\b/gi, '')
-        // Remove header/footer patterns
+        // Drop very short lines (likely headers/footers)
         .replace(/^.{0,50}$/gm, '')
         // Normalize line breaks
         .replace(/\n{3,}/g, '\n\n')

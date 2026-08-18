@@ -27,6 +27,10 @@ export interface FileInfo {
   contentType?: string;
 }
 
+/**
+ * Object storage adapter for Cloudflare R2 (S3-compatible API). Supports
+ * direct uploads, streaming uploads, signed URLs, and key management.
+ */
 @Injectable()
 export class StorageService implements OnModuleInit {
   private readonly logger = new Logger(StorageService.name);
@@ -36,11 +40,11 @@ export class StorageService implements OnModuleInit {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const accountId = this.configService.get<string>('R2_ACCOUNT_ID');
     const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
     const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
-    this.bucket = this.configService.get<string>('R2_BUCKET_NAME', 'studyield');
+    this.bucket = this.configService.get<string>('R2_BUCKET_NAME', 'study_rpg');
     this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL', '');
 
     this.client = new S3Client({
@@ -269,22 +273,20 @@ export class StorageService implements OnModuleInit {
   }
 
   /**
-   * Extract storage key from public URL
-   * If the URL starts with the public URL prefix, remove it to get the key
-   * Otherwise, return the URL as-is (assuming it's already a key)
+   * Turns a public URL back into a storage key. Handles three cases: URLs
+   * under our public prefix (prefix stripped), foreign absolute URLs (path
+   * extracted), and bare keys (returned untouched).
    */
   extractKeyFromUrl(url: string): string {
     if (this.publicUrl && url.startsWith(this.publicUrl)) {
       return url.replace(`${this.publicUrl}/`, '');
     }
 
-    // If it's a full URL but not our public URL, extract path after domain
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      const urlObj = new URL(url);
-      return urlObj.pathname.startsWith('/') ? urlObj.pathname.substring(1) : urlObj.pathname;
+      const parsed = new URL(url);
+      return parsed.pathname.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname;
     }
 
-    // Already a key
     return url;
   }
 

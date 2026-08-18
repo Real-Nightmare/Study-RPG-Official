@@ -22,10 +22,6 @@
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
 
-# Static brand assets and sitemap: short cache is fine
+# Static brand assets: short cache is fine
 /logos/*
   Cache-Control: public, max-age=86400
-/STUDYIELD2.png
-  Cache-Control: public, max-age=86400
-/sitemap.xml
-  Cache-Control: public, max-age=3600

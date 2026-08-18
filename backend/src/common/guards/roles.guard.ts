@@ -3,6 +3,10 @@ import { Reflector } from '@nestjs/core';
 import { ROLES_KEY, Role } from '../decorators/roles.decorator';
 import { JwtPayload } from '../decorators/current-user.decorator';
 
+/**
+ * Enforces @Roles(...) metadata on routes. When no roles are declared the
+ * route is open to any authenticated user.
+ */
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}

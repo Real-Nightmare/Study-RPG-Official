@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Documentation
-    url: https://docs.studyield.com
+  - name: Project documentation
+    url: https://github.com/Real-Nightmare/Study-RPG-Official/blob/main/docs/architecture/overview.md
     about: Check the documentation before opening an issue
-  - name: GitHub Discussions
-    url: https://github.com/studyield/studyield/discussions
-    about: Share ideas and discuss with the community
+  - name: Discussions
+    url: https://github.com/Real-Nightmare/Study-RPG-Official/discussions
+    about: Ask questions and share ideas with the community

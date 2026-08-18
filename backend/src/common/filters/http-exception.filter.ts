@@ -17,6 +17,11 @@ export interface ErrorResponse {
   details?: unknown;
 }
 
+/**
+ * Catches every exception that reaches the HTTP layer and normalises it into
+ * a consistent JSON error envelope. HttpExceptions keep their status and
+ * body; anything else becomes a logged 500.
+ */
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);

@@ -11,6 +11,10 @@ import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
 import { SubscriptionService } from '../subscription/subscription.service';
 
+/**
+ * Realtime channel for research sessions: stage-by-stage progress updates
+ * and the final report pushed to anyone subscribed to the session.
+ */
 @WebSocketGateway({ namespace: 'research', cors: { origin: '*', credentials: true } })
 @UseGuards(WsAuthGuard)
 @UseFilters(WsExceptionFilter)

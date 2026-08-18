@@ -122,9 +122,8 @@ export class NotificationsController {
     @Body() body?: { title?: string; message?: string },
   ) {
     const title = body?.title || 'Test Notification';
-    const message = body?.message || 'This is a test push notification from Studyield!';
+    const message = body?.message || 'This is a test push notification from Study RPG!';
 
-    // Create notification (this will save to DB + send WebSocket + send Push)
     const notification = await this.notificationsService.create({
       userId: user.sub,
       type: 'info',

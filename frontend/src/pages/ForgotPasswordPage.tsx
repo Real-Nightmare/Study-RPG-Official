@@ -46,7 +46,7 @@ export function ForgotPasswordPage() {
             <div className="flex flex-col items-center space-y-3">
               {/* Logo */}
               <Link to="/" className="group cursor-pointer mb-4">
-                <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-20 h-20 object-contain transition-all duration-300 group-hover:scale-110" />
+                <img src="/logos/study-rpg-logo.svg" alt="Study RPG" className="w-20 h-20 object-contain transition-all duration-300 group-hover:scale-110" />
               </Link>
 
               {isSubmitted ? (

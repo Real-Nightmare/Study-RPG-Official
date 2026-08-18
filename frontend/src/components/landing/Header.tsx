@@ -86,7 +86,7 @@ export function Header() {
         <nav className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <img src="/logos/studyield-logo.png" alt="Study RPG" className="w-12 h-12 object-contain transition-transform group-hover:scale-110" />
+            <img src="/logos/study-rpg-logo.svg" alt="Study RPG" className="w-12 h-12 object-contain transition-transform group-hover:scale-110" />
             <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
               Study RPG
             </span>

@@ -3,6 +3,10 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
+/**
+ * Global auth guard. Routes carrying @Public() are skipped; everything else
+ * must present a valid JWT resolved by the 'jwt' passport strategy.
+ */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {

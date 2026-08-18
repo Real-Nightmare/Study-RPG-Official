@@ -2,59 +2,56 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| latest  | :white_check_mark: |
+| Version | Supported |
+| ------- | --------- |
+| latest  | ✅ |
+
+Only the most recent release receives security fixes. Upgrade promptly.
 
 ## Reporting a Vulnerability
 
-We take the security of Studyield seriously. If you believe you have found a security vulnerability, please report it to us as described below.
+Security matters here — please report privately, not through public issues.
 
-**Please do NOT report security vulnerabilities through public GitHub issues.**
+### How to report
 
-### How to Report
+Email **security@study-rpg.app** (placeholder — replace with the real address) with:
 
-Send an email to [security@studyield.com](mailto:security@studyield.com) with the following information:
+- The kind of issue (SQL injection, XSS, auth bypass, SSRF, privilege escalation, ...)
+- File paths of the affected source
+- The commit/tag where the problem lives
+- Any special configuration needed to reproduce it
+- Step-by-step reproduction steps
+- A proof-of-concept or exploit sketch, if you have one
 
-- Type of issue (e.g., SQL injection, XSS, authentication bypass, etc.)
-- Full paths of source file(s) related to the issue
-- The location of the affected source code (tag/branch/commit or direct URL)
-- Any special configuration required to reproduce the issue
-- Step-by-step instructions to reproduce the issue
-- Proof-of-concept or exploit code (if possible)
-- Impact of the issue, including how an attacker might exploit it
+### What happens next
 
-### What to Expect
+- **Acknowledgment** within 48 hours.
+- **Initial assessment** within 5 business days.
+- **Critical fixes** targeted within 30 days of disclosure.
+- We coordinate with you on public disclosure timing.
 
-- **Acknowledgment**: We will acknowledge your report within **48 hours**.
-- **Assessment**: We will provide an initial assessment of the report within **5 business days**.
-- **Resolution**: We aim to resolve critical vulnerabilities within **30 days** of disclosure.
-- **Disclosure**: We will coordinate with you on the timing of public disclosure.
+### Safe harbour
 
-### Safe Harbor
+We will not pursue legal action against researchers who:
 
-We support safe harbor for security researchers who:
+- Act in good faith and avoid harming users or destroying data,
+- Only touch accounts they own or have explicit permission to test,
+- Do not use an issue beyond verifying it, and
+- Report promptly after discovery.
 
-- Make a good faith effort to avoid privacy violations, destruction of data, and interruption or degradation of our services.
-- Only interact with accounts you own or with explicit permission of the account holder.
-- Do not exploit a security issue for purposes other than verification.
-- Report the vulnerability promptly after discovery.
+## Hardening checklist for self-hosters
 
-We will not pursue legal action against researchers who follow these guidelines.
-
-## Security Best Practices for Self-Hosting
-
-When deploying Studyield, please ensure:
-
-1. **Environment Variables**: Never commit `.env` files. Use the provided `.env.example` as a template.
-2. **JWT Secrets**: Always set strong, unique `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` in production (min 32 characters).
-3. **Database**: Use strong passwords and restrict network access to your PostgreSQL, Redis, Qdrant, and ClickHouse instances.
-4. **HTTPS**: Always use HTTPS in production with valid SSL certificates.
-5. **Updates**: Keep your Studyield installation and dependencies up to date.
-6. **Firebase**: Keep Firebase credentials secure and restrict API key permissions.
-7. **File Uploads**: Configure appropriate file size limits and validate file types.
-8. **CORS**: Restrict `CORS_ORIGINS` to only your frontend domain in production.
+1. **Secrets**: never commit `.env` files; copy `.env.example` and fill it in.
+2. **JWT**: set strong unique `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` (≥32 chars) in production.
+3. **Data stores**: strong passwords; keep PostgreSQL, Redis, Qdrant and ClickHouse off the public network.
+4. **TLS**: HTTPS everywhere in production.
+5. **Updates**: keep the platform and its dependencies current.
+6. **Firebase**: restrict API-key permissions and keep credentials private.
+7. **Uploads**: enforce size limits and validate file types.
+8. **CORS**: scope `CORS_ORIGINS` to your own frontend domain.
+9. **Ocean marketplace**: never configure a funded wallet on an untrusted host; the publish key signs on-chain transactions.
 
 ## Dependencies
 
-We use [Dependabot](https://github.com/dependabot) to monitor and update dependencies with known vulnerabilities.
+[Dependabot](https://github.com/dependabot) monitors our dependencies for known
+vulnerabilities and opens automated PRs when a fix is published.

@@ -28,9 +28,17 @@ export interface PerformanceMetrics {
   weakTopics: string[];
 }
 
+/**
+ * Aggregates learning statistics for a user. Postgres holds the durable
+ * counters (study sets, quiz attempts); ClickHouse provides the daily
+ * activity stream used for streaks and study time. ClickHouse is treated as
+ * optional — every read falls back gracefully when it is unavailable.
+ */
 @Injectable()
 export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name);
+  /** Rough conversion: each recorded activity row ≈ 5 minutes of study. */
+  private readonly minutesPerActivity = 5;
 
   constructor(
     private readonly db: DatabaseService,
@@ -71,13 +79,13 @@ export class AnalyticsService {
       let activity: Array<{ date: string; count: number }> = [];
       try {
         activity = await this.clickhouse.getUserActivity(userId, 30);
-      } catch (e) {
-        this.logger.warn(`ClickHouse unavailable: ${e.message}`);
+      } catch (error) {
+        this.logger.warn(`ClickHouse unavailable: ${(error as Error).message}`);
       }
       const streak = this.calculateStreak(activity);
 
       return {
-        totalStudyTime: activity.reduce((sum, a) => sum + a.count, 0) * 5,
+        totalStudyTime: activity.reduce((sum, day) => sum + day.count, 0) * this.minutesPerActivity,
         studySetsCreated: parseInt(studySets?.count || '0', 10),
         flashcardsReviewed: parseInt(flashcards?.count || '0', 10),
         quizzesTaken: parseInt(quizzes?.count || '0', 10),
@@ -86,8 +94,8 @@ export class AnalyticsService {
         longestStreak: streak.longest,
         lastStudyDate: activity.length > 0 ? new Date(activity[activity.length - 1].date) : null,
       };
-    } catch (e) {
-      this.logger.error(`Failed to get user analytics: ${e.message}`);
+    } catch (error) {
+      this.logger.error(`Failed to get user analytics: ${(error as Error).message}`);
       return {
         totalStudyTime: 0,
         studySetsCreated: 0,
@@ -105,20 +113,20 @@ export class AnalyticsService {
     let activity: Array<{ date: string; count: number }> = [];
     try {
       activity = await this.clickhouse.getUserActivity(userId, days);
-    } catch (e) {
-      this.logger.warn(`ClickHouse unavailable for study activity: ${e.message}`);
+    } catch (error) {
+      this.logger.warn(`ClickHouse unavailable for study activity: ${(error as Error).message}`);
     }
 
-    return activity.map((a) => ({
-      date: a.date,
-      studyTime: a.count * 5,
+    return activity.map((day) => ({
+      date: day.date,
+      studyTime: day.count * this.minutesPerActivity,
       flashcardsReviewed: 0,
       quizzesTaken: 0,
     }));
   }
 
   async getPerformanceMetrics(userId: string): Promise<PerformanceMetrics> {
-    const flashcardStats = await this.db.queryOne<{ total: string; correct: string }>(
+    const answerStats = await this.db.queryOne<{ total: string; correct: string }>(
       `SELECT
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE is_correct) as correct
@@ -128,8 +136,8 @@ export class AnalyticsService {
       [userId],
     );
 
-    const total = parseInt(flashcardStats?.total || '0', 10);
-    const correct = parseInt(flashcardStats?.correct || '0', 10);
+    const total = parseInt(answerStats?.total || '0', 10);
+    const correct = parseInt(answerStats?.correct || '0', 10);
 
     return {
       flashcardAccuracy: total > 0 ? (correct / total) * 100 : 0,
@@ -161,49 +169,52 @@ export class AnalyticsService {
     };
   }
 
+  /**
+   * Computes current and longest day-streaks from a per-day activity series.
+   * Only days with activity count; a missing day resets the run.
+   */
   private calculateStreak(activity: Array<{ date: string; count: number }>): {
     current: number;
     longest: number;
   } {
     if (activity.length === 0) return { current: 0, longest: 0 };
 
-    let current = 0;
+    const activeDays = [...activity]
+      .filter((day) => day.count > 0)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    if (activeDays.length === 0) return { current: 0, longest: 0 };
+
     let longest = 0;
-    let streak = 0;
-    let lastDate: Date | null = null;
+    let running = 0;
+    let previous: Date | null = null;
 
-    const sortedActivity = [...activity].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    );
-
-    for (const a of sortedActivity) {
-      if (a.count === 0) continue;
-
-      const date = new Date(a.date);
-      if (lastDate) {
-        const diff = Math.floor((date.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (diff === 1) {
-          streak++;
-        } else {
-          longest = Math.max(longest, streak);
-          streak = 1;
-        }
+    for (const day of activeDays) {
+      const date = this.normalizeDate(day.date);
+      if (previous) {
+        const gapDays = this.diffInDays(previous, date);
+        running = gapDays === 1 ? running + 1 : 1;
       } else {
-        streak = 1;
+        running = 1;
       }
-      lastDate = date;
+      longest = Math.max(longest, running);
+      previous = date;
     }
 
-    longest = Math.max(longest, streak);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (lastDate) {
-      lastDate.setHours(0, 0, 0, 0);
-      const diff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-      current = diff <= 1 ? streak : 0;
-    }
+    const today = this.normalizeDate(new Date());
+    const lastGap = previous ? this.diffInDays(previous, today) : Number.MAX_SAFE_INTEGER;
+    const current = lastGap <= 1 ? running : 0;
 
     return { current, longest };
+  }
+
+  private normalizeDate(value: string | Date): Date {
+    const date = value instanceof Date ? value : new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  private diffInDays(from: Date, to: Date): number {
+    return Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
   }
 }

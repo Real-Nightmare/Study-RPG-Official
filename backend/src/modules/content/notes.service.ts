@@ -21,6 +21,10 @@ export interface Note {
   updatedAt: Date;
 }
 
+/**
+ * Study notes inside a study set. All access is ownership-gated through the
+ * parent study set. Also generates hierarchical mind maps from note content.
+ */
 @Injectable()
 export class NotesService {
   private readonly logger = new Logger(NotesService.name);
@@ -31,7 +35,6 @@ export class NotesService {
   ) {}
 
   async create(userId: string, dto: CreateNoteDto): Promise<Note> {
-    // Verify study set ownership
     await this.verifyStudySetOwnership(dto.studySetId, userId);
 
     const id = uuidv4();
@@ -81,7 +84,6 @@ export class NotesService {
   }
 
   async findByStudySet(studySetId: string, userId: string): Promise<Note[]> {
-    // Verify access
     await this.verifyStudySetOwnership(studySetId, userId);
 
     const results = await this.db.queryMany<Note>(
@@ -91,55 +93,43 @@ export class NotesService {
       [studySetId],
     );
 
-    return results.map((r) => this.mapNote(r));
+    return results.map((row) => this.mapNote(row));
   }
 
   async update(id: string, userId: string, dto: UpdateNoteDto): Promise<Note> {
     await this.verifyOwnership(id, userId);
 
-    const updates: string[] = [];
+    const assignments: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
 
-    if (dto.title !== undefined) {
-      updates.push(`title = $${paramIndex++}`);
-      values.push(dto.title);
-    }
-    if (dto.content !== undefined) {
-      updates.push(`content = $${paramIndex++}`);
-      values.push(dto.content);
-    }
-    if (dto.contentJson !== undefined) {
-      updates.push(`content_json = $${paramIndex++}`);
-      values.push(JSON.stringify(dto.contentJson));
-    }
-    if (dto.summary !== undefined) {
-      updates.push(`summary = $${paramIndex++}`);
-      values.push(dto.summary);
-    }
-    if (dto.tags !== undefined) {
-      updates.push(`tags = $${paramIndex++}`);
-      values.push(JSON.stringify(dto.tags));
-    }
-    if (dto.isPinned !== undefined) {
-      updates.push(`is_pinned = $${paramIndex++}`);
-      values.push(dto.isPinned);
-    }
-    if (dto.color !== undefined) {
-      updates.push(`color = $${paramIndex++}`);
-      values.push(dto.color);
+    const fieldAssignments: Array<[keyof UpdateNoteDto, string, (v: unknown) => unknown]> = [
+      ['title', 'title', (v) => v],
+      ['content', 'content', (v) => v],
+      ['contentJson', 'content_json', (v) => JSON.stringify(v)],
+      ['summary', 'summary', (v) => v],
+      ['tags', 'tags', (v) => JSON.stringify(v)],
+      ['isPinned', 'is_pinned', (v) => v],
+      ['color', 'color', (v) => v],
+    ];
+
+    for (const [key, column, transform] of fieldAssignments) {
+      if (dto[key] !== undefined) {
+        assignments.push(`${column} = $${paramIndex++}`);
+        values.push(transform(dto[key]));
+      }
     }
 
-    if (updates.length === 0) {
+    if (assignments.length === 0) {
       return this.findByIdWithAccess(id, userId);
     }
 
-    updates.push(`updated_at = $${paramIndex++}`);
+    assignments.push(`updated_at = $${paramIndex++}`);
     values.push(new Date());
     values.push(id);
 
     const result = await this.db.queryOne<Note>(
-      `UPDATE notes SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      `UPDATE notes SET ${assignments.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
       values,
     );
 

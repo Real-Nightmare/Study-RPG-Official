@@ -2,6 +2,11 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
+/**
+ * Thin wrapper around a single ioredis client. Used for caching, rate-limit
+ * counters, presence state, and pub/sub. All operations mirror the raw Redis
+ * commands; callers stay agnostic of the client library.
+ */
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
@@ -9,18 +14,18 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     this.client = new Redis({
       host: this.configService.get<string>('REDIS_HOST'),
       port: this.configService.get<number>('REDIS_PORT'),
       password: this.configService.get<string>('REDIS_PASSWORD') || undefined,
       db: this.configService.get<number>('REDIS_DB', 0),
-      retryStrategy: (times) => {
-        if (times > 3) {
+      retryStrategy: (attempt) => {
+        if (attempt > 3) {
           this.logger.error('Redis connection failed after 3 retries');
           return null;
         }
-        return Math.min(times * 200, 2000);
+        return Math.min(attempt * 200, 2000);
       },
     });
 
@@ -33,11 +38,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     await this.client.quit();
     this.logger.log('Redis connection closed');
   }
 
+  /** Raw client access for one-off commands not covered by helpers. */
   getClient(): Redis {
     return this.client;
   }
@@ -59,8 +65,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async exists(key: string): Promise<boolean> {
-    const result = await this.client.exists(key);
-    return result === 1;
+    const count = await this.client.exists(key);
+    return count === 1;
   }
 
   async expire(key: string, ttlSeconds: number): Promise<void> {
@@ -116,19 +122,20 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async sismember(key: string, member: string): Promise<boolean> {
-    const result = await this.client.sismember(key, member);
-    return result === 1;
+    const present = await this.client.sismember(key, member);
+    return present === 1;
   }
 
   async publish(channel: string, message: string): Promise<void> {
     await this.client.publish(channel, message);
   }
 
+  /** Reads a JSON-serialised value; returns null for missing or corrupt data. */
   async getJson<T>(key: string): Promise<T | null> {
-    const value = await this.get(key);
-    if (!value) return null;
+    const raw = await this.get(key);
+    if (!raw) return null;
     try {
-      return JSON.parse(value) as T;
+      return JSON.parse(raw) as T;
     } catch {
       return null;
     }

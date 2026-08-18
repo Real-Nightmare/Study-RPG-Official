@@ -1,17 +1,17 @@
-# Studyield - Full Stack Setup
+# Study RPG — full-stack compose setup
 # Usage: docker compose --env-file .env.docker up
-# Then visit http://localhost:5189 (frontend) and http://localhost:3010 (backend API)
+# Frontend: http://localhost:5189   Backend API: http://localhost:3010
 #
-# Images are pinned to current stable versions (Aug 2026):
+# Images are pinned to stable releases (Aug 2026):
 #   postgres 18.4, redis 8.10, qdrant v1.19.0, clickhouse 26.7.3.19-stable,
 #   nginx 1.30.4-alpine, node 24-alpine (build stage)
 #
-# SSH debug into the app containers (always on, key-based):
+# SSH debug (always on, key-based) into the app containers:
 #   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${BACKEND_SSH_PORT:-3022}   # backend
 #   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${FRONTEND_SSH_PORT:-3222}  # frontend
-#   The debug public key is baked into the images; the private key stays out
-#   of the repo. SSH_PASSWORD / SSH_PUBLIC_KEY add extra auth at runtime.
-#   Keep the SSH ports bound to localhost/a VPN; do not expose them publicly.
+# The debug public key is baked into the images; the private key is never in
+# the repo. SSH_PASSWORD / SSH_PUBLIC_KEY add extra auth at runtime. Keep the
+# SSH ports bound to localhost or a VPN — do not expose them publicly.
 
 services:
   # --- Infrastructure -----------------------------------------------

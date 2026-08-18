@@ -38,6 +38,11 @@ export interface UpdateStudySetDto {
   examSubject?: string;
 }
 
+/**
+ * Study sets: the container holding flashcards, notes, and documents. Public
+ * sets are readable by anyone; private sets require ownership. Duplication
+ * copies the set and its flashcards (never notes/documents).
+ */
 @Injectable()
 export class StudySetsService {
   private readonly logger = new Logger(StudySetsService.name);
@@ -118,7 +123,7 @@ export class StudySetsService {
     ]);
 
     return {
-      data: results.map((r) => this.mapStudySet(r)),
+      data: results.map((row) => this.mapStudySet(row)),
       total: parseInt(countResult?.count || '0', 10),
     };
   }
@@ -155,7 +160,7 @@ export class StudySetsService {
     ]);
 
     return {
-      data: results.map((r) => this.mapStudySet(r)),
+      data: results.map((row) => this.mapStudySet(row)),
       total: parseInt(countResult?.count || '0', 10),
     };
   }
@@ -169,45 +174,33 @@ export class StudySetsService {
       throw new ForbiddenException('Access denied');
     }
 
-    const updates: string[] = [];
+    const assignments: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
 
-    if (dto.title !== undefined) {
-      updates.push(`title = $${paramIndex++}`);
-      values.push(dto.title);
-    }
-    if (dto.description !== undefined) {
-      updates.push(`description = $${paramIndex++}`);
-      values.push(dto.description);
-    }
-    if (dto.isPublic !== undefined) {
-      updates.push(`is_public = $${paramIndex++}`);
-      values.push(dto.isPublic);
-    }
-    if (dto.tags !== undefined) {
-      updates.push(`tags = $${paramIndex++}`);
-      values.push(JSON.stringify(dto.tags));
-    }
-    if (dto.coverImageUrl !== undefined) {
-      updates.push(`cover_image_url = $${paramIndex++}`);
-      values.push(dto.coverImageUrl);
-    }
-    if (dto.examDate !== undefined) {
-      updates.push(`exam_date = $${paramIndex++}`);
-      values.push(dto.examDate || null);
-    }
-    if (dto.examSubject !== undefined) {
-      updates.push(`exam_subject = $${paramIndex++}`);
-      values.push(dto.examSubject || null);
+    const fieldAssignments: Array<[keyof UpdateStudySetDto, string, (v: unknown) => unknown]> = [
+      ['title', 'title', (v) => v],
+      ['description', 'description', (v) => v],
+      ['isPublic', 'is_public', (v) => v],
+      ['tags', 'tags', (v) => JSON.stringify(v)],
+      ['coverImageUrl', 'cover_image_url', (v) => v],
+      ['examDate', 'exam_date', (v) => v || null],
+      ['examSubject', 'exam_subject', (v) => v || null],
+    ];
+
+    for (const [key, column, transform] of fieldAssignments) {
+      if (dto[key] !== undefined) {
+        assignments.push(`${column} = $${paramIndex++}`);
+        values.push(transform(dto[key]));
+      }
     }
 
-    updates.push(`updated_at = $${paramIndex++}`);
+    assignments.push(`updated_at = $${paramIndex++}`);
     values.push(new Date());
     values.push(id);
 
     const result = await this.db.queryOne<StudySet>(
-      `UPDATE study_sets SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      `UPDATE study_sets SET ${assignments.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
       values,
     );
 

@@ -45,6 +45,13 @@ export interface SearchResult {
   metadata: Record<string, unknown>;
 }
 
+/**
+ * Per-user RAG knowledge bases. Documents are processed through a queue into
+ * chunks, deduplicated by content hash, embedded, and stored in Qdrant with
+ * versioned payloads. Retrieval is hybrid (dense + lexical) with optional
+ * cross-encoder reranking; the background reindex pipeline re-embeds when the
+ * embedding model version changes.
+ */
 @Injectable()
 export class KnowledgeBaseService {
   private readonly logger = new Logger(KnowledgeBaseService.name);
@@ -65,8 +72,7 @@ export class KnowledgeBaseService {
     this.vectorDimension = this.embeddingService.getVectorDimension();
   }
 
-  async onModuleInit() {
-    // Wait for Qdrant to initialize (non-blocking if it fails)
+  async onModuleInit(): Promise<void> {
     const qdrantReady = await this.qdrantService.waitForInit(5000);
     if (qdrantReady) {
       const collection = await this.collectionResolver.activeCollectionName();
@@ -124,7 +130,7 @@ export class KnowledgeBaseService {
        ORDER BY kb.updated_at DESC`,
       [userId],
     );
-    return results.map((r) => this.mapKnowledgeBase(r));
+    return results.map((row) => this.mapKnowledgeBase(row));
   }
 
   async addDocument(
@@ -162,8 +168,8 @@ export class KnowledgeBaseService {
 
       await this.updateDocumentIngestion(documentId, 'chunking');
 
-      // Content hashing (master prompt §8.4) — skip chunks already indexed
-      // for this knowledge base so identical content is never re-embedded.
+      // Content hashing — skip chunks already indexed for this knowledge base
+      // so identical content is never re-embedded.
       const hashes = hashChunks(chunks);
       const existing = await this.db.queryMany<{ content_hash: string }>(
         `SELECT content_hash FROM kb_chunks WHERE knowledge_base_id = $1 AND content_hash = ANY($2)`,
@@ -420,8 +426,8 @@ export class KnowledgeBaseService {
   }
 
   /**
-   * Persists the per-document ingestion state (master prompt §8.3) plus
-   * failure details and a bounded retry history.
+   * Persists the per-document ingestion state plus failure details and a
+   * bounded retry history.
    */
   private async updateDocumentIngestion(
     documentId: string,

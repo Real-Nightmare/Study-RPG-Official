@@ -16,6 +16,22 @@ This repository is the **Studyield** open-source project — an AI-powered learn
 3. **Mark modified files appropriately.** When substantially modifying upstream files, note the modification where practical (e.g. in commit messages and PR descriptions).
 4. **Licence**: this project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)** — see `LICENSE` and `docs/architecture/decisions/0001-licence-decision.md`.
 
+## File Provenance Inventory
+
+`docs/audits/UPSTREAM_FILE_INVENTORY.md` maps every file imported from the
+upstream Studyield project (405 files from the initial import commit,
+133 of them later modified by Study RPG work) so the fork's provenance stays
+fully auditable. Regeneration commands are included in that document.
+
+## Clean-Room Rewrite Program
+
+`docs/audits/REWRITE_LEDGER.md` tracks the owner-commissioned clean-room
+rewrite of all 405 upstream files into original Study RPG work. The AGPL-3.0
+`LICENSE` and the upstream attribution in `NOTICE` remain in place and are
+**only removed as the final, gated step once the ledger shows zero unresolved
+upstream files**. Until then, the AGPL terms continue to apply to every file
+still derived from upstream.
+
 ## Original Content Requirement (Study RPG)
 
 All Study RPG characters, card names, lore, and artwork must be **original creations**. Do not use copyrighted characters or artwork from The Amazing Digital Circus or any other third party. "Abstraction" may remain a general conceptual inspiration only; the implementation must use original terminology, writing, and visual design.

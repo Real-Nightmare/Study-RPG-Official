@@ -11,6 +11,10 @@ import { CodeSandboxService, ExecuteCodeDto } from './code-sandbox.service';
 import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 import { WsExceptionFilter } from '../../common/filters/ws-exception.filter';
 
+/**
+ * Socket entry point for running code: streams execution output chunks to
+ * the client as `execution:output` and signals completion.
+ */
 @WebSocketGateway({ namespace: 'code-sandbox', cors: { origin: '*', credentials: true } })
 @UseGuards(WsAuthGuard)
 @UseFilters(WsExceptionFilter)

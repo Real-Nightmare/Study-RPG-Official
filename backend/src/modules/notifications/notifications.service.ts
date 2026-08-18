@@ -35,6 +35,20 @@ export interface NotificationPreferences {
   achievementAlerts: boolean;
 }
 
+const DEFAULT_PREFERENCES: NotificationPreferences = {
+  email: true,
+  push: true,
+  inApp: true,
+  studyReminders: true,
+  weeklyDigest: true,
+  achievementAlerts: true,
+};
+
+/**
+ * Notification pipeline: persisted row + real-time WebSocket push + native
+ * (FCM) and standards-based (VAPID web push, Phase 9) delivery. Every push
+ * channel is best-effort — failures are logged, never thrown to the caller.
+ */
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
@@ -57,7 +71,6 @@ export class NotificationsService {
       [id, dto.userId, dto.type, dto.title, dto.message, dto.link || null, new Date()],
     );
 
-    // Send real-time notification via WebSocket
     this.appGateway.notifyUser(dto.userId, {
       type: dto.type,
       title: dto.title,
@@ -67,7 +80,6 @@ export class NotificationsService {
       createdAt: new Date().toISOString(),
     });
 
-    // Send push notification
     await this.sendPushNotification(dto.userId, dto.title, dto.message, {
       notificationId: id,
       type: dto.type,
@@ -106,7 +118,7 @@ export class NotificationsService {
     ]);
 
     return {
-      data: results.map((r) => this.mapNotification(r)),
+      data: results.map((row) => this.mapNotification(row)),
       total: parseInt(countResult?.count || '0', 10),
       unreadCount: parseInt(unreadResult?.count || '0', 10),
     };
@@ -141,19 +153,16 @@ export class NotificationsService {
     );
 
     const prefs = result as unknown as Record<string, unknown>;
-    const preferences = prefs?.preferences
+    const stored = prefs?.preferences
       ? typeof prefs.preferences === 'string'
         ? JSON.parse(prefs.preferences)
         : prefs.preferences
       : {};
 
+    const userPrefs = stored.notifications ?? {};
     return {
-      email: preferences.notifications?.email ?? true,
-      push: preferences.notifications?.push ?? true,
-      inApp: preferences.notifications?.inApp ?? true,
-      studyReminders: preferences.notifications?.studyReminders ?? true,
-      weeklyDigest: preferences.notifications?.weeklyDigest ?? true,
-      achievementAlerts: preferences.notifications?.achievementAlerts ?? true,
+      ...DEFAULT_PREFERENCES,
+      ...userPrefs,
     };
   }
 
@@ -194,20 +203,17 @@ export class NotificationsService {
 
   async registerFCMToken(userId: string, fcmToken: string, platform: string): Promise<void> {
     try {
-      // Check if token already exists
       const existing = await this.db.queryOne(
         'SELECT id FROM user_fcm_tokens WHERE user_id = $1 AND fcm_token = $2',
         [userId, fcmToken],
       );
 
       if (existing) {
-        // Update last_used timestamp
         await this.db.query(
           'UPDATE user_fcm_tokens SET last_used = $1 WHERE user_id = $2 AND fcm_token = $3',
           [new Date(), userId, fcmToken],
         );
       } else {
-        // Insert new token
         await this.db.query(
           `INSERT INTO user_fcm_tokens (id, user_id, fcm_token, platform, created_at, last_used)
            VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -217,7 +223,7 @@ export class NotificationsService {
 
       this.logger.debug(`FCM token registered for user ${userId}`);
     } catch (error) {
-      this.logger.error(`Error registering FCM token: ${error.message}`);
+      this.logger.error(`Error registering FCM token: ${(error as Error).message}`);
     }
   }
 
@@ -229,7 +235,7 @@ export class NotificationsService {
       ]);
       this.logger.debug(`FCM token unregistered for user ${userId}`);
     } catch (error) {
-      this.logger.error(`Error unregistering FCM token: ${error.message}`);
+      this.logger.error(`Error unregistering FCM token: ${(error as Error).message}`);
     }
   }
 
@@ -239,9 +245,9 @@ export class NotificationsService {
         'SELECT fcm_token FROM user_fcm_tokens WHERE user_id = $1',
         [userId],
       );
-      return results.map((r) => r.fcm_token);
+      return results.map((row) => row.fcm_token);
     } catch (error) {
-      this.logger.error(`Error fetching FCM tokens: ${error.message}`);
+      this.logger.error(`Error fetching FCM tokens: ${(error as Error).message}`);
       return [];
     }
   }
@@ -253,21 +259,18 @@ export class NotificationsService {
     data?: Record<string, string>,
   ): Promise<void> {
     try {
-      // Get user's notification preferences
       const prefs = await this.getPreferences(userId);
       if (!prefs.push) {
         this.logger.debug(`Push notifications disabled for user ${userId}`);
         return;
       }
 
-      // Get user's FCM tokens
       const tokens = await this.getUserFCMTokens(userId);
       if (tokens.length === 0) {
         this.logger.debug(`No FCM tokens found for user ${userId}`);
         return;
       }
 
-      // Send push notification to all user's devices
       const successCount = await this.firebase.sendToMultipleDevices(tokens, title, body, data);
       this.logger.debug(
         `Sent push notification to ${successCount}/${tokens.length} devices for user ${userId}`,
@@ -283,7 +286,7 @@ export class NotificationsService {
         this.logger.warn(`Web push send failed: ${(error as Error).message}`);
       }
     } catch (error) {
-      this.logger.error(`Error sending push notification: ${error.message}`);
+      this.logger.error(`Error sending push notification: ${(error as Error).message}`);
     }
   }
 

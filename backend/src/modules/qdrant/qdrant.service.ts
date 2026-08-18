@@ -20,6 +20,11 @@ export interface CollectionInfo {
   pointsCount: number;
 }
 
+/**
+ * Vector-store adapter for Qdrant. Initialisation happens in the background so
+ * a slow (or absent) Qdrant never blocks application boot; every operation
+ * degrades to a no-op/empty result when the store is unavailable.
+ */
 @Injectable()
 export class QdrantService implements OnModuleInit {
   private readonly logger = new Logger(QdrantService.name);
@@ -31,11 +36,10 @@ export class QdrantService implements OnModuleInit {
 
   constructor(private readonly configService: ConfigService) {
     this.hostConfigured = !!this.configService.get<string>('QDRANT_HOST');
-    this.collectionPrefix = this.configService.get<string>('QDRANT_COLLECTION_PREFIX', 'studyield');
+    this.collectionPrefix = this.configService.get<string>('QDRANT_COLLECTION_PREFIX', 'study_rpg');
   }
 
-  async onModuleInit() {
-    // Initialize Qdrant in background to not block app startup
+  async onModuleInit(): Promise<void> {
     this.initializeQdrantAsync();
   }
 
@@ -76,7 +80,7 @@ export class QdrantService implements OnModuleInit {
 
     this.client = new QdrantClient(clientConfig as ConstructorParameters<typeof QdrantClient>[0]);
 
-    // Validate connection
+    // Validate the connection before declaring ourselves ready.
     const collections = await this.client.getCollections();
     this.initialized = true;
     this.logger.log(`Qdrant connected. Found ${collections.collections.length} collections`);
@@ -317,8 +321,8 @@ export class QdrantService implements OnModuleInit {
   }
 
   /**
-   * Scrolls points page by page (used by the background reindex pipeline).
-   * `offset` is the last point id of the previous page.
+   * Pages through all points in a collection (used by the background reindex
+   * pipeline). `offset` should be the last point id of the previous page.
    */
   async scrollPoints(
     collectionName: string,

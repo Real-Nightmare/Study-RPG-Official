@@ -46,6 +46,16 @@ export interface UpdateUserDto {
   preferences?: Record<string, unknown>;
 }
 
+const XP_LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5500, 7500, 10000];
+const DEFAULT_DAILY_XP_GOAL = 100;
+/** Event types that reflect genuine studying (score double faction points). */
+const STUDY_XP_TYPES = ['task_completed', 'quiz_attempt', 'study_session', 'focus_session'];
+
+/**
+ * User accounts: CRUD, credential lookups, profile updates, streaks, and the
+ * gamification ledger. XP events also feed faction scores (Phase 6) so that
+ * studying — not battling — is what advances faction rewards.
+ */
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
@@ -130,54 +140,53 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const updates: string[] = [];
+    const assignments: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
 
-    if (dto.name !== undefined) {
-      updates.push(`name = $${paramIndex++}`);
-      values.push(dto.name);
-    }
-    if (dto.username !== undefined) {
-      updates.push(`username = $${paramIndex++}`);
-      values.push(dto.username.toLowerCase());
-    }
-    if (dto.email !== undefined) {
-      updates.push(`email = $${paramIndex++}`);
-      values.push(dto.email.toLowerCase());
-    }
-    if (dto.avatarUrl !== undefined) {
-      updates.push(`avatar_url = $${paramIndex++}`);
-      values.push(dto.avatarUrl);
-    }
-    if (dto.educationLevel !== undefined) {
-      updates.push(`education_level = $${paramIndex++}`);
-      values.push(dto.educationLevel);
-    }
-    if (dto.subjects !== undefined) {
-      updates.push(`subjects = $${paramIndex++}`);
-      values.push(JSON.stringify(dto.subjects));
-    }
-    if (dto.profileCompleted !== undefined) {
-      updates.push(`profile_completed = $${paramIndex++}`);
-      values.push(dto.profileCompleted);
-    }
-    if (dto.preferences !== undefined) {
-      updates.push(`preferences = $${paramIndex++}`);
-      values.push(JSON.stringify(dto.preferences));
+    const fieldAssignments: Array<[keyof UpdateUserDto, string]> = [
+      ['name', 'name'],
+      ['username', 'username'],
+      ['email', 'email'],
+      ['avatarUrl', 'avatar_url'],
+      ['educationLevel', 'education_level'],
+      ['subjects', 'subjects'],
+      ['profileCompleted', 'profile_completed'],
+      ['preferences', 'preferences'],
+    ];
+
+    for (const [key, column] of fieldAssignments) {
+      if (dto[key] !== undefined) {
+        assignments.push(`${column} = $${paramIndex++}`);
+        values.push(this.serializeField(key, dto[key]));
+      }
     }
 
-    updates.push(`updated_at = $${paramIndex++}`);
+    assignments.push(`updated_at = $${paramIndex++}`);
     values.push(new Date());
-
     values.push(id);
 
     const result = await this.db.queryOne<User>(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      `UPDATE users SET ${assignments.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
       values,
     );
 
     return this.mapUser(result!);
+  }
+
+  private serializeField(key: keyof UpdateUserDto, value: unknown): unknown {
+    switch (key) {
+      case 'username':
+        return (value as string).toLowerCase();
+      case 'email':
+        return (value as string).toLowerCase();
+      case 'subjects':
+        return JSON.stringify(value);
+      case 'preferences':
+        return JSON.stringify(value);
+      default:
+        return value;
+    }
   }
 
   async updatePassword(id: string, hashedPassword: string): Promise<void> {
@@ -266,8 +275,6 @@ export class UsersService {
     nextLevelXp: number;
     currentLevelXp: number;
   }> {
-    const LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5500, 7500, 10000];
-
     const [xpResult, dailyXpResult, streak] = await Promise.all([
       this.db
         .queryOne<{
@@ -288,23 +295,16 @@ export class UsersService {
     const totalXp = parseInt((xpResult as { total_xp: string })?.total_xp || '0', 10);
     const dailyXp = parseInt((dailyXpResult as { daily_xp: string })?.daily_xp || '0', 10);
 
-    // Compute level
-    let level = 0;
-    for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-      if (totalXp >= LEVEL_THRESHOLDS[i]) {
-        level = i;
-        break;
-      }
-    }
-    const currentLevelXp = LEVEL_THRESHOLDS[level] || 0;
-    const nextLevelXp = LEVEL_THRESHOLDS[level + 1] || LEVEL_THRESHOLDS[level] + 2500;
+    const level = this.levelForXp(totalXp);
+    const currentLevelXp = XP_LEVEL_THRESHOLDS[level] || 0;
+    const nextLevelXp = XP_LEVEL_THRESHOLDS[level + 1] || XP_LEVEL_THRESHOLDS[level] + 2500;
 
     return {
       totalXp,
       level,
       streakDays: streak,
       dailyXp,
-      dailyGoal: 100,
+      dailyGoal: DEFAULT_DAILY_XP_GOAL,
       nextLevelXp,
       currentLevelXp,
     };
@@ -316,8 +316,8 @@ export class UsersService {
         `INSERT INTO user_xp_events (id, user_id, type, xp, created_at) VALUES ($1, $2, $3, $4, $5)`,
         [uuidv4(), id, type, xp, new Date()],
       );
-      // Phase 6: every study-XP event contributes to the user's faction score.
-      // Battles earn xp too, but study-driven events carry the bulk of points.
+      // Phase 6: every study-XP event also contributes to the user's faction
+      // score — battles earn XP too, but study-driven events carry the bulk.
       await this.creditFactionScore(id, type, xp);
     } catch (error) {
       this.logger.warn(`Failed to record XP event: ${error}`);
@@ -326,38 +326,45 @@ export class UsersService {
 
   /**
    * Credits a user's faction with points for study activity (Phase 6).
-   * Study events (tasks, quizzes, sessions) score higher than battle xp so
-   * studying — not grinding RPG — is what wins faction rewards.
+   * Study events (tasks, quizzes, sessions) score double; battle/duel XP
+   * counts half — so studying is what wins faction rewards.
    */
   private async creditFactionScore(userId: string, type: string, xp: number): Promise<void> {
     try {
       if (!xp || xp <= 0) return;
 
-      const faction = await this.db.queryOne<{ faction_id: string }>(
+      const membership = await this.db.queryOne<{ faction_id: string }>(
         `SELECT faction_id FROM faction_members WHERE user_id = $1 LIMIT 1`,
         [userId],
       );
-      if (!faction) return;
+      if (!membership) return;
 
-      const studyTypes = ['task_completed', 'quiz_attempt', 'study_session', 'focus_session'];
-      const isStudy = studyTypes.some((t) => type.includes(t));
-      // Study activity counts double vs battle/duel xp.
-      const points = isStudy ? xp * 2 : Math.ceil(xp / 2);
+      const isStudyType = STUDY_XP_TYPES.some((t) => type.includes(t));
+      const points = isStudyType ? xp * 2 : Math.ceil(xp / 2);
 
       await this.db.query(
         `INSERT INTO faction_score_events (id, faction_id, user_id, event_type, points, period_key)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [uuidv4(), faction.faction_id, userId, type, points, currentIstPeriodKey()],
+        [uuidv4(), membership.faction_id, userId, type, points, currentIstPeriodKey()],
       );
     } catch (error) {
       this.logger.warn(`Failed to credit faction score: ${(error as Error).message}`);
     }
   }
 
+  private levelForXp(totalXp: number): number {
+    for (let i = XP_LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+      if (totalXp >= XP_LEVEL_THRESHOLDS[i]) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
   private async calculateStreak(userId: string): Promise<number> {
     try {
-      // Get distinct study dates (from flashcard reviews and quiz attempts)
-      const result = await this.db.queryMany<{ study_date: string }>(
+      // Distinct study dates from flashcard reviews and quiz attempts.
+      const rows = await this.db.queryMany<{ study_date: string }>(
         `SELECT DISTINCT DATE(last_reviewed_at) as study_date
          FROM flashcards f JOIN study_sets s ON f.study_set_id = s.id
          WHERE s.user_id = $1 AND f.last_reviewed_at IS NOT NULL
@@ -369,31 +376,25 @@ export class UsersService {
         [userId],
       );
 
-      if (!result || result.length === 0) return 0;
+      if (!rows || rows.length === 0) return 0;
 
-      const dates = result.map((r) => {
-        const d = new Date(r.study_date);
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      });
+      const studyDates = new Set(rows.map((row) => this.toDateKey(new Date(row.study_date))));
 
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+      const today = this.toDateKey(new Date());
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterday = this.toDateKey(yesterdayDate);
 
-      // Streak must start from today or yesterday
-      if (!dates.includes(todayStr) && !dates.includes(yesterdayStr)) return 0;
+      // A live streak must include today or yesterday.
+      if (!studyDates.has(today) && !studyDates.has(yesterday)) return 0;
+
+      const anchor = studyDates.has(today) ? new Date() : yesterdayDate;
 
       let streak = 0;
-      const startDate = dates.includes(todayStr) ? today : yesterday;
-      const dateSet = new Set(dates);
-
       for (let i = 0; i < 365; i++) {
-        const checkDate = new Date(startDate);
-        checkDate.setDate(checkDate.getDate() - i);
-        const checkStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
-        if (dateSet.has(checkStr)) {
+        const cursor = new Date(anchor);
+        cursor.setDate(cursor.getDate() - i);
+        if (studyDates.has(this.toDateKey(cursor))) {
           streak++;
         } else {
           break;
@@ -405,6 +406,10 @@ export class UsersService {
       this.logger.warn(`Failed to calculate streak: ${error}`);
       return 0;
     }
+  }
+
+  private toDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   }
 
   private mapUser(row: unknown): User {

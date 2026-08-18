@@ -8,15 +8,20 @@ export interface JwtPayload {
   exp?: number;
 }
 
+/**
+ * Injects the authenticated user (or a single claim of it) into a handler.
+ * The payload is attached to the request by the JWT strategy during guard
+ * activation; when no user is present the decorator resolves to null.
+ */
 export const CurrentUser = createParamDecorator(
-  (data: keyof JwtPayload | undefined, ctx: ExecutionContext): JwtPayload | unknown => {
-    const request = ctx.switchToHttp().getRequest();
+  (claim: keyof JwtPayload | undefined, context: ExecutionContext): JwtPayload | unknown => {
+    const request = context.switchToHttp().getRequest();
     const user = request.user as JwtPayload;
 
     if (!user) {
       return null;
     }
 
-    return data ? user[data] : user;
+    return claim ? user[claim] : user;
   },
 );
