@@ -4200,7 +4200,7 @@
     "cancel": "Cancel",
     "error": "Something went wrong. Please try again."
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "Study Health",
     "today": "Focus today",
     "optimal": "Healthy optimum: {{min}} min/day",
@@ -4814,11 +4814,12 @@
     "datasets": {
       "publishModeLabel": "Publish mode",
       "modeDisabled": "disabled — publishing turned off",
-      "modeMetadataFirst": "metadata-first · no wallet needed — the on-chain datatoken mint is a funded-wallet follow-up",
+      "modeC2dReady": "C2D ready · on-chain compute asset configured",
+      "modeC2dRequired": "compute-to-data required · configure a funded wallet (OCEAN_PUBLISHER_PRIVATE_KEY), OCEAN_RPC_URL and OCEAN_NODE_URL to publish",
       "modeOnChainReady": "on-chain ready · publisher wallet configured",
-      "walletHint": "No publisher wallet configured — datasets still publish metadata to Aquarius; add OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY later to complete the on-chain mint.",
-      "title": "Data Marketplace (Ocean Protocol)",
-      "subtitle": "Publish privacy-guarded aggregate statistics to the Ocean ecosystem. Only aggregates over consenting cohorts are ever published.",
+      "walletHint": "Datasets stay drafts until C2D publishing works: set OCEAN_PUBLISHER_PRIVATE_KEY (+ address), OCEAN_RPC_URL and OCEAN_NODE_URL. There is no metadata-only fallback.",
+      "title": "Data Marketplace — compute-to-data ONLY",
+      "subtitle": "Publish privacy-guarded aggregate statistics as on-chain compute assets. Buyers run algorithms on the aggregate inside an isolated, network-less environment — the data itself is never sold or downloadable.",
       "privacyNote": "Aggregates only · minimum cohort size · consent coverage enforced by the privacy guard.",
       "create": "New dataset",
       "hideForm": "Hide form",

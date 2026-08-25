@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SESService } from './ses.service';
+import { SmtpService } from './smtp.service';
 import { DatabaseService } from '../database/database.service';
 
 export interface EmailOptions {
@@ -39,20 +40,35 @@ export interface EmailTemplate {
 
 /**
  * High-level email orchestration: normalises recipients, delegates the actual
- * send to SES, records every attempt in `email_logs`, and keeps templating
- * self-contained so callers only pass the data they have.
+ * send to the configured transport (SMTP by default — the local Mailpit sink
+ * in docker; AWS SES as an explicit opt-in via EMAIL_TRANSPORT=ses), records
+ * every attempt in `email_logs`, and keeps templating self-contained so
+ * callers only pass the data they have.
  */
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly appUrl: string;
+  private readonly transport: 'smtp' | 'ses';
 
   constructor(
     private readonly configService: ConfigService,
     private readonly sesService: SESService,
+    private readonly smtpService: SmtpService,
     private readonly db: DatabaseService,
   ) {
     this.appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
+    const t = (this.configService.get<string>('EMAIL_TRANSPORT') || 'smtp').toLowerCase();
+    this.transport = t === 'ses' ? 'ses' : 'smtp';
+  }
+
+  /** The transport actually used for sends (for status endpoints). */
+  get activeTransport(): 'smtp' | 'ses' {
+    return this.transport;
+  }
+
+  private sender() {
+    return this.transport === 'ses' ? this.sesService : this.smtpService;
   }
 
   async sendEmail(
@@ -73,7 +89,7 @@ export class EmailService {
           : [emailOptions.bcc]
         : undefined;
 
-      const result = await this.sesService.sendEmail({
+      const result = await this.sender().sendEmail({
         from: emailOptions.from,
         to,
         cc,
@@ -260,11 +276,11 @@ export class EmailService {
   }
 
   isReady(): boolean {
-    return this.sesService.isReady();
+    return this.sender().isReady();
   }
 
   getConfiguration() {
-    return this.sesService.getConfiguration();
+    return this.sender().getConfiguration();
   }
 
   private getVerificationTemplate(verifyUrl: string): EmailTemplate {

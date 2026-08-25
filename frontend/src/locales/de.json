@@ -4200,7 +4200,7 @@
     "cancel": "Abbrechen",
     "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "Lern-Gesundheit",
     "today": "Fokus heute",
     "optimal": "Gesundes Optimum: {{min}} Min./Tag",
@@ -4814,11 +4814,12 @@
     "datasets": {
       "publishModeLabel": "Veröffentlichungsmodus",
       "modeDisabled": "deaktiviert — Veröffentlichung aus",
-      "modeMetadataFirst": "metadata-first · keine Wallet nötig — der On-Chain-Datatoken-Mint folgt, sobald eine finanzierte Wallet existiert",
+      "modeC2dReady": "C2D bereit · On-Chain-Compute-Asset konfiguriert",
+      "modeC2dRequired": "Compute-to-Data erforderlich · konfigurieren Sie eine finanzierte Wallet, RPC und einen Ocean Node, um zu veröffentlichen",
       "modeOnChainReady": "On-Chain bereit · Publisher-Wallet konfiguriert",
-      "walletHint": "Keine Publisher-Wallet konfiguriert — Datensätze veröffentlichen Metadaten weiterhin an Aquarius; fügen Sie OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY später hinzu, um den On-Chain-Mint abzuschließen.",
-      "title": "Datenmarktplatz (Ocean Protocol)",
-      "subtitle": "Veröffentlicht datenschutzgeschützte Aggregatstatistiken im Ocean-Ökosystem. Veröffentlicht werden nur Aggregate über einwilligende Kohorten.",
+      "walletHint": "Datensätze bleiben Entwürfe, bis C2D-Publishing funktioniert: OCEAN_PUBLISHER_PRIVATE_KEY (+ Adresse), OCEAN_RPC_URL und OCEAN_NODE_URL setzen. Es gibt keinen reinen Metadaten-Fallback.",
+      "title": "Daten-Marktplatz — NUR Compute-to-Data",
+      "subtitle": "Veröffentlichen Sie privacy-geschützte Aggregatstatistiken als On-Chain-Compute-Assets. Käufer führen Algorithmen auf dem Aggregat in einer isolierten, netzwerklosen Umgebung aus — die Daten selbst werden nie verkauft oder heruntergeladen.",
       "privacyNote": "Nur Aggregate · Mindestkohortengröße · Einwilligungsabdeckung wird vom Privacy Guard durchgesetzt.",
       "create": "Neuer Datensatz",
       "hideForm": "Formular ausblenden",

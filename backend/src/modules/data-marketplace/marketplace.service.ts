@@ -1,31 +1,59 @@
 /**
- * Data marketplace service (owner brief).
+ * Data marketplace service (owner policy, tightened).
  *
- * Privacy-first rules enforced here (mirrored in `privacy-guard.ts`):
+ * STRICT COMPUTE-TO-DATA ONLY — nothing PII-related is ever for sale:
+ *   0. The whole marketplace is OFF by default (`MARKETPLACE_ENABLED=false`);
+ *      while disabled every endpoint answers 501 and nothing leaves the
+ *      platform. Only the internal benchmark pipeline keeps running.
  *   1. Only AGGREGATES may be published — raw rows and per-user values never
- *      leave the module (`sanitizeAggregate` is the final gate).
- *   2. Only consenting students (`data_consent`) are included in published
- *      aggregates.
- *   3. A minimum cohort size and consent-coverage threshold must be met
- *      before anything can be published.
- *   4. Every publish/revoke action is audited with a reason.
+ *      leave the module (`sanitizeAggregate` is the final gate, plus a
+ *      value-level PII scan as defense in depth).
+ *   2. Publishing requires a REAL on-chain compute asset (ERC721 + datatoken
+ *      + `compute` service). There is NO download/access path and NO
+ *      metadata-only fallback — if compute cannot be guaranteed, nothing is
+ *      published and the dataset stays a draft.
+ *   3. Compute jobs NEVER get network access (`allowNetworkAccess` is a hard
+ *      false) and run in an isolated container (`c2d-runner`) with no route
+ *      to the internet or Study RPG data.
+ *   4. Only consenting students (`data_consent`) are included; minimum cohort
+ *      size + consent coverage must be met.
+ *   5. Every publish/revoke/test-run action is audited with a reason.
  */
 
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotImplementedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { DatabaseService } from '../database/database.service';
 import { StorageService } from '../storage/storage.service';
-import { assertPublishable, sanitizeAggregate } from './privacy-guard';
+import { assertPublishable, sanitizeAggregate, scanPayloadForPii } from './privacy-guard';
 import {
   ALLOWED_COHORT_FILTERS,
   CohortFilterKey,
   DATASET_TYPES,
   DatasetType,
   MARKETPLACE_DEFAULTS,
+  normalizeC2dPolicy,
 } from './marketplace-config';
-import { OceanC2DService, C2DPolicy, ComputeAssetResult } from './ocean-c2d.service';
+import { OceanC2DService, ComputeAssetResult } from './ocean-c2d.service';
 import { OceanService } from './ocean.service';
+import { C2dRunnerService, C2dRunResult } from './c2d-runner.service';
+
+/**
+ * Raw caller-supplied C2D policy override (API DTO shape). Network access is
+ * deliberately a plain boolean here so we can detect and REJECT attempts to
+ * enable it; `normalizeC2dPolicy` forces it back to false.
+ */
+export interface C2DPolicyOverride {
+  allowRawAlgorithm?: boolean;
+  allowNetworkAccess?: boolean;
+  trustedAlgorithmPublishers?: string[];
+}
 
 export interface ConsentView {
   consented: boolean;
@@ -65,7 +93,7 @@ export interface DatasetView {
   did: string | null;
   privacyReport: Record<string, unknown> | null;
   checksum: string | null;
-  /** On-chain C2D artifact addresses (null when published metadata-first). */
+  /** On-chain C2D artifact addresses (null while the dataset is a draft). */
   nftAddress: string | null;
   datatokenAddress: string | null;
   exchangeId: string | null;
@@ -88,6 +116,7 @@ export class MarketplaceService {
     private readonly ocean: OceanService,
     private readonly c2d: OceanC2DService,
     private readonly storage: StorageService,
+    private readonly runner: C2dRunnerService,
   ) {}
 
   // -------------------------------------------------------------------------
@@ -264,12 +293,26 @@ export class MarketplaceService {
     actorId: string,
     id: string,
     reason: string,
-    c2dOverride?: Partial<C2DPolicy>,
+    c2dOverride?: C2DPolicyOverride,
   ): Promise<DatasetView> {
+    const cfg = this.ocean.getConfig();
+    // Master switch: the marketplace is strictly opt-in. Nothing may be
+    // created, published or revoked while MARKETPLACE_ENABLED=false.
+    if (!cfg.enabled) {
+      throw new NotImplementedException(
+        'Data marketplace is disabled on this deployment (MARKETPLACE_ENABLED=false). ' +
+          'No data, aggregate or otherwise, leaves Study RPG while disabled.',
+      );
+    }
+    if (c2dOverride?.allowNetworkAccess === true) {
+      throw new BadRequestException(
+        'C2D policy violation: compute jobs can never be granted network access.',
+      );
+    }
+
     const existing = await this.getDatasetRow(id);
     if (!existing) throw new NotFoundException('Dataset not found');
 
-    const cfg = this.ocean.getConfig();
     const minGroupSize = cfg.minGroupSize || MARKETPLACE_DEFAULTS.minGroupSize;
     const consentThreshold = cfg.consentThreshold || MARKETPLACE_DEFAULTS.consentThreshold;
 
@@ -298,78 +341,82 @@ export class MarketplaceService {
         `Privacy guard blocked publication: ${verdict.reasons.join(' ')}`,
       );
     }
+    // 2b) Defense in depth: scan the payload VALUES for PII-shaped content
+    //     even though the field names already passed the aggregate check.
+    const piiReasons = scanPayloadForPii(payload);
+    if (piiReasons.length > 0) {
+      throw new BadRequestException(
+        `Privacy guard blocked publication (value-level PII scan): ${piiReasons.join(' ')}`,
+      );
+    }
 
     // 3) Checksum the exact payload that would be delivered.
     const checksum = createHash('sha256').update(JSON.stringify(payload)).digest('hex');
 
-    // 4) Compute-to-Data: when a funded wallet + RPC + Ocean Node are
-    //    configured, deploy the on-chain asset (NFT + datatoken + fixed-rate
-    //    exchange) and register a real `compute` service so buyers can run
-    //    algorithms on the aggregate. The aggregate is uploaded to object
-    //    storage first so the node can fetch it. Any failure (or missing
-    //    config) falls back to the metadata-first path — publishing never
-    //    regresses because of C2D.
+    // 4) COMPUTE-TO-DATA ONLY (owner policy): a dataset is published if and
+    //    only if a real on-chain compute asset exists — ERC721 + datatoken +
+    //    fixed-rate exchange + a `compute` service whose jobs run inside an
+    //    isolated, network-less environment. There is deliberately NO
+    //    metadata-only/download fallback: buyers can run algorithms on the
+    //    aggregate, they can never obtain the aggregate itself. Any failure
+    //    keeps the dataset in `draft` with `c2d_error` explaining why.
     const c2dConfig = this.c2d.getConfig();
+    const policy = normalizeC2dPolicy(c2dOverride, c2dConfig.c2d);
     const c2dAttempted =
       !!c2dConfig.publisherPrivateKey && !!c2dConfig.rpcUrl && !!c2dConfig.nodeUrl;
     let c2dResult: ComputeAssetResult | null = null;
-    let c2dError: string | null = null;
+    let c2dError: string | null;
     let aggregateFileKey: string | null = null;
 
-    if (c2dAttempted) {
-      try {
-        const uploaded = await this.storage.upload(
-          Buffer.from(JSON.stringify(payload)),
-          `${existing.dataset_type}-aggregate.json`,
-          { contentType: 'application/json', folder: 'marketplace' },
-        );
-        if (!/^https?:\/\//.test(uploaded.url)) {
-          c2dError =
-            'C2D needs a public file URL for the Ocean Node — configure R2_PUBLIC_URL ' +
-            '(fell back to metadata-first publishing).';
-        } else {
-          aggregateFileKey = uploaded.key;
-          const policy: C2DPolicy = {
-            allowRawAlgorithm: c2dOverride?.allowRawAlgorithm ?? c2dConfig.c2d.allowRawAlgorithm,
-            allowNetworkAccess: c2dOverride?.allowNetworkAccess ?? c2dConfig.c2d.allowNetworkAccess,
-            trustedAlgorithmPublishers:
-              c2dOverride?.trustedAlgorithmPublishers ?? c2dConfig.c2d.trustedAlgorithmPublishers,
-          };
-          const result = await this.c2d.publishComputeAsset({
-            name: existing.name as string,
-            description: (existing.description as string) ?? '',
-            datasetType: existing.dataset_type as string,
-            priceCurrency: (existing.price_currency as string) || 'OCEAN',
-            priceAmount: Number(existing.price_amount ?? 0),
-            checksum,
+    if (!c2dAttempted) {
+      c2dError =
+        'Compute-to-data publishing requires OCEAN_PUBLISHER_PRIVATE_KEY, OCEAN_RPC_URL ' +
+        'and OCEAN_NODE_URL. The marketplace never publishes without a working isolated ' +
+        'compute path — there is no download/access fallback.';
+      await this.db.query(
+        `UPDATE marketplace_datasets
+         SET privacy_report = $1, checksum = $2, c2d_error = $3, updated_at = NOW()
+         WHERE id = $4`,
+        [
+          JSON.stringify({
             cohortSize: verdict.cohortSize,
-            consentCoverage: verdict.consentCoverage,
-            license: cfg.license,
-            author: 'Study RPG (Real-Nightmare)',
-            fileUrl: uploaded.url,
-            policy,
-          });
-          if (result.ok) {
-            c2dResult = result;
-            this.logger.log(
-              `Dataset ${id} published as C2D asset ${result.did} ` +
-                `(nft=${result.nftAddress}, dt=${result.datatokenAddress})`,
-            );
-          } else {
-            c2dError = result.reason;
-          }
-        }
-      } catch (err) {
-        c2dError = `C2D publish failed: ${err instanceof Error ? err.message : String(err)}`;
-      }
+            totalCohortSize: aggregate.totalCohortSize,
+            consentCoverage: Number(verdict.consentCoverage.toFixed(4)),
+            minGroupSize,
+            consentThreshold,
+            fields: Object.keys(payload),
+            payload,
+            status: 'blocked-c2d-unconfigured',
+          }),
+          checksum,
+          c2dError,
+          id,
+        ],
+      );
+      await this.audit(
+        actorId,
+        'data_marketplace.publish_blocked',
+        'marketplace_datasets',
+        id,
+        reason || `Blocked publish for dataset "${existing.name}" (C2D unconfigured).`,
+        { cohortSize: verdict.cohortSize, checksum },
+      );
+      return this.mapDataset((await this.getDatasetRow(id))!);
     }
 
-    // 5) Build + attempt Ocean publish. With a C2D result the DDO is already
-    //    stored on-chain and indexed — nothing else to push. Otherwise use the
-    //    metadata-first path (never blocks on network errors).
-    const ddo = c2dResult
-      ? c2dResult.ddo
-      : this.ocean.buildDdo({
+    try {
+      const uploaded = await this.storage.upload(
+        Buffer.from(JSON.stringify(payload)),
+        `${existing.dataset_type}-aggregate.json`,
+        { contentType: 'application/json', folder: 'marketplace' },
+      );
+      if (!/^https?:\/\//.test(uploaded.url)) {
+        c2dError =
+          'C2D needs a public file URL for the Ocean Node — configure R2_PUBLIC_URL ' +
+          '(the dataset stays a draft; nothing was published).';
+      } else {
+        aggregateFileKey = uploaded.key;
+        const result = await this.c2d.publishComputeAsset({
           name: existing.name as string,
           description: (existing.description as string) ?? '',
           datasetType: existing.dataset_type as string,
@@ -379,12 +426,64 @@ export class MarketplaceService {
           cohortSize: verdict.cohortSize,
           consentCoverage: verdict.consentCoverage,
           license: cfg.license,
-          author: 'Study RPG (Real-Nightmare)',
+          author: 'Study RPG',
+          fileUrl: uploaded.url,
+          policy,
         });
-    const oceanResult = c2dResult
-      ? { published: true, did: ddo.id, reason: null }
-      : await this.ocean.publishMetadata(ddo as Parameters<OceanService['publishMetadata']>[0]);
+        if (result.ok) {
+          c2dResult = result;
+          c2dError = null;
+          this.logger.log(
+            `Dataset ${id} published as C2D asset ${result.did} ` +
+              `(nft=${result.nftAddress}, dt=${result.datatokenAddress})`,
+          );
+        } else {
+          c2dError = result.reason;
+        }
+      }
+    } catch (err) {
+      c2dError = `C2D publish failed: ${err instanceof Error ? err.message : String(err)}`;
+    }
 
+    // 5) Without a successful on-chain compute asset the dataset STAYS A
+    //    DRAFT — the strict no-download rule means we never fall back to
+    //    exposing the data any other way.
+    if (!c2dResult) {
+      await this.db.query(
+        `UPDATE marketplace_datasets
+         SET privacy_report = $1, checksum = $2, c2d_policy = $3, aggregate_file_key = $4,
+             c2d_error = $5, updated_at = NOW()
+         WHERE id = $6`,
+        [
+          JSON.stringify({
+            cohortSize: verdict.cohortSize,
+            totalCohortSize: aggregate.totalCohortSize,
+            consentCoverage: Number(verdict.consentCoverage.toFixed(4)),
+            minGroupSize,
+            consentThreshold,
+            fields: Object.keys(payload),
+            payload,
+            status: 'blocked-c2d-failed',
+          }),
+          checksum,
+          JSON.stringify(policy),
+          aggregateFileKey,
+          c2dError,
+          id,
+        ],
+      );
+      await this.audit(
+        actorId,
+        'data_marketplace.publish_blocked',
+        'marketplace_datasets',
+        id,
+        reason || `Blocked publish for dataset "${existing.name}" (C2D failed).`,
+        { cohortSize: verdict.cohortSize, checksum, c2dError },
+      );
+      return this.mapDataset((await this.getDatasetRow(id))!);
+    }
+
+    const ddo = c2dResult.ddo;
     const privacyReport = {
       cohortSize: verdict.cohortSize,
       totalCohortSize: aggregate.totalCohortSize,
@@ -393,27 +492,25 @@ export class MarketplaceService {
       consentThreshold,
       fields: Object.keys(payload),
       payload,
-      ocean: { published: oceanResult.published, reason: oceanResult.reason ?? null },
-      c2d: c2dResult
-        ? {
-            published: true,
-            nftAddress: c2dResult.nftAddress,
-            datatokenAddress: c2dResult.datatokenAddress,
-            exchangeId: c2dResult.exchangeId,
-            providerUrl: c2dResult.providerUrl,
-            chainId: c2dResult.chainId,
-            transactions: c2dResult.transactions,
-          }
-        : { published: false, error: c2dError },
+      ocean: { published: true, reason: null },
+      c2d: {
+        published: true,
+        nftAddress: c2dResult.nftAddress,
+        datatokenAddress: c2dResult.datatokenAddress,
+        exchangeId: c2dResult.exchangeId,
+        providerUrl: c2dResult.providerUrl,
+        chainId: c2dResult.chainId,
+        transactions: c2dResult.transactions,
+      },
     };
 
     await this.db.query(
       `UPDATE marketplace_datasets
        SET status = 'published', did = $1, ddo = $2, privacy_report = $3, checksum = $4,
            nft_address = $5, datatoken_address = $6, exchange_id = $7, provider_url = $8,
-           c2d_policy = $9, aggregate_file_key = $10, c2d_error = $11,
+           c2d_policy = $9, aggregate_file_key = $10, c2d_error = NULL,
            published_at = NOW(), revoked_at = NULL, updated_at = NOW()
-       WHERE id = $12`,
+       WHERE id = $11`,
       [
         ddo.id,
         JSON.stringify(ddo),
@@ -423,9 +520,8 @@ export class MarketplaceService {
         c2dResult?.datatokenAddress ?? null,
         c2dResult?.exchangeId ?? null,
         c2dResult?.providerUrl ?? null,
-        c2dResult ? JSON.stringify(c2dResult.ddo.services[0]?.compute ?? {}) : null,
+        JSON.stringify(policy),
         aggregateFileKey,
-        c2dError,
         id,
       ],
     );
@@ -434,19 +530,15 @@ export class MarketplaceService {
       'data_marketplace.publish',
       'marketplace_datasets',
       id,
-      reason || `Published dataset "${existing.name}".`,
+      reason || `Published dataset "${existing.name}" as a compute-to-data asset.`,
       {
         did: ddo.id,
-        oceanPublished: oceanResult.published,
-        c2dPublished: Boolean(c2dResult),
-        c2dError,
+        c2dPublished: true,
         cohortSize: verdict.cohortSize,
         checksum,
       },
     );
-    this.logger.log(
-      `Dataset published ${id} (ocean=${oceanResult.published}, c2d=${Boolean(c2dResult)})`,
-    );
+    this.logger.log(`Dataset published ${id} as compute-to-data asset ${ddo.id}`);
 
     return this.mapDataset((await this.getDatasetRow(id))!);
   }
@@ -469,6 +561,62 @@ export class MarketplaceService {
       { did: existing.did ?? null },
     );
     return this.mapDataset((await this.getDatasetRow(id))!);
+  }
+
+  // -------------------------------------------------------------------------
+  // Compute-to-data research harness (isolated c2d-runner container)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Run a researcher's algorithm against this dataset's sanitized aggregate
+   * inside the isolated, network-less compute environment. Only the
+   * privacy-guarded payload is handed to the algorithm — never raw rows — and
+   * every run is audited. This is the local, zero-blockchain way for
+   * researchers to test exactly what a compute job could see and do.
+   */
+  async testCompute(
+    actorId: string,
+    id: string,
+    code: string,
+    options: { language?: string; timeoutSeconds?: number } = {},
+  ): Promise<C2dRunResult> {
+    if (!this.ocean.getConfig().enabled) {
+      throw new NotImplementedException(
+        'Data marketplace is disabled on this deployment (MARKETPLACE_ENABLED=false).',
+      );
+    }
+    const existing = await this.getDatasetRow(id);
+    if (!existing) throw new NotFoundException('Dataset not found');
+
+    const report = this.parseJson(existing.privacy_report);
+    const payload = report.payload;
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      throw new BadRequestException(
+        'No privacy-guarded aggregate exists for this dataset yet — publish it first ' +
+          '(the publish step computes and stores the sanitized payload).',
+      );
+    }
+
+    const result = await this.runner.run({
+      code,
+      language: options.language || 'python',
+      data: JSON.stringify(payload),
+      timeoutSeconds: options.timeoutSeconds,
+    });
+    await this.audit(
+      actorId,
+      'data_marketplace.c2d_test_run',
+      'marketplace_datasets',
+      id,
+      'Researcher algorithm executed against the sanitized aggregate in the isolated runner.',
+      {
+        language: (options.language || 'python').toLowerCase(),
+        status: result.status,
+        executionTimeMs: result.executionTimeMs,
+        datasetType: existing.dataset_type as string,
+      },
+    );
+    return result;
   }
 
   // -------------------------------------------------------------------------

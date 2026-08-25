@@ -3,9 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 
 /**
- * Wraps the Firebase Admin SDK for push notifications. Initialisation is
- * skipped (with a warning) when the service-account credentials are missing,
- * so the app still boots in environments that don't send push notifications.
+ * Wraps the Firebase Admin SDK for push notifications. DEMOTED per owner
+ * policy (T6): standards-based VAPID web push is THE notification channel;
+ * FCM stays available only behind an explicit `FCM_ENABLED=true` plus service
+ * account credentials. Initialisation is skipped (with a warning) otherwise,
+ * so the app still boots without any Google account.
  */
 @Injectable()
 export class FirebaseService implements OnModuleInit {
@@ -15,6 +17,10 @@ export class FirebaseService implements OnModuleInit {
 
   onModuleInit(): void {
     try {
+      if (String(this.configService.get<string>('FCM_ENABLED', 'false')).toLowerCase() !== 'true') {
+        this.logger.log('FCM disabled (FCM_ENABLED=false) — browser push uses VAPID web push');
+        return;
+      }
       const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
       const privateKey = this.configService
         .get<string>('FIREBASE_PRIVATE_KEY')

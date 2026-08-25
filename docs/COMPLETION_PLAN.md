@@ -11,6 +11,30 @@
 
 ---
 
+## 0. Wave Status (updated as waves complete)
+
+**Wave 1 + 2 core shipped (this pass):**
+
+- ✅ T7 marketplace: `MARKETPLACE_ENABLED` off by default, **compute-to-data
+  ONLY** (no download/access path, metadata-first fallback removed), PII
+  value-scan, network access permanently disabled for compute jobs,
+  network-isolated `c2d-runner` container + admin researcher test harness.
+- ✅ T8 billing gate (`BILLING_ENABLED=false`, 404 surfaces).
+- ✅ T1 Ollama chat + embeddings (OpenAI-compatible provider selection).
+- ✅ T2 Mailpit SMTP transport (nodemailer).
+- ✅ T3 MinIO default storage provider (+ R2 kept) behind one interface.
+  *Open:* Supabase/Cloudinary/Appwrite adapters.
+- ✅ T4 SearXNG default search provider.
+- ✅ T5 local code execution via the hardened c2d-runner sidecar.
+- ✅ T6 VAPID auto-provisioning; FCM demoted behind `FCM_ENABLED`.
+- ✅ G11 README quickstart + `scripts/bootstrap.sh`.
+
+**Still open:** game content wave (T9–T10 art/characters), rebrand sweep
+(T11), zero-placeholder CI sweep (§4), rewrite batches B5–B10 (§5),
+storage extra adapters, full clean-clone verification checklist (§7).
+
+---
+
 ## 1. Current Gaps (audit summary)
 
 | # | Gap | Evidence | Severity |
@@ -48,84 +72,109 @@ docker-compose.yml additions
 └── code-runner     NEW  — hardened local code-execution sidecar (network-off container)
 ```
 
-### T1 — Local LLM via Ollama (fixes G1)
+### T1 — Local LLM via Ollama (fixes G1) — **DONE**
 
-- Add `ollama/ollama` service to compose; entrypoint pulls two models on first boot:
-  - `qwen2.5:7b-instruct` (chat/quizzes/grading) — good quality/CPU-viable default
+- Added `ollama/ollama` service to compose (+ `ollama-init` that pulls the two
+  models on first boot):
+  - `qwen2.5:7b-instruct` (chat/quizzes/grading) — CPU-viable default
   - `nomic-embed-text` (embeddings, 768-dim)
-- Backend already speaks OpenAI-compatible APIs (`RerankProvider` proves the pattern). Extend `AiService` config resolution:
-  - `AI_PROVIDER=openai-compatible` (default in docker env) → base URL `http://ollama:11434/v1`, model `qwen2.5:7b-instruct`, no API key.
-  - Keep `openrouter` as an optional upgrade path; admin panel selector already exists per PRD.
-- Embeddings: implement `OllamaEmbeddingProvider implements EmbeddingProvider` alongside the existing abstraction; collection versioning already handles index rebuilds when the embedding model changes (`CollectionResolver`).
-- Reranker: point `RERANKER_PROVIDER=ollama` by default; keep no-op fallback.
-- Acceptance: fresh clone → `docker compose up` → chat answers from uploaded notes without any user-supplied key. Campfire grading falls back deterministically as today.
+- Backend speaks the OpenAI-compatible API: `AI_PROVIDER=openai-compatible`
+  (default in docker env) → base URL `http://ollama:11434/v1`, model
+  `qwen2.5:7b-instruct`, no API key. `openrouter` remains an optional upgrade
+  path.
+- Embeddings: `EMBEDDING_PROVIDER=ollama-compatible` selects the local
+  endpoint with dimension 768; collection versioning handles index rebuilds
+  when the embedding model changes (`CollectionResolver`).
+- Reranker: `RERANKER_PROVIDER=ollama` available; default stays no-op.
 
-### T2 — Local Email via Mailpit (fixes G2)
+### T2 — Local Email via Mailpit (fixes G2) — **DONE**
 
-- Add `axllent/mailpit` service (SMTP :1025, UI :8025).
-- Refactor `email.module.ts`: add an SMTP transport (nodemailer) selected when `EMAIL_TRANSPORT=smtp`; SES stays available but only when `EMAIL_TRANSPORT=ses` AND credentials exist.
-- Docker default: `EMAIL_TRANSPORT=smtp`, host `mailpit`, port `1025`. Password-reset and verification emails land in Mailpit's web UI during local play.
-- Acceptance: register → reset password → read the email at `http://localhost:8025`. No AWS account anywhere in the default path.
+- Added `axllent/mailpit` service (SMTP :1025, UI :8025).
+- New `SmtpService` (nodemailer) selected when `EMAIL_TRANSPORT=smtp` (the
+  default); SES only when `EMAIL_TRANSPORT=ses` AND credentials exist.
+- Docker default points at Mailpit — password-reset and verification emails
+  land in Mailpit's web UI during local play.
 
 ### T3 — Local Object Storage via MinIO + multi-provider adapter (fixes G4)
 
 This is the ONE area where external providers are permitted. Requirements: multiple providers, all free tier, none requiring a credit card, all behind one interface.
 
-**Default (zero-config)**: MinIO in compose. Buckets auto-created by an init job (`mc mb studyrpg-uploads`).
+**Default (zero-config)**: MinIO in compose. Bucket auto-created by the
+idempotent `minio-init` job (`mc mb studyrpg-uploads`).
 
-**Adapter interface** (extend existing `StorageService`):
+**Implemented now**: provider switch `STORAGE_PROVIDER=minio | r2` behind the
+existing `StorageService` surface (both are S3-compatible, so one client
+serves them; MinIO uses path-style addressing). Switching provider is purely
+an environment change. **Open item**: Supabase / Cloudinary / Appwrite
+REST adapters (free-tier, no-card options) are still to be added as small
+adapters behind the same interface — deliberately not stubbed in this wave.
 
-```
-StorageProvider = 'minio' | 'supabase' | 'cloudinary' | 'appwrite'
-STORAGE_PROVIDER=minio            # docker default
-STORAGE_*_BUCKET / keys per provider
-```
+### T4 — Local Web Search via SearXNG (fixes G5) — **DONE**
 
-| Provider | Free tier | Credit card? | Notes |
-|----------|-----------|--------------|-------|
-| **MinIO** (self-hosted) | unlimited (your disk) | No | Default; S3 API |
-| **Supabase Storage** | 1 GB | **No** | S3-ish REST + signed URLs |
-| **Cloudinary** | ~25 credits/mo (~25 GB bandwidth) | **No** | Good for images/avatars/card art |
-| **Appwrite Storage** | 2 GB | **No** | Simple REST file API |
+- Added `searxng/searxng` service (JSON format enabled in settings.yml).
+- `web-search.service.ts` provider selection:
+  `SEARCH_PROVIDER=searxng` (default) → `http://searxng:8080/search?q=…&format=json`;
+  Tavily/Serper remain opt-in for hosted installs.
 
-Deliberately excluded: Cloudflare R2 and AWS S3 free tiers (both require a card on file).
+### T5 — Local Code Execution Sandbox (fixes G6) — **DONE**
 
-- Implement four small adapters behind the existing service surface (upload/download/signed URL/delete), each ≤200 lines, each with unit tests using mocked HTTP.
-- Acceptance: switching `STORAGE_PROVIDER` env var moves uploads with zero code change; avatar upload + document upload work end-to-end on MinIO out of the box.
+- The `code-runner` role is filled by the same hardened `c2d-runner` sidecar:
+  network-off container, read-only rootfs, tmpfs `/tmp`, memory + CPU + PIDs
+  caps, wall-clock SIGKILL, non-root, no shell.
+- `code-sandbox.service.ts` posts code to `RUNNER_URL=http://c2d-runner:9000`
+  (`/execute`; responses keep the exact stdout/stderr/execution_time_ms
+  contract).
 
-### T4 — Local Web Search via SearXNG (fixes G5)
+### T6 — Push Notifications Without Firebase (fixes G3) — **DONE**
 
-- Add `searxng/searxng` service (JSON format enabled in settings.yml).
-- Rewrite `web-search.service.ts` provider selection:
-  - `SEARCH_PROVIDER=searxng` (default) → `http://searxng:8080/search?q=…&format=json`
-  - keep any existing commercial provider as opt-in.
-- Acceptance: Deep Research produces cited reports offline.
+- VAPID keys auto-generate on first backend boot and persist to `game_config`
+  (`notifications.vapid`) so dev needs zero setup; env vars still take
+  precedence.
+- FCM demoted behind `FCM_ENABLED=true` (false by default, excluded from
+  compose defaults).
 
-### T5 — Local Code Execution Sandbox (fixes G6)
+### T7 — Ocean Protocol / C2D strictly optional (fixes G7) — **DONE, tightened per owner policy**
 
-- Add a `code-runner` sidecar image: Node/Python runtime in a container started with `--network none`, read-only rootfs, tmpfs `/tmp`, memory + CPU caps, wall-clock kill.
-- `code-sandbox.service.ts` posts code over an internal HTTP endpoint (`RUNNER_URL=http://code-runner:9000`); responses return stdout/stderr/exit-time exactly like today's contract.
-- Acceptance: solving a Python problem in Problem Solver actually executes locally; malicious code cannot reach network or host FS.
+> **Owner policy update (this wave):** the marketplace must be *very strict*
+> about never selling PII. It now allows **Compute-to-Data ONLY** — no
+> download/access path exists at all — and researcher algorithms run in a
+> separate, network-isolated Docker container so they can safely test our
+> system.
 
-### T6 — Push Notifications Without Firebase (fixes G3)
-
-- Web push (VAPID) already works self-hosted — make it THE notification channel:
-  - Generate VAPID keys automatically on first backend boot if unset (persist to `game_config`) so dev needs zero setup.
-  - Frontend `sw.js` flow is already implemented; ensure NotificationSettings page hides nothing when VAPID exists (it will always exist now).
-- Demote FCM: move `firebase/` module behind `FCM_ENABLED=true` flag, excluded from compose defaults; mark for removal in v1.1 unless someone needs Android-native push before v2.
-- Acceptance: quest reminder arrives as browser push after clicking "enable notifications". No Google account involved.
-
-### T7 — Ocean Protocol / C2D strictly optional (fixes G7)
+Implemented:
 
 - Master switch `MARKETPLACE_ENABLED=false` in docker defaults. When false:
-  - Data-marketplace controllers registered but return 501 with a clear message; idle-capacity node never starts; benchmark pipeline still works (it's internal-only and valuable to schools).
-  - No wallet, no RPC URL, no Ocean Node required anywhere in `.env.docker`.
-- When an operator later enables it, existing on-chain publishing path stays intact (Polygon mainnet per owner decision).
+  every `/data-marketplace` endpoint answers 501 with a clear message; the
+  idle-capacity node can never start (double-gated); no wallet, RPC URL or
+  Ocean Node is required anywhere. The benchmark pipeline still works.
+- **C2D-only publishing**: `publishDataset` succeeds ONLY when a full on-chain
+  compute asset was created (ERC721 + datatoken + fixed-rate exchange +
+  `compute` service). The metadata-first fallback was removed — on any failure
+  the dataset stays a draft with `c2d_error` explaining why.
+- **PII defence in depth** (`privacy-guard.ts`): beyond field-name checks, a
+  value-level scan (`scanPayloadForPii`) rejects non-numeric values, emails,
+  IPs, phone-like runs, long digit IDs, arrays and objects before anything
+  leaves the module.
+- **Network access permanently off**: `allowNetworkAccess` is typed `false`,
+  forced by `normalizeC2dPolicy`, rejected outright if requested via API,
+  asserted again inside `publishComputeAsset`.
+- **Isolated compute environment** (`docker/c2d-runner/`, compose service
+  `c2d-runner`): internal Docker network (`internal: true` — no egress),
+  read-only rootfs, tmpfs `/tmp`, non-root user, dropped capabilities,
+  `no-new-privileges`, 512 MB / 1 CPU / 128 PIDs caps. Researchers test our
+  system locally via the admin endpoint
+  `POST /data-marketplace/datasets/:id/test-compute`, which executes their
+  algorithm against the stored sanitized aggregate (JSON on stdin) inside
+  that container and audits every run.
+- When an operator later enables it, the existing on-chain publishing path
+  stays intact (Polygon mainnet per owner decision).
 
-### T8 — Payments stay infra-only (per owner)
+### T8 — Payments stay infra-only (per owner) — **DONE**
 
-- Stripe wiring remains but `BILLING_ENABLED=false` default: plan limits resolve to generous static values; no checkout route mounted; webhook controller returns 404 when disabled.
-- Documented in README as "reserved for future infrastructure tiers".
+- `BILLING_ENABLED=false` default: checkout/portal/cancel/verify routes and
+  the Stripe webhook answer 404; plan limits resolve to generous static
+  values; nothing crashes. Documented in README as reserved for future
+  infrastructure tiers.
 
 ---
 
@@ -176,27 +225,15 @@ Continue `docs/audits/REWRITE_LEDGER.md` to completion:
 
 ---
 
-## 6. README.md — Complete Run Guide (fixes G11)
+## 6. README.md — Complete Run Guide (fixes G11) — **DONE (adapted to real ports)**
 
-Rewrite root `README.md` so a stranger can go clone → play in under 5 minutes:
-
-```md sections required:
-- What Study RPG is (3 sentences + screenshot of dashboard & battle)
-- Quickstart: 
-    git clone … && cd study-rpg
-    docker compose up -d        # postgres redis qdrant clickhouse ollama searxng mailpit minio
-    ./scripts/bootstrap.sh      # waits healthy, runs migrations, pulls ollama models, seeds CBSE preset + game_config + admin
-    open http://localhost:8080  # frontend; login with seeded demo student or create account
-- First-run contents: models pulled (~4.5 GB), buckets created, VAPID generated, event seeded
-- Ports table (8080 frontend, 3000 api, 8025 mailpit UI, 9001 minio console, 11434 ollama)
-- Optional upgrades: OpenRouter key, SES, Firebase, Stripe, Ocean (all off by default; exact env vars listed)
-- Storage providers: how to switch to Supabase/Cloudinary/Appwrite (free, no card)
-- Troubleshooting: model pull failures, port conflicts, Apple Silicon notes
-- Architecture diagram + link to docs/
-- Licence section reflecting rewrite status
-```
-
-Also ship `scripts/bootstrap.sh` implementing exactly those steps with idempotent checks and clear progress output — this script is part of "working code", tested on a clean clone.
+README rewritten so a stranger can go clone → play in under 5 minutes:
+quickstart (`docker compose --env-file .env.docker up -d` +
+`sh scripts/bootstrap.sh`), first-run contents, ports table
+(5189 frontend, 3010 API, 8025 mailpit, 9001 minio console, 11434 ollama,
+8888 searxng), optional upgrades, storage providers, architecture links.
+`scripts/bootstrap.sh` implements the steps with idempotent checks and clear
+progress output.
 
 ---
 

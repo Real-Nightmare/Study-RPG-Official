@@ -167,6 +167,65 @@ export function sanitizeAggregate(row: Record<string, unknown>): Record<string, 
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// Value-level PII scan (defense in depth)
+// ---------------------------------------------------------------------------
+
+/** Email address. */
+const PII_EMAIL = /[^\s@]+@[^\s@]+\.[^\s@]+/;
+/** IPv4 / IPv6-ish addresses. */
+const PII_IP = /\b\d{1,3}(?:\.\d{1,3}){3}\b|\b(?:[0-9a-f]{1,4}:){3,7}[0-9a-f]{1,4}\b/i;
+/** Phone-like runs: 9+ digits possibly separated by spaces/dashes/parens. */
+const PII_PHONE = /(?:^|[\s(])\+?\d[\d\s\-().]{8,}\d(?:$|[\s.).,;])/;
+/** Long digit strings that could be national IDs / card numbers. */
+const PII_LONG_DIGITS = /\d{9,}/;
+
+/**
+ * Scan the serialized payload VALUES for anything that looks like PII even
+ * though field names passed the aggregate check (defense in depth). A strict
+ * aggregate payload contains only numbers, so any stringy value is already
+ * suspicious — this catches emails, phone numbers, IPs, long ID-like digits
+ * and free-text smuggled into values.
+ *
+ * Returns a list of human-readable violations; empty list = clean.
+ */
+export function scanPayloadForPii(payload: Record<string, unknown>): string[] {
+  const reasons: string[] = [];
+  const check = (field: string, raw: unknown): void => {
+    if (raw === null || raw === undefined) return;
+    // Numbers and booleans can never contain PII.
+    if (typeof raw === 'number' && Number.isFinite(raw)) return;
+    if (typeof raw === 'boolean') return;
+    const value = String(raw);
+    reasons.push(
+      `Field "${field}" has a non-numeric aggregate value — only numeric aggregates may be published.`,
+    );
+    if (PII_EMAIL.test(value)) {
+      reasons.push(`Field "${field}" contains something resembling an email address.`);
+    }
+    if (PII_IP.test(value)) {
+      reasons.push(`Field "${field}" contains something resembling an IP address.`);
+    }
+    if (PII_PHONE.test(value)) {
+      reasons.push(`Field "${field}" contains a phone-number-like sequence.`);
+    }
+    if (PII_LONG_DIGITS.test(value)) {
+      reasons.push(`Field "${field}" contains a long digit run (possible identifier).`);
+    }
+  };
+  for (const [field, value] of Object.entries(payload ?? {})) {
+    if (Array.isArray(value)) {
+      reasons.push(`Field "${field}" is an array — only scalar numeric aggregates are allowed.`);
+      for (const item of value.slice(0, 5)) check(`${field}[]`, item);
+    } else if (typeof value === 'object') {
+      reasons.push(`Field "${field}" is an object — only scalar numeric aggregates are allowed.`);
+    } else {
+      check(field, value);
+    }
+  }
+  return reasons;
+}
+
 /** Defaults mirrored in `marketplace-config.ts` / `.env.example`. */
 export const PRIVACY_DEFAULTS = {
   minGroupSize: 10,

@@ -5,6 +5,8 @@ const MIN = 60_000;
 function makeConfig(overrides: Record<string, unknown> = {}) {
   const values: Record<string, unknown> = {
     OCEAN_NODE_ENABLED: 'true',
+    // The idle-capacity node is a marketplace surface — tests opt in.
+    MARKETPLACE_ENABLED: 'true',
     OCEAN_NODE_IDLE_WINDOW_MIN: '1',
     OCEAN_NODE_COOLDOWN_MIN: '1',
     OCEAN_NODE_PRIVATE_KEY: '0xabc',
@@ -70,6 +72,17 @@ describe('OceanNodeMonitorService', () => {
   it('is inert when disabled — no docker calls, no activity sampling', async () => {
     const db = makeDb(false);
     const svc = makeService({ OCEAN_NODE_ENABLED: 'false' }, db);
+    await svc.poll();
+    expect(dockerExec).not.toHaveBeenCalled();
+    expect(db.queryOne).not.toHaveBeenCalled();
+    expect(svc.status().enabled).toBe(false);
+  });
+
+  it('never starts while the marketplace master switch is off (owner policy)', async () => {
+    const db = makeDb(false);
+    const svc = makeService({ MARKETPLACE_ENABLED: undefined }, db);
+    await svc.poll(); // would otherwise seed the idle streak
+    now += 2 * MIN;
     await svc.poll();
     expect(dockerExec).not.toHaveBeenCalled();
     expect(db.queryOne).not.toHaveBeenCalled();

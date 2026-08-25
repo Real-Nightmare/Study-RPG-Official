@@ -4199,7 +4199,7 @@
     "cancel": "取消",
     "error": "出错了。请重试。"
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "学习健康",
     "today": "今日专注",
     "optimal": "健康最优：每天{{min}}分钟",
@@ -4813,11 +4813,12 @@
     "datasets": {
       "publishModeLabel": "发布模式",
       "modeDisabled": "已禁用 — 发布已关闭",
-      "modeMetadataFirst": "metadata-first · 无需钱包 — 链上 datatoken 铸造是需要资助钱包的后续步骤",
+      "modeC2dReady": "C2D 已就绪 · 已配置链上计算资产",
+      "modeC2dRequired": "需要计算即数据 · 请配置已注资的钱包、RPC 和 Ocean 节点后再发布",
       "modeOnChainReady": "链上就绪 · 发布者钱包已配置",
-      "walletHint": "未配置发布者钱包 — 数据集仍会将元数据发布到 Aquarius；稍后添加 OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY 以完成链上铸造。",
-      "title": "数据市场（Ocean Protocol）",
-      "subtitle": "将受隐私保护的聚合统计数据发布到 Ocean 生态系统。只发布基于已同意群体的聚合数据。",
+      "walletHint": "在 C2D 发布可用之前，数据集保持草稿状态：请设置 OCEAN_PUBLISHER_PRIVATE_KEY（含地址）、OCEAN_RPC_URL 和 OCEAN_NODE_URL。没有仅元数据的回退方案。",
+      "title": "数据市场 —— 仅限计算即数据 (C2D)",
+      "subtitle": "将隐私保护的聚合统计发布为链上计算资产。买家在隔离的无网络环境中对聚合数据运行算法——数据本身绝不出售或下载。",
       "privacyNote": "仅聚合数据 · 最小群体规模 · 隐私守卫强制执行同意覆盖率。",
       "create": "新建数据集",
       "hideForm": "隐藏表单",

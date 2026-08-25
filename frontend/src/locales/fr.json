@@ -4200,7 +4200,7 @@
     "cancel": "Annuler",
     "error": "Une erreur est survenue. Veuillez réessayer."
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "Santé d'étude",
     "today": "Concentration aujourd'hui",
     "optimal": "Optimum sain : {{min}} min/jour",
@@ -4814,11 +4814,12 @@
     "datasets": {
       "publishModeLabel": "Mode de publication",
       "modeDisabled": "désactivé — publication coupée",
-      "modeMetadataFirst": "metadata-first · pas de wallet nécessaire — le mint on-chain du datatoken est une étape ultérieure avec wallet financée",
+      "modeC2dReady": "Prêt pour la C2D · actif de calcul on-chain configuré",
+      "modeC2dRequired": "calcul-sur-données requis · configurez un portefeuille financé, un RPC et un Ocean Node pour publier",
       "modeOnChainReady": "prêt pour l'on-chain · wallet de l'éditeur configurée",
-      "walletHint": "Aucune wallet d'éditeur configurée — les jeux de données publient toujours leurs métadonnées sur Aquarius ; ajoutez OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY plus tard pour finaliser le mint on-chain.",
-      "title": "Marketplace de données (Ocean Protocol)",
-      "subtitle": "Publie des statistiques agrégées protégées vers l'écosystème Ocean. Seules les agrégations sur des cohortes consentantes sont publiées.",
+      "walletHint": "Les jeux de données restent des brouillons tant que la publication C2D ne fonctionne pas : définissez OCEAN_PUBLISHER_PRIVATE_KEY (+ adresse), OCEAN_RPC_URL et OCEAN_NODE_URL. Aucun repli métadonnées-seules.",
+      "title": "Place de marché de données — CALCUL-SUR-DONNÉES UNIQUEMENT",
+      "subtitle": "Publiez des statistiques agrégées protégées par la confidentialité sous forme d’actifs de calcul on-chain. Les acheteurs exécutent des algorithmes sur l’agrégat dans un environnement isolé sans réseau — les données elles-mêmes ne sont jamais vendues ni téléchargeables.",
       "privacyNote": "Agrégats uniquement · taille minimale de cohorte · couverture de consentement appliquée par le garde de confidentialité.",
       "create": "Nouveau jeu de données",
       "hideForm": "Masquer le formulaire",

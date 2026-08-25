@@ -28,8 +28,16 @@ export interface FileInfo {
 }
 
 /**
- * Object storage adapter for Cloudflare R2 (S3-compatible API). Supports
- * direct uploads, streaming uploads, signed URLs, and key management.
+ * Object storage adapter behind one S3-compatible interface.
+ *
+ * Provider selection (`STORAGE_PROVIDER`, owner policy T3 — storage is the
+ * ONE area where external SaaS is allowed, and only free/no-credit-card
+ * options):
+ *   - `minio`  — DEFAULT for docker/self-host: the compose stack runs a local
+ *                MinIO; zero accounts, unlimited disk. S3 API, path-style.
+ *   - `r2`     — Cloudflare R2 (existing behaviour; needs R2_* credentials).
+ * Both speak the S3 protocol, so one client serves them; switching provider
+ * is purely an environment change — no code changes anywhere else.
  */
 @Injectable()
 export class StorageService implements OnModuleInit {
@@ -37,28 +45,61 @@ export class StorageService implements OnModuleInit {
   private client: S3Client;
   private bucket: string;
   private publicUrl: string;
+  private provider: string;
 
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit(): Promise<void> {
-    const accountId = this.configService.get<string>('R2_ACCOUNT_ID');
-    const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
-    this.bucket = this.configService.get<string>('R2_BUCKET_NAME', 'study_rpg');
-    this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL', '');
+    const configured = (this.configService.get<string>('STORAGE_PROVIDER') || '').toLowerCase();
+    const hasR2 = !!this.configService.get<string>('R2_ACCOUNT_ID');
+    // Docker default is minio; bare-metal default stays r2 when R2 is set up.
+    this.provider = configured || (hasR2 ? 'r2' : 'minio');
 
-    this.client = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: accessKeyId || '',
-        secretAccessKey: secretAccessKey || '',
-      },
-    });
+    if (this.provider === 'minio') {
+      const endpoint = (
+        this.configService.get<string>('MINIO_ENDPOINT') || 'http://localhost:9000'
+      ).replace(/\/$/, '');
+      this.bucket = this.configService.get<string>('MINIO_BUCKET', 'studyrpg-uploads');
+      this.publicUrl =
+        this.configService.get<string>('MINIO_PUBLIC_URL', '') || `${endpoint}/${this.bucket}`;
+      // MinIO serves buckets under the path — path-style addressing is mandatory.
+      this.client = new S3Client({
+        region: this.configService.get<string>('MINIO_REGION', 'us-east-1'),
+        endpoint,
+        forcePathStyle: true,
+        credentials: {
+          accessKeyId: this.configService.get<string>('MINIO_ACCESS_KEY', ''),
+          secretAccessKey: this.configService.get<string>('MINIO_SECRET_KEY', ''),
+        },
+      });
+      this.logger.log(
+        `MinIO storage client initialized - Endpoint: ${endpoint}, Bucket: ${this.bucket}`,
+      );
+    } else if (this.provider === 'r2') {
+      const accountId = this.configService.get<string>('R2_ACCOUNT_ID');
+      const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
+      const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
+      this.bucket = this.configService.get<string>('R2_BUCKET_NAME', 'study_rpg');
+      this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL', '');
 
-    this.logger.log(
-      `R2 Storage client initialized - Bucket: ${this.bucket}, Public URL: ${this.publicUrl || 'Not configured'}`,
-    );
+      this.client = new S3Client({
+        region: 'auto',
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId: accessKeyId || '',
+          secretAccessKey: secretAccessKey || '',
+        },
+      });
+      this.logger.log(
+        `R2 Storage client initialized - Bucket: ${this.bucket}, Public URL: ${this.publicUrl || 'Not configured'}`,
+      );
+    } else {
+      throw new Error(`Unsupported STORAGE_PROVIDER "${this.provider}". Supported: minio, r2.`);
+    }
+  }
+
+  getProvider(): string {
+    return this.provider;
   }
 
   private generateKey(filename: string, folder?: string): string {

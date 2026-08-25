@@ -1,5 +1,26 @@
 import { MarketplaceService } from './marketplace.service';
 import { PRIVACY_DEFAULTS } from './privacy-guard';
+import { NotImplementedException } from '@nestjs/common';
+
+function draftDataset(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'd1',
+    name: 'Focus engagement aggregates',
+    description: '',
+    dataset_type: 'study_engagement',
+    cohort_filters: {},
+    price_currency: 'OCEAN',
+    price_amount: 10,
+    status: 'draft',
+    did: null,
+    privacy_report: null,
+    checksum: null,
+    created_at: new Date(),
+    published_at: null,
+    revoked_at: null,
+    ...overrides,
+  };
+}
 
 function makeDb(
   overrides: { dataset?: Record<string, unknown>; consenting?: number; total?: number } = {},
@@ -8,12 +29,10 @@ function makeDb(
     consent: Array<Record<string, unknown>>;
     audits: Array<Record<string, unknown>>;
     datasets: Array<Record<string, unknown>>;
-  } = {
-    consent: [],
-    audits: [],
-    datasets: [],
-  };
+  } = { consent: [], audits: [], datasets: [] };
   if (overrides.dataset) store.datasets.push({ ...overrides.dataset });
+  const findRow = (params: unknown[]) =>
+    store.datasets.find((d) => d.id === params[params.length - 1]);
   return {
     store,
     query: jest.fn(async (sql: string, params: unknown[]) => {
@@ -51,27 +70,42 @@ function makeDb(
           privacy_report: null,
           checksum: null,
         });
-      } else if (sql.startsWith('UPDATE marketplace_datasets')) {
-        const row = store.datasets.find((d) => d.id === params[params.length - 1]);
+      } else if (
+        sql.startsWith('UPDATE marketplace_datasets') &&
+        sql.includes("status = 'published'")
+      ) {
+        // Success-path update: $1 did, $2 ddo, $3 report, $4 checksum,
+        // $5 nft, $6 dt, $7 exchange, $8 provider, $9 policy, $10 file key, $11 id
+        const row = findRow(params);
         if (row) {
-          if (sql.includes("status = 'published'")) {
-            row.status = 'published';
-            row.did = params[0];
-            row.ddo = params[1];
-            row.privacy_report = params[2];
-            row.checksum = params[3];
-            row.nft_address = params[4];
-            row.datatoken_address = params[5];
-            row.exchange_id = params[6];
-            row.provider_url = params[7];
-            row.c2d_policy = params[8];
-            row.c2d_error = params[10];
-            row.published_at = new Date();
-          } else if (sql.includes("status = 'revoked'")) {
-            row.status = 'revoked';
-            row.revoked_at = new Date();
-          }
+          Object.assign(row, {
+            status: 'published',
+            did: params[0],
+            ddo: params[1],
+            privacy_report: params[2],
+            checksum: params[3],
+            nft_address: params[4],
+            datatoken_address: params[5],
+            exchange_id: params[6],
+            provider_url: params[7],
+            c2d_policy: params[8],
+            aggregate_file_key: params[9],
+            c2d_error: null,
+            published_at: new Date(),
+          });
         }
+      } else if (
+        sql.startsWith('UPDATE marketplace_datasets') &&
+        sql.includes("status = 'revoked'")
+      ) {
+        const row = findRow(params);
+        if (row) {
+          row.status = 'revoked';
+          row.revoked_at = new Date();
+        }
+      } else if (sql.startsWith('UPDATE marketplace_datasets')) {
+        // Blocked/draft updates keep the row as-is (status untouched).
+        void findRow(params);
       }
       return {};
     }),
@@ -80,7 +114,7 @@ function makeDb(
         return store.consent.find((c) => c.user_id === params[0]) ?? null;
       }
       if (sql.includes('FROM marketplace_datasets WHERE id = $1')) {
-        return store.datasets.find((d) => d.id === params[0]) ?? overrides.dataset ?? null;
+        return store.datasets.find((d) => d.id === params[0]) ?? null;
       }
       if (sql.includes('FROM users u') && sql.includes('JOIN data_consent dc')) {
         return { count: overrides.consenting ?? 0 };
@@ -114,27 +148,28 @@ function makeDb(
   };
 }
 
-function makeOcean() {
+/** Marketplace config — `enabled` defaults to true so publish paths run. */
+function makeOcean(enabled = true) {
   return {
     getConfig: jest.fn(() => ({
+      enabled,
       aquariusUrl: 'https://aquarius.example.com',
       publisherAddress: null,
       publisherPrivateKey: null,
-      chainId: 1,
+      chainId: 137,
       publishEnabled: true,
+      c2dOnly: true,
       minGroupSize: PRIVACY_DEFAULTS.minGroupSize,
       consentThreshold: PRIVACY_DEFAULTS.consentThreshold,
       license: 'CC-BY-4.0 (aggregate statistics only)',
     })),
-    buildDdo: jest.fn((input: unknown) => ({
-      id: 'did:op:1:deadbeef',
-      metadata: { type: 'dataset', name: (input as { name: string }).name },
-    })),
-    publishMetadata: jest.fn(async () => ({ published: true, did: 'did:op:1:deadbeef' })),
+    getStatus: jest.fn(() => ({ publishMode: enabled ? 'c2d-unconfigured' : 'disabled' })),
+    buildDdo: jest.fn(),
+    publishMetadata: jest.fn(async () => ({ published: false, did: 'x', reason: 'unused' })),
   };
 }
 
-/** C2D mock — by default unconfigured so publish falls back to metadata-first. */
+/** C2D mock — by default unconfigured so publish is blocked (no fallback). */
 function makeC2D(overrides: Record<string, unknown> = {}) {
   const configured = overrides.configured === true;
   const getConfig = jest.fn(() => ({
@@ -190,15 +225,37 @@ function makeC2D(overrides: Record<string, unknown> = {}) {
 
 function makeStorage() {
   return {
-    upload: jest.fn(async (_buffer: Buffer, _filename: string, _opts?: unknown) => ({
+    upload: jest.fn(async () => ({
       key: 'marketplace/agg.json',
       url: 'https://cdn.example.com/marketplace/agg.json',
     })),
   };
 }
 
-function makeService(db: unknown, ocean: unknown, c2d = makeC2D(), storage = makeStorage()) {
-  return new MarketplaceService(db as never, ocean as never, c2d as never, storage as never);
+const runnerOk = {
+  run: jest.fn(async () => ({
+    status: 'success' as const,
+    stdout: '{"mean": 42}\n',
+    stderr: '',
+    exitCode: 0,
+    executionTimeMs: 12,
+  })),
+};
+
+function makeService(
+  db: unknown,
+  ocean: unknown,
+  c2d = makeC2D(),
+  storage = makeStorage(),
+  runner = runnerOk,
+) {
+  return new MarketplaceService(
+    db as never,
+    ocean as never,
+    c2d as never,
+    storage as never,
+    runner as never,
+  );
 }
 
 const baseInput = {
@@ -214,10 +271,8 @@ describe('MarketplaceService', () => {
     const svc = makeService(db, makeOcean());
     const view = await svc.setConsent('u1', true);
     expect(view.consented).toBe(true);
-    expect(db.store.consent.length).toBe(1);
-    const audit = db.store.audits.find((a) => a.action === 'data_consent.change');
-    expect(audit).toBeTruthy();
-    expect(audit!.details).toContain('"consented":true');
+    expect(db.store.audits.find((a) => a.action === 'data_consent.change')).toBeTruthy();
+    expect(db.store.audits[0].details).toContain('"consented":true');
   });
 
   it('rejects unknown dataset types', async () => {
@@ -234,96 +289,61 @@ describe('MarketplaceService', () => {
     const view = await svc.createDataset('admin1', baseInput);
     expect(view.status).toBe('draft');
     expect(view.cohortFilters.country).toBe('India');
-    expect(db.store.datasets.length).toBe(1);
     expect(db.store.audits.some((a) => a.action === 'data_marketplace.dataset_create')).toBe(true);
   });
 
+  it('refuses everything while the marketplace master switch is off', async () => {
+    const db = makeDb({ dataset: draftDataset(), consenting: 50, total: 60 });
+    const svc = makeService(db, makeOcean(false));
+    await expect(svc.publishDataset('admin1', 'd1', 'publish it')).rejects.toThrow(
+      NotImplementedException,
+    );
+  });
+
   it('blocks publication when the cohort is too small (privacy guard)', async () => {
-    const db = makeDb({
-      dataset: {
-        id: 'd1',
-        name: 'Focus engagement aggregates',
-        description: '',
-        dataset_type: 'study_engagement',
-        cohort_filters: { country: 'India' },
-        price_currency: 'OCEAN',
-        price_amount: 10,
-        status: 'draft',
-        did: null,
-        privacy_report: null,
-        checksum: null,
-        created_at: new Date(),
-        published_at: null,
-        revoked_at: null,
-      },
-      consenting: 5,
-      total: 60,
-    });
+    const db = makeDb({ dataset: draftDataset(), consenting: 5, total: 60 });
     const svc = makeService(db, makeOcean());
     await expect(svc.publishDataset('admin1', 'd1', 'publish it')).rejects.toThrow(
       /Privacy guard blocked/,
     );
   });
 
-  it('publishes metadata-first when consent coverage and cohort size are met', async () => {
+  it('keeps the dataset a draft when C2D is unconfigured — NO metadata-only fallback', async () => {
     const ocean = makeOcean();
     const db = makeDb({
-      dataset: {
-        id: 'd1',
-        name: 'Focus engagement aggregates',
-        description: 'Aggregate focus stats',
-        dataset_type: 'study_engagement',
-        cohort_filters: { country: 'India' },
-        price_currency: 'OCEAN',
-        price_amount: 10,
-        status: 'draft',
-        did: null,
-        privacy_report: null,
-        checksum: null,
-        created_at: new Date(),
-        published_at: null,
-        revoked_at: null,
-      },
+      dataset: draftDataset(),
       consenting: 50,
       total: 60,
     });
     const svc = makeService(db, ocean);
     const view = await svc.publishDataset('admin1', 'd1', 'publish it');
-    expect(view.status).toBe('published');
-    expect(view.did).toBe('did:op:1:deadbeef');
-    expect(view.nftAddress).toBeNull();
-    expect(ocean.buildDdo).toHaveBeenCalled();
-    expect(ocean.publishMetadata).toHaveBeenCalled();
-    const report = view.privacyReport as Record<string, unknown>;
-    expect(report.cohortSize).toBe(50);
-    expect(report.consentCoverage as number).toBeCloseTo(50 / 60);
-    expect(db.store.audits.some((a) => a.action === 'data_marketplace.publish')).toBe(true);
+    expect(view.status).toBe('draft');
+    expect(view.did).toBeNull();
+    expect(ocean.buildDdo).not.toHaveBeenCalled();
+    expect(ocean.publishMetadata).not.toHaveBeenCalled();
+    expect(db.store.audits.some((a) => a.action === 'data_marketplace.publish_blocked')).toBe(true);
   });
 
-  it('publishes a full on-chain C2D asset when a wallet is configured', async () => {
+  it('keeps the dataset a draft and records c2d_error when the C2D publish fails', async () => {
+    const ocean = makeOcean();
+    const c2d = makeC2D({
+      configured: true,
+      c2dResult: { ok: false, reason: 'Insufficient MATIC for gas' },
+    });
+    const db = makeDb({ dataset: draftDataset(), consenting: 50, total: 60 });
+    const svc = makeService(db, ocean, c2d);
+    const view = await svc.publishDataset('admin1', 'd1', 'publish it');
+    expect(view.status).toBe('draft');
+    expect(view.did).toBeNull();
+    expect(ocean.publishMetadata).not.toHaveBeenCalled();
+    expect(db.store.audits.some((a) => a.action === 'data_marketplace.publish_blocked')).toBe(true);
+  });
+
+  it('publishes ONLY after the full on-chain C2D asset exists', async () => {
     const ocean = makeOcean();
     const c2d = makeC2D({ configured: true });
     const storage = makeStorage();
-    const db = makeDb({
-      dataset: {
-        id: 'd1',
-        name: 'Focus engagement aggregates',
-        description: 'Aggregate focus stats',
-        dataset_type: 'study_engagement',
-        cohort_filters: { country: 'India' },
-        price_currency: 'OCEAN',
-        price_amount: 10,
-        status: 'draft',
-        did: null,
-        privacy_report: null,
-        checksum: null,
-        created_at: new Date(),
-        published_at: null,
-        revoked_at: null,
-      },
-      consenting: 50,
-      total: 60,
-    });
+    const db = makeDb({ dataset: draftDataset(), consenting: 50, total: 60 });
     const svc = makeService(db, ocean, c2d, storage);
     const view = await svc.publishDataset('admin1', 'd1', 'publish it');
     expect(view.status).toBe('published');
@@ -343,108 +363,83 @@ describe('MarketplaceService', () => {
     expect(c2dInput.fileUrl).toBe('https://cdn.example.com/marketplace/agg.json');
     expect(c2dInput.checksum).toMatch(/^[0-9a-f]{64}$/);
     expect(c2dInput.policy.allowRawAlgorithm).toBe(true);
+    // HARD INVARIANT: compute jobs never get network access.
     expect(c2dInput.policy.allowNetworkAccess).toBe(false);
-    // The real C2D DDO is stored instead of the metadata-first DDO.
+    // No metadata-only DDO is ever built or pushed.
     expect(ocean.buildDdo).not.toHaveBeenCalled();
     expect(ocean.publishMetadata).not.toHaveBeenCalled();
   });
 
-  it('falls back to metadata-first and records c2d_error when C2D fails', async () => {
-    const ocean = makeOcean();
-    const c2d = makeC2D({
-      configured: true,
-      c2dResult: { ok: false, reason: 'Insufficient MATIC for gas' },
-    });
-    const db = makeDb({
-      dataset: {
-        id: 'd1',
-        name: 'Focus engagement aggregates',
-        description: '',
-        dataset_type: 'study_engagement',
-        cohort_filters: {},
-        price_currency: 'OCEAN',
-        price_amount: 10,
-        status: 'draft',
-        did: null,
-        privacy_report: null,
-        checksum: null,
-        created_at: new Date(),
-        published_at: null,
-        revoked_at: null,
-      },
-      consenting: 50,
-      total: 60,
-    });
-    const svc = makeService(db, ocean, c2d, makeStorage());
-    const view = await svc.publishDataset('admin1', 'd1', 'publish it');
-    expect(view.status).toBe('published');
-    expect(view.did).toBe('did:op:1:deadbeef');
-    expect(view.nftAddress).toBeNull();
-    expect(view.c2dError).toBe('Insufficient MATIC for gas');
-    expect(ocean.publishMetadata).toHaveBeenCalled();
-    const report = view.privacyReport as Record<string, unknown>;
-    expect((report.c2d as { published: boolean }).published).toBe(false);
+  it('rejects any request that asks for network access outright', async () => {
+    const db = makeDb({ dataset: draftDataset(), consenting: 50, total: 60 });
+    const svc = makeService(db, makeOcean(), makeC2D({ configured: true }));
+    await expect(
+      svc.publishDataset('admin1', 'd1', 'publish it', {
+        allowRawAlgorithm: false,
+        allowNetworkAccess: true,
+        trustedAlgorithmPublishers: ['0xAlgoPub'],
+      }),
+    ).rejects.toThrow(/compute jobs can never be granted network access/);
   });
 
-  it('passes a per-dataset C2D policy override to the publisher', async () => {
-    const ocean = makeOcean();
+  it('forces network access off even when base config was tampered with', async () => {
+    const db = makeDb({ dataset: draftDataset(), consenting: 50, total: 60 });
     const c2d = makeC2D({ configured: true });
+    // Simulate an env misconfiguration attempt.
+    c2d.getConfig.mockReturnValue({
+      publisherPrivateKey: '0xwallet',
+      rpcUrl: 'https://rpc.example.com',
+      nodeUrl: 'https://node.example.com/',
+      c2d: { allowRawAlgorithm: true, allowNetworkAccess: true, trustedAlgorithmPublishers: [] },
+    });
+    const svc = makeService(db, makeOcean(), c2d);
+    await svc.publishDataset('admin1', 'd1', 'publish it');
+    const c2dInput = c2d.publishComputeAsset.mock.calls[0][0] as {
+      policy: { allowNetworkAccess: boolean };
+    };
+    expect(c2dInput.policy.allowNetworkAccess).toBe(false);
+  });
+
+  it('runs researcher algorithms against the stored sanitized aggregate', async () => {
+    const runner = {
+      run: jest.fn(async () => ({
+        status: 'success' as const,
+        stdout: 'ok',
+        stderr: '',
+        exitCode: 0,
+        executionTimeMs: 5,
+      })),
+    };
     const db = makeDb({
-      dataset: {
-        id: 'd1',
-        name: 'Focus engagement aggregates',
-        description: '',
-        dataset_type: 'study_engagement',
-        cohort_filters: {},
-        price_currency: 'OCEAN',
-        price_amount: 10,
-        status: 'draft',
-        did: null,
-        privacy_report: null,
-        checksum: null,
-        created_at: new Date(),
-        published_at: null,
-        revoked_at: null,
-      },
+      dataset: draftDataset({
+        privacy_report: JSON.stringify({ payload: { count_active_users: 50 } }),
+      }),
       consenting: 50,
       total: 60,
     });
-    const svc = makeService(db, ocean, c2d, makeStorage());
-    await svc.publishDataset('admin1', 'd1', 'publish it', {
-      allowRawAlgorithm: false,
-      allowNetworkAccess: true,
-      trustedAlgorithmPublishers: ['0xAlgoPub'],
-    });
-    const c2dInput = c2d.publishComputeAsset.mock.calls[0][0] as {
-      policy: {
-        allowRawAlgorithm: boolean;
-        allowNetworkAccess: boolean;
-        trustedAlgorithmPublishers: string[];
-      };
-    };
-    expect(c2dInput.policy.allowRawAlgorithm).toBe(false);
-    expect(c2dInput.policy.allowNetworkAccess).toBe(true);
-    expect(c2dInput.policy.trustedAlgorithmPublishers).toEqual(['0xAlgoPub']);
+    const svc = makeService(db, makeOcean(), makeC2D(), makeStorage(), runner);
+    const result = await svc.testCompute('admin1', 'd1', 'print(1)', { language: 'python' });
+    expect(result.status).toBe('success');
+    expect(runner.run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        language: 'python',
+        data: JSON.stringify({ count_active_users: 50 }),
+      }),
+    );
+    expect(db.store.audits.some((a) => a.action === 'data_marketplace.c2d_test_run')).toBe(true);
+  });
+
+  it('refuses test runs before a sanitized payload exists', async () => {
+    const db = makeDb({ dataset: draftDataset(), consenting: 50, total: 60 });
+    const svc = makeService(db, makeOcean());
+    await expect(svc.testCompute('admin1', 'd1', 'print(1)')).rejects.toThrow(
+      /No privacy-guarded aggregate exists/,
+    );
   });
 
   it('revokes a dataset and audits the action', async () => {
     const db = makeDb({
-      dataset: {
-        id: 'd1',
-        name: 'Focus engagement aggregates',
-        description: '',
-        dataset_type: 'study_engagement',
-        cohort_filters: {},
-        price_currency: 'OCEAN',
-        price_amount: 10,
-        status: 'published',
-        did: 'did:op:1:x',
-        privacy_report: {},
-        checksum: 'abc',
-        created_at: new Date(),
-        published_at: new Date(),
-        revoked_at: null,
-      },
+      dataset: draftDataset({ status: 'published', did: 'did:op:1:x', checksum: 'abc' }),
     });
     const svc = makeService(db, makeOcean());
     const view = await svc.revokeDataset('admin1', 'd1', 'no longer valid');

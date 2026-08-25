@@ -1,8 +1,12 @@
 /**
- * Unified LLM gateway. OpenRouter is the primary provider (one API for
- * OpenAI, Anthropic, Google, DeepSeek and friends via the OpenAI-compatible
- * protocol); a direct OpenAI client is kept as a fallback, and Whisper
- * transcription always uses the direct client.
+ * Unified LLM gateway. Provider selection (`AI_PROVIDER`):
+ *   - `openai-compatible` — any OpenAI-compatible endpoint (default for
+ *     docker/self-host: local Ollama at http://ollama:11434/v1). No API key,
+ *     no external account, fully offline. Configured via AI_BASE_URL/AI_MODEL.
+ *   - `openrouter` (default when only OPENROUTER_API_KEY is set) — one API
+ *     for OpenAI, Anthropic, Google, DeepSeek and friends.
+ *   - direct OpenAI fallback when OPENAI_API_KEY is set.
+ * Whisper transcription always uses the direct OpenAI client when available.
  */
 
 import {
@@ -20,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const DEFAULT_MODEL = 'openai/gpt-4o-mini';
 const DEFAULT_VISION_MODEL = 'openai/gpt-4o';
+const LOCAL_DEFAULT_MODEL = 'qwen2.5:7b-instruct';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -57,6 +62,8 @@ export class AiService implements OnModuleInit {
 
   private openRouterClient: OpenAI | null = null;
   private openaiClient: OpenAI | null = null;
+  /** OpenAI-compatible endpoint (local Ollama in the default docker stack). */
+  private localClient: OpenAI | null = null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -68,6 +75,22 @@ export class AiService implements OnModuleInit {
   }
 
   private initializeClients(): void {
+    // 1) Explicitly selected OpenAI-compatible endpoint (Ollama by default).
+    //    Needs no API key — the SDK requires a non-empty one, Ollama ignores it.
+    const provider = (this.configService.get<string>('AI_PROVIDER') || '').toLowerCase();
+    const baseUrl = this.configService.get<string>('AI_BASE_URL');
+    if (provider === 'openai-compatible' && baseUrl) {
+      this.localClient = new OpenAI({
+        apiKey: this.configService.get<string>('AI_API_KEY', 'local'),
+        baseURL: baseUrl.replace(/\/$/, ''),
+        timeout: 120000,
+      });
+      this.logger.log(
+        `OpenAI-compatible client initialized at ${baseUrl} ` +
+          `(model ${this.configService.get('AI_MODEL', LOCAL_DEFAULT_MODEL)})`,
+      );
+    }
+
     const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY');
 
     if (openRouterKey && !openRouterKey.includes('your-')) {
@@ -92,12 +115,19 @@ export class AiService implements OnModuleInit {
       this.logger.log('OpenAI direct client initialized (fallback)');
     }
 
-    if (!this.openRouterClient && !this.openaiClient) {
-      this.logger.warn('No AI clients available! Set OPENROUTER_API_KEY or OPENAI_API_KEY in .env');
+    if (!this.localClient && !this.openRouterClient && !this.openaiClient) {
+      this.logger.warn(
+        'No AI clients available! Run the local stack (docker compose up ollama) or set ' +
+          'OPENROUTER_API_KEY / OPENAI_API_KEY.',
+      );
     }
   }
 
   private getClient(): OpenAI {
+    if (this.localClient) {
+      return this.localClient;
+    }
+
     if (this.openRouterClient) {
       return this.openRouterClient;
     }
@@ -107,11 +137,18 @@ export class AiService implements OnModuleInit {
     }
 
     throw new BadRequestException(
-      'No AI API key configured. Set OPENROUTER_API_KEY or OPENAI_API_KEY in .env file.',
+      'No AI provider configured. Start the local Ollama service (docker compose up -d ollama) ' +
+        'or set OPENROUTER_API_KEY / OPENAI_API_KEY.',
     );
   }
 
   private getModel(type: 'text' | 'vision' = 'text'): string {
+    if (this.localClient) {
+      return type === 'vision'
+        ? this.configService.get('AI_VISION_MODEL', LOCAL_DEFAULT_MODEL)
+        : this.configService.get('AI_MODEL', LOCAL_DEFAULT_MODEL);
+    }
+
     if (this.openRouterClient) {
       return type === 'vision'
         ? this.configService.get('OPENROUTER_VISION_MODEL', DEFAULT_VISION_MODEL)
@@ -346,11 +383,16 @@ export class AiService implements OnModuleInit {
   }
 
   isAvailable(): boolean {
-    return this.openRouterClient !== null || this.openaiClient !== null;
+    return (
+      this.localClient !== null || this.openRouterClient !== null || this.openaiClient !== null
+    );
   }
 
   getAvailableProviders(): string[] {
     const providers: string[] = [];
+    if (this.localClient) {
+      providers.push('openai-compatible');
+    }
     if (this.openRouterClient) {
       providers.push('openrouter', 'openai', 'anthropic', 'google', 'deepseek');
     } else if (this.openaiClient) {

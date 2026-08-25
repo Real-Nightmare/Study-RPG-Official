@@ -13,6 +13,15 @@
 export type OceanNetwork = 'mainnet' | 'testnet';
 
 export interface MarketplaceConfig {
+  /**
+   * Master switch for the whole data marketplace (owner policy update:
+   * "the data marketplace should be very strict to not sell PII related
+   * things"). Defaults to FALSE so a stock deployment never exposes any
+   * marketplace surface. When disabled, every data-marketplace endpoint
+   * answers 501 (the internal benchmark pipeline keeps working), the
+   * idle-capacity Ocean Node never starts, and nothing is ever published.
+   */
+  enabled: boolean;
   /** Base URL of the Ocean Aquarius metadata store (e.g. mainnet). */
   aquariusUrl: string;
   /** Publisher wallet address (checksummed hex) — optional. */
@@ -25,6 +34,16 @@ export interface MarketplaceConfig {
   chainId: number;
   /** Master switch for outbound publish calls (kept true by default). */
   publishEnabled: boolean;
+  /**
+   * Compute-to-Data ONLY (owner policy update). When true (always, in this
+   * codebase — see C2D_ONLY below) a dataset may only be "published" once a
+   * real on-chain compute asset exists: buyers run their algorithms against
+   * the sanitized aggregate inside an isolated compute environment. There is
+   * deliberately NO download/access path: nobody ever buys a copy of the
+   * data, they buy compute on it. Kept as an explicit flag so tests and the
+   * status endpoint can assert it.
+   */
+  c2dOnly: boolean;
   /** Minimum cohort size before an aggregate may be published. */
   minGroupSize: number;
   /** Minimum consent coverage (0–1) before publication. */
@@ -57,24 +76,55 @@ export interface MarketplaceConfig {
 
 export interface C2DPolicyConfig {
   /**
-   * Allow buyers to submit their own algorithm code (raw) to run against the
-   * aggregate. Safe on this platform because published files are strictly
-   * sanitized numeric aggregates — there are no raw rows or credentials to
-   * leak — and `allowNetworkAccess` (below) blocks exfiltration anyway.
-   * Defaults to true so the asset is actually usable for compute; admins may
-   * tighten it per dataset. Default: true.
+   * Allow buyers/researchers to submit their own algorithm code (raw) to run
+   * against the aggregate. This is the entire point of compute-to-data: a
+   * researcher proves their analysis on our data without ever receiving it.
+   * Safe because published files are strictly sanitized numeric aggregates —
+   * there are no raw rows, no PII and no credentials to leak — and because
+   * `allowNetworkAccess` is permanently false (see below) so nothing can be
+   * exfiltrated from the compute environment. Default: true.
    */
   allowRawAlgorithm: boolean;
   /**
-   * Whether compute jobs may reach the public internet. Defaults to FALSE:
-   * aggregates are meant to be computed on, not exfiltrated.
+   * Whether compute jobs may reach the public internet. PERMANENTLY FALSE:
+   * this is a hard invariant of the marketplace (owner policy: strict
+   * no-leak C2D). The value can no longer be overridden by env or API —
+   * `normalizeC2dPolicy` forces it to false everywhere. Compute happens in
+   * the isolated `c2d-runner` container (compose) which additionally has no
+   * network route at all.
    */
-  allowNetworkAccess: boolean;
+  allowNetworkAccess: false;
   /**
    * Allowlist of algorithm publisher addresses (comma-separated). Empty
    * (default) = any published algorithm is allowed on top of raw algorithms.
    */
   trustedAlgorithmPublishers: string[];
+}
+
+/**
+ * Hard invariant: the marketplace is COMPUTE-TO-DATA ONLY. No access/download
+ * service may ever be registered for any asset; buyers purchase the right to
+ * run an algorithm against the sanitized aggregate inside an isolated
+ * compute environment, never the data itself. This constant is asserted at
+ * publish time; changing it requires a code change (by design).
+ */
+export const C2D_ONLY = true as const;
+
+/** Isolated compute-to-data runner configuration (researcher test harness). */
+export interface C2dRunnerConfig {
+  /** Base URL of the c2d-runner sidecar (network-isolated container). */
+  url: string;
+  /** Per-job wall clock timeout in seconds. */
+  timeoutSeconds: number;
+}
+
+export function getC2dRunnerConfig(
+  env: Record<string, string | undefined> = process.env,
+): C2dRunnerConfig {
+  return {
+    url: (env.C2D_RUNNER_URL || 'http://c2d-runner:9000').replace(/\/$/, ''),
+    timeoutSeconds: Math.max(1, Number(env.C2D_RUNNER_TIMEOUT_S || 30)),
+  };
 }
 
 // Default addresses for the Ocean Protocol deployment on Polygon mainnet
@@ -102,6 +152,7 @@ export function getMarketplaceConfig(
   const network: OceanNetwork = env.OCEAN_NETWORK === 'testnet' ? 'testnet' : 'mainnet';
   const chainId = Number(env.OCEAN_CHAIN_ID || OCEAN_POLYGON_DEFAULTS.chainId);
   return {
+    enabled: String(env.MARKETPLACE_ENABLED ?? 'false') === 'true',
     aquariusUrl: (
       env.OCEAN_AQUARIUS_URL ||
       (network === 'mainnet' ? 'https://aquarius.mainnet.oceanprotocol.com' : '')
@@ -111,6 +162,7 @@ export function getMarketplaceConfig(
     network,
     chainId,
     publishEnabled: String(env.MARKETPLACE_PUBLISH_ENABLED ?? 'true') !== 'false',
+    c2dOnly: C2D_ONLY,
     minGroupSize: Number(env.MARKETPLACE_MIN_GROUP_SIZE || 10),
     consentThreshold: Number(env.MARKETPLACE_CONSENT_THRESHOLD || 0.8),
     license: env.MARKETPLACE_DATASET_LICENSE || 'CC-BY-4.0 (aggregate statistics only)',
@@ -122,12 +174,40 @@ export function getMarketplaceConfig(
     oceanTokenAddress: env.OCEAN_TOKEN_ADDRESS || OCEAN_POLYGON_DEFAULTS.oceanTokenAddress,
     c2d: {
       allowRawAlgorithm: String(env.OCEAN_C2D_ALLOW_RAW_ALGORITHM ?? 'true') !== 'false',
-      allowNetworkAccess: String(env.OCEAN_C2D_ALLOW_NETWORK_ACCESS ?? 'false') === 'true',
+      // Hard invariant — never configurable, never true. See C2DPolicyConfig.
+      allowNetworkAccess: false,
       trustedAlgorithmPublishers: (env.OCEAN_C2D_TRUSTED_ALGORITHM_PUBLISHERS || '')
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean),
     },
+  };
+}
+
+/**
+ * Force an incoming C2D policy (API DTO or env override) into the strict,
+ * publish-safe shape: network access is always false regardless of what the
+ * caller asked for, and unknown values are dropped.
+ */
+export function normalizeC2dPolicy(
+  override?: Partial<{
+    allowRawAlgorithm: boolean;
+    allowNetworkAccess: boolean;
+    trustedAlgorithmPublishers: string[];
+  }>,
+  base?: C2DPolicyConfig,
+): C2DPolicyConfig {
+  const source = base ?? {
+    allowRawAlgorithm: true,
+    allowNetworkAccess: false as const,
+    trustedAlgorithmPublishers: [],
+  };
+  return {
+    allowRawAlgorithm: override?.allowRawAlgorithm ?? source.allowRawAlgorithm,
+    // Strict no-leak policy: compute jobs NEVER get internet access.
+    allowNetworkAccess: false,
+    trustedAlgorithmPublishers:
+      override?.trustedAlgorithmPublishers ?? source.trustedAlgorithmPublishers,
   };
 }
 
@@ -181,7 +261,12 @@ export function getOceanNodeConfig(
   env: Record<string, string | undefined> = process.env,
 ): OceanNodeConfig {
   return {
-    enabled: String(env.OCEAN_NODE_ENABLED ?? 'false') === 'true',
+    // Double gate: the idle-capacity node is a marketplace surface, so it
+    // requires BOTH OCEAN_NODE_ENABLED=true AND MARKETPLACE_ENABLED=true.
+    // With the marketplace off (the default) it can never start.
+    enabled:
+      String(env.OCEAN_NODE_ENABLED ?? 'false') === 'true' &&
+      String(env.MARKETPLACE_ENABLED ?? 'false') === 'true',
     image: env.OCEAN_NODE_IMAGE || 'oceanprotocol/ocean-node:latest',
     containerName: env.OCEAN_NODE_CONTAINER_NAME || 'study-rpg-ocean-node',
     checkIntervalMs: Math.max(15_000, Number(env.OCEAN_NODE_CHECK_INTERVAL_S || 60) * 1000),

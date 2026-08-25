@@ -4200,7 +4200,7 @@
     "cancel": "Cancelar",
     "error": "Algo salió mal. Inténtalo de nuevo."
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "Salud de estudio",
     "today": "Enfoque hoy",
     "optimal": "Óptimo saludable: {{min}} min/día",
@@ -4814,11 +4814,12 @@
     "datasets": {
       "publishModeLabel": "Modo de publicación",
       "modeDisabled": "desactivado — publicación apagada",
-      "modeMetadataFirst": "metadata-first · sin wallet — el mint on-chain del datatoken es un paso posterior con wallet financiada",
+      "modeC2dReady": "Listo para C2D · activo de cómputo en cadena configurado",
+      "modeC2dRequired": "se requiere compute-to-data · configura una wallet financiada, RPC y un Ocean Node para publicar",
       "modeOnChainReady": "listo para on-chain · wallet del publicador configurada",
-      "walletHint": "Sin wallet de publicador configurada — los datasets siguen publicando metadatos en Aquarius; añade OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY luego para completar el mint on-chain.",
-      "title": "Marketplace de datos (Ocean Protocol)",
-      "subtitle": "Publica estadísticas agregadas protegidas en el ecosistema Ocean. Solo se publican agregados de cohortes con consentimiento.",
+      "walletHint": "Los datasets permanecen como borradores hasta que la publicación C2D funcione: configura OCEAN_PUBLISHER_PRIVATE_KEY (+ dirección), OCEAN_RPC_URL y OCEAN_NODE_URL. No hay alternativa de solo-metadatos.",
+      "title": "Mercado de datos — SOLO compute-to-data",
+      "subtitle": "Publica estadísticas agregadas protegidas por privacidad como activos de cómputo en cadena. Los compradores ejecutan algoritmos sobre el agregado en un entorno aislado sin red — los datos nunca se venden ni se descargan.",
       "privacyNote": "Solo agregados · tamaño mínimo de cohorte · cobertura de consentimiento aplicada por el guardián de privacidad.",
       "create": "Nuevo dataset",
       "hideForm": "Ocultar formulario",

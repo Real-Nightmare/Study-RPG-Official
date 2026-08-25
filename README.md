@@ -36,10 +36,11 @@ no "study more" pressure — smarter studying is the whole point.
   check-ins verify understanding instead of rewarding recall.
 - **Free-to-win integrity.** An exponential reward curve, anti-cheese guards,
   and a fully audited in-game economy keep the game honest.
-- **Privacy-first data economy.** With your explicit consent, the platform can
-  publish **anonymised study aggregates** (never credentials, never individual
-  data) to the Ocean Protocol ecosystem — including real **Compute-to-Data**
-  on-chain publishing on Polygon — to keep the project sustainable.
+- **Privacy-first data economy.** The platform never sells personal data. With
+  your explicit consent, only **anonymised numeric aggregates** may be used —
+  and even those are compute-to-data only: outside researchers run their
+  algorithms on the aggregate inside an isolated container; nobody can buy or
+  download the underlying data, and nothing PII-shaped ever passes the guard.
 
 ## Capabilities
 
@@ -68,10 +69,23 @@ no "study more" pressure — smarter studying is the whole point.
 - Events (StudyPass, quests, limited-time card events), a card economy with supply-tied value, and a fair marketplace.
 - **Campfire** — the AI asks one targeted synthesis question before you cash in rewards; depth grading is verified, not guessed.
 
-### Data marketplace (Ocean Protocol)
-- Consent-gated, aggregate-only dataset publishing with a strict privacy guard.
-- **Compute-to-Data** — real on-chain publishing on **Polygon mainnet**: data NFT + datatoken + fixed-rate exchange, encrypted file references, and an on-chain DDO with a `compute` service whose privacy policy blocks data exfiltration by default.
-- Admin AI benchmarking pipeline that scores how much studying with Study RPG improves outcomes — from your own anonymised cohort data.
+### Data marketplace (Ocean Protocol) — compute-to-data ONLY
+- **The marketplace is OFF by default** (`MARKETPLACE_ENABLED=false`): every
+  endpoint answers 501 and nothing ever leaves the platform. The internal AI
+  benchmarking pipeline keeps working.
+- **Strictly no PII for sale.** Only privacy-guarded numeric aggregates over
+  explicitly consenting students may ever be published — checked twice (field
+  names AND values). There is deliberately **no download/access path**: a
+  dataset is publishable only as an on-chain **Compute-to-Data** asset
+  (Polygon mainnet: data NFT + datatoken + fixed-rate exchange + `compute`
+  service), and if that fails the dataset simply stays a draft.
+- **Isolated research environment.** Researcher algorithms run inside the
+  `c2d-runner` container — no outbound network route, read-only filesystem,
+  non-root, hard memory/CPU/PID caps — both locally (admin "test-compute"
+  harness) and in production compute jobs. Compute jobs never get network
+  access.
+- Admin AI benchmarking pipeline that scores how much studying with Study RPG
+  improves outcomes — from your own anonymised cohort data.
 
 ## Tech stack
 
@@ -79,22 +93,39 @@ no "study more" pressure — smarter studying is the whole point.
 |-------|------------|
 | Backend | NestJS 10, TypeScript, PostgreSQL (raw SQL), Redis, Qdrant, ClickHouse, BullMQ, Socket.IO |
 | Frontend | React 19, Vite, TypeScript, Tailwind CSS, Radix UI, Zustand, TanStack Query, i18next (15 locales) |
-| AI | OpenRouter, OpenAI embeddings, multi-agent orchestration |
-| Web3 | Ocean Protocol (`@oceanprotocol/lib`, ethers v6) — Polygon mainnet defaults |
-| Infra | Docker Compose, Nginx, GitHub Actions CI/CD, Cloudflare Pages |
+| AI | Local Ollama by default (OpenAI-compatible API); OpenRouter/OpenAI optional upgrades |
+| Web3 | Ocean Protocol (`@oceanprotocol/lib`, ethers v6) — Polygon mainnet defaults, strictly opt-in |
+| Infra | Docker Compose (postgres, redis, qdrant, clickhouse, ollama, searxng, mailpit, minio, c2d-runner), Nginx, GitHub Actions CI |
 
-## Quick start
+## Quick start — fully local, zero accounts
 
-### Docker (recommended)
+Everything runs on your machine: local LLM (Ollama), local web search
+(SearXNG), local email sink (Mailpit), local object storage (MinIO) and a
+network-isolated code/compute runner. No API keys, no credit card.
 
 ```bash
 git clone https://github.com/Real-Nightmare/Study-RPG-Official.git
 cd Study-RPG-Official
-cp backend/.env.example backend/.env   # fill in credentials
-docker compose --env-file .env.docker up -d
+docker compose --env-file .env.docker up -d   # start every service
+sh scripts/bootstrap.sh                       # wait healthy → migrate → pull models
+open http://localhost:5189                    # register a username and play
 ```
 
-Frontend: `http://localhost:5189` · API: `http://localhost:3010`.
+First run pulls the Ollama models (~4.5 GB, cached afterwards).
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5189 |
+| API | http://localhost:3010/api/v1 |
+| Mailpit UI (dev email) | http://localhost:8025 |
+| MinIO console | http://localhost:9001 (`studyrpg` / `studyrpg-secret`) |
+| Ollama API | http://localhost:11434 |
+| SearXNG | http://localhost:8888 |
+
+Optional hosted upgrades (all off by default): `OPENROUTER_API_KEY`,
+AWS SES (`EMAIL_TRANSPORT=ses`), Stripe (`BILLING_ENABLED=true`),
+on-chain C2D publishing (`MARKETPLACE_ENABLED=true` + wallet env vars).
+See `backend/.env.example` for every variable.
 
 ### Manual
 
@@ -103,7 +134,7 @@ Frontend: `http://localhost:5189` · API: `http://localhost:3010`.
 cd backend && cp .env.example .env && npm install && npm run migrate && npm run start:dev
 
 # Frontend (second terminal)
-cd frontend && cp .env.example .env && npm install && npm run dev
+cd frontend && npm install && npm run dev
 ```
 
 ### One-command dev

@@ -3,6 +3,7 @@ import { OceanService, mintDid } from './ocean.service';
 function makeConfig(overrides: Record<string, unknown> = {}) {
   const values: Record<string, unknown> = {
     OCEAN_AQUARIUS_URL: '',
+    MARKETPLACE_ENABLED: 'true',
     OCEAN_PUBLISHER_ADDRESS: '0x0000000000000000000000000000000000000001',
     OCEAN_CHAIN_ID: '1',
     MARKETPLACE_PUBLISH_ENABLED: 'true',
@@ -59,14 +60,20 @@ describe('OceanService', () => {
     const svc = new OceanService(
       makeConfig({
         OCEAN_AQUARIUS_URL: 'https://aquarius.example.com',
-        MARKETPLACE_PUBLISH_ENABLED: 'false',
+        MARKETPLACE_ENABLED: undefined,
       }) as never,
     );
     const ddo = svc.buildDdo(input);
     const result = await svc.publishMetadata(ddo);
     expect(result.published).toBe(false);
     expect(result.did).toBe(ddo.id);
-    expect(result.reason).toContain('disabled');
+    expect(result.reason).toContain('MARKETPLACE_ENABLED=false');
+  });
+
+  it('reports the disabled publish mode while MARKETPLACE_ENABLED is unset', () => {
+    const svc = new OceanService(makeConfig({ MARKETPLACE_ENABLED: undefined }) as never);
+    expect(svc.getStatus().publishMode).toBe('disabled');
+    expect(svc.getStatus().enabled).toBe(false);
   });
 
   it('attempts the Aquarius POST when configured and reports failures without throwing', async () => {

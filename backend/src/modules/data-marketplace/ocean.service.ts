@@ -10,16 +10,12 @@
  *   2. A SHA-256 checksum of the aggregate payload is embedded in the DDO
  *      `files` entry so buyers can verify the data they receive matches what
  *      was published.
- *   3. Nothing is sent unless the marketplace is configured and enabled
- *      (`OCEAN_AQUARIUS_URL` + `MARKETPLACE_PUBLISH_ENABLED`). Unconfigured
- *      publishes are recorded as drafts with `published: false` — the DDO is
- *      still stored so it can be re-submitted or exported for manual upload.
- *   4. Publisher credentials (wallet address/key) are optional and never
- *      logged. This service completes the *metadata-first* publish step and
- *      keeps the DDO re-submittable; the real on-chain path — deploying the
- *      ERC721 + datatoken and registering a compute-to-data service — lives in
- *      `ocean-c2d.service.ts` and is used automatically when a funded wallet,
- *      an RPC URL and an Ocean Node are configured.
+ *   3. Nothing is sent unless the marketplace is enabled and configured.
+ *      Publishing itself now happens ONLY via `ocean-c2d.service.ts` (full
+ *      on-chain compute asset); this module keeps the DDO builder for draft
+ *      records/exports and the gated Aquarius re-submission primitive.
+ *   4. Publisher credentials (wallet address/key) are optional at boot and
+ *      never logged.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -95,6 +91,7 @@ export class OceanService {
   getConfig(): MarketplaceConfig {
     const get = (key: string) => this.config.get<string>(key);
     return getMarketplaceConfig({
+      MARKETPLACE_ENABLED: get('MARKETPLACE_ENABLED'),
       OCEAN_AQUARIUS_URL: get('OCEAN_AQUARIUS_URL'),
       OCEAN_PUBLISHER_ADDRESS: get('OCEAN_PUBLISHER_ADDRESS'),
       OCEAN_PUBLISHER_PRIVATE_KEY: get('OCEAN_PUBLISHER_PRIVATE_KEY'),
@@ -108,14 +105,13 @@ export class OceanService {
   }
 
   /**
-   * Operational status for the admin UI. The marketplace never requires a
-   * funded wallet: metadata-first publish (Aquarius) works with no wallet at
-   * all, and the on-chain datatoken mint is a documented follow-up that only
-   * needs OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY once you're
-   * ready to fund it.
+   * Operational status for the admin UI. The marketplace is compute-to-data
+   * ONLY (owner policy): there is no download/access path, so "ready" means
+   * a funded wallet + RPC + Ocean Node are configured and nothing less.
    */
   getStatus(): {
-    publishMode: 'disabled' | 'metadata-first' | 'on-chain-ready';
+    publishMode: 'disabled' | 'c2d-unconfigured' | 'c2d-ready';
+    enabled: boolean;
     aquariusConfigured: boolean;
     walletConfigured: boolean;
     network: OceanNetwork;
@@ -124,12 +120,10 @@ export class OceanService {
     const cfg = this.getConfig();
     const aquariusConfigured = cfg.publishEnabled && !!cfg.aquariusUrl;
     const walletConfigured = !!cfg.publisherAddress && !!cfg.publisherPrivateKey;
+    const c2dReady = walletConfigured && !!cfg.rpcUrl && !!cfg.nodeUrl && !!cfg.factoryAddress;
     return {
-      publishMode: !aquariusConfigured
-        ? 'disabled'
-        : walletConfigured
-          ? 'on-chain-ready'
-          : 'metadata-first',
+      publishMode: !cfg.enabled ? 'disabled' : c2dReady ? 'c2d-ready' : 'c2d-unconfigured',
+      enabled: cfg.enabled,
       aquariusConfigured,
       walletConfigured,
       network: cfg.network,
@@ -171,7 +165,10 @@ export class OceanService {
           type: 'compute',
           name: `${input.name} (aggregate)`,
           description:
-            'Aggregate statistics only. No raw rows, no free text, no personally identifiable information. Buyers receive the SHA-256 checksummed aggregate payload.',
+            'Compute-to-data ONLY. No raw rows, no free text, no personally identifiable ' +
+            'information. The dataset is never delivered or downloadable — algorithms run ' +
+            'against the sanitized numeric aggregate inside an isolated, network-less ' +
+            'compute environment, verifiable via the SHA-256 checksum.',
           files: [
             {
               name: `${input.datasetType}-aggregate.json`,
@@ -189,9 +186,20 @@ export class OceanService {
   /**
    * Publish DDO metadata to Aquarius. Never throws on network failure — the
    * DDO is stored by the caller and can be re-submitted later.
+   *
+   * NOTE (owner policy): this path is no longer used for publishing. The
+   * marketplace publishes ONLY full compute-to-data assets
+   * (`ocean-c2d.service.ts`). Kept as an explicit, gated primitive so an
+   * operator can re-submit an existing DDO for indexing; it refuses to run
+   * while the marketplace master switch is off and it never carries files.
    */
   async publishMetadata(ddo: OceanDdo): Promise<OceanPublishResult> {
     const cfg = this.getConfig();
+    if (!cfg.enabled) {
+      const reason = 'Data marketplace disabled (MARKETPLACE_ENABLED=false).';
+      this.logger.warn(reason);
+      return { published: false, did: ddo.id, reason };
+    }
     if (!cfg.publishEnabled || !cfg.aquariusUrl) {
       const reason = 'Ocean publish disabled or unconfigured (OCEAN_AQUARIUS_URL).';
       this.logger.warn(reason);

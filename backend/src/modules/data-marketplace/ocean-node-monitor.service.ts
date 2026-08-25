@@ -82,6 +82,7 @@ export class OceanNodeMonitorService implements OnModuleInit, OnModuleDestroy {
     const get = (key: string) => this.config.get<string>(key);
     return getOceanNodeConfig({
       OCEAN_NODE_ENABLED: get('OCEAN_NODE_ENABLED'),
+      MARKETPLACE_ENABLED: get('MARKETPLACE_ENABLED'),
       OCEAN_NODE_IMAGE: get('OCEAN_NODE_IMAGE'),
       OCEAN_NODE_CONTAINER_NAME: get('OCEAN_NODE_CONTAINER_NAME'),
       OCEAN_NODE_CHECK_INTERVAL_S: get('OCEAN_NODE_CHECK_INTERVAL_S'),
@@ -99,9 +100,12 @@ export class OceanNodeMonitorService implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit(): void {
     const cfg = this.getConfig();
-    if (!cfg.enabled) {
+    // Owner policy: the idle-capacity node is a marketplace surface — it must
+    // NEVER start unless the whole data marketplace is explicitly enabled.
+    if (!cfg.enabled || !this.marketplaceEnabled()) {
       this.logger.log(
-        'Idle-capacity Ocean Node monitor disabled (set OCEAN_NODE_ENABLED=true to enable)',
+        'Idle-capacity Ocean Node monitor disabled (requires OCEAN_NODE_ENABLED=true AND ' +
+          'MARKETPLACE_ENABLED=true)',
       );
       return;
     }
@@ -138,7 +142,7 @@ export class OceanNodeMonitorService implements OnModuleInit, OnModuleDestroy {
 
   status(): OceanNodeStatus {
     return {
-      enabled: this.getConfig().enabled,
+      enabled: this.getConfig().enabled && this.marketplaceEnabled(),
       nodeRunning: this.nodeRunning,
       idleSince: this.idleSinceMs !== null ? new Date(this.idleSinceMs).toISOString() : null,
       stoppedAt: this.stoppedAtMs !== null ? new Date(this.stoppedAtMs).toISOString() : null,
@@ -154,9 +158,14 @@ export class OceanNodeMonitorService implements OnModuleInit, OnModuleDestroy {
   // Internals
   // ---------------------------------------------------------------------
 
+  /** Marketplace master switch — the node is a marketplace surface. */
+  private marketplaceEnabled(): boolean {
+    return this.config.get<string>('MARKETPLACE_ENABLED') === 'true';
+  }
+
   private async tick(): Promise<void> {
     const cfg = this.getConfig();
-    if (!cfg.enabled || this.dockerUnavailable) return;
+    if (!cfg.enabled || !this.marketplaceEnabled() || this.dockerUnavailable) return;
     const now = Date.now();
 
     const activity = await this.sampleActivity();

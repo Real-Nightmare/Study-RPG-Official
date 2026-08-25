@@ -7,7 +7,15 @@ const base = {
 };
 
 function input(overrides: Partial<NodePolicyInput>): NodePolicyInput {
-  return { ...base, activity: false, nodeRunning: false, idleSinceMs: null, stoppedAtMs: null, now: 1_000_000, ...overrides };
+  return {
+    ...base,
+    activity: false,
+    nodeRunning: false,
+    idleSinceMs: null,
+    stoppedAtMs: null,
+    now: 1_000_000,
+    ...overrides,
+  };
 }
 
 describe('updateIdleSince', () => {
@@ -40,9 +48,7 @@ describe('decideNodeAction', () => {
 
   it('does not start before the idle window elapses', () => {
     const now = 1_000_000;
-    expect(
-      decideNodeAction(input({ idleSinceMs: now - 9 * MIN, now })),
-    ).toBe('none');
+    expect(decideNodeAction(input({ idleSinceMs: now - 9 * MIN, now }))).toBe('none');
     // Idle streak just began this tick
     expect(decideNodeAction(input({ idleSinceMs: now, now }))).toBe('none');
   });
@@ -50,31 +56,29 @@ describe('decideNodeAction', () => {
   it('starts once the idle window has elapsed and there is no cooldown', () => {
     const now = 1_000_000;
     expect(decideNodeAction(input({ idleSinceMs: now - 10 * MIN, now }))).toBe('start');
-    expect(
-      decideNodeAction(input({ idleSinceMs: now - 30 * MIN, now, stoppedAtMs: null })),
-    ).toBe('start');
+    expect(decideNodeAction(input({ idleSinceMs: now - 30 * MIN, now, stoppedAtMs: null }))).toBe(
+      'start',
+    );
   });
 
   it('respects the post-stop cooldown', () => {
     const now = 1_000_000;
     const stoppedAtMs = now - 10 * MIN;
-    expect(
-      decideNodeAction(input({ idleSinceMs: now - 30 * MIN, now, stoppedAtMs })),
-    ).toBe('none');
+    expect(decideNodeAction(input({ idleSinceMs: now - 30 * MIN, now, stoppedAtMs }))).toBe('none');
   });
 
   it('starts again after the cooldown has elapsed', () => {
     const now = 1_000_000;
     const stoppedAtMs = now - 60 * MIN;
-    expect(
-      decideNodeAction(input({ idleSinceMs: now - 30 * MIN, now, stoppedAtMs })),
-    ).toBe('start');
+    expect(decideNodeAction(input({ idleSinceMs: now - 30 * MIN, now, stoppedAtMs }))).toBe(
+      'start',
+    );
   });
 
   it('treats a never-started node as not in cooldown', () => {
     const now = 1_000_000;
-    expect(
-      decideNodeAction(input({ idleSinceMs: now - 11 * MIN, now, stoppedAtMs: null })),
-    ).toBe('start');
+    expect(decideNodeAction(input({ idleSinceMs: now - 11 * MIN, now, stoppedAtMs: null }))).toBe(
+      'start',
+    );
   });
 });

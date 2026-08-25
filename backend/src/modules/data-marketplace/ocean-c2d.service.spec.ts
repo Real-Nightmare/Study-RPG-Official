@@ -7,6 +7,7 @@ import { createHash } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { getAddress } from 'ethers';
 import { OceanC2DService } from './ocean-c2d.service';
+import type { ComputeAssetInput } from './ocean-c2d.service';
 
 const NFT_ADDRESS = '0x6fd867E5AEE6D62a24f97939db90C4e67A73A651';
 const DT_ADDRESS = '0x8B8E187CF9c551e63f54AA04E21F48CDAF2296aE';
@@ -62,7 +63,7 @@ function makeService(env: Record<string, string | undefined> = {}) {
   } as unknown as ConfigService);
 }
 
-const baseInput = {
+const baseInput: ComputeAssetInput = {
   name: 'Focus engagement aggregates',
   description: 'Aggregate focus statistics',
   datasetType: 'study_engagement',
@@ -72,18 +73,37 @@ const baseInput = {
   cohortSize: 50,
   consentCoverage: 0.83,
   license: 'CC-BY-4.0 (aggregate statistics only)',
-  author: 'Study RPG (Real-Nightmare)',
+  author: 'Study RPG',
   fileUrl: 'https://cdn.example.com/marketplace/agg.json',
   policy: { allowRawAlgorithm: true, allowNetworkAccess: false, trustedAlgorithmPublishers: [] },
 };
 
 const walletEnv = {
+  MARKETPLACE_ENABLED: 'true',
   OCEAN_PUBLISHER_PRIVATE_KEY: '0x' + '11'.repeat(32),
   OCEAN_PUBLISHER_ADDRESS: '0x6fd867E5AEE6D62a24f97939db90C4e67A73A651',
 };
 
 describe('OceanC2DService', () => {
   beforeEach(() => jest.clearAllMocks());
+
+  it('refuses everything while the marketplace master switch is off', async () => {
+    const result = await makeService({
+      ...walletEnv,
+      MARKETPLACE_ENABLED: undefined,
+    }).publishComputeAsset(baseInput);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toContain('MARKETPLACE_ENABLED=false');
+  });
+
+  it('rejects any policy that asks for compute-job network access', async () => {
+    const result = await makeService(walletEnv).publishComputeAsset({
+      ...baseInput,
+      policy: { allowRawAlgorithm: true, allowNetworkAccess: true, trustedAlgorithmPublishers: [] },
+    } as never);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toContain('network access can never be enabled');
+  });
 
   it('reports not on-chain-ready without a wallet', () => {
     const status = makeService().getStatus();
@@ -99,7 +119,9 @@ describe('OceanC2DService', () => {
   });
 
   it('refuses to publish without a funded wallet', async () => {
-    const result = await makeService().publishComputeAsset(baseInput);
+    const result = await makeService({ MARKETPLACE_ENABLED: 'true' }).publishComputeAsset(
+      baseInput,
+    );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toContain('OCEAN_PUBLISHER_PRIVATE_KEY');
   });

@@ -5,9 +5,15 @@ import { EmbeddingProvider, EmbeddingResult } from './embedding-provider.interfa
 export { EmbeddingResult } from './embedding-provider.interface';
 
 /**
- * Text-embedding adapter backed by OpenRouter's embeddings endpoint. The
- * vector dimension is fixed at construction time and must match the Qdrant
- * collection schema (see the reindex pipeline).
+ * Text-embedding adapter. Provider selection (`EMBEDDING_PROVIDER`):
+ *   - `ollama-compatible` — local OpenAI-compatible embeddings endpoint
+ *     (default for docker/self-host: Ollama `nomic-embed-text`, 768-dim).
+ *     No API key, no external account.
+ *   - default: OpenRouter's embeddings endpoint (openai/text-embedding-3-small,
+ *     1536-dim) when OPENROUTER_API_KEY is configured.
+ * The vector dimension is fixed at construction time and must match the
+ * Qdrant collection schema (see the reindex pipeline / CollectionResolver,
+ * which rebuilds indexes when the embedding version changes).
  */
 @Injectable()
 export class EmbeddingService implements EmbeddingProvider {
@@ -18,16 +24,35 @@ export class EmbeddingService implements EmbeddingProvider {
   private readonly vectorDimension: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('OPENROUTER_API_KEY', '');
-    this.baseUrl = this.configService.get<string>(
-      'OPENROUTER_BASE_URL',
-      'https://openrouter.ai/api/v1',
-    );
-    this.embeddingModel = this.configService.get<string>(
-      'OPENROUTER_EMBEDDING_MODEL',
-      'openai/text-embedding-3-small',
-    );
-    this.vectorDimension = 1536;
+    const provider = (
+      this.configService.get<string>('EMBEDDING_PROVIDER') ||
+      (this.configService.get<string>('AI_BASE_URL') ? 'ollama-compatible' : 'openrouter')
+    ).toLowerCase();
+
+    if (provider === 'ollama-compatible') {
+      this.apiKey = this.configService.get<string>('OLLAMA_EMBEDDING_API_KEY', 'local');
+      this.baseUrl = this.configService.get<string>(
+        'OLLAMA_EMBEDDING_BASE_URL',
+        this.configService.get<string>('AI_BASE_URL', 'http://localhost:11434/v1'),
+      );
+      this.embeddingModel = this.configService.get<string>(
+        'OLLAMA_EMBEDDING_MODEL',
+        'nomic-embed-text',
+      );
+      // nomic-embed-text is a 768-dimension model.
+      this.vectorDimension = Number(this.configService.get('EMBEDDING_DIMENSION', 768));
+    } else {
+      this.apiKey = this.configService.get<string>('OPENROUTER_API_KEY', '');
+      this.baseUrl = this.configService.get<string>(
+        'OPENROUTER_BASE_URL',
+        'https://openrouter.ai/api/v1',
+      );
+      this.embeddingModel = this.configService.get<string>(
+        'OPENROUTER_EMBEDDING_MODEL',
+        'openai/text-embedding-3-small',
+      );
+      this.vectorDimension = Number(this.configService.get('EMBEDDING_DIMENSION', 1536));
+    }
   }
 
   getVectorDimension(): number {

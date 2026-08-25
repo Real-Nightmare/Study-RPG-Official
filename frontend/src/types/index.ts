@@ -1646,11 +1646,18 @@ export interface DataConsentView {
 }
 
 export interface DataMarketplaceStatus {
-  publishMode: 'disabled' | 'metadata-first' | 'on-chain-ready';
+  /** Compute-to-data ONLY marketplace (no download/access path exists). */
+  publishMode: 'disabled' | 'c2d-unconfigured' | 'c2d-ready';
+  enabled: boolean;
+  c2dOnly: true;
   aquariusConfigured: boolean;
   walletConfigured: boolean;
   network: 'mainnet' | 'testnet';
   chainId: number;
+  computeRunner?: {
+    reachable: boolean;
+    url: string;
+  };
   oceanNode: {
     enabled: boolean;
     nodeRunning: boolean;

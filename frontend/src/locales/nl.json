@@ -4200,7 +4200,7 @@
     "cancel": "Annuleren",
     "error": "Er ging iets mis. Probeer het opnieuw."
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "Studiegezondheid",
     "today": "Focus vandaag",
     "optimal": "Gezond optimum: {{min}} min/dag",
@@ -4814,11 +4814,12 @@
     "datasets": {
       "publishModeLabel": "Publicatiemodus",
       "modeDisabled": "uitgeschakeld — publicatie staat uit",
-      "modeMetadataFirst": "metadata-first · geen wallet nodig — de on-chain datatoken mint is een vervolgstap met gefinancierde wallet",
+      "modeC2dReady": "C2D gereed · on-chain compute-asset geconfigureerd",
+      "modeC2dRequired": "compute-to-data vereist · stel een gefinancierde wallet, RPC en een Ocean Node in om te publiceren",
       "modeOnChainReady": "on-chain klaar · publisher-wallet geconfigureerd",
-      "walletHint": "Geen publisher-wallet geconfigureerd — datasets publiceren nog steeds metadata naar Aquarius; voeg later OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY toe om de on-chain mint af te ronden.",
-      "title": "Datamarktplaats (Ocean Protocol)",
-      "subtitle": "Publiceert privacy-beschermde aggregaatstatistieken in het Ocean-ecosysteem. Alleen aggregaten over toestemmende cohorten worden gepubliceerd.",
+      "walletHint": "Datasets blijven concepten totdat C2D-publicatie werkt: stel OCEAN_PUBLISHER_PRIVATE_KEY (+ adres), OCEAN_RPC_URL en OCEAN_NODE_URL in. Er is geen alleen-metadata fallback.",
+      "title": "Datamarktplaats — ALLEEN compute-to-data",
+      "subtitle": "Publiceer privacy-beschermde geaggregeerde statistieken als on-chain compute-assets. Kopers draaien algoritmen op de aggregaat in een geïsoleerde, netwerkloze omgeving — de data zelf wordt nooit verkocht of gedownload.",
       "privacyNote": "Alleen aggregaten · minimale cohortgrootte · toestemmingsdekking afgedwongen door de privacy guard.",
       "create": "Nieuwe dataset",
       "hideForm": "Formulier verbergen",

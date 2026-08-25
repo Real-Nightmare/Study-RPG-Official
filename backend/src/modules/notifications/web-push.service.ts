@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as webpush from 'web-push';
@@ -12,26 +12,78 @@ export interface WebPushSubscriptionInput {
 }
 
 /**
- * Standards-based Web Push (VAPID) — PDF Phase 9 §32-adjacent. Additive channel
- * on top of Firebase FCM. Everything degrades gracefully: when VAPID keys are
- * absent or the user has no subscriptions, sends are silent no-ops.
+ * Standards-based Web Push (VAPID) — the primary notification channel (owner
+ * policy T6: no Google/Firebase account required). VAPID keys are resolved in
+ * order: env → `game_config` (persisted from a previous boot) → generated on
+ * first boot and persisted. A stock deployment therefore has working browser
+ * push with ZERO setup. Sends degrade to silent no-ops when unconfigured.
  */
 @Injectable()
-export class WebPushService {
+export class WebPushService implements OnModuleInit {
   private readonly logger = new Logger(WebPushService.name);
   private configured = false;
+  private publicKey: string | null = null;
 
   constructor(
     private readonly db: DatabaseService,
     private readonly config: ConfigService,
-  ) {
-    const publicKey = this.config.get<string>('VAPID_PUBLIC_KEY');
-    const privateKey = this.config.get<string>('VAPID_PRIVATE_KEY');
-    const subject = this.config.get<string>('VAPID_SUBJECT', 'mailto:admin@studyrpg.app');
-    if (publicKey && privateKey) {
-      webpush.setVapidDetails(subject, publicKey, privateKey);
-      this.configured = true;
+  ) {}
+
+  async onModuleInit(): Promise<void> {
+    let publicKey: string | undefined = this.config.get<string>('VAPID_PUBLIC_KEY');
+    let privateKey: string | undefined = this.config.get<string>('VAPID_PRIVATE_KEY');
+
+    // Fall back to keys persisted by an earlier boot, then generate fresh ones.
+    if (!publicKey || !privateKey) {
+      const persisted = await this.loadPersistedKeys();
+      publicKey = publicKey || persisted?.publicKey;
+      privateKey = privateKey || persisted?.privateKey;
     }
+    if (!publicKey || !privateKey) {
+      try {
+        const generated = webpush.generateVAPIDKeys();
+        publicKey = generated.publicKey;
+        privateKey = generated.privateKey;
+        await this.persistKeys(publicKey, privateKey);
+        this.logger.log('Generated and persisted new VAPID keys (zero-setup browser push)');
+      } catch (error) {
+        this.logger.warn(`Could not auto-generate VAPID keys: ${(error as Error).message}`);
+      }
+    }
+
+    if (publicKey && privateKey) {
+      const subject = this.config.get<string>('VAPID_SUBJECT', 'mailto:admin@studyrpg.app');
+      try {
+        webpush.setVapidDetails(subject, publicKey, privateKey);
+        this.publicKey = publicKey;
+        this.configured = true;
+      } catch (error) {
+        this.logger.warn(`Invalid VAPID keys, web push disabled: ${(error as Error).message}`);
+      }
+    }
+  }
+
+  private async loadPersistedKeys(): Promise<{ publicKey: string; privateKey: string } | null> {
+    try {
+      const row = await this.db.queryOne<{ value: { publicKey?: string; privateKey?: string } }>(
+        `SELECT value FROM game_config WHERE key = 'notifications.vapid'`,
+      );
+      if (row?.value?.publicKey && row?.value?.privateKey) {
+        return { publicKey: row.value.publicKey, privateKey: row.value.privateKey };
+      }
+    } catch {
+      /* table may not exist yet during bootstrap — fall through to generation */
+    }
+    return null;
+  }
+
+  private async persistKeys(publicKey: string, privateKey: string): Promise<void> {
+    await this.db.query(
+      `INSERT INTO game_config (key, value, description)
+       VALUES ('notifications.vapid', $1::jsonb, 'Auto-generated VAPID keys for browser push')
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+      [JSON.stringify({ publicKey, privateKey })],
+    );
   }
 
   isConfigured(): boolean {
@@ -40,7 +92,7 @@ export class WebPushService {
 
   /** Public key for the browser subscribe flow, or null when unconfigured. */
   getPublicKey(): string | null {
-    return this.configured ? this.config.get<string>('VAPID_PUBLIC_KEY') || null : null;
+    return this.configured ? this.publicKey : null;
   }
 
   async subscribe(userId: string, input: WebPushSubscriptionInput): Promise<void> {

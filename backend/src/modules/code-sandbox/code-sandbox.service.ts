@@ -23,8 +23,13 @@ export interface ExecuteCodeDto {
 }
 
 /**
- * Proxies user code to the external sandbox runner and records every
- * execution (success, error, timeout) for the user's history.
+ * Proxies user code to the sandbox runner and records every execution
+ * (success, error, timeout) for the user's history.
+ *
+ * Owner policy T5: the default runner is our OWN hardened sidecar
+ * (`c2d-runner`, see docker/c2d-runner/) — a network-isolated, read-only
+ * container composed in docker-compose.yml. No external SaaS is involved;
+ * the exact same image serves compute-to-data jobs for the data marketplace.
  */
 @Injectable()
 export class CodeSandboxService {
@@ -37,7 +42,9 @@ export class CodeSandboxService {
     private readonly configService: ConfigService,
     private readonly db: DatabaseService,
   ) {
-    this.sandboxUrl = this.configService.get<string>('CODE_SANDBOX_URL', 'http://localhost:8080');
+    this.sandboxUrl = (
+      this.configService.get<string>('CODE_SANDBOX_URL') || 'http://localhost:9000'
+    ).replace(/\/$/, '');
     this.sandboxApiKey = this.configService.get<string>('CODE_SANDBOX_API_KEY', '');
     this.defaultTimeout = this.configService.get<number>('CODE_SANDBOX_TIMEOUT', 30000);
   }

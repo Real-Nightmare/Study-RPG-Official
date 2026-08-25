@@ -1,31 +1,30 @@
 /**
- * Ocean Protocol Compute-to-Data (C2D) publisher (owner follow-up:
- * "implement Ocean Protocol's Compute-to-Data feature cause I have 2 MATIC!").
+ * Ocean Protocol Compute-to-Data (C2D) publisher — THE ONLY publish path
+ * (owner policy: "the data marketplace should be very strict to not sell PII
+ * related things; it should only allow Compute 2 Data").
  *
- * The metadata-first path (`ocean.service.ts`) only registers a DDO — buyers
- * can discover the asset but never actually compute on it. This service
- * completes the real C2D flow, on-chain, using the official Ocean.js SDK
- * (`@oceanprotocol/lib`, the same library the Ocean CLI is built on):
+ * Using the official Ocean.js SDK (`@oceanprotocol/lib`):
  *
  *   1. Deploy an ERC721 data NFT + ERC20 datatoken for the aggregate
  *      (one transaction; a fixed-rate exchange is bundled when a price is
  *      set, so buyers can swap OCEAN → datatoken and run compute jobs).
  *   2. Encrypt the aggregate file URL with the Ocean Node (ProviderInstance).
- *   3. Build the DDO with a `compute` service: privacy policy (raw algorithm
- *      on/off, network access off, optional algorithm-publisher allowlist),
+ *   3. Build the DDO with a `compute` service — NEVER an access/download
+ *      service — with the privacy policy (raw algorithm on/off, network
+ *      access permanently off, optional algorithm-publisher allowlist),
  *      the datatoken address and the node as the compute endpoint.
  *   4. Validate + store the DDO on-chain (ERC725 metadata store) via the
  *      Ocean Node, so Aquarius/indexers resolve it.
  *
  * Safety model (inherited from the marketplace service): only sanitized
  * numeric aggregates ever reach this service, the SHA-256 checksum is stamped
- * into the DDO so buyers can verify what they received, and the default C2D
- * policy blocks network access from compute jobs and only allows raw
- * algorithms (never raw rows) — there is nothing exfiltratable in the file.
+ * into the DDO so buyers can verify what they received, network access for
+ * compute jobs is refused outright if requested, and researchers can exercise
+ * the same flow locally through the isolated `c2d-runner` container.
  *
- * Everything is best-effort and wallet-optional: without a funded wallet,
- * an RPC URL or a reachable node this service reports why and the caller
- * falls back to metadata-first publishing. It never throws.
+ * Everything is best-effort and wallet-optional at boot: without a funded
+ * wallet, an RPC URL or a reachable node this service reports why and the
+ * caller keeps the dataset as a draft. It never throws.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -45,10 +44,14 @@ import type { DDO } from '@oceanprotocol/ddo-js';
 import { getMarketplaceConfig, MarketplaceConfig } from './marketplace-config';
 
 export interface C2DPolicy {
-  /** Allow buyers to submit raw algorithm code against the aggregate. */
+  /** Allow buyers/researchers to submit raw algorithm code against the aggregate. */
   allowRawAlgorithm: boolean;
-  /** Allow compute jobs to reach the public internet (default: false). */
-  allowNetworkAccess: boolean;
+  /**
+   * Allow compute jobs to reach the public internet. Typed `false`: this is a
+   * hard invariant of the platform — compute jobs never get network access,
+   * so nothing inside the compute environment can exfiltrate data.
+   */
+  allowNetworkAccess: false;
   /** Allowlist of algorithm publisher addresses (empty = any published algorithm). */
   trustedAlgorithmPublishers: string[];
 }
@@ -113,6 +116,7 @@ export class OceanC2DService {
   getConfig(): MarketplaceConfig {
     const get = (key: string) => this.config.get<string>(key);
     return getMarketplaceConfig({
+      MARKETPLACE_ENABLED: get('MARKETPLACE_ENABLED'),
       OCEAN_AQUARIUS_URL: get('OCEAN_AQUARIUS_URL'),
       OCEAN_PUBLISHER_ADDRESS: get('OCEAN_PUBLISHER_ADDRESS'),
       OCEAN_PUBLISHER_PRIVATE_KEY: get('OCEAN_PUBLISHER_PRIVATE_KEY'),
@@ -128,7 +132,6 @@ export class OceanC2DService {
       OCEAN_FIXED_RATE_EXCHANGE: get('OCEAN_FIXED_RATE_EXCHANGE'),
       OCEAN_TOKEN_ADDRESS: get('OCEAN_TOKEN_ADDRESS'),
       OCEAN_C2D_ALLOW_RAW_ALGORITHM: get('OCEAN_C2D_ALLOW_RAW_ALGORITHM'),
-      OCEAN_C2D_ALLOW_NETWORK_ACCESS: get('OCEAN_C2D_ALLOW_NETWORK_ACCESS'),
       OCEAN_C2D_TRUSTED_ALGORITHM_PUBLISHERS: get('OCEAN_C2D_TRUSTED_ALGORITHM_PUBLISHERS'),
     });
   }
@@ -154,13 +157,28 @@ export class OceanC2DService {
   /**
    * Publish an aggregate as a real compute-to-data asset on the configured
    * chain. Never throws — every failure is returned as `{ ok: false, reason }`
-   * so the caller can fall back to metadata-first publishing.
+   * so the caller can keep the dataset as a draft (strict C2D-only).
    */
   async publishComputeAsset(
     input: ComputeAssetInput,
   ): Promise<ComputeAssetResult | ComputeAssetFailure> {
     const cfg = this.getConfig();
 
+    if (!cfg.enabled) {
+      return {
+        ok: false,
+        reason:
+          'Data marketplace is disabled (MARKETPLACE_ENABLED=false) — nothing is ever published.',
+      };
+    }
+    // Hard invariant: compute-to-data only, and compute jobs never get
+    // network access. Refuse anything else rather than silently fixing it.
+    if (input.policy.allowNetworkAccess !== false) {
+      return {
+        ok: false,
+        reason: 'C2D policy violation: network access can never be enabled for compute jobs.',
+      };
+    }
     if (!cfg.publishEnabled) {
       return { ok: false, reason: 'MARKETPLACE_PUBLISH_ENABLED=false — publishing disabled.' };
     }
@@ -327,9 +345,10 @@ export class OceanC2DService {
             timeout: 3600,
             name: `${input.name} (compute-to-data)`,
             description:
-              'Aggregate statistics only. Algorithms run on the aggregate inside the Ocean ' +
-              'Node; raw rows never leave Study RPG. Buyers can verify the payload with the ' +
-              'SHA-256 checksum in the metadata.',
+              'Compute-to-data ONLY — the dataset cannot be downloaded. Algorithms run on ' +
+              'the sanitized numeric aggregate inside an isolated, network-less compute ' +
+              'environment; raw rows and PII never exist in the payload. Buyers can verify ' +
+              'the payload with the SHA-256 checksum in the metadata.',
             compute: {
               allowRawAlgorithm: input.policy.allowRawAlgorithm,
               allowNetworkAccess: input.policy.allowNetworkAccess,
@@ -395,7 +414,7 @@ export class OceanC2DService {
       };
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
-      this.logger.warn(`C2D publish failed (falling back to metadata-first): ${reason}`);
+      this.logger.warn(`C2D publish failed (dataset stays a draft): ${reason}`);
       return { ok: false, reason };
     }
   }

@@ -5,6 +5,7 @@ import {
   hasBlockedTerm,
   isAggregateField,
   sanitizeAggregate,
+  scanPayloadForPii,
 } from './privacy-guard';
 
 describe('privacy-guard', () => {
@@ -106,6 +107,55 @@ describe('privacy-guard', () => {
       };
       const out = sanitizeAggregate(row);
       expect(out).toEqual({ total_focus_minutes: 420, avg_session_minutes: 25 });
+    });
+  });
+
+  describe('scanPayloadForPii (value-level defense in depth)', () => {
+    it('passes a clean numeric aggregate', () => {
+      expect(scanPayloadForPii({ count_users: 50, avg_score_pct: 82.5 })).toEqual([]);
+    });
+
+    it('rejects non-numeric values outright', () => {
+      const reasons = scanPayloadForPii({
+        count_users: 10,
+        avg_note: 'student said hello world this is free text',
+      });
+      expect(reasons.some((r) => r.includes('non-numeric aggregate value'))).toBe(true);
+    });
+
+    it('detects email addresses smuggled into values', () => {
+      const reasons = scanPayloadForPii({ total_notes: 'contact me at a.b@school.edu' });
+      expect(reasons.some((r) => r.includes('email address'))).toBe(true);
+    });
+
+    it('detects IP addresses and phone-like runs', () => {
+      expect(
+        scanPayloadForPii({ avg_metric: 'server 192.168.1.42 logged' }).some((r) =>
+          r.includes('IP address'),
+        ),
+      ).toBe(true);
+      expect(
+        scanPayloadForPii({ avg_metric: 'call +91 98765 43210 now' }).some((r) =>
+          r.includes('phone-number'),
+        ),
+      ).toBe(true);
+    });
+
+    it('detects long digit runs (possible identifiers)', () => {
+      expect(
+        scanPayloadForPii({ avg_metric: 'aadhaar 123456789012' }).some((r) =>
+          r.includes('long digit run'),
+        ),
+      ).toBe(true);
+    });
+
+    it('rejects arrays and objects — scalars only', () => {
+      const reasons = scanPayloadForPii({
+        count_rows: [1, 2, 3],
+        nested: { deep: true },
+      });
+      expect(reasons.some((r) => r.includes('"count_rows" is an array'))).toBe(true);
+      expect(reasons.some((r) => r.includes('"nested" is an object'))).toBe(true);
     });
   });
 });

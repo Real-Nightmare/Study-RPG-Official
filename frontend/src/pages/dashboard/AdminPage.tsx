@@ -1445,9 +1445,9 @@ function BenchmarksTab() {
               <Badge variant="outline" className="text-[10px]">
                 {status.publishMode === 'disabled'
                   ? t('admin.datasets.modeDisabled')
-                  : status.publishMode === 'on-chain-ready'
-                    ? t('admin.datasets.modeOnChainReady')
-                    : t('admin.datasets.modeMetadataFirst')}
+                  : status.publishMode === 'c2d-ready'
+                    ? t('admin.datasets.modeC2dReady')
+                    : t('admin.datasets.modeC2dRequired')}
               </Badge>
               {status.publishMode !== 'disabled' && !status.walletConfigured && (
                 <span className="text-amber-600 dark:text-amber-400">{t('admin.datasets.walletHint')}</span>

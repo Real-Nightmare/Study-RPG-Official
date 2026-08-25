@@ -1,10 +1,28 @@
 # Study RPG — full-stack compose setup
-# Usage: docker compose --env-file .env.docker up
+# Usage: docker compose --env-file .env.docker up -d
 # Frontend: http://localhost:5189   Backend API: http://localhost:3010
+#
+# Fully-local stack (no external accounts, keys or credit cards needed):
+#   postgres, redis, qdrant, clickhouse   — core data stores
+#   ollama (+init)                        — local LLM + embeddings (:11434)
+#   searxng                               — local meta web-search (:8888)
+#   mailpit                               — local SMTP sink + UI (:8025)
+#   minio (+init)                         — S3-compatible object storage (:9000)
+#   c2d-runner                            — NETWORK-ISOLATED compute-to-data
+#                                           sandbox + Problem Solver runner
 #
 # Images are pinned to stable releases (Aug 2026):
 #   postgres 18.4, redis 8.10, qdrant v1.19.0, clickhouse 26.7.3.19-stable,
-#   nginx 1.30.4-alpine, node 24-alpine (build stage)
+#   nginx 1.30.4-alpine, node 24-alpine, minio, mailpit, searxng, ollama
+#
+# c2d-runner isolation (owner policy — compute-to-data ONLY, researchers can
+# test our system): the runner sits on the `isolated` network which is marked
+# `internal: true` — containers on it can talk to each other but there is NO
+# outbound route to the internet. It additionally runs with a read-only root
+# filesystem, tmpfs /tmp, dropped capabilities, no-new-privileges, non-root
+# user and hard memory/CPU/PID caps. Researcher algorithms handed to it can
+# compute on a payload; they cannot phone home, read the host, or touch the
+# Study RPG database.
 #
 # SSH debug (always on, key-based) into the app containers:
 #   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${BACKEND_SSH_PORT:-3022}   # backend
@@ -12,6 +30,14 @@
 # The debug public key is baked into the images; the private key is never in
 # the repo. SSH_PASSWORD / SSH_PUBLIC_KEY add extra auth at runtime. Keep the
 # SSH ports bound to localhost or a VPN — do not expose them publicly.
+
+networks:
+  default:
+    name: study-rpg-net
+  # No-egress network shared by backend + c2d-runner only.
+  isolated:
+    name: study-rpg-isolated
+    internal: true
 
 services:
   # --- Infrastructure -----------------------------------------------
@@ -78,6 +104,125 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- Fully-local capability services (zero external accounts) ------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: studyield-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # Pulls the chat + embedding models once on first boot (~4.5 GB total).
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: studyield-ollama-init
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        OLLAMA_HOST=http://ollama:11434 ollama pull "${OLLAMA_CHAT_MODEL:-qwen2.5:7b-instruct}"
+        OLLAMA_HOST=http://ollama:11434 ollama pull "${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}"
+        echo "[ollama-init] models ready"
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: studyield-searxng
+    restart: unless-stopped
+    ports:
+      - "${SEARXNG_PORT:-8888}:8080"
+    volumes:
+      - ./docker/searxng:/etc/searxng:ro
+
+  mailpit:
+    image: axllent/mailpit:v1.24
+    container_name: studyield-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"   # web UI — read dev email here
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_MAX_MESSAGES: 500
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8025/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: studyield-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_PORT:-9000}:9000"        # S3 API
+      - "${MINIO_CONSOLE_PORT:-9001}:9001" # web console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-studyrpg}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-studyrpg-secret}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+  # Creates the default bucket; safe to run on every boot (idempotent).
+  minio-init:
+    image: minio/mc:latest
+    container_name: studyield-minio-init
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mc alias set local http://minio:9000 "${MINIO_ROOT_USER:-studyrpg}" "${MINIO_ROOT_PASSWORD:-studyrpg-secret}"
+        mc mb --ignore-existing local/${MINIO_BUCKET:-studyrpg-uploads}
+        echo "[minio-init] bucket ${MINIO_BUCKET:-studyrpg-uploads} ready"
+
+  # --- Isolated compute-to-data runner --------------------------------
+  c2d-runner:
+    build:
+      context: ./docker/c2d-runner
+      dockerfile: Dockerfile
+    image: study-rpg/c2d-runner:local
+    container_name: studyield-c2d-runner
+    restart: unless-stopped
+    networks:
+      - isolated            # internal network — NO outbound internet route
+    read_only: true         # immutable root filesystem
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 1.0
+    ulimits:
+      nofile:
+        soft: 256
+        hard: 256
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
   # --- Application --------------------------------------------------
   backend:
     build:
@@ -103,6 +248,37 @@ services:
       - QDRANT_PORT=6333
       - CLICKHOUSE_HOST=clickhouse
       - CLICKHOUSE_PORT=8123
+      # --- Local AI (Ollama, OpenAI-compatible; no API key needed) -----
+      - AI_PROVIDER=openai-compatible
+      - AI_BASE_URL=http://ollama:11434/v1
+      - AI_MODEL=${OLLAMA_CHAT_MODEL:-qwen2.5:7b-instruct}
+      - AI_VISION_MODEL=${OLLAMA_CHAT_MODEL:-qwen2.5:7b-instruct}
+      - EMBEDDING_PROVIDER=ollama-compatible
+      - OLLAMA_EMBEDDING_BASE_URL=http://ollama:11434/v1
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      # --- Local email sink (Mailpit) -----------------------------------
+      - EMAIL_TRANSPORT=smtp
+      - MAIL_HOST=mailpit
+      - MAIL_PORT=1025
+      # --- Local object storage (MinIO) ---------------------------------
+      - STORAGE_PROVIDER=minio
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-studyrpg}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-studyrpg-secret}
+      - MINIO_BUCKET=${MINIO_BUCKET:-studyrpg-uploads}
+      - MINIO_PUBLIC_URL=http://localhost:${MINIO_PORT:-9000}/${MINIO_BUCKET:-studyrpg-uploads}
+      # --- Local web search (SearXNG) ------------------------------------
+      - SEARCH_PROVIDER=searxng
+      - SEARXNG_BASE_URL=http://searxng:8080
+      # --- Isolated compute runner (C2D + Problem Solver sandbox) --------
+      - CODE_SANDBOX_URL=http://c2d-runner:9000
+      - C2D_RUNNER_URL=http://c2d-runner:9000
+      # --- Strictly-off-by-default surfaces ------------------------------
+      # Data marketplace is compute-to-data ONLY and OFF by default; billing
+      # and FCM stay off. See docs/COMPLETION_PLAN.md T7/T8.
+      - MARKETPLACE_ENABLED=false
+      - BILLING_ENABLED=false
+      - FCM_ENABLED=false
       # SSH debug is always on (baked-in key); these add password/extra-key auth
       - SSH_PASSWORD=${SSH_PASSWORD:-}
       - SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:-}
@@ -115,6 +291,11 @@ services:
         condition: service_started
       clickhouse:
         condition: service_healthy
+      c2d-runner:
+        condition: service_healthy
+    networks:
+      - default
+      - isolated
 
   frontend:
     build:
@@ -141,4 +322,8 @@ volumes:
   qdrant_data:
     driver: local
   clickhouse_data:
+    driver: local
+  ollama_data:
+    driver: local
+  minio_data:
     driver: local

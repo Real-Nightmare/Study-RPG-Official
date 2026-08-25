@@ -30,5 +30,13 @@ export { OceanNodeMonitorService } from './ocean-node-monitor.service';
 export type { OceanNodeStatus, DockerExec } from './ocean-node-monitor.service';
 export { decideNodeAction, updateIdleSince } from './ocean-node-policy';
 export type { NodeAction, NodePolicyInput } from './ocean-node-policy';
-export { getOceanNodeConfig } from './marketplace-config';
-export type { OceanNodeConfig } from './marketplace-config';
+export {
+  getOceanNodeConfig,
+  getC2dRunnerConfig,
+  normalizeC2dPolicy,
+  C2D_ONLY,
+} from './marketplace-config';
+export type { OceanNodeConfig, C2dRunnerConfig } from './marketplace-config';
+export { C2dRunnerService, C2D_RUNNER_LANGUAGES } from './c2d-runner.service';
+export type { C2dRunnerLanguage, C2dRunRequest, C2dRunResult } from './c2d-runner.service';
+export { scanPayloadForPii } from './privacy-guard';

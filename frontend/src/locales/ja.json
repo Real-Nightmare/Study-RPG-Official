@@ -4199,7 +4199,7 @@
     "cancel": "キャンセル",
     "error": "エラーが発生しました。もう一度お試しください。"
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "学習の健康状態",
     "today": "今日の集中",
     "optimal": "健康的な最適値: {{min}}分/日",
@@ -4813,11 +4813,12 @@
     "datasets": {
       "publishModeLabel": "公開モード",
       "modeDisabled": "無効 — 公開オフ",
-      "modeMetadataFirst": "metadata-first · ウォレット不要 — オンチェーンでのデータトークンミントは資金入りウォレットが必要な後続ステップ",
+      "modeC2dReady": "C2D準備完了 · オンチェーン計算アセットを設定済み",
+      "modeC2dRequired": "コンピュート・トゥ・データが必要 · 公開するには資金入りのウォレット、RPC、Oceanノードを設定してください",
       "modeOnChainReady": "オンチェーン準備完了 · 発行者ウォレット設定済み",
-      "walletHint": "発行者ウォレット未設定 — データセットは引き続きAquariusへメタデータを公開します。オンチェーンミントを完了するには、後でOCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEYを追加してください。",
-      "title": "データマーケットプレイス（Ocean Protocol）",
-      "subtitle": "プライバシー保護された集計統計をOceanエコシステムに公開します。同意したコホートの集計のみが公開されます。",
+      "walletHint": "C2D公開が機能するまでデータセットは下書きのままです: OCEAN_PUBLISHER_PRIVATE_KEY（+アドレス）、OCEAN_RPC_URL、OCEAN_NODE_URLを設定してください。メタデータのみのフォールバックはありません。",
+      "title": "データマーケットプレイス — コンピュート・トゥ・データ専用",
+      "subtitle": "プライバシーで保護された集計統計をオンチェーン計算アセットとして公開します。購入者は隔離されたネットワークなしの環境で集計に対してアルゴリズムを実行します — データ自体は決して販売・ダウンロードされません。",
       "privacyNote": "集計のみ・最小コホートサイズ・同意カバレッジはプライバシーガードで強制されます。",
       "create": "新規データセット",
       "hideForm": "フォームを隠す",

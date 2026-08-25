@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from '@nestjs/common';
+import { NotImplementedException } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsNumber,
   IsObject,
@@ -23,6 +25,7 @@ import { BenchmarkService } from './benchmark.service';
 import { OceanNodeMonitorService } from './ocean-node-monitor.service';
 import { OceanC2DService } from './ocean-c2d.service';
 import { OceanService } from './ocean.service';
+import { C2D_RUNNER_LANGUAGES, C2dRunnerLanguage, C2dRunnerService } from './c2d-runner.service';
 
 class ConsentDto {
   @IsBoolean()
@@ -111,6 +114,11 @@ class C2DPolicyDto {
   @IsBoolean()
   allowRawAlgorithm?: boolean;
 
+  /**
+   * ACCEPTED FOR COMPATIBILITY BUT ALWAYS FORCED TO FALSE. Compute jobs can
+   * never reach the network — the marketplace is strict compute-to-data with
+   * zero exfiltration paths. Sending true is rejected outright.
+   */
   @IsOptional()
   @IsBoolean()
   allowNetworkAccess?: boolean;
@@ -124,6 +132,23 @@ class PublishDatasetDto extends ReasonDto {
   @IsOptional()
   @IsObject()
   c2d?: C2DPolicyDto;
+}
+
+class TestComputeDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(20000)
+  code: string;
+
+  @IsOptional()
+  @IsIn(C2D_RUNNER_LANGUAGES as unknown as string[])
+  language?: C2dRunnerLanguage;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(120)
+  timeoutSeconds?: number;
 }
 
 class StartBenchmarkDto {
@@ -154,7 +179,24 @@ export class DataMarketplaceController {
     private readonly oceanNode: OceanNodeMonitorService,
     private readonly ocean: OceanService,
     private readonly oceanC2d: OceanC2DService,
+    private readonly runner: C2dRunnerService,
   ) {}
+
+  /**
+   * Master switch (owner policy): the data marketplace is strictly opt-in.
+   * While MARKETPLACE_ENABLED=false every marketplace surface answers 501 —
+   * only the internal benchmark pipeline keeps working. No dataset, consent
+   * or publish route is reachable, and the idle-capacity node never starts.
+   */
+  private assertMarketplaceEnabled(): void {
+    if (!this.oceanC2d.getConfig().enabled) {
+      throw new NotImplementedException(
+        'Data marketplace is disabled on this deployment (MARKETPLACE_ENABLED=false). ' +
+          'Study RPG never sells or exposes study data — not even aggregates — unless an ' +
+          'operator explicitly enables compute-to-data publishing.',
+      );
+    }
+  }
 
   // ---------------------------------------------------------------------
   // Student consent
@@ -163,12 +205,14 @@ export class DataMarketplaceController {
   @Get('consent')
   @ApiOperation({ summary: 'Current anonymised-data sharing consent' })
   consent(@CurrentUser() user: JwtPayload) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.getConsent(user.sub);
   }
 
   @Put('consent')
   @ApiOperation({ summary: 'Opt in/out of anonymised aggregate data sharing (revocable)' })
   setConsent(@CurrentUser() user: JwtPayload, @Body() dto: ConsentDto) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.setConsent(user.sub, dto.consented);
   }
 
@@ -179,6 +223,7 @@ export class DataMarketplaceController {
   @Get('datasets')
   @ApiOperation({ summary: 'List datasets (students see published only)' })
   listDatasets(@CurrentUser() user: JwtPayload) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.listDatasets(user.role);
   }
 
@@ -186,6 +231,7 @@ export class DataMarketplaceController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a draft dataset (admin)' })
   createDataset(@CurrentUser() user: JwtPayload, @Body() dto: CreateDatasetDto) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.createDataset(user.sub, dto);
   }
 
@@ -197,6 +243,7 @@ export class DataMarketplaceController {
     @Param('id') id: string,
     @Body() dto: UpdateDatasetDto,
   ) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.updateDataset(user.sub, id, dto);
   }
 
@@ -204,6 +251,7 @@ export class DataMarketplaceController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a draft dataset (admin)' })
   deleteDataset(@CurrentUser() user: JwtPayload, @Param('id') id: string, @Body() dto: ReasonDto) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.deleteDataset(user.sub, id, dto.reason);
   }
 
@@ -211,22 +259,46 @@ export class DataMarketplaceController {
   @Roles(Role.ADMIN)
   @ApiOperation({
     summary:
-      'Compute the privacy-guarded aggregate and publish it to the Ocean ecosystem (admin). ' +
-      'When a funded wallet is configured this deploys an on-chain Compute-to-Data asset ' +
-      '(ERC721 + datatoken + fixed-rate exchange) so buyers can run algorithms on the aggregate.',
+      'Publish a dataset as an on-chain COMPUTE-TO-DATA asset (admin). Strict C2D-only: ' +
+      'there is no download/access path — buyers run algorithms on the sanitized aggregate ' +
+      'inside an isolated, network-less compute environment. The dataset stays a draft ' +
+      'unless the full on-chain compute asset was created.',
   })
   publishDataset(
     @CurrentUser() user: JwtPayload,
     @Param('id') id: string,
     @Body() dto: PublishDatasetDto,
   ) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.publishDataset(user.sub, id, dto.reason, dto.c2d);
+  }
+
+  @Post('datasets/:id/test-compute')
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary:
+      'Run a researcher algorithm against the sanitized aggregate inside the isolated ' +
+      'c2d-runner container (admin). This is how researchers test our compute-to-data ' +
+      'system locally: the algorithm receives the privacy-guarded payload as JSON on stdin, ' +
+      'has no network access and cannot reach Study RPG data outside the payload.',
+  })
+  async testCompute(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() dto: TestComputeDto,
+  ) {
+    this.assertMarketplaceEnabled();
+    return this.marketplace.testCompute(user.sub, id, dto.code, {
+      language: dto.language,
+      timeoutSeconds: dto.timeoutSeconds,
+    });
   }
 
   @Post('datasets/:id/revoke')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Revoke a published dataset (admin)' })
   revokeDataset(@CurrentUser() user: JwtPayload, @Param('id') id: string, @Body() dto: ReasonDto) {
+    this.assertMarketplaceEnabled();
     return this.marketplace.revokeDataset(user.sub, id, dto.reason);
   }
 
@@ -265,12 +337,16 @@ export class DataMarketplaceController {
   @Roles(Role.ADMIN)
   @ApiOperation({
     summary:
-      'Marketplace publish mode (metadata-first vs on-chain Compute-to-Data) plus idle-capacity node state',
+      'Marketplace status: on-chain Compute-to-Data readiness, the isolated compute runner, ' +
+      'and idle-capacity node state. Answers 501 while MARKETPLACE_ENABLED=false.',
   })
-  status() {
+  async status() {
+    this.assertMarketplaceEnabled();
     return {
       ...this.ocean.getStatus(),
+      c2dOnly: true,
       c2d: this.oceanC2d.getStatus(),
+      computeRunner: await this.runner.health(),
       oceanNode: this.oceanNode.status(),
     };
   }
@@ -283,6 +359,7 @@ export class DataMarketplaceController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Idle-capacity Ocean Node monitor status (admin)' })
   oceanNodeStatus() {
+    this.assertMarketplaceEnabled();
     return this.oceanNode.status();
   }
 }

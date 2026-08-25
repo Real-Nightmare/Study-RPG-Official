@@ -5,6 +5,7 @@ import {
   Headers,
   RawBodyRequest,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
@@ -36,6 +37,10 @@ export class StripeWebhookController {
     @Req() req: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
+    // Owner policy T8: no billing surface exists while BILLING_ENABLED=false.
+    if (String(this.configService.get<string>('BILLING_ENABLED', 'false')) !== 'true') {
+      throw new NotFoundException('Billing is disabled on this deployment.');
+    }
     if (!req.rawBody) {
       throw new BadRequestException('Missing raw body');
     }

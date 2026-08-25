@@ -51,8 +51,7 @@ export function updateIdleSince(
 
 /** Decide what to do with the node given the current sample and state. */
 export function decideNodeAction(input: NodePolicyInput): NodeAction {
-  const { activity, nodeRunning, idleSinceMs, stoppedAtMs, now, idleWindowMs, cooldownMs } =
-    input;
+  const { activity, nodeRunning, idleSinceMs, stoppedAtMs, now, idleWindowMs, cooldownMs } = input;
 
   // Users are on the platform — the node must never compete with them.
   if (activity) {

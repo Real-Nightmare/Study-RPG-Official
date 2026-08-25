@@ -5,15 +5,17 @@ import { OceanC2DService } from './ocean-c2d.service';
 import { MarketplaceService } from './marketplace.service';
 import { BenchmarkService } from './benchmark.service';
 import { OceanNodeMonitorService } from './ocean-node-monitor.service';
+import { C2dRunnerService } from './c2d-runner.service';
 import { DataMarketplaceController } from './marketplace.controller';
 
 /**
- * Data marketplace (owner brief): privacy-guarded aggregate datasets published
- * to the Ocean Protocol ecosystem — metadata-first, or as full on-chain
- * Compute-to-Data assets when a funded wallet is configured — the admin AI
- * benchmarking pipeline that measures how much studying with Study RPG
- * improves outcomes, and the idle-capacity Ocean Node monitor that earns
- * provider fees when the server is fully idle.
+ * Data marketplace (owner policy: STRICT compute-to-data only — no PII is
+ * ever for sale, no download/access path exists). Datasets are published as
+ * on-chain C2D assets whose jobs run inside the isolated `c2d-runner`
+ * container; researchers test that system via the admin test-compute route.
+ * The whole marketplace is off by default (MARKETPLACE_ENABLED=false → 501).
+ * Also hosts the internal admin AI benchmarking pipeline and the
+ * idle-capacity Ocean Node monitor (which never starts while disabled).
  */
 @Module({
   imports: [AiModule],
@@ -24,6 +26,7 @@ import { DataMarketplaceController } from './marketplace.controller';
     MarketplaceService,
     BenchmarkService,
     OceanNodeMonitorService,
+    C2dRunnerService,
   ],
   exports: [
     OceanService,
@@ -31,6 +34,7 @@ import { DataMarketplaceController } from './marketplace.controller';
     MarketplaceService,
     BenchmarkService,
     OceanNodeMonitorService,
+    C2dRunnerService,
   ],
 })
 export class DataMarketplaceModule {}

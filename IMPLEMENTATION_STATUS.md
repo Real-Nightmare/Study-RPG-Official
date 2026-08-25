@@ -15,6 +15,7 @@
 > **Owner brief — Data Marketplace & AI Effectiveness Benchmark (Spec Kit spec `016-study-data-marketplace`): complete as of 2026-08-14** — privacy-first Ocean Protocol publish path (aggregates only, consent-gated, min cohort + coverage, checksummed DDO) plus the admin AI benchmarking pipeline (two-window deltas → weighted 0–100 effectiveness score → AI narrative grounded in metrics only), and the idle-capacity Ocean Node that earns provider fees when the server is fully idle (anti-flap cooldown + rolling daily start cap). **Compute-to-Data (C2D) added 2026-08-15** — real on-chain publishing via the official Ocean.js SDK: ERC721 + datatoken (+ fixed-rate exchange) deployed on Polygon mainnet (owner's 2 MATIC), file/DDO encryption via the Ocean Node, compute-policy DDO stored on-chain, graceful metadata-first fallback. See the table below.
 > **Owner follow-up — Anti-OverStudy & Health-First Wellbeing (Spec Kit spec `015-study-wellbeing`): complete as of 2026-08-09** — every AI surface now speaks the canonical product philosophy (depth over length, health-first anti-overstudy guardian, game-to-reality framing), and the reward economy heavily dampens over-study: focus-session start gates (rest cooldown, exhaustion, night-rest nudge), diminishing-returns decay on focus/event rewards beyond the healthy daily optimum, and a study-health meter in the UI (see table below).
 > **Phase map**: the owner's brief is the **community track**; the fractions map onto the real phases of the *Studyield Master Implementation Prompt.pdf* (Phase 6=Economy, 7=Events, 8=Advanced Learning) in `docs/implementation/MASTER_PLAN.md` §3.
+> **Owner policy — fully-local stack + strict compute-to-data marketplace (completion-plan Waves 1–2): complete as of 2026-08-25** — MARKETPLACE_ENABLED off by default with 501 surfaces, compute-to-data ONLY publishing (no download/access path, no metadata-only fallback), PII value-level scan, network access permanently off for compute jobs, isolated c2d-runner container + researcher test harness, Ollama/Mailpit/MinIO/SearXNG local services wired into compose, VAPID auto-provisioning, FCM/billing gates. See table near the end of this file.
 > **Spec workflow**: GitHub Spec Kit adopted 2026-08-06 — feature specs live in `specs/` (index: `specs/README.md`, constitution: `.specify/memory/constitution.md`); the legacy OpenSpec workspace is archived at `archive/openspec/`.
 
 ---
@@ -277,6 +278,29 @@ The owner's "Principal EdTech Architect / Gamification Expert" 5-mandate brief, 
 | Frontend | ✅ | `services/dataMarketplace.ts` + types + `api.ts` endpoints; **AdminPage Data & Benchmarks tab** (start/list benchmark runs with deltas/score/band/AI report; dataset create/publish/revoke/delete with reason prompts + privacy report); **Account Settings Data & Privacy consent toggle**; `admin.tab.*` (fixes previously-untranslated tab labels), `admin.benchmarks.*`, `admin.datasets.*`, `accountSettingsPage.*` locale keys in all 15 locales |
 | Tests | ✅ | 7 suites: `privacy-guard.spec.ts`, `benchmark-metrics.spec.ts`, `ocean.service.spec.ts`, `marketplace.service.spec.ts`, `ocean-c2d.service.spec.ts`, `ocean-node-policy.spec.ts`, `ocean-node-monitor.service.spec.ts` — backend suite now **501 tests / 62 suites**; frontend `tsc -b --noEmit` + eslint (0 errors) + vitest (9 tests) clean |
 | Docs | ✅ | `specs/016-study-data-marketplace/` (spec/plan/tasks) checked off; `CHANGELOG.md`, `IMPLEMENTATION_STATUS.md`, `specs/README.md`, `docs/getting-started/configuration.md`, `THIRD_PARTY_NOTICES.md` updated (note: `backend/.env.example` edit blocked by workspace secret policy — new C2D env vars documented in `configuration.md` + code defaults) |
+
+## Owner policy — Fully-local stack + strict compute-to-data marketplace (completion-plan Waves 1–2, 2026-08-25)
+
+Implements `docs/COMPLETION_PLAN.md` §2 (T1–T8) with the owner's tightened
+marketplace policy: **the data market is compute-to-data ONLY — no PII is ever
+for sale and there is no download/access path**.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| MARKETPLACE_ENABLED master switch | ✅ | Default `false`; every `/data-marketplace` endpoint answers 501 while off (benchmark pipeline exempt); idle-capacity Ocean Node double-gated (config + service check) |
+| C2D-only publish invariant | ✅ | `C2D_ONLY` constant + `normalizeC2dPolicy` force network access to `false`; API requests asking for network access are rejected; `publishComputeAsset` re-asserts the invariant; metadata-first fallback removed — datasets stay drafts unless the full on-chain compute asset exists |
+| PII value-level scan | ✅ | `scanPayloadForPii` rejects non-numeric values, emails, IPs, phone-like runs, long digit IDs, arrays/objects after field-name sanitisation |
+| Isolated c2d-runner container | ✅ | `docker/c2d-runner/` (zero-dep Node server) composed on an internal Docker network (`internal: true`, read-only rootfs, tmpfs /tmp, non-root, cap-drop ALL, 512 MB/1 CPU/128 pids); doubles as the Problem-Solver sandbox (`CODE_SANDBOX_URL`) |
+| Researcher test harness | ✅ | `POST /data-marketplace/datasets/:id/test-compute` (admin): runs an algorithm against the stored sanitized aggregate in the runner (JSON on stdin), audited; new `C2dRunnerService` + tests |
+| Local LLM (Ollama) | ✅ | `AI_PROVIDER=openai-compatible` → `http://ollama:11434/v1` (qwen2.5:7b-instruct); embeddings via `EMBEDDING_PROVIDER=ollama-compatible` (nomic-embed-text, 768-dim); compose services `ollama` + `ollama-init` model pull |
+| Local email (Mailpit) | ✅ | New `SmtpService` (nodemailer) behind `EMAIL_TRANSPORT=smtp` (default); SES opt-in only |
+| Local storage (MinIO) | ✅ | `STORAGE_PROVIDER=minio` default (S3 path-style client) with R2 kept; bucket auto-created by idempotent `minio-init`. *Open:* Supabase/Cloudinary/Appwrite adapters |
+| Local search (SearXNG) | ✅ | `SEARCH_PROVIDER=searxng` default → JSON API; Tavily/Serper opt-in |
+| VAPID auto-provisioning | ✅ | Keys generated on first boot and persisted to `game_config.notifications.vapid`; env still wins; FCM demoted behind `FCM_ENABLED=true` |
+| Billing gate | ✅ | `BILLING_ENABLED=false`: checkout/portal/cancel/verify + Stripe webhook answer 404; static plan limits unchanged |
+| Compose + env docs | ✅ | docker-compose.yml: ollama(+init), searxng(+settings), mailpit, minio(+init), c2d-runner, isolated network; `.env.docker` and `backend/.env.example` rewritten for zero-config local run |
+| README quickstart + bootstrap.sh | ✅ | Clone→play quickstart, ports table, optional upgrades documented; `scripts/bootstrap.sh` (idempotent health-wait → migrate → model pull) |
+| Verification | ✅ | backend `npm run build` green; `npm test` 63 suites / 524 tests green; frontend `npm run build` green, `npm test` 9/9 green, lint 0 errors (14 pre-existing warnings). Docker unavailable in this workspace — clean-clone compose run still pending |
 
 ## Clean-Room Rewrite Program (owner brief — "rewrite all the files not by us, then remove the license")
 

@@ -4199,7 +4199,7 @@
     "cancel": "취소",
     "error": "문제가 발생했습니다. 다시 시도해 주세요."
   },
-"wellbeing": {
+  "wellbeing": {
     "title": "학습 건강",
     "today": "오늘의 집중",
     "optimal": "건강한 최적: 하루 {{min}}분",
@@ -4813,11 +4813,12 @@
     "datasets": {
       "publishModeLabel": "게시 모드",
       "modeDisabled": "비활성화됨 — 게시 꺼짐",
-      "modeMetadataFirst": "metadata-first · 지갑 불필요 — 온체인 datatoken 민트는 자금이 있는 지갑이 필요한 후속 단계",
+      "modeC2dReady": "C2D 준비됨 · 온체인 컴퓨트 자산 구성됨",
+      "modeC2dRequired": "컴퓨트 투 데이터 필요 · 게시하려면 자금이 있는 지갑, RPC 및 Ocean 노드를 구성하세요",
       "modeOnChainReady": "온체인 준비 완료 · 게시자 지갑 구성됨",
-      "walletHint": "게시자 지갑이 구성되지 않음 — 데이터셋은 여전히 Aquarius에 메타데이터를 게시합니다. 온체인 민트를 완료하려면 나중에 OCEAN_PUBLISHER_ADDRESS + OCEAN_PUBLISHER_PRIVATE_KEY를 추가하세요.",
-      "title": "데이터 마켓플레이스(Ocean Protocol)",
-      "subtitle": "개인정보 보호를 지키는 집계 통계를 Ocean 생태계에 게시합니다. 동의한 코호트의 집계만 게시됩니다.",
+      "walletHint": "C2D 게시가 작동할 때까지 데이터세트는 초안으로 유지됩니다: OCEAN_PUBLISHER_PRIVATE_KEY(+주소), OCEAN_RPC_URL, OCEAN_NODE_URL을 설정하세요. 메타데이터 전용 폴백은 없습니다.",
+      "title": "데이터 마켓플레이스 — 컴퓨트 투 데이터 전용",
+      "subtitle": "개인정보가 보호된 집계 통계를 온체인 컴퓨트 자산으로 게시합니다. 구매자는 격리된 네트워크 없는 환경에서 집계에 대해 알고리즘을 실행합니다 — 데이터 자체는 판매되거나 다운로드되지 않습니다.",
       "privacyNote": "집계만 · 최소 코호트 규모 · 동의 비율은 프라이버시 가드가 적용합니다.",
       "create": "새 데이터셋",
       "hideForm": "양식 숨기기",
