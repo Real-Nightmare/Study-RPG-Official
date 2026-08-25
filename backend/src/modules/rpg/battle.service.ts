@@ -13,6 +13,7 @@ import { CardService } from './card.service';
 import { WalletService } from './wallet.service';
 import { PlayerService } from './player.service';
 import { BattleDefaults, CardInHand, DEFAULT_BATTLE_DEFAULTS } from './card-definitions';
+import { battleMaxHp } from './characters';
 import {
   ActionResult,
   applyPlayerAction,
@@ -113,7 +114,14 @@ export class BattleService {
     }
 
     const defaults = await this.getBattleDefaults();
-    const state = createBattleState({ seed, hand, monster, defaults });
+    // Archetype bonus (completion plan T9): e.g. the Focuser enters battles
+    // with extra max HP.
+    const character = await this.player.getSelectedCharacter(userId);
+    const tunedDefaults: BattleDefaults = {
+      ...defaults,
+      maxHp: battleMaxHp(defaults.maxHp, character),
+    };
+    const state = createBattleState({ seed, hand, monster, defaults: tunedDefaults });
     const id = uuidv4();
 
     // Exam-world bosses are earned through verified mastery (US1/FR-008): a

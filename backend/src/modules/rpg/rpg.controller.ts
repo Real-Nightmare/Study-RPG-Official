@@ -28,6 +28,7 @@ import {
   CreatePvpDuelDto,
   DamageChallengeDto,
   ManaQuizDto,
+  SelectCharacterDto,
   UpdateDeckDto,
 } from './dto/rpg.dto';
 
@@ -50,6 +51,29 @@ export class RpgController {
   async profile(@CurrentUser() user: JwtPayload) {
     await this.cards.grantStarterSet(user.sub);
     return this.player.getProfile(user.sub);
+  }
+
+  @Get('characters')
+  @ApiOperation({
+    summary:
+      'Playable archetypes with the caller\u2019s selection state ' +
+      '(selection locked after first pick; respec tokens unlock changes)',
+  })
+  async characters(@CurrentUser() user: JwtPayload) {
+    await this.player.getProfile(user.sub); // ensure the profile row exists
+    return this.player.listCharacters(user.sub);
+  }
+
+  @Post('character')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Choose your archetype. Free on first pick; afterwards consumes a respec ' +
+      'token (one granted on first reaching level 10).',
+  })
+  async selectCharacter(@CurrentUser() user: JwtPayload, @Body() dto: SelectCharacterDto) {
+    const profile = await this.player.selectCharacter(user.sub, dto.key);
+    return { characterKey: profile.characterKey, respecTokens: profile.respecTokens };
   }
 
   @Get('ledger')

@@ -88,3 +88,16 @@ export class CreatePvpDuelDto {
   @IsOptional()
   deckId?: string;
 }
+
+export class SelectCharacterDto {
+  @ApiProperty({
+    description:
+      'Archetype key (see GET /rpg/characters). Free on first pick; afterwards ' +
+      'consumes a respec token.',
+    example: 'lorekeeper',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(40)
+  key: string;
+}
