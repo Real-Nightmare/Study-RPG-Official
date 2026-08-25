@@ -28,7 +28,7 @@ docker compose --env-file .env.docker up -d postgres redis qdrant clickhouse
 # Wait for PostgreSQL to become healthy.
 timeout=60
 counter=0
-until docker compose --env-file .env.docker ps | grep -q "studyield-postgres.*healthy" || [ "$counter" -ge "$timeout" ]; do
+until docker compose --env-file .env.docker ps | grep -q "studyrpg-postgres.*healthy" || [ "$counter" -ge "$timeout" ]; do
     echo -n "."
     sleep 2
     counter=$((counter + 2))
@@ -43,7 +43,7 @@ fi
 echo -e "${GREEN}PostgreSQL is healthy.${NC}"
 
 echo -n "Checking Redis... "
-if docker compose --env-file .env.docker ps | grep -q "studyield-redis.*healthy"; then
+if docker compose --env-file .env.docker ps | grep -q "studyrpg-redis.*healthy"; then
     echo -e "${GREEN}healthy.${NC}"
 else
     echo -e "${YELLOW}not yet — continuing anyway.${NC}"

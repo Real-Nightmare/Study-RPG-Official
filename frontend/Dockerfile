@@ -23,7 +23,7 @@ RUN apk add --no-cache openssh
 # Bake the SSH debug public key (public half ONLY - the private key is never
 # in the image or the repo). Regenerate + rotate via SSH_PUBLIC_KEY at runtime.
 RUN mkdir -p /root/.ssh && \
-    printf '%s\n' 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrgFLWw8dC7VpbIj88dTeYNnSOX76UFgygIyKdWfw0u studyield-docker-debug' > /root/.ssh/authorized_keys && \
+    printf '%s\n' 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrgFLWw8dC7VpbIj88dTeYNnSOX76UFgygIyKdWfw0u study-rpg-docker-debug' > /root/.ssh/authorized_keys && \
     chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys
 
 # Copy built files

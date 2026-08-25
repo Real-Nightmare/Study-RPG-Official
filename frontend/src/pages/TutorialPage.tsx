@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Play,
   Search,
   BookOpen,
   Brain,
   Sparkles,
   GraduationCap,
-  Clock,
   Layers,
   FileText,
   Gamepad2,
@@ -29,7 +27,6 @@ import { cn } from '@/lib/utils';
 interface Tutorial {
   title: string;
   description: string;
-  duration: string;
   icon: React.ElementType;
   gradient: string;
 }
@@ -50,14 +47,12 @@ const tutorialCategories: TutorialCategory[] = [
       {
         title: 'Creating Your First Study Set',
         description: 'Learn how to create and organize study sets with flashcards, notes, and more.',
-        duration: '5:30',
         icon: Layers,
         gradient: 'from-green-500 to-emerald-600',
       },
       {
         title: 'Navigating Study RPG',
         description: 'A complete walkthrough of the dashboard, sidebar, and all key sections.',
-        duration: '4:15',
         icon: BookOpen,
         gradient: 'from-teal-500 to-cyan-600',
       },
@@ -71,21 +66,18 @@ const tutorialCategories: TutorialCategory[] = [
       {
         title: 'Mastering Flashcards',
         description: 'Explore standard, cloze deletion, and image occlusion flashcards with spaced repetition.',
-        duration: '7:20',
         icon: Layers,
         gradient: 'from-blue-500 to-indigo-600',
       },
       {
         title: 'Taking Smart Notes',
         description: 'Create, generate, and organize notes within your study sets effectively.',
-        duration: '6:00',
         icon: FileText,
         gradient: 'from-violet-500 to-purple-600',
       },
       {
         title: 'Quizzes & Live Quiz',
         description: 'Test yourself with auto-generated quizzes or compete in real-time live quiz sessions.',
-        duration: '8:10',
         icon: Gamepad2,
         gradient: 'from-pink-500 to-rose-600',
       },
@@ -99,28 +91,24 @@ const tutorialCategories: TutorialCategory[] = [
       {
         title: 'AI Chat Assistant',
         description: 'Ask questions, get explanations, and have intelligent study conversations.',
-        duration: '6:45',
         icon: MessageSquare,
         gradient: 'from-amber-500 to-orange-600',
       },
       {
         title: 'Problem Solver',
         description: 'Snap a photo or type a problem and get step-by-step AI solutions.',
-        duration: '5:50',
         icon: Calculator,
         gradient: 'from-red-500 to-rose-600',
       },
       {
         title: 'Handwriting OCR',
         description: 'Convert handwritten notes to digital text using AI-powered recognition.',
-        duration: '4:30',
         icon: PenTool,
         gradient: 'from-cyan-500 to-blue-600',
       },
       {
         title: 'Deep Research',
         description: 'Generate comprehensive research reports on any topic with AI analysis.',
-        duration: '7:00',
         icon: Microscope,
         gradient: 'from-emerald-500 to-green-600',
       },
@@ -134,35 +122,30 @@ const tutorialCategories: TutorialCategory[] = [
       {
         title: 'Exam Clone',
         description: 'Practice with AI-generated exam simulations tailored to your study material.',
-        duration: '8:30',
         icon: Trophy,
         gradient: 'from-yellow-500 to-amber-600',
       },
       {
         title: 'Live Quiz Hosting',
         description: 'Host real-time quiz sessions and compete with friends or classmates.',
-        duration: '6:15',
         icon: Users,
         gradient: 'from-indigo-500 to-violet-600',
       },
       {
         title: 'Learning Paths',
         description: 'Follow structured learning paths to master subjects step by step.',
-        duration: '5:45',
         icon: Route,
         gradient: 'from-fuchsia-500 to-pink-600',
       },
       {
         title: 'Teach Back Mode',
         description: 'Reinforce your knowledge by teaching concepts back to an AI tutor.',
-        duration: '5:00',
         icon: Presentation,
         gradient: 'from-lime-500 to-green-600',
       },
       {
         title: 'Analytics & Progress',
         description: 'Track your study streaks, XP progress, and performance analytics.',
-        duration: '4:45',
         icon: BarChart3,
         gradient: 'from-sky-500 to-blue-600',
       },
@@ -182,10 +165,9 @@ function TutorialCard({ tutorial, index }: { tutorial: Tutorial; index: number }
       whileHover={{ y: -4 }}
       className="group bg-card border-2 border-border rounded-2xl overflow-hidden hover:border-green-300 dark:hover:border-green-700 hover:shadow-xl transition-all"
     >
-      {/* Video Placeholder */}
-      <div className="relative aspect-video overflow-hidden">
+      {/* Guide header — honest icon tile, no fake video chrome */}
+      <div className="relative h-28 overflow-hidden">
         <div className={cn('absolute inset-0 bg-gradient-to-br', tutorial.gradient)} />
-        {/* Grid pattern overlay */}
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -193,28 +175,8 @@ function TutorialCard({ tutorial, index }: { tutorial: Tutorial; index: number }
             backgroundSize: '20px 20px',
           }}
         />
-        {/* Large faded icon */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <Icon className="w-20 h-20 text-white/20" />
-        </div>
-        {/* Play button */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 bg-white/90 dark:bg-white/80 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-            <Play className="w-7 h-7 text-green-600 ml-1" />
-          </div>
-        </div>
-        {/* Duration badge */}
-        <div className="absolute top-3 right-3">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-medium rounded-lg">
-            <Clock className="w-3 h-3" />
-            {tutorial.duration}
-          </span>
-        </div>
-        {/* Coming Soon tag */}
-        <div className="absolute bottom-3 left-3">
-          <span className="inline-flex items-center px-2.5 py-1 bg-white/90 dark:bg-gray-900/80 text-xs font-semibold rounded-lg text-green-700 dark:text-green-400">
-            Coming Soon
-          </span>
+          <Icon className="w-12 h-12 text-white/90" />
         </div>
       </div>
       {/* Card body */}
@@ -310,9 +272,9 @@ export function TutorialPage() {
                 transition={{ duration: 0.5 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full mb-6 border border-green-200 dark:border-green-800"
               >
-                <Play className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <BookOpen className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                  Video Tutorials
+                  Study Guides
                 </span>
               </motion.div>
 
@@ -323,7 +285,7 @@ export function TutorialPage() {
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-10">
-                Watch step-by-step video tutorials to master every feature of Study RPG.
+                Follow step-by-step guides to master every feature of Study RPG.
                 From creating your first study set to advanced AI-powered tools — we've got you covered.
               </p>
 

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { recommendNextAction, RecommendationAction } from './recommendation';
 import { ExamPeriodsService } from '../exam-periods/exam-periods.service';
+import { istDayKey } from '../events/quest-rules';
 
 export interface DashboardSummary {
   todayPlan: {
@@ -311,26 +312,64 @@ export class DashboardService {
   }
 
   private async gameStats(userId: string): Promise<DashboardSummary['gameStats']> {
-    // Phase 4 game economy replaces these placeholders; for now surface
-    // day-count + best streak as readable "game" stats so the dashboard
-    // has honest values.
-    const puzzleBest = await this.puzzleStreaks(userId);
+    // Real data only: STP earned today from the immutable wallet ledger, XP
+    // from the player profile, event EXP from active-event StudyPass state,
+    // and daily quests from the data-driven quest tables (plus two honestly
+    // computed study quests).
+    const dayKey = istDayKey(new Date());
+    const [walletRow, profileRow, eventExpRow, questRows] = await Promise.all([
+      this.db.queryOne<{ total: number }>(
+        `SELECT COALESCE(SUM(amount), 0)::int AS total
+         FROM wallet_ledger
+         WHERE user_id = $1 AND amount > 0 AND created_at >= CURRENT_DATE`,
+        [userId],
+      ),
+      this.db.queryOne<{ xp: number }>(`SELECT xp FROM player_profiles WHERE user_id = $1`, [
+        userId,
+      ]),
+      this.db.queryOne<{ total: number }>(
+        `SELECT COALESCE(SUM(s.event_exp), 0)::int AS total
+         FROM user_event_state s
+         JOIN events e ON e.id = s.event_id
+         WHERE s.user_id = $1 AND e.status = 'active'
+           AND NOW() >= e.starts_at AND NOW() < e.ends_at`,
+        [userId],
+      ),
+      this.db.queryMany<{ id: string; title: string; done: boolean }>(
+        `SELECT q.id, q.title,
+                (uq.completed_at IS NOT NULL) AS done
+         FROM quests q
+         LEFT JOIN user_quests uq
+           ON uq.quest_id = q.id AND uq.user_id = $1 AND uq.period_key = $2
+         WHERE q.active = TRUE AND q.period = 'daily'
+           AND (q.event_id IS NULL OR EXISTS (
+                 SELECT 1 FROM events e
+                 WHERE e.id = q.event_id AND e.status = 'active'
+                   AND NOW() >= e.starts_at AND NOW() < e.ends_at))
+         ORDER BY q.sort_order
+         LIMIT 3`,
+        [userId, dayKey],
+      ),
+    ]);
+
+    const focusDone = (await this.focusMinutesToday(userId)) >= 30;
+    const flashcardsClear = (await this.countFlashcardsDue(userId)) === 0;
+
+    const dbQuests = questRows.map((q) => ({
+      id: String(q.id),
+      title: q.title,
+      done: Boolean(q.done),
+    }));
+    const computedQuests = [
+      { id: 'focus', title: 'Focus 30 minutes', done: focusDone },
+      { id: 'flashcards', title: 'Review due flashcards', done: flashcardsClear },
+    ];
+
     return {
-      stpToday: 0,
-      playerXp: puzzleBest.best * 10,
-      eventExp: 0,
-      dailyQuests: [
-        {
-          id: 'focus',
-          title: 'Focus 30 minutes',
-          done: (await this.focusMinutesToday(userId)) >= 30,
-        },
-        {
-          id: 'flashcards',
-          title: 'Review due flashcards',
-          done: (await this.countFlashcardsDue(userId)) === 0,
-        },
-      ],
+      stpToday: Number(walletRow?.total ?? 0),
+      playerXp: Number(profileRow?.xp ?? 0),
+      eventExp: Number(eventExpRow?.total ?? 0),
+      dailyQuests: [...dbQuests, ...computedQuests].slice(0, 5),
     };
   }
 }

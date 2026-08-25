@@ -468,7 +468,7 @@ export function CookiesPage() {
                         className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-semibold"
                         asChild
                       >
-                        <a href="mailto:privacy@studyield.com">privacy@studyield.com</a>
+                        <a href="mailto:privacy@studyrpg.app">privacy@studyrpg.app</a>
                       </Button>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Studyield smoke load tester (PDF Phase 9 ops deliverable).
+ * Study RPG smoke load tester (PDF Phase 9 ops deliverable).
  *
  * Lightweight fetch-based tester — not a full k6 suite. Hits one URL with a
  * fixed concurrency for a fixed duration and reports requests/sec + p50/p95.

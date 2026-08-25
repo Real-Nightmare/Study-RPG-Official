@@ -1,6 +1,6 @@
-/* Studyield — Web Push service worker (VAPID, Phase 9). */
+/* Study RPG — Web Push service worker (VAPID). */
 self.addEventListener('push', (event) => {
-  let data = { title: 'Studyield', body: '', url: '/dashboard' };
+  let data = { title: 'Study RPG', body: '', url: '/dashboard' };
   try {
     const parsed = event.data ? JSON.parse(event.data.text()) : {};
     data = { ...data, ...parsed };
@@ -10,8 +10,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/logos/studyield-logo.png',
-    badge: '/logos/studyield-logo.png',
+    icon: '/logos/study-rpg-logo.svg',
+    badge: '/logos/study-rpg-logo.svg',
     data: { url: data.url },
   };
 

@@ -1,4 +1,4 @@
--- Studyield Database Schema
+-- Study RPG Database Schema
 -- Initial migration
 
 -- Enable UUID extension

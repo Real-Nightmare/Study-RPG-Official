@@ -37,10 +37,10 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/studyield', color: 'hover:text-sky-500' },
-  { name: 'GitHub', icon: Github, href: 'https://github.com/studyield', color: 'hover:text-foreground' },
-  { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/studyield', color: 'hover:text-blue-600' },
-  { name: 'Email', icon: Mail, href: 'mailto:hello@studyield.com', color: 'hover:text-green-500' },
+  { name: 'Twitter', icon: Twitter, href: 'https://twitter.com/studyrpg', color: 'hover:text-sky-500' },
+  { name: 'GitHub', icon: Github, href: 'https://github.com/Real-Nightmare/Study-RPG-Official', color: 'hover:text-foreground' },
+  { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com/company/studyrpg', color: 'hover:text-blue-600' },
+  { name: 'Email', icon: Mail, href: 'mailto:hello@studyrpg.app', color: 'hover:text-green-500' },
 ];
 
 export function Footer() {
@@ -240,7 +240,7 @@ export function Footer() {
                   {t('footer.accessibility')}
                 </Link>
                 <a
-                  href="https://github.com/studyield/studyield/blob/main/LICENSE"
+                  href="https://github.com/Real-Nightmare/Study-RPG-Official/blob/main/LICENSE"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -248,7 +248,7 @@ export function Footer() {
                   {t('footer.license')}
                 </a>
                 <a
-                  href="https://github.com/studyield/studyield"
+                  href="https://github.com/Real-Nightmare/Study-RPG-Official"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"

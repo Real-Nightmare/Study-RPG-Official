@@ -35,7 +35,7 @@ if [ ! -f backend/.env ]; then
     cp backend/.env.example backend/.env
 fi
 if grep -q "^JWT_ACCESS_SECRET=your_jwt" backend/.env 2>/dev/null; then
-    warn "backend/.env still contains placeholder JWT secrets — replace them."
+    warn "backend/.env still contains template JWT secrets — replace them before production."
 fi
 
 # 1) Services ----------------------------------------------------------------

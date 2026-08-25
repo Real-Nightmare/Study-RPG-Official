@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Studyield PostgreSQL restore (PDF Phase 9 ops deliverable).
+# Study RPG PostgreSQL restore (PDF Phase 9 ops deliverable).
 #
 # Usage:
 #   ./scripts/restore.sh <backup.dump> [DATABASE_URL]

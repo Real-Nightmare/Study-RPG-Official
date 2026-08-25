@@ -1,7 +1,7 @@
 # Study RPG — Frontend
 
 React 19 + Vite 7 + TypeScript + Tailwind CSS + Radix UI. The client for the
-Studyield / Study RPG NestJS API (`../backend`).
+Study RPG API (NestJS) — source lives in `../backend`.
 
 ## Stack
 

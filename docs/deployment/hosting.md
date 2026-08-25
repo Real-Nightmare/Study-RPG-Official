@@ -83,8 +83,8 @@ The backend and frontend images ship with an **always-on** SSH server (port
 `${FRONTEND_SSH_PORT:-3222}` on the host) for interactive debugging:
 
 ```bash
-ssh -i /path/to/id_studyield_debug root@host -p 3022    # backend
-ssh -i /path/to/id_studyield_debug root@host -p 3222    # frontend
+ssh -i /path/to/id_study_rpg_debug root@host -p 3022    # backend
+ssh -i /path/to/id_study_rpg_debug root@host -p 3222    # frontend
 ```
 
 The **public** half of the `studyield-docker-debug` keypair is baked into the

@@ -13,6 +13,10 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { Readable } from 'stream';
+import { RestStorageProvider } from './providers/rest-storage.provider';
+import { SupabaseStorageProvider } from './providers/supabase-storage.provider';
+import { CloudinaryStorageProvider } from './providers/cloudinary-storage.provider';
+import { AppwriteStorageProvider } from './providers/appwrite-storage.provider';
 
 export interface UploadOptions {
   contentType?: string;
@@ -28,16 +32,23 @@ export interface FileInfo {
 }
 
 /**
- * Object storage adapter behind one S3-compatible interface.
+ * Object storage adapter behind one interface.
  *
  * Provider selection (`STORAGE_PROVIDER`, owner policy T3 — storage is the
  * ONE area where external SaaS is allowed, and only free/no-credit-card
  * options):
- *   - `minio`  — DEFAULT for docker/self-host: the compose stack runs a local
- *                MinIO; zero accounts, unlimited disk. S3 API, path-style.
- *   - `r2`     — Cloudflare R2 (existing behaviour; needs R2_* credentials).
- * Both speak the S3 protocol, so one client serves them; switching provider
- * is purely an environment change — no code changes anywhere else.
+ *   - `minio`      — DEFAULT for docker/self-host: the compose stack runs a
+ *                    local MinIO; zero accounts, unlimited disk. S3 API.
+ *   - `r2`         — Cloudflare R2 (needs R2_* credentials).
+ *   - `supabase`   — Supabase Storage REST (1 GB free, no card).
+ *   - `cloudinary` — Cloudinary (~25 GB/mo free, no card; good for images).
+ *   - `appwrite`   — Appwrite Storage REST (2 GB free, no card).
+ *
+ * S3-compatible providers use the AWS SDK client directly; the three REST
+ * providers implement the upload/download/delete/public-URL surface behind
+ * the same public methods (operations they cannot honour throw a clear
+ * error instead of pretending). Switching provider is purely an environment
+ * change — no code changes anywhere else.
  */
 @Injectable()
 export class StorageService implements OnModuleInit {
@@ -46,6 +57,8 @@ export class StorageService implements OnModuleInit {
   private bucket: string;
   private publicUrl: string;
   private provider: string;
+  /** Non-S3 provider delegation (supabase | cloudinary | appwrite). */
+  private restProvider: RestStorageProvider | null = null;
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -54,6 +67,7 @@ export class StorageService implements OnModuleInit {
     const hasR2 = !!this.configService.get<string>('R2_ACCOUNT_ID');
     // Docker default is minio; bare-metal default stays r2 when R2 is set up.
     this.provider = configured || (hasR2 ? 'r2' : 'minio');
+    this.restProvider = null;
 
     if (this.provider === 'minio') {
       const endpoint = (
@@ -93,13 +107,35 @@ export class StorageService implements OnModuleInit {
       this.logger.log(
         `R2 Storage client initialized - Bucket: ${this.bucket}, Public URL: ${this.publicUrl || 'Not configured'}`,
       );
+    } else if (this.provider === 'supabase') {
+      this.restProvider = new SupabaseStorageProvider(this.configService);
+      this.bucket = this.configService.get<string>('SUPABASE_BUCKET', 'studyrpg-uploads');
+      this.logger.log('Supabase storage provider initialized');
+    } else if (this.provider === 'cloudinary') {
+      this.restProvider = new CloudinaryStorageProvider(this.configService);
+      this.bucket = 'cloudinary';
+      this.logger.log('Cloudinary storage provider initialized');
+    } else if (this.provider === 'appwrite') {
+      this.restProvider = new AppwriteStorageProvider(this.configService);
+      this.bucket = this.configService.get<string>('APPWRITE_BUCKET_ID', 'studyrpg-uploads');
+      this.logger.log('Appwrite storage provider initialized');
     } else {
-      throw new Error(`Unsupported STORAGE_PROVIDER "${this.provider}". Supported: minio, r2.`);
+      throw new Error(
+        `Unsupported STORAGE_PROVIDER "${this.provider}". Supported: minio, r2, supabase, cloudinary, appwrite.`,
+      );
     }
   }
 
   getProvider(): string {
     return this.provider;
+  }
+
+  /** Delegation helpers for the REST-backed providers. */
+  private requireRest(): RestStorageProvider {
+    if (!this.restProvider) {
+      throw new Error(`No REST provider configured (provider=${this.provider}).`);
+    }
+    return this.restProvider;
   }
 
   private generateKey(filename: string, folder?: string): string {
@@ -113,6 +149,16 @@ export class StorageService implements OnModuleInit {
     filename: string,
     options?: UploadOptions,
   ): Promise<{ key: string; url: string }> {
+    if (this.restProvider) {
+      if (file instanceof Buffer) {
+        const key = this.generateKey(filename, options?.folder);
+        const result = await this.restProvider.upload(file, key, options?.contentType);
+        this.logger.debug(`File uploaded via ${this.provider} - Key: ${result.key}`);
+        return result;
+      }
+      this.requireRest().unsupported('streaming upload (buffer only)');
+    }
+
     const key = this.generateKey(filename, options?.folder);
 
     if (file instanceof Buffer) {
@@ -151,6 +197,12 @@ export class StorageService implements OnModuleInit {
     key: string,
     options?: Omit<UploadOptions, 'folder'>,
   ): Promise<{ key: string; url: string }> {
+    if (this.restProvider) {
+      const result = await this.restProvider.upload(file, key, options?.contentType);
+      this.logger.debug(`File uploaded via ${this.provider} with key: ${key}`);
+      return result;
+    }
+
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
@@ -168,6 +220,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async download(key: string): Promise<Buffer> {
+    if (this.restProvider) {
+      return this.restProvider.download(key);
+    }
     try {
       this.logger.debug(`Downloading file from bucket: ${this.bucket}, key: ${key}`);
 
@@ -209,6 +264,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async delete(key: string): Promise<void> {
+    if (this.restProvider) {
+      return this.restProvider.delete(key);
+    }
     await this.client.send(
       new DeleteObjectCommand({
         Bucket: this.bucket,
@@ -224,6 +282,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async exists(key: string): Promise<boolean> {
+    if (this.restProvider) {
+      return this.restProvider.exists(key);
+    }
     try {
       await this.client.send(
         new HeadObjectCommand({
@@ -238,6 +299,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async getInfo(key: string): Promise<FileInfo | null> {
+    if (this.restProvider) {
+      return this.restProvider.getInfo(key);
+    }
     try {
       const response = await this.client.send(
         new HeadObjectCommand({
@@ -258,6 +322,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async list(prefix?: string, maxKeys = 1000): Promise<FileInfo[]> {
+    if (this.restProvider) {
+      this.requireRest().unsupported('listing objects');
+    }
     const response = await this.client.send(
       new ListObjectsV2Command({
         Bucket: this.bucket,
@@ -274,6 +341,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async copy(sourceKey: string, destinationKey: string): Promise<void> {
+    if (this.restProvider) {
+      this.requireRest().unsupported('copying objects');
+    }
     await this.client.send(
       new CopyObjectCommand({
         Bucket: this.bucket,
@@ -291,6 +361,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async getSignedUploadUrl(key: string, contentType: string, expiresIn = 3600): Promise<string> {
+    if (this.restProvider) {
+      return this.requireRest().getSignedUploadUrl();
+    }
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -301,6 +374,9 @@ export class StorageService implements OnModuleInit {
   }
 
   async getSignedDownloadUrl(key: string, expiresIn = 3600): Promise<string> {
+    if (this.restProvider) {
+      return this.requireRest().getSignedDownloadUrl(key, expiresIn);
+    }
     const command = new GetObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -310,6 +386,12 @@ export class StorageService implements OnModuleInit {
   }
 
   getPublicUrl(key: string): string {
+    if (
+      this.restProvider &&
+      typeof (this.restProvider as { publicUrl?: unknown }).publicUrl === 'function'
+    ) {
+      return (this.restProvider as unknown as { publicUrl: (k: string) => string }).publicUrl(key);
+    }
     return this.publicUrl ? `${this.publicUrl}/${key}` : key;
   }
 

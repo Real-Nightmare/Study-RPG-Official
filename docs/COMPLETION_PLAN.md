@@ -23,15 +23,30 @@
 - ✅ T1 Ollama chat + embeddings (OpenAI-compatible provider selection).
 - ✅ T2 Mailpit SMTP transport (nodemailer).
 - ✅ T3 MinIO default storage provider (+ R2 kept) behind one interface.
-  *Open:* Supabase/Cloudinary/Appwrite adapters.
+  All five providers wired: supabase / cloudinary / appwrite REST adapters
+  with contract tests against their documented APIs; unsupported operations
+  answer a clear "not supported" error. *Runtime smoke tests on live free
+  accounts still pending.*
+- ✅ §4 zero-placeholder sweep: `scripts/check-hygiene.sh` (rebrand gate +
+  stub-marker gate) wired into CI as the first job. Fixed every current hit:
+  TutorialPage fake-video cards → honest guide cards, Google Docs mock import
+  path removed, dashboard `gameStats` now uses real wallet/profile/event-exp/
+  quest data, SECURITY.md placeholder email fixed, sw.js branding/icon fixed,
+  upstream brand strings swept from all shippable source.
+- ✅ T11 rebrand sweep (source): legal/contact pages, landing footer links,
+  package metadata, Dockerfiles, entrypoints, ops scripts, migrations and
+  seeded blog content now say Study RPG; container names and SSH key paths
+  renamed consistently across compose/start.sh/docs.
+- ✅ G11 README quickstart + `scripts/bootstrap.sh`.
 - ✅ T4 SearXNG default search provider.
 - ✅ T5 local code execution via the hardened c2d-runner sidecar.
 - ✅ T6 VAPID auto-provisioning; FCM demoted behind `FCM_ENABLED`.
-- ✅ G11 README quickstart + `scripts/bootstrap.sh`.
 
-**Still open:** game content wave (T9–T10 art/characters), rebrand sweep
-(T11), zero-placeholder CI sweep (§4), rewrite batches B5–B10 (§5),
-storage extra adapters, full clean-clone verification checklist (§7).
+**Still open:** game content wave (T9–T10 art/characters), rebrand leftovers
+in provenance docs only (T11 source sweep is done — UPSTREAM.md, NOTICE,
+CHANGELOG, docs/, specs/ remain allowlisted until B10), rewrite batches
+B5–B10 (§5), runtime smoke tests on live Supabase/Cloudinary/Appwrite free
+accounts, full clean-clone verification checklist (§7).
 
 ---
 
@@ -102,12 +117,7 @@ This is the ONE area where external providers are permitted. Requirements: multi
 **Default (zero-config)**: MinIO in compose. Bucket auto-created by the
 idempotent `minio-init` job (`mc mb studyrpg-uploads`).
 
-**Implemented now**: provider switch `STORAGE_PROVIDER=minio | r2` behind the
-existing `StorageService` surface (both are S3-compatible, so one client
-serves them; MinIO uses path-style addressing). Switching provider is purely
-an environment change. **Open item**: Supabase / Cloudinary / Appwrite
-REST adapters (free-tier, no-card options) are still to be added as small
-adapters behind the same interface — deliberately not stubbed in this wave.
+**Implemented**: provider switch `STORAGE_PROVIDER=minio | r2 | supabase | cloudinary | appwrite` behind the existing `StorageService` surface. MinIO/R2 use the S3 client (MinIO with path-style addressing); Supabase, Cloudinary and Appwrite are small REST adapters (upload/download/delete/public URL + signed URLs where the service offers them) with contract tests against their documented APIs — operations a service cannot honour answer a clear "not supported" error instead of pretending. Switching provider is purely an environment change. *Runtime smoke tests on live Supabase/Cloudinary/Appwrite accounts still pending (needs free accounts).*
 
 ### T4 — Local Web Search via SearXNG (fixes G5) — **DONE**
 

@@ -58,4 +58,4 @@ UPDATE blog_posts SET
   author_name = 'Thomas Weber',
   author_avatar = 'https://randomuser.me/api/portraits/men/64.jpg',
   cover_image = 'https://images.unsplash.com/photo-1513258496099-48168024aec0?w=800&h=400&fit=crop'
-WHERE slug = 'getting-started-studyield';
+WHERE slug = 'getting-started-study-rpg';

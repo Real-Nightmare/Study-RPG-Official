@@ -11,6 +11,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  hygiene-checks:
+    name: Hygiene (rebrand + zero-placeholder gate)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch repository
+        uses: actions/checkout@v4
+      - name: Check upstream-brand removal and stub markers
+        run: sh scripts/check-hygiene.sh
+
   backend-checks:
     name: Backend Checks
     runs-on: ubuntu-latest

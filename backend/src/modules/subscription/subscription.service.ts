@@ -151,15 +151,15 @@ export class SubscriptionService implements OnModuleInit {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     const priceId = plan === 'monthly' ? this.monthlyPriceId : this.yearlyPriceId;
 
-    // Reject placeholder/absent config so the UI can say "all features free".
-    const isPlaceholder =
+    // Reject template/absent config so the UI can say "all features free".
+    const isTemplate =
       !secretKey ||
       secretKey.includes('your-') ||
       !priceId ||
       priceId.includes('_id') ||
       priceId.length < 20;
 
-    if (isPlaceholder) {
+    if (isTemplate) {
       throw new BadRequestException(
         'Payment system is not configured yet. All features are currently free!',
       );

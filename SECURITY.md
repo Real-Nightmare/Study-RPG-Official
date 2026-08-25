@@ -14,7 +14,7 @@ Security matters here — please report privately, not through public issues.
 
 ### How to report
 
-Email **security@study-rpg.app** (placeholder — replace with the real address) with:
+Email **security@studyrpg.app** with:
 
 - The kind of issue (SQL injection, XSS, auth bypass, SSRF, privilege escalation, ...)
 - File paths of the affected source

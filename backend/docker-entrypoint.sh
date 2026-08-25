@@ -1,5 +1,5 @@
 #!/bin/sh
-# Studyield backend container entrypoint.
+# Study RPG backend container entrypoint.
 #
 # The SSH debug server is ALWAYS ON (root key-based auth, public key baked in
 # at image build time). Optional extras at runtime:
@@ -27,7 +27,7 @@ start_sshd() {
   # Generate ephemeral host keys on first start (container identity).
   [ -f /etc/ssh/ssh_host_rsa_key ] || ssh-keygen -A >/dev/null 2>&1 || true
 
-  cat > /etc/ssh/sshd_config.studyield.conf <<'EOF'
+  cat > /etc/ssh/sshd_config.study-rpg.conf <<'EOF'
 Port 22
 ListenAddress 0.0.0.0
 PermitRootLogin yes
@@ -39,8 +39,8 @@ PrintMotd no
 Subsystem sftp internal-sftp
 EOF
 
-  if /usr/sbin/sshd -t -f /etc/ssh/sshd_config.studyield.conf >/dev/null 2>&1; then
-    /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config.studyield.conf &
+  if /usr/sbin/sshd -t -f /etc/ssh/sshd_config.study-rpg.conf >/dev/null 2>&1; then
+    /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config.study-rpg.conf &
     echo "[entrypoint] sshd running"
   else
     echo "[entrypoint] WARNING: sshd config invalid - SSH debug disabled" >&2

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Studyield PostgreSQL backup (PDF Phase 9 ops deliverable).
+# Study RPG PostgreSQL backup (PDF Phase 9 ops deliverable).
 #
 # Usage:
 #   ./scripts/backup.sh [output-dir]          # defaults to ./backups
@@ -20,7 +20,7 @@ else
   : "${PGHOST:=localhost}"
   : "${PGPORT:=5432}"
   : "${PGUSER:=postgres}"
-  : "${PGDATABASE:=studyield}"
+  : "${PGDATABASE:=studyrpg}"
   DB_URL="postgresql://${PGUSER}@${PGHOST}:${PGPORT}/${PGDATABASE}"
 fi
 
@@ -28,7 +28,7 @@ fi
 OUT_DIR="${1:-./backups}"
 mkdir -p "$OUT_DIR"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-OUT_FILE="${OUT_DIR}/studyield-${STAMP}.dump"
+OUT_FILE="${OUT_DIR}/study-rpg-${STAMP}.dump"
 
 echo "Backing up to: ${OUT_FILE}"
 pg_dump --no-owner --no-privileges --format=custom "$DB_URL" > "$OUT_FILE"

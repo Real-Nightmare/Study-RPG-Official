@@ -13,7 +13,6 @@ import {
   Music,
   Globe,
   Camera,
-  FileSpreadsheet,
   Type,
   Upload,
   Loader2,
@@ -23,12 +22,10 @@ import {
   Play,
   Pause,
   Square as StopIcon,
-  ChevronRight,
   AlertCircle,
   RotateCcw,
   Plus,
   Link2,
-  Search,
   CheckCircle2,
   Circle,
   XCircle,
@@ -45,7 +42,6 @@ type Step =
   | 'audio-file'
   | 'website'
   | 'camera'
-  | 'google-docs'
   | 'text'
   | 'handwriting'
   | 'processing'
@@ -87,7 +83,6 @@ const IMPORT_SOURCES = [
   { key: 'audio-file' as const, labelKey: 'importSection.audioFile', descKey: 'importSection.audioFileDesc', icon: Music, color: 'bg-blue-500/10 text-blue-500', borderColor: 'hover:border-blue-500/40' },
   { key: 'website' as const, labelKey: 'importSection.websiteUrl', descKey: 'importSection.websiteUrlDesc', icon: Globe, color: 'bg-purple-500/10 text-purple-500', borderColor: 'hover:border-purple-500/40' },
   { key: 'camera' as const, labelKey: 'importSection.cameraScan', descKey: 'importSection.cameraScanDesc', icon: Camera, color: 'bg-amber-500/10 text-amber-500', borderColor: 'hover:border-amber-500/40' },
-  { key: 'google-docs' as const, labelKey: 'importSection.googleDocs', descKey: 'importSection.googleDocsDesc', icon: FileSpreadsheet, color: 'bg-sky-500/10 text-sky-500', borderColor: 'hover:border-sky-500/40' },
   { key: 'text' as const, labelKey: 'importSection.pasteText', descKey: 'importSection.pasteTextDesc', icon: Type, color: 'bg-slate-500/10 text-slate-500', borderColor: 'hover:border-slate-500/40' },
   { key: 'handwriting' as const, labelKey: 'importSection.handwrittenNotes', descKey: 'importSection.handwrittenNotesDesc', icon: PenLine, color: 'bg-indigo-500/10 text-indigo-500', borderColor: 'hover:border-indigo-500/40' },
 ];
@@ -99,7 +94,6 @@ const PROCESSING_STEPS: Record<string, string[]> = {
   'audio-file': ['Uploading audio', 'Transcribing audio', 'Generating flashcards'],
   website: ['Fetching webpage', 'Extracting content', 'Generating flashcards'],
   camera: ['Processing images', 'Running OCR', 'Generating flashcards'],
-  'google-docs': ['Fetching documents', 'Extracting content', 'Generating flashcards'],
   handwriting: ['Uploading image', 'Running OCR on handwriting', 'Generating flashcards'],
 };
 
@@ -859,85 +853,6 @@ function CameraScreen({
   );
 }
 
-// ── Google Docs ─────────────────────────────────────────────────────
-function GoogleDocsScreen({ onBack }: { onBack: () => void }) {
-  const [connected, setConnected] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Mock docs for connected state UI
-  const mockDocs = connected
-    ? [
-        { id: '1', name: 'Biology Notes Chapter 3', type: 'doc', date: '2 days ago' },
-        { id: '2', name: 'History Timeline', type: 'doc', date: '1 week ago' },
-        { id: '3', name: 'Chemistry Formulas', type: 'sheet', date: '3 days ago' },
-      ].filter((d) => !searchQuery || d.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : [];
-
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-      <ScreenHeader icon={FileSpreadsheet} title="Google Docs" onBack={onBack} color="bg-sky-500/10 text-sky-500" />
-
-      {!connected ? (
-        <div className="text-center py-12 border border-border rounded-xl">
-          <div className="w-16 h-16 rounded-full bg-sky-500/10 flex items-center justify-center mx-auto mb-4">
-            <FileSpreadsheet className="w-8 h-8 text-sky-500" />
-          </div>
-          <h4 className="font-semibold mb-1">Connect Google Account</h4>
-          <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
-            Sign in with Google to browse and import documents from Google Drive
-          </p>
-          <Button type="button" onClick={() => setConnected(true)} className="bg-sky-500 hover:bg-sky-600">
-            <Globe className="w-4 h-4 mr-2" />
-            Connect Google Account
-          </Button>
-          <p className="text-[10px] text-muted-foreground mt-3">
-            We only access documents you explicitly select
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search documents..."
-              className="w-full pl-9 pr-4 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
-            />
-          </div>
-
-          {/* Document list */}
-          <div className="border border-border rounded-xl overflow-hidden">
-            {mockDocs.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No documents found</p>
-            ) : (
-              mockDocs.map((doc) => (
-                <div key={doc.id} className="flex items-center gap-3 p-3 border-b border-border last:border-0 hover:bg-muted/50 cursor-pointer transition-colors">
-                  <FileText className="w-5 h-5 text-sky-500 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{doc.name}</p>
-                    <p className="text-xs text-muted-foreground">{doc.date}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-            <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              Google Docs integration is coming soon. This is a preview of the interface.
-            </p>
-          </div>
-        </div>
-      )}
-    </motion.div>
-  );
-}
-
 // ── Text Paste ──────────────────────────────────────────────────────
 function TextScreen({
   onBack,
@@ -1573,7 +1488,6 @@ export function ImportSection({ onCardsImported, studySetId }: ImportSectionProp
       {step === 'audio-file' && <AudioFileScreen key="audio-file" onBack={goBack} onSubmit={handleAudioFileSubmit} />}
       {step === 'website' && <WebsiteScreen key="website" onBack={goBack} onSubmit={handleWebsiteSubmit} />}
       {step === 'camera' && <CameraScreen key="camera" onBack={goBack} onSubmit={handleCameraSubmit} />}
-      {step === 'google-docs' && <GoogleDocsScreen key="google-docs" onBack={goBack} />}
       {step === 'text' && <TextScreen key="text" onBack={goBack} onSubmit={handleTextSubmit} />}
       {step === 'handwriting' && <HandwritingScreen key="handwriting" onBack={goBack} onSubmit={handleHandwritingSubmit} />}
 

@@ -1,10 +1,10 @@
 {
-  "name": "studyield-frontend",
+  "name": "studyrpg-frontend",
   "private": true,
   "version": "1.0.0",
   "license": "AGPL-3.0",
   "type": "module",
-  "description": "Studyield - AI-Powered Learning Platform Frontend",
+  "description": "Study RPG - AI-Powered Learning Platform Frontend",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

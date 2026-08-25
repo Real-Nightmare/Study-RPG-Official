@@ -25,8 +25,8 @@
 # Study RPG database.
 #
 # SSH debug (always on, key-based) into the app containers:
-#   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${BACKEND_SSH_PORT:-3022}   # backend
-#   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${FRONTEND_SSH_PORT:-3222}  # frontend
+#   ssh -i /tmp/study-rpg-ssh/id_study_rpg_debug root@localhost -p ${BACKEND_SSH_PORT:-3022}   # backend
+#   ssh -i /tmp/study-rpg-ssh/id_study_rpg_debug root@localhost -p ${FRONTEND_SSH_PORT:-3222}  # frontend
 # The debug public key is baked into the images; the private key is never in
 # the repo. SSH_PASSWORD / SSH_PUBLIC_KEY add extra auth at runtime. Keep the
 # SSH ports bound to localhost or a VPN — do not expose them publicly.
@@ -43,12 +43,12 @@ services:
   # --- Infrastructure -----------------------------------------------
   postgres:
     image: postgres:18.4-alpine
-    container_name: studyield-postgres
+    container_name: studyrpg-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-studyield_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-studyrpg_dev}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -61,7 +61,7 @@ services:
 
   redis:
     image: redis:8.10-alpine
-    container_name: studyield-redis
+    container_name: studyrpg-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
@@ -76,7 +76,7 @@ services:
 
   qdrant:
     image: qdrant/qdrant:v1.19.0
-    container_name: studyield-qdrant
+    container_name: studyrpg-qdrant
     restart: unless-stopped
     ports:
       - "${QDRANT_PORT:-6333}:6333"
@@ -88,14 +88,14 @@ services:
 
   clickhouse:
     image: clickhouse/clickhouse-server:26.7.3.19-stable
-    container_name: studyield-clickhouse
+    container_name: studyrpg-clickhouse
     restart: unless-stopped
     ports:
       - "${CLICKHOUSE_PORT:-8123}:8123"
     volumes:
       - clickhouse_data:/var/lib/clickhouse
     environment:
-      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE:-studyield_analytics}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE:-studyrpg_analytics}
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
     healthcheck:
@@ -107,7 +107,7 @@ services:
   # --- Fully-local capability services (zero external accounts) ------
   ollama:
     image: ollama/ollama:latest
-    container_name: studyield-ollama
+    container_name: studyrpg-ollama
     restart: unless-stopped
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
@@ -123,7 +123,7 @@ services:
   # Pulls the chat + embedding models once on first boot (~4.5 GB total).
   ollama-init:
     image: ollama/ollama:latest
-    container_name: studyield-ollama-init
+    container_name: studyrpg-ollama-init
     restart: "no"
     depends_on:
       ollama:
@@ -137,7 +137,7 @@ services:
 
   searxng:
     image: searxng/searxng:latest
-    container_name: studyield-searxng
+    container_name: studyrpg-searxng
     restart: unless-stopped
     ports:
       - "${SEARXNG_PORT:-8888}:8080"
@@ -146,7 +146,7 @@ services:
 
   mailpit:
     image: axllent/mailpit:v1.24
-    container_name: studyield-mailpit
+    container_name: studyrpg-mailpit
     restart: unless-stopped
     ports:
       - "${MAILPIT_UI_PORT:-8025}:8025"   # web UI — read dev email here
@@ -161,7 +161,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: studyield-minio
+    container_name: studyrpg-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     ports:
@@ -181,7 +181,7 @@ services:
   # Creates the default bucket; safe to run on every boot (idempotent).
   minio-init:
     image: minio/mc:latest
-    container_name: studyield-minio-init
+    container_name: studyrpg-minio-init
     restart: "no"
     depends_on:
       minio:
@@ -199,7 +199,7 @@ services:
       context: ./docker/c2d-runner
       dockerfile: Dockerfile
     image: study-rpg/c2d-runner:local
-    container_name: studyield-c2d-runner
+    container_name: studyrpg-c2d-runner
     restart: unless-stopped
     networks:
       - isolated            # internal network — NO outbound internet route
@@ -228,7 +228,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: studyield-backend
+    container_name: studyrpg-backend
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-3010}:3010"
@@ -241,7 +241,7 @@ services:
       - DATABASE_PORT=5432
       - DATABASE_USER=${POSTGRES_USER:-postgres}
       - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DATABASE_NAME=${POSTGRES_DB:-studyield_dev}
+      - DATABASE_NAME=${POSTGRES_DB:-studyrpg_dev}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - QDRANT_HOST=qdrant
@@ -301,7 +301,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: studyield-frontend
+    container_name: studyrpg-frontend
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-5189}:80"

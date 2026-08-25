@@ -1,4 +1,4 @@
--- Academic Structure — Phase 2 Studyield Core (master prompt §7.1)
+-- Academic Structure — Phase 2 Core (§7.1)
 -- Supports: country, school board, school, grade, academic year, subject,
 -- programme, chapter, topic, learning objective, exam, exam portion.
 -- The editable CBSE Grade 9 preset is seeded per-user by AcademicsService
