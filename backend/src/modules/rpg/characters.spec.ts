@@ -181,7 +181,6 @@ describe('PlayerService.addXp — archetype bonuses + respec grant', () => {
             }
             if (sql.includes('UPDATE player_profiles SET xp')) {
               state.xp = Number(params[0]);
-              updateCalls += 1;
             }
             if (sql.includes('respec_tokens + 1')) {
               state.respecTokens += 1;

@@ -237,7 +237,10 @@ function makeService(db: ReturnType<typeof makeDb>['db']) {
     getActiveDeck: jest.fn(),
     getDeck: jest.fn(),
   };
-  const player = { getLevelConfig: jest.fn().mockResolvedValue(DEFAULT_LEVEL_CONFIG) };
+  const player = {
+    getLevelConfig: jest.fn().mockResolvedValue(DEFAULT_LEVEL_CONFIG),
+    getSelectedCharacter: jest.fn().mockResolvedValue(undefined),
+  };
   const service = new BattleService(db as any, cards as any, {} as any, player as any);
   return { service, cards };
 }
