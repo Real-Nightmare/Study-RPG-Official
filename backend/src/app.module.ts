@@ -13,7 +13,6 @@ import { QueueModule } from './modules/queue';
 import { StorageModule } from './modules/storage';
 import { AiModule } from './modules/ai';
 import { EmailModule } from './modules/email';
-import { FirebaseModule } from './modules/firebase';
 
 // Feature Modules
 import { AuthModule } from './modules/auth';
@@ -108,7 +107,6 @@ import { HealthController } from './health.controller';
     StorageModule,
     AiModule,
     EmailModule,
-    FirebaseModule,
     GatewayModule,
 
     // Feature Modules

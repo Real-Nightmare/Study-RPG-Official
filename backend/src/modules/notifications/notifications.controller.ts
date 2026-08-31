@@ -76,24 +76,7 @@ export class NotificationsController {
     return this.notificationsService.updatePreferences(user.sub, prefs);
   }
 
-  @Post('register-device')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Register FCM token for push notifications' })
-  async registerDevice(
-    @CurrentUser() user: JwtPayload,
-    @Body() body: { fcmToken: string; platform: string },
-  ) {
-    await this.notificationsService.registerFCMToken(user.sub, body.fcmToken, body.platform);
-  }
-
-  @Post('unregister-device')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Unregister FCM token' })
-  async unregisterDevice(@CurrentUser() user: JwtPayload, @Body() body: { fcmToken: string }) {
-    await this.notificationsService.unregisterFCMToken(user.sub, body.fcmToken);
-  }
-
-  // ---------------- Phase 9: standards-based Web Push (VAPID) ----------------
+  // ---------------- Web Push (VAPID) ----------------
 
   @Get('web-push/public-key')
   @ApiOperation({ summary: 'VAPID public key for browser push, or null when unconfigured' })

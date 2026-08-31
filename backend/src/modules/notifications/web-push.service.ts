@@ -12,10 +12,8 @@ export interface WebPushSubscriptionInput {
 }
 
 /**
- * Standards-based Web Push (VAPID). Additive channel on top of Firebase FCM.
- * Auto-generates VAPID keys on first boot if none are configured, so
- * development works with zero setup. When WEB_PUSH_ENABLED=false or
- * FCM_ENABLED=true the service degrades silently.
+ * Standards-based Web Push (VAPID). Auto-generates VAPID keys on first boot
+ * if none are configured, so development works with zero setup.
  */
 @Injectable()
 export class WebPushService implements OnModuleInit {
@@ -30,12 +28,6 @@ export class WebPushService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const webPushEnabled = this.config.get<boolean>('WEB_PUSH_ENABLED', true);
-    const fcmEnabled = this.config.get<boolean>('FCM_ENABLED', false);
-
-    if (fcmEnabled) {
-      this.logger.log('FCM enabled — web push disabled (FCM handles push)');
-      return;
-    }
 
     if (!webPushEnabled) {
       this.logger.log('WEB_PUSH_ENABLED=false — web push disabled');

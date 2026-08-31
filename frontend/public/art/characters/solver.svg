@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="sv-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a23"/>
+      <stop offset="100%" stop-color="#1a0a3e"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#sv-bg)"/>
+  <!-- Hexagonal frame -->
+  <polygon points="100,30 145,55 145,105 100,130 55,105 55,55" fill="none" stroke="#7c4dff" stroke-width="2" opacity="0.6"/>
+  <!-- Face -->
+  <circle cx="100" cy="80" r="26" fill="#e8d5b7"/>
+  <!-- Glasses - analytical -->
+  <circle cx="90" cy="78" r="8" fill="none" stroke="#7c4dff" stroke-width="1.5"/>
+  <circle cx="110" cy="78" r="8" fill="none" stroke="#7c4dff" stroke-width="1.5"/>
+  <line x1="98" y1="78" x2="102" y2="78" stroke="#7c4dff" stroke-width="1.5"/>
+  <!-- Eyes behind glasses -->
+  <circle cx="90" cy="78" r="3" fill="#7c4dff"/>
+  <circle cx="110" cy="78" r="3" fill="#7c4dff"/>
+  <!-- Body -->
+  <path d="M74 106 L100 120 L126 106 L130 160 L70 160 Z" fill="#2d2d44"/>
+  <!-- Floating equations -->
+  <text x="30" y="50" font-size="9" fill="#7c4dff" opacity="0.5" font-family="serif">∫ f(x)dx</text>
+  <text x="130" y="45" font-size="9" fill="#7c4dff" opacity="0.5" font-family="serif">∑ n²</text>
+  <text x="35" y="150" font-size="8" fill="#7c4dff" opacity="0.4" font-family="serif">√2+√3</text>
+  <!-- Brain circuit -->
+  <path d="M90 65 L100 55 L110 65" fill="none" stroke="#7c4dff" stroke-width="1" opacity="0.4"/>
+  <circle cx="100" cy="55" r="2" fill="#7c4dff" opacity="0.6"/>
+</svg>

@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
-import { FirebaseService } from '../firebase/firebase.service';
 import { WebPushService } from './web-push.service';
 import { AppGateway } from '../../common/gateways/app.gateway';
 
@@ -45,9 +44,8 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 };
 
 /**
- * Notification pipeline: persisted row + real-time WebSocket push + native
- * (FCM) and standards-based (VAPID web push, Phase 9) delivery. Every push
- * channel is best-effort — failures are logged, never thrown to the caller.
+ * Notification pipeline: persisted row + real-time WebSocket push + VAPID
+ * web push. No Firebase/FCM — only self-hosted Docker services.
  */
 @Injectable()
 export class NotificationsService {
@@ -57,7 +55,6 @@ export class NotificationsService {
     private readonly configService: ConfigService,
     private readonly db: DatabaseService,
     private readonly redis: RedisService,
-    private readonly firebase: FirebaseService,
     private readonly webPush: WebPushService,
     private readonly appGateway: AppGateway,
   ) {}
@@ -201,57 +198,10 @@ export class NotificationsService {
     });
   }
 
-  async registerFCMToken(userId: string, fcmToken: string, platform: string): Promise<void> {
-    try {
-      const existing = await this.db.queryOne(
-        'SELECT id FROM user_fcm_tokens WHERE user_id = $1 AND fcm_token = $2',
-        [userId, fcmToken],
-      );
-
-      if (existing) {
-        await this.db.query(
-          'UPDATE user_fcm_tokens SET last_used = $1 WHERE user_id = $2 AND fcm_token = $3',
-          [new Date(), userId, fcmToken],
-        );
-      } else {
-        await this.db.query(
-          `INSERT INTO user_fcm_tokens (id, user_id, fcm_token, platform, created_at, last_used)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [uuidv4(), userId, fcmToken, platform, new Date(), new Date()],
-        );
-      }
-
-      this.logger.debug(`FCM token registered for user ${userId}`);
-    } catch (error) {
-      this.logger.error(`Error registering FCM token: ${(error as Error).message}`);
-    }
-  }
-
-  async unregisterFCMToken(userId: string, fcmToken: string): Promise<void> {
-    try {
-      await this.db.query('DELETE FROM user_fcm_tokens WHERE user_id = $1 AND fcm_token = $2', [
-        userId,
-        fcmToken,
-      ]);
-      this.logger.debug(`FCM token unregistered for user ${userId}`);
-    } catch (error) {
-      this.logger.error(`Error unregistering FCM token: ${(error as Error).message}`);
-    }
-  }
-
-  async getUserFCMTokens(userId: string): Promise<string[]> {
-    try {
-      const results = await this.db.queryMany<{ fcm_token: string }>(
-        'SELECT fcm_token FROM user_fcm_tokens WHERE user_id = $1',
-        [userId],
-      );
-      return results.map((row) => row.fcm_token);
-    } catch (error) {
-      this.logger.error(`Error fetching FCM tokens: ${(error as Error).message}`);
-      return [];
-    }
-  }
-
+  /**
+   * VAPID web push only — no FCM tokens, no Firebase.
+   * Subscriptions are managed via WebPushService.subscribe/unsubscribe.
+   */
   async sendPushNotification(
     userId: string,
     title: string,
@@ -260,33 +210,14 @@ export class NotificationsService {
   ): Promise<void> {
     try {
       const prefs = await this.getPreferences(userId);
-      if (!prefs.push) {
-        this.logger.debug(`Push notifications disabled for user ${userId}`);
-        return;
-      }
+      if (!prefs.push) return;
 
-      const tokens = await this.getUserFCMTokens(userId);
-      if (tokens.length === 0) {
-        this.logger.debug(`No FCM tokens found for user ${userId}`);
-        return;
-      }
-
-      const successCount = await this.firebase.sendToMultipleDevices(tokens, title, body, data);
-      this.logger.debug(
-        `Sent push notification to ${successCount}/${tokens.length} devices for user ${userId}`,
-      );
-
-      // Phase 9: standards-based Web Push (VAPID) — additive, silent no-op when unconfigured.
-      try {
-        const webSent = await this.webPush.sendToUser(userId, title, body, data);
-        if (webSent > 0) {
-          this.logger.debug(`Sent ${webSent} web-push notification(s) for user ${userId}`);
-        }
-      } catch (error) {
-        this.logger.warn(`Web push send failed: ${(error as Error).message}`);
+      const webSent = await this.webPush.sendToUser(userId, title, body, data);
+      if (webSent > 0) {
+        this.logger.debug(`Sent ${webSent} push notification(s) for user ${userId}`);
       }
     } catch (error) {
-      this.logger.error(`Error sending push notification: ${(error as Error).message}`);
+      this.logger.warn(`Push notification failed: ${(error as Error).message}`);
     }
   }
 

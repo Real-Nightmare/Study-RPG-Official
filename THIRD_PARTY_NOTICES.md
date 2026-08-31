@@ -15,7 +15,6 @@ This project incorporates the following third-party open-source components. See 
 | ioredis | MIT | https://github.com/redis/ioredis |
 | LangChain | MIT | https://langchain.com |
 | Stripe Node.js | MIT | https://stripe.com |
-| Firebase Admin | Apache-2.0 | https://firebase.google.com |
 | OpenRouter (OpenAI-compatible client) | MIT | https://openrouter.ai |
 | AWS SDK (S3, SES) | Apache-2.0 | https://aws.amazon.com/sdk-for-javascript/ |
 | Qdrant JS client | Apache-2.0 | https://qdrant.tech |

@@ -14,7 +14,7 @@ Security matters here — please report privately, not through public issues.
 
 ### How to report
 
-Email **security@study-rpg.app** (placeholder — replace with the real address) with:
+Email **security@studyrpg.app** with:
 
 - The kind of issue (SQL injection, XSS, auth bypass, SSRF, privilege escalation, ...)
 - File paths of the affected source
@@ -46,10 +46,9 @@ We will not pursue legal action against researchers who:
 3. **Data stores**: strong passwords; keep PostgreSQL, Redis, Qdrant and ClickHouse off the public network.
 4. **TLS**: HTTPS everywhere in production.
 5. **Updates**: keep the platform and its dependencies current.
-6. **Firebase**: restrict API-key permissions and keep credentials private.
-7. **Uploads**: enforce size limits and validate file types.
-8. **CORS**: scope `CORS_ORIGINS` to your own frontend domain.
-9. **Ocean marketplace**: never configure a funded wallet on an untrusted host; the publish key signs on-chain transactions.
+6. **Uploads**: enforce size limits and validate file types.
+7. **CORS**: scope `CORS_ORIGINS` to your own frontend domain.
+8. **Ocean marketplace** (if enabled): never configure a funded wallet on an untrusted host.
 
 ## Dependencies
 
