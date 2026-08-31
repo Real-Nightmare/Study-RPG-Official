@@ -66,6 +66,40 @@ open http://localhost:8080
 
 ---
 
+## Free Cloud Deploy (Render — No Credit Card)
+
+Study RPG includes an all-in-one Docker image that runs everything in a single container — perfect for free hosting tiers.
+
+### One-click deploy
+
+1. Go to [Render Dashboard](https://dashboard.render.com/new?type=blueprint)
+2. Connect your GitHub repo (`Real-Nightmare/Study-RPG-Official`)
+3. Render auto-detects `render.yaml` and sets everything up
+4. Add your API keys in Render's Environment tab:
+   - `OPENAI_API_KEY` — Get a free key from [Groq](https://console.groq.com) (fastest free LLM)
+   - `EMBEDDING_API_KEY` — Same Groq key or any OpenAI-compatible key
+5. Click **Deploy**
+
+### What you get (free tier, no credit card)
+
+| Resource | Free Tier | Study RPG Usage |
+|----------|-----------|------------------|
+| RAM | 512 MB | Backend + Frontend + PostgreSQL |
+| Hours | 750/month | ~25 hours/day |
+| PostgreSQL | Free (30 days) | Managed database |
+| Cost | $0/month | No credit card required |
+
+### Limitations on free tier
+
+- PostgreSQL expires after 30 days (Render limitation) — upgrade to paid tier ($7/mo) to keep data
+- 512MB RAM means no local AI — uses Groq cloud free tier for LLM (fast, free, better quality)
+- Auto-sleeps after 15 min idle, takes ~30s to wake
+- No Ollama, Qdrant, ClickHouse, MinIO, SearXNG (replaced by cloud alternatives or disabled)
+
+> **Tip**: For a fully local setup with no limits, use `docker compose up -d` on your own machine.
+
+---
+
 ## Ports & Services
 
 | Service | URL | Purpose |

@@ -1,0 +1,56 @@
+# Study RPG — Render Free Tier Deployment
+# Deploy: https://dashboard.render.com/new?type=blueprint
+# Or: Push this file to your repo and use "New > Blueprint" in Render dashboard
+#
+# Free tier: 750 hrs/month, 512MB RAM, no credit card required
+# PostgreSQL: Render-managed (free, 30-day expiry on free tier)
+
+services:
+  # ── All-in-One App ──
+  - type: web
+    name: study-rpg
+    runtime: docker
+    dockerfilePath: docker/all-in-one/Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: study-rpg-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_PROVIDER
+        value: openai-compatible
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: OPENAI_MODEL
+        value: llama-3.1-70b-versatile
+      - key: EMBEDDING_PROVIDER
+        value: openai
+      - key: EMBEDDING_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: EMBEDDING_MODEL
+        value: text-embedding-3-small
+      - key: STORAGE_PROVIDER
+        value: local
+      - key: EMAIL_TRANSPORT
+        value: smtp
+      - key: SEARCH_PROVIDER
+        value: none
+      - key: MARKETPLACE_ENABLED
+        value: "false"
+      - key: BILLING_ENABLED
+        value: "false"
+    healthCheckPath: /api/health
+    autoDeploy: true
+    plan: free
+
+  # ── PostgreSQL Database ──
+  - type: postgresql
+    name: study-rpg-db
+    plan: free
+    databaseName: studyrpg
+    ipAllowList: []  # Only internal connections
