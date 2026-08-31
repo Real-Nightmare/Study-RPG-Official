@@ -1,4 +1,5 @@
--- Problem chat messages for Study Buddy feature
+-- Follow-up chat thread attached to a problem-solving session
+-- (student questions vs. tutor replies).
 CREATE TABLE IF NOT EXISTS problem_chat_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES problem_solving_sessions(id) ON DELETE CASCADE,

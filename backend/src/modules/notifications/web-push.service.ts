@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as webpush from 'web-push';
@@ -12,26 +12,54 @@ export interface WebPushSubscriptionInput {
 }
 
 /**
- * Standards-based Web Push (VAPID) — PDF Phase 9 §32-adjacent. Additive channel
- * on top of Firebase FCM. Everything degrades gracefully: when VAPID keys are
- * absent or the user has no subscriptions, sends are silent no-ops.
+ * Standards-based Web Push (VAPID). Additive channel on top of Firebase FCM.
+ * Auto-generates VAPID keys on first boot if none are configured, so
+ * development works with zero setup. When WEB_PUSH_ENABLED=false or
+ * FCM_ENABLED=true the service degrades silently.
  */
 @Injectable()
-export class WebPushService {
+export class WebPushService implements OnModuleInit {
   private readonly logger = new Logger(WebPushService.name);
   private configured = false;
+  private publicKey: string | null = null;
 
   constructor(
     private readonly db: DatabaseService,
     private readonly config: ConfigService,
-  ) {
-    const publicKey = this.config.get<string>('VAPID_PUBLIC_KEY');
-    const privateKey = this.config.get<string>('VAPID_PRIVATE_KEY');
-    const subject = this.config.get<string>('VAPID_SUBJECT', 'mailto:admin@studyrpg.app');
-    if (publicKey && privateKey) {
-      webpush.setVapidDetails(subject, publicKey, privateKey);
-      this.configured = true;
+  ) {}
+
+  async onModuleInit(): Promise<void> {
+    const webPushEnabled = this.config.get<boolean>('WEB_PUSH_ENABLED', true);
+    const fcmEnabled = this.config.get<boolean>('FCM_ENABLED', false);
+
+    if (fcmEnabled) {
+      this.logger.log('FCM enabled — web push disabled (FCM handles push)');
+      return;
     }
+
+    if (!webPushEnabled) {
+      this.logger.log('WEB_PUSH_ENABLED=false — web push disabled');
+      return;
+    }
+
+    let publicKey = this.config.get<string>('VAPID_PUBLIC_KEY', '');
+    let privateKey = this.config.get<string>('VAPID_PRIVATE_KEY', '');
+
+    // Auto-generate VAPID keys if none provided
+    if (!publicKey || !privateKey) {
+      this.logger.log('No VAPID keys configured — generating ephemeral keys...');
+      const keys = webpush.generateVAPIDKeys();
+      publicKey = keys.publicKey;
+      privateKey = keys.privateKey;
+      this.logger.warn(`Generated VAPID keys (ephemeral — set VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY env vars for persistence)`);
+      this.logger.warn(`  VAPID_PUBLIC_KEY=${publicKey}`);
+    }
+
+    const subject = this.config.get<string>('VAPID_SUBJECT', 'mailto:admin@studyrpg.local');
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+    this.publicKey = publicKey;
+    this.configured = true;
+    this.logger.log('Web push (VAPID) configured and ready');
   }
 
   isConfigured(): boolean {
@@ -40,7 +68,7 @@ export class WebPushService {
 
   /** Public key for the browser subscribe flow, or null when unconfigured. */
   getPublicKey(): string | null {
-    return this.configured ? this.config.get<string>('VAPID_PUBLIC_KEY') || null : null;
+    return this.publicKey;
   }
 
   async subscribe(userId: string, input: WebPushSubscriptionInput): Promise<void> {

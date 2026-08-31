@@ -1,10 +1,12 @@
--- Studyield Database Schema
--- Initial migration
+-- Study RPG core schema (baseline)
+-- Creates the foundational tables: accounts, study material, knowledge
+-- bases, quizzes, exam clones, problem solving, teach-back, research,
+-- code execution, learning paths, subscriptions and notifications.
 
--- Enable UUID extension
+-- UUID generation support
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table
+-- Accounts
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -25,7 +27,7 @@ CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_google_id ON users(google_id);
 CREATE INDEX idx_users_apple_id ON users(apple_id);
 
--- Study Sets table
+-- Study sets group documents and flashcards into reviewable collections.
 CREATE TABLE IF NOT EXISTS study_sets (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -41,7 +43,7 @@ CREATE TABLE IF NOT EXISTS study_sets (
 CREATE INDEX idx_study_sets_user_id ON study_sets(user_id);
 CREATE INDEX idx_study_sets_is_public ON study_sets(is_public);
 
--- Documents table
+-- Uploaded source documents with extracted text for AI consumption.
 CREATE TABLE IF NOT EXISTS documents (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     study_set_id UUID NOT NULL REFERENCES study_sets(id) ON DELETE CASCADE,
@@ -61,7 +63,7 @@ CREATE TABLE IF NOT EXISTS documents (
 CREATE INDEX idx_documents_study_set_id ON documents(study_set_id);
 CREATE INDEX idx_documents_user_id ON documents(user_id);
 
--- Flashcards table
+-- Flashcards with SM-2 style spaced repetition state.
 CREATE TABLE IF NOT EXISTS flashcards (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     study_set_id UUID NOT NULL REFERENCES study_sets(id) ON DELETE CASCADE,
@@ -82,7 +84,7 @@ CREATE TABLE IF NOT EXISTS flashcards (
 CREATE INDEX idx_flashcards_study_set_id ON flashcards(study_set_id);
 CREATE INDEX idx_flashcards_next_review_at ON flashcards(next_review_at);
 
--- Knowledge Bases table
+-- Knowledge bases scope retrieval-augmented chat per collection.
 CREATE TABLE IF NOT EXISTS knowledge_bases (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -95,7 +97,7 @@ CREATE TABLE IF NOT EXISTS knowledge_bases (
 
 CREATE INDEX idx_knowledge_bases_user_id ON knowledge_bases(user_id);
 
--- KB Documents (linking table)
+-- Knowledge base membership for documents.
 CREATE TABLE IF NOT EXISTS kb_documents (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     knowledge_base_id UUID NOT NULL REFERENCES knowledge_bases(id) ON DELETE CASCADE,
@@ -104,7 +106,7 @@ CREATE TABLE IF NOT EXISTS kb_documents (
     UNIQUE(knowledge_base_id, document_id)
 );
 
--- KB Chunks table
+-- Embedded chunks derived from knowledge-base documents.
 CREATE TABLE IF NOT EXISTS kb_chunks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     knowledge_base_id UUID NOT NULL REFERENCES knowledge_bases(id) ON DELETE CASCADE,
@@ -117,7 +119,7 @@ CREATE TABLE IF NOT EXISTS kb_chunks (
 
 CREATE INDEX idx_kb_chunks_knowledge_base_id ON kb_chunks(knowledge_base_id);
 
--- Conversations table
+-- Chat conversations (optionally bound to knowledge bases).
 CREATE TABLE IF NOT EXISTS conversations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -129,7 +131,7 @@ CREATE TABLE IF NOT EXISTS conversations (
 
 CREATE INDEX idx_conversations_user_id ON conversations(user_id);
 
--- Messages table
+-- Individual chat messages with citation metadata.
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
@@ -142,7 +144,7 @@ CREATE TABLE IF NOT EXISTS messages (
 
 CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
 
--- Quizzes table
+-- Generated quizzes.
 CREATE TABLE IF NOT EXISTS quizzes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -158,7 +160,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
 CREATE INDEX idx_quizzes_user_id ON quizzes(user_id);
 CREATE INDEX idx_quizzes_study_set_id ON quizzes(study_set_id);
 
--- Quiz Questions table
+-- Questions belonging to a quiz.
 CREATE TABLE IF NOT EXISTS quiz_questions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     quiz_id UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
@@ -173,7 +175,7 @@ CREATE TABLE IF NOT EXISTS quiz_questions (
 
 CREATE INDEX idx_quiz_questions_quiz_id ON quiz_questions(quiz_id);
 
--- Quiz Attempts table
+-- Student attempts at a quiz.
 CREATE TABLE IF NOT EXISTS quiz_attempts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     quiz_id UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
@@ -188,7 +190,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
 CREATE INDEX idx_quiz_attempts_quiz_id ON quiz_attempts(quiz_id);
 CREATE INDEX idx_quiz_attempts_user_id ON quiz_attempts(user_id);
 
--- Quiz Attempt Answers table
+-- Per-question answers within an attempt.
 CREATE TABLE IF NOT EXISTS quiz_attempt_answers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     attempt_id UUID NOT NULL REFERENCES quiz_attempts(id) ON DELETE CASCADE,
@@ -200,7 +202,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempt_answers (
 
 CREATE INDEX idx_quiz_attempt_answers_attempt_id ON quiz_attempt_answers(attempt_id);
 
--- Exam Clones table
+-- Exam clones: papers reconstructed from an uploaded original.
 CREATE TABLE IF NOT EXISTS exam_clones (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -218,7 +220,7 @@ CREATE TABLE IF NOT EXISTS exam_clones (
 
 CREATE INDEX idx_exam_clones_user_id ON exam_clones(user_id);
 
--- Exam Questions table
+-- Questions inside an exam clone (original or generated).
 CREATE TABLE IF NOT EXISTS exam_questions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -235,7 +237,7 @@ CREATE TABLE IF NOT EXISTS exam_questions (
 
 CREATE INDEX idx_exam_questions_exam_clone_id ON exam_questions(exam_clone_id);
 
--- Exam Review Queue table (spaced repetition)
+-- Spaced-repetition queue scheduling re-review of exam questions.
 CREATE TABLE IF NOT EXISTS exam_review_queue (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -251,7 +253,7 @@ CREATE TABLE IF NOT EXISTS exam_review_queue (
 CREATE INDEX idx_exam_review_queue_user_id ON exam_review_queue(user_id);
 CREATE INDEX idx_exam_review_queue_next_review ON exam_review_queue(next_review_at);
 
--- Exam Attempts table
+-- Recorded attempts at an exam clone.
 CREATE TABLE IF NOT EXISTS exam_attempts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -269,7 +271,7 @@ CREATE TABLE IF NOT EXISTS exam_attempts (
 CREATE INDEX idx_exam_attempts_user_id ON exam_attempts(user_id);
 CREATE INDEX idx_exam_attempts_exam_clone_id ON exam_attempts(exam_clone_id);
 
--- Exam Bookmarks table
+-- Bookmarked exam questions.
 CREATE TABLE IF NOT EXISTS exam_bookmarks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -280,7 +282,7 @@ CREATE TABLE IF NOT EXISTS exam_bookmarks (
 
 CREATE INDEX idx_exam_bookmarks_user_id ON exam_bookmarks(user_id);
 
--- User Exam Badges table
+-- Badges awarded through exam activity.
 CREATE TABLE IF NOT EXISTS user_exam_badges (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -291,7 +293,7 @@ CREATE TABLE IF NOT EXISTS user_exam_badges (
 
 CREATE INDEX idx_user_exam_badges_user_id ON user_exam_badges(user_id);
 
--- Exam Sessions table (collaborative live sessions)
+-- Collaborative live exam sessions joined by room code.
 CREATE TABLE IF NOT EXISTS exam_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -309,7 +311,7 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
 CREATE INDEX idx_exam_sessions_code ON exam_sessions(code);
 CREATE INDEX idx_exam_sessions_host_id ON exam_sessions(host_id);
 
--- Exam Session Participants table
+-- Participants of a live session with live scoring state.
 CREATE TABLE IF NOT EXISTS exam_session_participants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID NOT NULL REFERENCES exam_sessions(id) ON DELETE CASCADE,
@@ -326,7 +328,7 @@ CREATE TABLE IF NOT EXISTS exam_session_participants (
 CREATE INDEX idx_exam_session_participants_session_id ON exam_session_participants(session_id);
 CREATE INDEX idx_exam_session_participants_user_id ON exam_session_participants(user_id);
 
--- Problem Solving Sessions table
+-- Multi-agent problem solving runs (analysis/solution/verification).
 CREATE TABLE IF NOT EXISTS problem_solving_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -345,7 +347,7 @@ CREATE TABLE IF NOT EXISTS problem_solving_sessions (
 
 CREATE INDEX idx_problem_solving_sessions_user_id ON problem_solving_sessions(user_id);
 
--- Knowledge Nodes table
+-- Concept-map nodes.
 CREATE TABLE IF NOT EXISTS knowledge_nodes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -360,7 +362,7 @@ CREATE TABLE IF NOT EXISTS knowledge_nodes (
 CREATE INDEX idx_knowledge_nodes_user_id ON knowledge_nodes(user_id);
 CREATE INDEX idx_knowledge_nodes_study_set_id ON knowledge_nodes(study_set_id);
 
--- Knowledge Edges table
+-- Directed relationships between concept-map nodes.
 CREATE TABLE IF NOT EXISTS knowledge_edges (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -376,7 +378,7 @@ CREATE INDEX idx_knowledge_edges_user_id ON knowledge_edges(user_id);
 CREATE INDEX idx_knowledge_edges_source_id ON knowledge_edges(source_id);
 CREATE INDEX idx_knowledge_edges_target_id ON knowledge_edges(target_id);
 
--- Teach-Back Sessions table
+-- Feynman-style explain-back sessions with AI evaluation.
 CREATE TABLE IF NOT EXISTS teach_back_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -391,7 +393,7 @@ CREATE TABLE IF NOT EXISTS teach_back_sessions (
 
 CREATE INDEX idx_teach_back_sessions_user_id ON teach_back_sessions(user_id);
 
--- Research Sessions table
+-- Deep research runs (sources + synthesis + outline).
 CREATE TABLE IF NOT EXISTS research_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -407,7 +409,7 @@ CREATE TABLE IF NOT EXISTS research_sessions (
 
 CREATE INDEX idx_research_sessions_user_id ON research_sessions(user_id);
 
--- Code Executions table
+-- Sandbox code execution history.
 CREATE TABLE IF NOT EXISTS code_executions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -423,7 +425,7 @@ CREATE TABLE IF NOT EXISTS code_executions (
 
 CREATE INDEX idx_code_executions_user_id ON code_executions(user_id);
 
--- Learning Paths table
+-- Ordered learning paths with JSON step lists.
 CREATE TABLE IF NOT EXISTS learning_paths (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -440,7 +442,7 @@ CREATE TABLE IF NOT EXISTS learning_paths (
 
 CREATE INDEX idx_learning_paths_user_id ON learning_paths(user_id);
 
--- Subscriptions table
+-- Stripe-backed subscription state (infrastructure gating only).
 CREATE TABLE IF NOT EXISTS subscriptions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -458,7 +460,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
 CREATE INDEX idx_subscriptions_stripe_customer_id ON subscriptions(stripe_customer_id);
 
--- Usage Records table
+-- Feature usage counters reset on a rolling window.
 CREATE TABLE IF NOT EXISTS usage_records (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     feature VARCHAR(100) NOT NULL,
@@ -467,7 +469,7 @@ CREATE TABLE IF NOT EXISTS usage_records (
     PRIMARY KEY (user_id, feature)
 );
 
--- Notifications table
+-- In-app notifications.
 CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -482,7 +484,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON notifications(user_id, is_read);
 
--- Email Logs table
+-- Outbound email audit log.
 CREATE TABLE IF NOT EXISTS email_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -503,7 +505,7 @@ CREATE INDEX idx_email_logs_user_id ON email_logs(user_id);
 CREATE INDEX idx_email_logs_status ON email_logs(status);
 CREATE INDEX idx_email_logs_created_at ON email_logs(created_at);
 
--- Updated at trigger function
+-- Shared trigger keeping updated_at current on mutable tables.
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -512,7 +514,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Apply triggers
+-- Attach the updated_at trigger to every table that has the column.
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_study_sets_updated_at BEFORE UPDATE ON study_sets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_documents_updated_at BEFORE UPDATE ON documents FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

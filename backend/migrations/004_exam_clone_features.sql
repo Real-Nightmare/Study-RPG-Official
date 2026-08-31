@@ -1,7 +1,8 @@
--- Exam Clone Advanced Features Migration
--- Adds: exam_attempts (analytics), exam_review_queue (spaced repetition), exam_templates
+-- Exam-clone advanced features: performance-analytic attempts, a
+-- spaced-repetition review queue, standardised exam templates, and
+-- collaborative live sessions.
 
--- Exam Attempts table (for performance analytics)
+-- Attempt analytics for an exam clone.
 CREATE TABLE IF NOT EXISTS exam_attempts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -20,7 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_exam_attempts_user ON exam_attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_exam_attempts_exam ON exam_attempts(exam_clone_id);
 CREATE INDEX IF NOT EXISTS idx_exam_attempts_created ON exam_attempts(created_at DESC);
 
--- Spaced Repetition Review Queue
+-- Spaced-repetition queue scheduling re-review of exam questions.
 CREATE TABLE IF NOT EXISTS exam_review_queue (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -37,7 +38,8 @@ CREATE TABLE IF NOT EXISTS exam_review_queue (
 CREATE INDEX IF NOT EXISTS idx_review_queue_user ON exam_review_queue(user_id);
 CREATE INDEX IF NOT EXISTS idx_review_queue_due ON exam_review_queue(next_review_at);
 
--- Exam Templates table
+-- Reusable exam blueprints describing question types, difficulty mix,
+-- pacing, and style patterns used by the generator.
 CREATE TABLE IF NOT EXISTS exam_templates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
@@ -54,7 +56,7 @@ CREATE TABLE IF NOT EXISTS exam_templates (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Insert default templates
+-- Seed the built-in blueprint library (idempotent on slug).
 INSERT INTO exam_templates (id, name, slug, description, category, question_types, difficulty_distribution, time_per_question, total_questions, format_patterns, subjects) VALUES
 (uuid_generate_v4(), 'SAT', 'sat', 'SAT standardized test format', 'standardized_test',
  '["multiple_choice", "grid_in"]'::jsonb,
@@ -113,7 +115,7 @@ INSERT INTO exam_templates (id, name, slug, description, category, question_type
  '["Bangla", "English", "Physics", "Chemistry", "Biology", "Math", "Accounting", "Economics"]'::jsonb)
 ON CONFLICT (slug) DO NOTHING;
 
--- Collaborative Exam Sessions (for live group practice)
+-- Live group practice rooms joined via a short code.
 CREATE TABLE IF NOT EXISTS exam_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -131,7 +133,7 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_code ON exam_sessions(code);
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_host ON exam_sessions(host_id);
 
--- Session Participants
+-- Per-player live scoring state inside a session.
 CREATE TABLE IF NOT EXISTS exam_session_participants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID NOT NULL REFERENCES exam_sessions(id) ON DELETE CASCADE,

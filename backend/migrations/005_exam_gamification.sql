@@ -1,7 +1,7 @@
--- Exam Gamification Features Migration
--- Adds: bookmarks, badges, leaderboard support
+-- Exam gamification: bookmarks, achievement badges, and leaderboard
+-- support. Badge thresholds are data-driven rows, not hardcoded logic.
 
--- Question Bookmarks (for flagging difficult questions)
+-- Flag difficult questions with an optional personal note.
 CREATE TABLE IF NOT EXISTS exam_bookmarks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS exam_bookmarks (
 CREATE INDEX IF NOT EXISTS idx_exam_bookmarks_user ON exam_bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_exam_bookmarks_question ON exam_bookmarks(question_id);
 
--- User Badges/Achievements
+-- Achievement catalogue (slug-addressable, threshold-based).
 CREATE TABLE IF NOT EXISTS exam_badges (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     slug VARCHAR(50) NOT NULL UNIQUE,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS exam_badges (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- User earned badges
+-- Badges a student has earned.
 CREATE TABLE IF NOT EXISTS user_exam_badges (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS user_exam_badges (
 
 CREATE INDEX IF NOT EXISTS idx_user_exam_badges_user ON user_exam_badges(user_id);
 
--- Insert default badges
+-- Seed the built-in badge catalogue (idempotent on slug).
 INSERT INTO exam_badges (id, slug, name, description, icon, color, category, requirement_type, requirement_value, xp_reward)
 SELECT * FROM (VALUES
 -- Milestone badges
@@ -75,7 +75,7 @@ SELECT * FROM (VALUES
 ) AS v(id, slug, name, description, icon, color, category, requirement_type, requirement_value, xp_reward)
 WHERE NOT EXISTS (SELECT 1 FROM exam_badges WHERE exam_badges.slug = v.slug);
 
--- Leaderboard view (for easy querying)
+-- All-time leaderboard view for cheap querying.
 CREATE OR REPLACE VIEW exam_leaderboard AS
 SELECT
     u.id as user_id,
@@ -93,7 +93,7 @@ GROUP BY u.id, u.name, u.avatar_url
 HAVING COUNT(ea.id) > 0
 ORDER BY avg_score DESC, total_correct DESC;
 
--- Weekly leaderboard function
+-- Rolling 7-day leaderboard function.
 CREATE OR REPLACE FUNCTION get_weekly_leaderboard(limit_count INTEGER DEFAULT 10)
 RETURNS TABLE (
     user_id UUID,

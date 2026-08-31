@@ -1,7 +1,8 @@
--- 007: Problem Solver Enhancements
--- Adds bookmarks, practice quizzes, and alternative methods tables
+-- Problem-solver enhancements: solution bookmarks, generated practice
+-- quizzes, cached alternative methods, and per-session hint/complexity
+-- configuration.
 
--- Solution Bookmarks
+-- Bookmark a solved problem with tags and personal notes.
 CREATE TABLE IF NOT EXISTS solution_bookmarks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -15,7 +16,7 @@ CREATE TABLE IF NOT EXISTS solution_bookmarks (
 CREATE INDEX IF NOT EXISTS idx_solution_bookmarks_user ON solution_bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_solution_bookmarks_session ON solution_bookmarks(session_id);
 
--- Practice Quiz Questions (generated from solved problems)
+-- Practice questions derived from previously solved problems.
 CREATE TABLE IF NOT EXISTS practice_quiz_questions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES problem_solving_sessions(id) ON DELETE CASCADE,
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS practice_quiz_questions (
 CREATE INDEX IF NOT EXISTS idx_practice_quiz_session ON practice_quiz_questions(session_id);
 CREATE INDEX IF NOT EXISTS idx_practice_quiz_user ON practice_quiz_questions(user_id);
 
--- Alternative solution methods cache
+-- Cached alternative solution methods for a session.
 CREATE TABLE IF NOT EXISTS solution_alternative_methods (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES problem_solving_sessions(id) ON DELETE CASCADE,
@@ -47,7 +48,7 @@ CREATE TABLE IF NOT EXISTS solution_alternative_methods (
 
 CREATE INDEX IF NOT EXISTS idx_alt_methods_session ON solution_alternative_methods(session_id);
 
--- Add hint_mode and complexity_level columns to sessions
+-- Per-session tutoring controls and stored graph visualisation.
 ALTER TABLE problem_solving_sessions
   ADD COLUMN IF NOT EXISTS hint_steps JSONB DEFAULT '[]'::jsonb,
   ADD COLUMN IF NOT EXISTS complexity_level VARCHAR(20) DEFAULT 'intermediate',

@@ -1,4 +1,6 @@
--- Notes table for AI-generated and manual notes within study sets
+-- Notes: manual or AI-generated study notes attached to study sets.
+-- Rich content is kept both as rendered text and as editor JSON so the
+-- mind-map/presentation views can be rebuilt without re-parsing.
 CREATE TABLE IF NOT EXISTS notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     study_set_id UUID NOT NULL REFERENCES study_sets(id) ON DELETE CASCADE,
@@ -22,13 +24,13 @@ CREATE TABLE IF NOT EXISTS notes (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Indexes for efficient querying
+-- Query-supporting indexes
 CREATE INDEX IF NOT EXISTS idx_notes_study_set_id ON notes(study_set_id);
 CREATE INDEX IF NOT EXISTS idx_notes_source_type ON notes(source_type);
 CREATE INDEX IF NOT EXISTS idx_notes_is_pinned ON notes(study_set_id, is_pinned);
 CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created_at DESC);
 
--- Update trigger for updated_at
+-- Keep updated_at current on note edits.
 CREATE OR REPLACE FUNCTION update_notes_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN

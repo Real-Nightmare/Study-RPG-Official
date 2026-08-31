@@ -1,7 +1,8 @@
--- Migration 002: Add missing exam-clone related tables
--- Run this on production to add tables needed for review queue, attempts, bookmarks, and badges
+-- Idempotent catch-up migration: creates the exam-clone support tables
+-- (review queue, attempts, bookmarks, badges, live sessions) for databases
+-- provisioned before these were folded into the baseline.
 
--- Exam Review Queue table (spaced repetition)
+-- Spaced-repetition queue scheduling re-review of exam questions.
 CREATE TABLE IF NOT EXISTS exam_review_queue (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS exam_review_queue (
 CREATE INDEX IF NOT EXISTS idx_exam_review_queue_user_id ON exam_review_queue(user_id);
 CREATE INDEX IF NOT EXISTS idx_exam_review_queue_next_review ON exam_review_queue(next_review_at);
 
--- Exam Attempts table
+-- Recorded attempts at an exam clone.
 CREATE TABLE IF NOT EXISTS exam_attempts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS exam_attempts (
 CREATE INDEX IF NOT EXISTS idx_exam_attempts_user_id ON exam_attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_exam_attempts_exam_clone_id ON exam_attempts(exam_clone_id);
 
--- Exam Bookmarks table
+-- Bookmarked exam questions.
 CREATE TABLE IF NOT EXISTS exam_bookmarks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS exam_bookmarks (
 
 CREATE INDEX IF NOT EXISTS idx_exam_bookmarks_user_id ON exam_bookmarks(user_id);
 
--- User Exam Badges table
+-- Badges awarded through exam activity.
 CREATE TABLE IF NOT EXISTS user_exam_badges (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -57,7 +58,7 @@ CREATE TABLE IF NOT EXISTS user_exam_badges (
 
 CREATE INDEX IF NOT EXISTS idx_user_exam_badges_user_id ON user_exam_badges(user_id);
 
--- Exam Sessions table (collaborative live sessions)
+-- Collaborative live exam sessions joined by room code.
 CREATE TABLE IF NOT EXISTS exam_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     exam_clone_id UUID NOT NULL REFERENCES exam_clones(id) ON DELETE CASCADE,
@@ -75,7 +76,7 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_code ON exam_sessions(code);
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_host_id ON exam_sessions(host_id);
 
--- Exam Session Participants table
+-- Participants of a live session with live scoring state.
 CREATE TABLE IF NOT EXISTS exam_session_participants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     session_id UUID NOT NULL REFERENCES exam_sessions(id) ON DELETE CASCADE,

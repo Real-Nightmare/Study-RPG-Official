@@ -9,30 +9,62 @@ export interface SearchResult {
 }
 
 /**
- * Thin facade over the configured web-search providers. Tavily is preferred
- * when its key exists; Serper is the fallback; with neither configured the
- * service reports the gap and returns no results.
+ * Multi-provider web search. Provider selection (by SEARCH_PROVIDER env):
+ *   searxng  — local SearXNG instance (default, zero-config in Docker)
+ *   tavily   — Tavily API (requires TAVILY_API_KEY)
+ *   serper   — Serper API (requires SERPER_API_KEY)
  */
 @Injectable()
 export class WebSearchService {
   private readonly logger = new Logger(WebSearchService.name);
+  private readonly provider: string;
+  private readonly searxngUrl: string;
   private readonly tavilyApiKey: string;
   private readonly serperApiKey: string;
 
   constructor(private readonly configService: ConfigService) {
+    this.provider = this.configService.get<string>('SEARCH_PROVIDER', 'searxng');
+    this.searxngUrl = this.configService.get<string>('SEARXNG_URL', 'http://searxng:8080');
     this.tavilyApiKey = this.configService.get<string>('TAVILY_API_KEY', '');
     this.serperApiKey = this.configService.get<string>('SERPER_API_KEY', '');
   }
 
   async search(query: string, maxResults = 5): Promise<SearchResult[]> {
-    if (this.tavilyApiKey) {
-      return this.searchWithTavily(query, maxResults);
+    switch (this.provider) {
+      case 'searxng': return this.searchWithSearXNG(query, maxResults);
+      case 'tavily': return this.searchWithTavily(query, maxResults);
+      case 'serper': return this.searchWithSerper(query, maxResults);
+      default: {
+        // Auto-fallback: try searxng, then tavily, then serper
+        if (this.tavilyApiKey) return this.searchWithTavily(query, maxResults);
+        if (this.serperApiKey) return this.searchWithSerper(query, maxResults);
+        this.logger.warn('No search API configured');
+        return [];
+      }
     }
-    if (this.serperApiKey) {
-      return this.searchWithSerper(query, maxResults);
+  }
+
+  private async searchWithSearXNG(query: string, maxResults: number): Promise<SearchResult[]> {
+    try {
+      const url = `${this.searxngUrl}/search?q=${encodeURIComponent(query)}&format=json&categories=general&pageno=1`;
+      const response = await fetch(url, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!response.ok) throw new Error(`SearXNG error: ${response.status}`);
+      const data = await response.json() as {
+        results?: Array<{ title: string; url: string; content: string }>
+      };
+      return (data.results || []).slice(0, maxResults).map((r) => ({
+        title: r.title,
+        url: r.url,
+        snippet: r.content,
+        source: 'searxng',
+      }));
+    } catch (error) {
+      this.logger.error('SearXNG search failed', error);
+      return [];
     }
-    this.logger.warn('No search API configured');
-    return [];
   }
 
   private async searchWithTavily(query: string, maxResults: number): Promise<SearchResult[]> {

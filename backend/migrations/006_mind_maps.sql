@@ -1,4 +1,5 @@
--- Mind Maps History Table
+-- Saved mind-map generations: each row snapshots the source content and
+-- the produced graph structure so past maps stay viewable after edits.
 CREATE TABLE IF NOT EXISTS mind_maps (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

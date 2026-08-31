@@ -1,28 +1,20 @@
-# Study RPG — full-stack compose setup
-# Usage: docker compose --env-file .env.docker up
-# Frontend: http://localhost:5189   Backend API: http://localhost:3010
+# Study RPG — full-stack compose setup (fully local, zero external keys)
+# Usage: docker compose up -d
+# Frontend: http://localhost:8080   Backend API: http://localhost:3010
 #
-# Images are pinned to stable releases (Aug 2026):
-#   postgres 18.4, redis 8.10, qdrant v1.19.0, clickhouse 26.7.3.19-stable,
-#   nginx 1.30.4-alpine, node 24-alpine (build stage)
-#
-# SSH debug (always on, key-based) into the app containers:
-#   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${BACKEND_SSH_PORT:-3022}   # backend
-#   ssh -i /tmp/studyield-ssh/id_studyield_debug root@localhost -p ${FRONTEND_SSH_PORT:-3222}  # frontend
-# The debug public key is baked into the images; the private key is never in
-# the repo. SSH_PASSWORD / SSH_PUBLIC_KEY add extra auth at runtime. Keep the
-# SSH ports bound to localhost or a VPN — do not expose them publicly.
+# First run: sh scripts/bootstrap.sh  (waits healthy, runs migrations,
+#             pulls Ollama models, creates buckets, seeds data)
 
 services:
-  # --- Infrastructure -----------------------------------------------
+  # ── Infrastructure ────────────────────────────────────────────────
   postgres:
-    image: postgres:18.4-alpine
-    container_name: studyield-postgres
+    image: postgres:16-alpine
+    container_name: studyrpg-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-studyield_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-studyrpg}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -34,8 +26,8 @@ services:
       retries: 5
 
   redis:
-    image: redis:8.10-alpine
-    container_name: studyield-redis
+    image: redis:7-alpine
+    container_name: studyrpg-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
@@ -50,7 +42,7 @@ services:
 
   qdrant:
     image: qdrant/qdrant:v1.19.0
-    container_name: studyield-qdrant
+    container_name: studyrpg-qdrant
     restart: unless-stopped
     ports:
       - "${QDRANT_PORT:-6333}:6333"
@@ -61,15 +53,15 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
 
   clickhouse:
-    image: clickhouse/clickhouse-server:26.7.3.19-stable
-    container_name: studyield-clickhouse
+    image: clickhouse/clickhouse-server:24-alpine
+    container_name: studyrpg-clickhouse
     restart: unless-stopped
     ports:
       - "${CLICKHOUSE_PORT:-8123}:8123"
     volumes:
       - clickhouse_data:/var/lib/clickhouse
     environment:
-      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE:-studyield_analytics}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DATABASE:-studyrpg_analytics}
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
     healthcheck:
@@ -78,34 +70,151 @@ services:
       timeout: 5s
       retries: 5
 
-  # --- Application --------------------------------------------------
+  # ── Local LLM (T1) ──────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: studyrpg-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # ── Local Object Storage (T3) ───────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: studyrpg-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+
+  # ── Local SMTP (T2) ─────────────────────────────────────────────
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: studyrpg-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
+  # ── Local Web Search (T4) ────────────────────────────────────────
+  searxng:
+    image: searxng/searxng:latest
+    container_name: studyrpg-searxng
+    restart: unless-stopped
+    ports:
+      - "${SEARXNG_PORT:-8888}:8080"
+    volumes:
+      - searxng_data:/etc/searxng
+    environment:
+      SEARXNG_BASE_URL: http://localhost:${SEARXNG_PORT:-8888}/
+      SEARXNG_SECRET: ${SEARXNG_SECRET:-studyrpg-searxng-secret-change-me}
+
+  # ── Local Code Runner (T5) ───────────────────────────────────────
+  code-runner:
+    build:
+      context: ./docker/code-runner
+      dockerfile: Dockerfile
+    container_name: studyrpg-code-runner
+    restart: unless-stopped
+    network_mode: bridge
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    environment:
+      RUNNER_PORT: ${CODE_RUNNER_PORT:-9000}
+    ports:
+      - "${CODE_RUNNER_PORT:-9000}:9000"
+
+  # ── Application ──────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: studyield-backend
+    container_name: studyrpg-backend
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-3010}:3010"
-      - "${BACKEND_SSH_PORT:-3022}:22"
     env_file:
-      - ./backend/.env
+      - .env
     environment:
-      - NODE_ENV=production
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=${POSTGRES_USER:-postgres}
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DATABASE_NAME=${POSTGRES_DB:-studyield_dev}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
-      - CLICKHOUSE_HOST=clickhouse
-      - CLICKHOUSE_PORT=8123
-      # SSH debug is always on (baked-in key); these add password/extra-key auth
-      - SSH_PASSWORD=${SSH_PASSWORD:-}
-      - SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:-}
+      NODE_ENV=production
+      DATABASE_HOST=postgres
+      DATABASE_PORT=5432
+      DATABASE_USER=${POSTGRES_USER:-postgres}
+      DATABASE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      DATABASE_NAME=${POSTGRES_DB:-studyrpg}
+      REDIS_HOST=redis
+      REDIS_PORT=6379
+      QDRANT_HOST=qdrant
+      QDRANT_PORT=6333
+      CLICKHOUSE_HOST=clickhouse
+      CLICKHOUSE_PORT=8123
+      # AI — Ollama local (default, no key needed)
+      AI_PROVIDER=openai-compatible
+      OPENAI_BASE_URL=http://ollama:11434/v1
+      OPENAI_API_KEY=ollama
+      OPENROUTER_DEFAULT_MODEL=qwen2.5:7b-instruct
+      OPENROUTER_EMBEDDING_MODEL=nomic-embed-text
+      # Reranker — local Ollama (default)
+      RERANKER_PROVIDER=ollama
+      RERANKER_MODEL=bge-reranker-v2-m3
+      RERANKER_API_URL=http://ollama:11434
+      # Storage — MinIO S3-compatible (default)
+      STORAGE_PROVIDER=minio
+      AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
+      AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      AWS_REGION=us-east-1
+      R2_ACCOUNT_ID=minio
+      R2_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
+      R2_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      R2_BUCKET_NAME=studyrpg-uploads
+      R2_PUBLIC_URL=http://minio:9000/studyrpg-uploads
+      R2_ENDPOINT=http://minio:9000
+      # Email — Mailpit SMTP (default)
+      EMAIL_TRANSPORT=smtp
+      SMTP_HOST=mailpit
+      SMTP_PORT=1025
+      SMTP_SECURE=false
+      SMTP_USER=
+      SMTP_PASS=
+      EMAIL_DEFAULT_FROM=noreply@studyrpg.local
+      # Web Search — SearXNG (default)
+      SEARCH_PROVIDER=searxng
+      SEARXNG_URL=http://searxng:8080
+      # Code Runner — local sidecar
+      CODE_SANDBOX_URL=http://code-runner:9000
+      CODE_SANDBOX_TIMEOUT=30000
+      # Push Notifications — VAPID (auto-generated)
+      WEB_PUSH_ENABLED=true
+      # Billing & Marketplace — OFF by default
+      BILLING_ENABLED=false
+      MARKETPLACE_ENABLED=false
+      # CORS
+      CORS_ORIGINS=http://localhost:${FRONTEND_PORT:-8080},http://localhost:3000
+      JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-dev-access-secret-change-in-production-min-32-chars}
+      JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-production-min-32-chars}
+      JWT_ACCESS_EXPIRATION=15m
+      JWT_REFRESH_EXPIRATION=7d
     depends_on:
       postgres:
         condition: service_healthy
@@ -115,30 +224,27 @@ services:
         condition: service_started
       clickhouse:
         condition: service_healthy
+      ollama:
+        condition: service_started
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: studyield-frontend
+    container_name: studyrpg-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-5189}:80"
-      - "${FRONTEND_SSH_PORT:-3222}:22"
+      - "${FRONTEND_PORT:-8080}:80"
     environment:
-      - VITE_API_URL=http://localhost:${BACKEND_PORT:-3010}
-      # SSH debug is always on (baked-in key); these add password/extra-key auth
-      - SSH_PASSWORD=${SSH_PASSWORD:-}
-      - SSH_PUBLIC_KEY=${SSH_PUBLIC_KEY:-}
+      VITE_API_URL=http://localhost:${BACKEND_PORT:-3010}
     depends_on:
       - backend
 
 volumes:
   postgres_data:
-    driver: local
   redis_data:
-    driver: local
   qdrant_data:
-    driver: local
   clickhouse_data:
-    driver: local
+  ollama_data:
+  minio_data:
+  searxng_data:

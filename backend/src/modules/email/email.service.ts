@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SESService } from './ses.service';
+import { SMTPService } from './smtp.service';
 import { DatabaseService } from '../database/database.service';
+
+export type EmailTransport = 'ses' | 'smtp';
 
 export interface EmailOptions {
   from?: string;
@@ -47,12 +50,19 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly appUrl: string;
 
+  private readonly transport: EmailTransport;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly sesService: SESService,
+    private readonly smtpService: SMTPService,
     private readonly db: DatabaseService,
   ) {
     this.appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
+    // Determine transport: default to smtp if host is set, otherwise ses
+    this.transport = (this.configService.get<string>('EMAIL_TRANSPORT') as EmailTransport)
+      || (this.smtpService.isReady() ? 'smtp' : 'ses');
+    this.logger.log(`Email transport: ${this.transport}`);
   }
 
   async sendEmail(
@@ -73,15 +83,26 @@ export class EmailService {
           : [emailOptions.bcc]
         : undefined;
 
-      const result = await this.sesService.sendEmail({
-        from: emailOptions.from,
-        to,
-        cc,
-        bcc,
-        subject: emailOptions.subject,
-        text: emailOptions.text,
-        html: emailOptions.html,
-      });
+      let result;
+      if (this.transport === 'smtp' && this.smtpService.isReady()) {
+        result = await this.smtpService.sendEmail({
+          from: emailOptions.from,
+          to,
+          subject: emailOptions.subject,
+          text: emailOptions.text,
+          html: emailOptions.html,
+        });
+      } else {
+        result = await this.sesService.sendEmail({
+          from: emailOptions.from,
+          to,
+          cc,
+          bcc,
+          subject: emailOptions.subject,
+          text: emailOptions.text,
+          html: emailOptions.html,
+        });
+      }
 
       await this.logEmail({
         userId,

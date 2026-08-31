@@ -37,7 +37,7 @@ export class CodeSandboxService {
     private readonly configService: ConfigService,
     private readonly db: DatabaseService,
   ) {
-    this.sandboxUrl = this.configService.get<string>('CODE_SANDBOX_URL', 'http://localhost:8080');
+    this.sandboxUrl = this.configService.get<string>('CODE_SANDBOX_URL', 'http://code-runner:9000');
     this.sandboxApiKey = this.configService.get<string>('CODE_SANDBOX_API_KEY', '');
     this.defaultTimeout = this.configService.get<number>('CODE_SANDBOX_TIMEOUT', 30000);
   }

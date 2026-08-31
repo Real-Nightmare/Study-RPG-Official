@@ -18,6 +18,13 @@ import OpenAI from 'openai';
 import { DatabaseService } from '../database/database.service';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Supported AI providers. When AI_PROVIDER=openai-compatible, the service
+ * connects to any OpenAI-compatible endpoint (e.g. local Ollama on :11434/v1)
+ * with no API key required.
+ */
+type AiProvider = 'openrouter' | 'openai-compatible';
+
 const DEFAULT_MODEL = 'openai/gpt-4o-mini';
 const DEFAULT_VISION_MODEL = 'openai/gpt-4o';
 
@@ -55,27 +62,45 @@ export interface TranscriptionResponse {
 export class AiService implements OnModuleInit {
   private readonly logger = new Logger(AiService.name);
 
-  private openRouterClient: OpenAI | null = null;
-  private openaiClient: OpenAI | null = null;
+  private primaryClient: OpenAI | null = null;
+  private fallbackClient: OpenAI | null = null;
+  private readonly aiProvider: AiProvider;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly db: DatabaseService,
-  ) {}
+  ) {
+    this.aiProvider = this.configService.get<AiProvider>('AI_PROVIDER', 'openrouter');
+  }
 
   async onModuleInit(): Promise<void> {
     this.initializeClients();
   }
 
   private initializeClients(): void {
+    if (this.aiProvider === 'openai-compatible') {
+      // Local LLM (Ollama, vLLM, LM Studio, etc.) — no API key required
+      const baseUrl = this.configService.get<string>('OPENAI_BASE_URL', 'http://ollama:11434/v1');
+      const apiKey = this.configService.get<string>('OPENAI_API_KEY', 'ollama');
+
+      this.primaryClient = new OpenAI({
+        apiKey,
+        baseURL: baseUrl,
+        timeout: 180000, // local models can be slower
+      });
+      this.logger.log(`OpenAI-compatible client initialized (base URL: ${baseUrl})`);
+      return;
+    }
+
+    // Default: OpenRouter gateway
     const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY');
 
     if (openRouterKey && !openRouterKey.includes('your-')) {
-      this.openRouterClient = new OpenAI({
+      this.primaryClient = new OpenAI({
         apiKey: openRouterKey,
         baseURL: 'https://openrouter.ai/api/v1',
         defaultHeaders: {
-          'HTTP-Referer': this.configService.get<string>('FRONTEND_URL', 'http://localhost:5189'),
+          'HTTP-Referer': this.configService.get<string>('FRONTEND_URL', 'http://localhost:8080'),
           'X-Title': 'Study RPG',
         },
         timeout: 120000,
@@ -84,35 +109,34 @@ export class AiService implements OnModuleInit {
     }
 
     const openaiKey = this.configService.get<string>('OPENAI_API_KEY');
-    if (openaiKey && !openaiKey.includes('your-')) {
-      this.openaiClient = new OpenAI({
+    if (openaiKey && !openaiKey.includes('your-') && !this.primaryClient) {
+      this.fallbackClient = new OpenAI({
         apiKey: openaiKey,
         timeout: 120000,
       });
       this.logger.log('OpenAI direct client initialized (fallback)');
     }
 
-    if (!this.openRouterClient && !this.openaiClient) {
-      this.logger.warn('No AI clients available! Set OPENROUTER_API_KEY or OPENAI_API_KEY in .env');
+    if (!this.primaryClient && !this.fallbackClient) {
+      this.logger.warn('No AI clients available! Set AI_PROVIDER or OPENROUTER_API_KEY in .env');
     }
   }
 
   private getClient(): OpenAI {
-    if (this.openRouterClient) {
-      return this.openRouterClient;
-    }
-
-    if (this.openaiClient) {
-      return this.openaiClient;
-    }
+    if (this.primaryClient) return this.primaryClient;
+    if (this.fallbackClient) return this.fallbackClient;
 
     throw new BadRequestException(
-      'No AI API key configured. Set OPENROUTER_API_KEY or OPENAI_API_KEY in .env file.',
+      'No AI provider configured. Set AI_PROVIDER=openai-compatible (for local Ollama) or OPENROUTER_API_KEY in .env.',
     );
   }
 
   private getModel(type: 'text' | 'vision' = 'text'): string {
-    if (this.openRouterClient) {
+    if (this.aiProvider === 'openai-compatible') {
+      return this.configService.get<string>('OPENAI_MODEL', 'qwen2.5:7b-instruct');
+    }
+
+    if (this.primaryClient) {
       return type === 'vision'
         ? this.configService.get('OPENROUTER_VISION_MODEL', DEFAULT_VISION_MODEL)
         : this.configService.get('OPENROUTER_DEFAULT_MODEL', DEFAULT_MODEL);
@@ -145,8 +169,8 @@ export class AiService implements OnModuleInit {
       const err = error as Error;
       this.logger.error(`AI completion failed: ${err.message}`);
 
-      if (this.openRouterClient && this.openaiClient) {
-        this.logger.warn('Attempting fallback to direct OpenAI...');
+      if (this.primaryClient && this.fallbackClient) {
+        this.logger.warn('Attempting fallback to secondary client...');
         return this.completeFallback(messages, options);
       }
 
@@ -159,7 +183,7 @@ export class AiService implements OnModuleInit {
     messages: ChatMessage[],
     options: CompletionOptions = {},
   ): Promise<CompletionResponse> {
-    if (!this.openaiClient) {
+    if (!this.fallbackClient) {
       throw new BadRequestException('No fallback client available');
     }
 
@@ -346,14 +370,17 @@ export class AiService implements OnModuleInit {
   }
 
   isAvailable(): boolean {
-    return this.openRouterClient !== null || this.openaiClient !== null;
+    return this.primaryClient !== null || this.fallbackClient !== null;
   }
 
   getAvailableProviders(): string[] {
+    if (this.aiProvider === 'openai-compatible') {
+      return ['openai-compatible', 'ollama'];
+    }
     const providers: string[] = [];
-    if (this.openRouterClient) {
+    if (this.primaryClient) {
       providers.push('openrouter', 'openai', 'anthropic', 'google', 'deepseek');
-    } else if (this.openaiClient) {
+    } else if (this.fallbackClient) {
       providers.push('openai');
     }
     return providers;

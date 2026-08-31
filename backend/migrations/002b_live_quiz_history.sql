@@ -1,4 +1,4 @@
--- Live Quiz Sessions table
+-- Persistent history for live multiplayer quiz sessions.
 CREATE TABLE IF NOT EXISTS live_quiz_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   room_code VARCHAR(6) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS live_quiz_sessions (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Live Quiz Participants table
+-- Per-player results within a live quiz session.
 CREATE TABLE IF NOT EXISTS live_quiz_participants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES live_quiz_sessions(id) ON DELETE CASCADE,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS live_quiz_participants (
   UNIQUE(session_id, user_id)
 );
 
--- Live Quiz Answers table (optional - for detailed history)
+-- Optional per-answer detail enabling full replay of a session.
 CREATE TABLE IF NOT EXISTS live_quiz_answers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES live_quiz_sessions(id) ON DELETE CASCADE,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS live_quiz_answers (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Indexes
+-- Lookup indexes
 CREATE INDEX IF NOT EXISTS idx_live_quiz_sessions_host ON live_quiz_sessions(host_id);
 CREATE INDEX IF NOT EXISTS idx_live_quiz_sessions_study_set ON live_quiz_sessions(study_set_id);
 CREATE INDEX IF NOT EXISTS idx_live_quiz_participants_session ON live_quiz_participants(session_id);
