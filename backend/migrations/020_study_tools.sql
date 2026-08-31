@@ -1,4 +1,4 @@
--- Study Tools — Phase 2 Studyield Core gap-fill (master prompt §7.9, §7.10, Study Tools)
+-- Study Tools — Phase 2 Study RPG Core gap-fill (master prompt §7.9, §7.10, Study Tools)
 -- Focus sessions, mistake notebook, subject puzzles, exam periods/exam centre,
 -- and a generic per-user preferences row (used for hide_game_stats).
 

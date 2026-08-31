@@ -1,4 +1,4 @@
--- Study Tasks (Planner) — Phase 2 Studyield Core
+-- Study Tasks (Planner) — Phase 2 Study RPG Core
 -- Supports: homework, revision, exam preparation, projects, reading, practice,
 -- recurring tasks, subtasks, priority, due date, estimated/actual time, subject, chapter.
 
