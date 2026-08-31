@@ -16,6 +16,8 @@
 > **Owner follow-up — Anti-OverStudy & Health-First Wellbeing (Spec Kit spec `015-study-wellbeing`): complete as of 2026-08-09** — every AI surface now speaks the canonical product philosophy (depth over length, health-first anti-overstudy guardian, game-to-reality framing), and the reward economy heavily dampens over-study: focus-session start gates (rest cooldown, exhaustion, night-rest nudge), diminishing-returns decay on focus/event rewards beyond the healthy daily optimum, and a study-health meter in the UI (see table below).
 > **Phase map**: the owner's brief is the **community track**; the fractions map onto the real phases of the *Studyield Master Implementation Prompt.pdf* (Phase 6=Economy, 7=Events, 8=Advanced Learning) in `docs/implementation/MASTER_PLAN.md` §3.
 > **Spec workflow**: GitHub Spec Kit adopted 2026-08-06 — feature specs live in `specs/` (index: `specs/README.md`, constitution: `.specify/memory/constitution.md`); the legacy OpenSpec workspace is archived at `archive/openspec/`.
+> **Completion Plan**: `docs/COMPLETION_PLAN.md` tracks the fully-local Docker stack build-out.
+> **Waves 1-4 complete** (2026-08-31): fully-local Docker stack (Ollama/MinIO/Mailpit/SearXNG/code-runner), Firebase removed, 6 playable characters, CI placeholder gate, full OpenAI-compatible AI provider support.
 
 ---
 
