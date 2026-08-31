@@ -1,8 +1,13 @@
 /**
- * Unified LLM gateway. OpenRouter is the primary provider (one API for
- * OpenAI, Anthropic, Google, DeepSeek and friends via the OpenAI-compatible
- * protocol); a direct OpenAI client is kept as a fallback, and Whisper
- * transcription always uses the direct client.
+ * Unified LLM gateway with full OpenAI-compatible provider support.
+ *
+ * Provider selection (AI_PROVIDER env):
+ *   openai-compatible  — Any OpenAI-compatible endpoint (Ollama, Groq, Together, Fireworks, etc.)
+ *   openrouter         — OpenRouter gateway (one key for all cloud models)
+ *   openai             — Direct OpenAI API
+ *
+ * Default: openai-compatible pointing to local Ollama (zero-config).
+ * Set OPENAI_BASE_URL + OPENAI_API_KEY to point at any cloud provider.
  */
 
 import {
@@ -18,12 +23,7 @@ import OpenAI from 'openai';
 import { DatabaseService } from '../database/database.service';
 import { v4 as uuidv4 } from 'uuid';
 
-/**
- * Supported AI providers. When AI_PROVIDER=openai-compatible, the service
- * connects to any OpenAI-compatible endpoint (e.g. local Ollama on :11434/v1)
- * with no API key required.
- */
-type AiProvider = 'openrouter' | 'openai-compatible';
+type AiProvider = 'openai-compatible' | 'openrouter' | 'openai';
 
 const DEFAULT_MODEL = 'openai/gpt-4o-mini';
 const DEFAULT_VISION_MODEL = 'openai/gpt-4o';
@@ -70,7 +70,7 @@ export class AiService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly db: DatabaseService,
   ) {
-    this.aiProvider = this.configService.get<AiProvider>('AI_PROVIDER', 'openrouter');
+    this.aiProvider = this.configService.get<AiProvider>('AI_PROVIDER', 'openai-compatible');
   }
 
   async onModuleInit(): Promise<void> {
@@ -79,46 +79,81 @@ export class AiService implements OnModuleInit {
 
   private initializeClients(): void {
     if (this.aiProvider === 'openai-compatible') {
-      // Local LLM (Ollama, vLLM, LM Studio, etc.) — no API key required
+      // Any OpenAI-compatible endpoint: Ollama, Groq, Together, Fireworks, vLLM, LM Studio, etc.
       const baseUrl = this.configService.get<string>('OPENAI_BASE_URL', 'http://ollama:11434/v1');
       const apiKey = this.configService.get<string>('OPENAI_API_KEY', 'ollama');
 
       this.primaryClient = new OpenAI({
         apiKey,
         baseURL: baseUrl,
-        timeout: 180000, // local models can be slower
+        timeout: 180000,
       });
-      this.logger.log(`OpenAI-compatible client initialized (base URL: ${baseUrl})`);
+      this.logger.log(`OpenAI-compatible client initialized → ${baseUrl}`);
+
+      // If OpenRouter key exists, set it as fallback for when Ollama is overloaded
+      const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY');
+      if (openRouterKey && !openRouterKey.includes('your-')) {
+        this.fallbackClient = new OpenAI({
+          apiKey: openRouterKey,
+          baseURL: 'https://openrouter.ai/api/v1',
+          defaultHeaders: {
+            'HTTP-Referer': this.configService.get<string>('FRONTEND_URL', 'http://localhost:8080'),
+            'X-Title': 'Study RPG',
+          },
+          timeout: 120000,
+        });
+        this.logger.log('OpenRouter fallback client initialized');
+      }
       return;
     }
 
-    // Default: OpenRouter gateway
-    const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY');
+    if (this.aiProvider === 'openrouter') {
+      const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY');
+      if (openRouterKey && !openRouterKey.includes('your-')) {
+        this.primaryClient = new OpenAI({
+          apiKey: openRouterKey,
+          baseURL: 'https://openrouter.ai/api/v1',
+          defaultHeaders: {
+            'HTTP-Referer': this.configService.get<string>('FRONTEND_URL', 'http://localhost:8080'),
+            'X-Title': 'Study RPG',
+          },
+          timeout: 120000,
+        });
+        this.logger.log('OpenRouter client initialized');
+      }
 
-    if (openRouterKey && !openRouterKey.includes('your-')) {
-      this.primaryClient = new OpenAI({
-        apiKey: openRouterKey,
-        baseURL: 'https://openrouter.ai/api/v1',
-        defaultHeaders: {
-          'HTTP-Referer': this.configService.get<string>('FRONTEND_URL', 'http://localhost:8080'),
-          'X-Title': 'Study RPG',
-        },
-        timeout: 120000,
+      // Fallback to local Ollama
+      const ollamaUrl = this.configService.get<string>('OLLAMA_BASE_URL', 'http://ollama:11434');
+      this.fallbackClient = new OpenAI({
+        apiKey: 'ollama',
+        baseURL: `${ollamaUrl}/v1`,
+        timeout: 180000,
       });
-      this.logger.log('OpenRouter client initialized (unified gateway for all models)');
+      this.logger.log('Ollama fallback client initialized');
+      return;
     }
 
+    // Direct OpenAI
     const openaiKey = this.configService.get<string>('OPENAI_API_KEY');
-    if (openaiKey && !openaiKey.includes('your-') && !this.primaryClient) {
-      this.fallbackClient = new OpenAI({
+    if (openaiKey && !openaiKey.includes('your-')) {
+      this.primaryClient = new OpenAI({
         apiKey: openaiKey,
         timeout: 120000,
       });
-      this.logger.log('OpenAI direct client initialized (fallback)');
+      this.logger.log('OpenAI direct client initialized');
     }
 
+    // Fallback to Ollama
+    const ollamaUrl = this.configService.get<string>('OLLAMA_BASE_URL', 'http://ollama:11434');
+    this.fallbackClient = new OpenAI({
+      apiKey: 'ollama',
+      baseURL: `${ollamaUrl}/v1`,
+      timeout: 180000,
+    });
+    this.logger.log('Ollama fallback client initialized');
+
     if (!this.primaryClient && !this.fallbackClient) {
-      this.logger.warn('No AI clients available! Set AI_PROVIDER or OPENROUTER_API_KEY in .env');
+      this.logger.warn('No AI clients available! Set AI_PROVIDER or OPENAI_BASE_URL in .env');
     }
   }
 
@@ -127,7 +162,7 @@ export class AiService implements OnModuleInit {
     if (this.fallbackClient) return this.fallbackClient;
 
     throw new BadRequestException(
-      'No AI provider configured. Set AI_PROVIDER=openai-compatible (for local Ollama) or OPENROUTER_API_KEY in .env.',
+      'No AI provider configured. Set AI_PROVIDER=openai-compatible (default) or provide OPENAI_BASE_URL + OPENAI_API_KEY in .env.',
     );
   }
 
@@ -136,7 +171,7 @@ export class AiService implements OnModuleInit {
       return this.configService.get<string>('OPENAI_MODEL', 'qwen2.5:7b-instruct');
     }
 
-    if (this.primaryClient) {
+    if (this.aiProvider === 'openrouter') {
       return type === 'vision'
         ? this.configService.get('OPENROUTER_VISION_MODEL', DEFAULT_VISION_MODEL)
         : this.configService.get('OPENROUTER_DEFAULT_MODEL', DEFAULT_MODEL);
@@ -169,9 +204,14 @@ export class AiService implements OnModuleInit {
       const err = error as Error;
       this.logger.error(`AI completion failed: ${err.message}`);
 
+      // Try fallback client if available
       if (this.primaryClient && this.fallbackClient) {
         this.logger.warn('Attempting fallback to secondary client...');
-        return this.completeFallback(messages, options);
+        try {
+          return await this.completeFallback(messages, options);
+        } catch {
+          // Both failed
+        }
       }
 
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -187,9 +227,9 @@ export class AiService implements OnModuleInit {
       throw new BadRequestException('No fallback client available');
     }
 
-    const model = options.model?.replace(/^[^/]+\//, '') || 'gpt-4o-mini';
+    const model = options.model?.replace(/^[^/]+\//, '') || this.getModel('text');
 
-    const response = await this.openaiClient.chat.completions.create({
+    const response = await this.fallbackClient.chat.completions.create({
       model,
       messages,
       temperature: options.temperature ?? 0.7,
@@ -233,10 +273,7 @@ export class AiService implements OnModuleInit {
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: params.prompt,
-              },
+              { type: 'text', text: params.prompt },
               {
                 type: 'image_url',
                 image_url: {
@@ -246,7 +283,7 @@ export class AiService implements OnModuleInit {
             ],
           },
         ],
-        temperature: params.temperature ?? 0.3, // low temperature for accuracy
+        temperature: params.temperature ?? 0.3,
         max_tokens: params.maxTokens ?? 1000,
       });
 
@@ -264,14 +301,13 @@ export class AiService implements OnModuleInit {
     });
 
     try {
-      // Strip markdown fences if the model wrapped the JSON.
       let content = response.content.trim();
       if (content.startsWith('```json')) content = content.slice(7);
       else if (content.startsWith('```')) content = content.slice(3);
       if (content.endsWith('```')) content = content.slice(0, -3);
 
       return JSON.parse(content.trim()) as T;
-    } catch (error) {
+    } catch {
       this.logger.error(`Failed to parse JSON response: ${response.content}`);
       throw new BadRequestException('Failed to parse AI response as JSON');
     }
@@ -333,23 +369,28 @@ export class AiService implements OnModuleInit {
 
   /**
    * Transcribes audio via the OpenAI Whisper API. Whisper is only reachable
-   * through the direct OpenAI client — OpenRouter does not proxy it.
+   * through the direct OpenAI client — other providers may not support it.
    */
   async transcribeAudio(
     audioBuffer: Buffer,
     filename: string,
     mimeType: string,
   ): Promise<TranscriptionResponse> {
-    if (!this.openaiClient) {
+    // Try direct OpenAI client first, then primary client
+    const client = this.aiProvider === 'openai'
+      ? this.primaryClient
+      : this.fallbackClient || this.primaryClient;
+
+    if (!client) {
       throw new BadRequestException(
-        'Audio transcription requires OpenAI API key. Set OPENAI_API_KEY in .env file.',
+        'Audio transcription requires an OpenAI-compatible provider with Whisper support.',
       );
     }
 
     try {
       const file = await OpenAI.toFile(audioBuffer, filename, { type: mimeType });
 
-      const response = await this.openaiClient.audio.transcriptions.create({
+      const response = await client.audio.transcriptions.create({
         file,
         model: 'whisper-1',
         response_format: 'verbose_json',
@@ -375,15 +416,12 @@ export class AiService implements OnModuleInit {
 
   getAvailableProviders(): string[] {
     if (this.aiProvider === 'openai-compatible') {
-      return ['openai-compatible', 'ollama'];
+      return ['openai-compatible (Ollama, Groq, Together, Fireworks, vLLM, etc.)'];
     }
-    const providers: string[] = [];
-    if (this.primaryClient) {
-      providers.push('openrouter', 'openai', 'anthropic', 'google', 'deepseek');
-    } else if (this.fallbackClient) {
-      providers.push('openai');
+    if (this.aiProvider === 'openrouter') {
+      return ['openrouter', 'ollama (fallback)'];
     }
-    return providers;
+    return ['openai', 'ollama (fallback)'];
   }
 
   // ═══════════════════════════════════════════

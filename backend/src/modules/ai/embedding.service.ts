@@ -31,10 +31,11 @@ export class EmbeddingService implements EmbeddingProvider {
   }
 
   private createOpenRouterProvider(): EmbeddingProvider {
-    const apiKey = this.configService.get<string>('OPENROUTER_API_KEY', '');
-    const baseUrl = this.configService.get<string>('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1');
-    const embeddingModel = this.configService.get<string>('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small');
-    const vectorDimension = 1536;
+    // Support any OpenAI-compatible embedding endpoint
+    const apiKey = this.configService.get<string>('OPENAI_API_KEY', this.configService.get<string>('OPENROUTER_API_KEY', ''));
+    const baseUrl = this.configService.get<string>('OPENAI_BASE_URL', this.configService.get<string>('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'));
+    const embeddingModel = this.configService.get<string>('OPENAI_EMBEDDING_MODEL', this.configService.get<string>('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'));
+    const vectorDimension = this.configService.get<number>('EMBEDDING_DIM', 1536);
 
     return {
       getVectorDimension: () => vectorDimension,

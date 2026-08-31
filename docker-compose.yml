@@ -170,11 +170,13 @@ services:
       CLICKHOUSE_HOST=clickhouse
       CLICKHOUSE_PORT=8123
       # AI — Ollama local (default, no key needed)
+      # To use cloud models: set AI_PROVIDER=openrouter, OPENROUTER_API_KEY=your-key
+      # Or any OpenAI-compatible: OPENAI_BASE_URL=https://api.groq.com/openai/v1, OPENAI_API_KEY=gsk_xxx
       AI_PROVIDER=openai-compatible
       OPENAI_BASE_URL=http://ollama:11434/v1
       OPENAI_API_KEY=ollama
-      OPENROUTER_DEFAULT_MODEL=qwen2.5:7b-instruct
-      OPENROUTER_EMBEDDING_MODEL=nomic-embed-text
+      OPENAI_MODEL=qwen2.5:7b-instruct
+      OPENAI_EMBEDDING_MODEL=nomic-embed-text
       # Reranker — local Ollama (default)
       RERANKER_PROVIDER=ollama
       RERANKER_MODEL=bge-reranker-v2-m3
