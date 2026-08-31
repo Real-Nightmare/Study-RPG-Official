@@ -1,4 +1,4 @@
-# Deployment Guide: Studyield / Study RPG
+# Deployment Guide: Study RPG
 
 **Applies to**: PDF Phase 9 (Hardening) ops deliverable — how to run the stack
 in production, with the env vars each service needs.
@@ -83,11 +83,11 @@ The backend and frontend images ship with an **always-on** SSH server (port
 `${FRONTEND_SSH_PORT:-3222}` on the host) for interactive debugging:
 
 ```bash
-ssh -i /path/to/id_studyield_debug root@host -p 3022    # backend
-ssh -i /path/to/id_studyield_debug root@host -p 3222    # frontend
+ssh -i /path/to/id_studyrpg_debug root@host -p 3022    # backend
+ssh -i /path/to/id_studyrpg_debug root@host -p 3222    # frontend
 ```
 
-The **public** half of the `studyield-docker-debug` keypair is baked into the
+The **public** half of the `studyrpg-docker-debug` keypair is baked into the
 images; the **private** key is never stored in the repo or image (it lives in
 the operator's keychain / session). Optional extras set at runtime:
 

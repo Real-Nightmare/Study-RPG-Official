@@ -1,10 +1,8 @@
-# Master Implementation Plan — Studyield + Study RPG
+# Master Implementation Plan — Study RPG
 
-> **Source of truth**: the owner's master prompt, *"Studyield + Study RPG — Foolproof Master
-> Implementation Prompt V2"* (`Studyield Master Implementation Prompt.pdf`, 64 pages). The PDF lives
-> in the owner's repository but is **not committed** to this checkout; this doc is the working
-> translation of its phase plan into repository status, GitHub Spec Kit specs, and the owner's
-> feature brief. Last synced: **2026-08-06**. Workflow: Spec Kit — specs in `specs/`;
+> **Source of truth**: the Study RPG master prompt (`STUDY_RPG_MASTER_PROMPT.md`) and PRD (`docs/PRD_v1.0_GA.md`).
+> This doc is the working translation of the phase plan into repository status, GitHub Spec Kit
+> specs, and the owner's feature brief. Workflow: Spec Kit — specs in `specs/`;
 > legacy OpenSpec archived at `archive/openspec/`.
 
 ## 1. The PDF's phase plan (abridged)
@@ -16,7 +14,7 @@ build and tests (§42). Definition of Done is §43.
 |---|---|
 | **0 — Audit** | repo map, build/test failures, security findings, licence contradiction, feature/dependency/database/deployment inventory |
 | **1 — Architecture stabilisation** | workspace, config validation, PostgreSQL, Redis, BullMQ, Qdrant, API/worker split, health checks, logging, outbox, auth, licence notices |
-| **2 — Studyield core** | academic structure, dashboard, tasks, focus, notes, flashcards, quizzes, mistake notebook, puzzles, exam periods, analytics |
+| **2 — Study RPG core** | academic structure, dashboard, tasks, focus, notes, flashcards, quizzes, mistake notebook, puzzles, exam periods, analytics |
 | **3 — RAG** | storage, uploads, parsing, chunking, embeddings, Qdrant, hybrid search, citations, RAG chat, evaluation |
 | **4 — Game foundation** | player profile, XP, STP, SLC, wallet ledger, cards, inventory, vault, deck, loot boxes |
 | **5 — Battles** | worlds, monsters, bosses, battle engine, mana quizzes, damage challenges, shields, status effects, rewards, PvP |
@@ -31,7 +29,7 @@ build and tests (§42). Definition of Done is §43.
 |---|---|---|
 | 0 — Audit | ✅ complete (2026-08-04) | — (audits, AGENTS.md, IMPLEMENTATION_STATUS.md) |
 | 1 — Architecture stabilisation | ✅ mostly complete (2026-08-04); ⚠️ deferred: env validation vs `.env`, outbox dispatcher, JWT refresh rotation, worker split | — |
-| 2 — Studyield core | ✅ complete (2026-08-05) | `001-studyield-core`, `002-student-dashboard` |
+| 2 — Study RPG core | ✅ complete (2026-08-05) | `001-studyield-core`, `002-student-dashboard` |
 | 3 — Production RAG | ✅ complete (2026-08-05) | `003-rag-vector-index`, `004-rag-retrieval-evaluation`, `005-rag-deletion`, `006-rag-reranking` |
 | 4 — Game foundation | ✅ complete (2026-08-05); loot-box/economy slices deferred to Phase 6 | `007-study-rpg-core` |
 | 5 — Battles | ✅ complete (2026-08-06): PvP duels + early **party battles** & **exam bosses** | `008-pvp-duels` (+ community track below) |

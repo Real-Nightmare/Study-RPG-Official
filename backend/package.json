@@ -1,8 +1,8 @@
 {
-  "name": "studyield-backend",
+  "name": "study-rpg-backend",
   "version": "1.0.0",
-  "description": "Studyield AI Learning Platform Backend",
-  "author": "Studyield Team",
+  "description": "Study RPG — Gamified AI Learning Platform Backend",
+  "author": "Study RPG Team",
   "private": true,
   "license": "AGPL-3.0",
   "scripts": {

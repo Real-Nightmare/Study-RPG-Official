@@ -21,7 +21,7 @@ collection from the restored documents.
 ```bash
 # From the repo root (requires pg_dump + DATABASE_URL or PG* env vars)
 ./scripts/backup.sh ./backups
-# -> backups/studyield-20260806T103000Z.dump
+# -> backups/studyrpg-20260806T103000Z.dump
 ```
 
 The script uses `DATABASE_URL` when set, otherwise `PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE`.
@@ -29,7 +29,7 @@ The script uses `DATABASE_URL` when set, otherwise `PGHOST/PGPORT/PGUSER/PGPASSW
 Sanity-check an archive without restoring it:
 
 ```bash
-pg_restore --list backups/studyield-*.dump | head
+pg_restore --list backups/studyrpg-*.dump | head
 ```
 
 ## Schedule backups
@@ -37,7 +37,7 @@ pg_restore --list backups/studyield-*.dump | head
 Recommended: nightly at 02:00 UTC via cron/systemd timer:
 
 ```cron
-0 2 * * *  cd /srv/studyield && ./scripts/backup.sh /srv/studyield/backups >> /var/log/studyield-backup.log 2>&1
+0 2 * * *  cd /srv/studyrpg && ./scripts/backup.sh /srv/studyrpg/backups >> /var/log/studyrpg-backup.log 2>&1
 ```
 
 Retain N daily backups (e.g. keep 14) and copy archives off-host (object
@@ -47,8 +47,8 @@ is not a backup.
 ## Restore
 
 ```bash
-# The target database must already exist (createdb studyield)
-./scripts/restore.sh /srv/studyield/backups/studyield-20260806T103000Z.dump
+# The target database must already exist (createdb studyrpg)
+./scripts/restore.sh /srv/studyrpg/backups/studyrpg-20260806T103000Z.dump
 ```
 
 `restore.sh`:
@@ -61,15 +61,15 @@ is not a backup.
 
 A backup that has never been restored is not trusted. Monthly, at minimum:
 
-1. Restore the latest archive into a scratch database (e.g. `studyield_restore_test`).
+1. Restore the latest archive into a scratch database (e.g. `studyrpg_restore_test`).
 2. Start the API against the scratch DB and smoke-test login + one core flow.
 3. Drop the scratch database.
 
 ```bash
-createdb studyield_restore_test
-./scripts/restore.sh /srv/studyield/backups/studyield-latest.dump postgresql://.../studyield_restore_test
+createdb studyrpg_restore_test
+./scripts/restore.sh /srv/studyrpg/backups/studyrpg-latest.dump postgresql://.../studyrpg_restore_test
 # smoke test…
-dropdb studyield_restore_test
+dropdb studyrpg_restore_test
 ```
 
 ## After a production restore
