@@ -1,74 +1,121 @@
-# Quick Start
+# Quick Start — Get Study RPG Running in 5 Minutes
 
-Study RPG (formerly Studyield) is a gamified AI learning platform. This guide gets the
-full stack running locally in a few minutes.
+Study RPG is a gamified AI learning platform. Everything runs locally with Docker — no API keys, no cloud accounts, no credit cards needed.
 
-> The canonical project philosophy is in [`STUDY_RPG_PHILOSOPHY.md`](../../STUDY_RPG_PHILOSOPHY.md).
-> Everything in the product — rewards, AI voice, UI copy — is built to honor it: study first,
-> game second, and a 100% Free-to-Win meritocracy where real intellectual effort is the only currency.
-
-## Repository layout
-
-| Path | What it is |
-|------|------------|
-| `backend/` | NestJS 10 API (TypeScript, raw SQL via `pg`, custom migration runner) |
-| `frontend/` | React 19 + Vite + Tailwind + Radix UI (15 locales, Zustand, TanStack Query, Socket.IO client) |
-| `specs/` | Spec Kit features (`spec.md` → `plan.md` → `tasks.md`), one per numbered feature |
-| `docs/` | Architecture, deployment, runbooks, this guide |
-| `docker-compose.yml` | Postgres 15, Redis 7, Qdrant, ClickHouse, backend, frontend/nginx |
-
-There is **no root `package.json`** — the two packages install and run independently.
-
-## Prerequisites
-
-- Node.js 20+ and npm
-- Docker (for Postgres, Redis, Qdrant, ClickHouse) or reachable remote instances
-- AI API key (e.g. OpenRouter) for the AI features — everything else works without it
-
-## 1. Start the infrastructure
+## One-Command Start
 
 ```bash
-docker compose up -d postgres redis qdrant clickhouse
+git clone https://github.com/Real-Nightmare/Study-RPG-Official.git
+cd Study-RPG-Official
+sh scripts/bootstrap.sh
 ```
 
-If you prefer not to run the full stack, `./start.sh` bootstraps the dev environment.
+Open **http://localhost:8080** and you're in.
 
-## 2. Backend
+## What Happens on First Boot
+
+The bootstrap script:
+1. Starts all services (Postgres, Redis, Qdrant, ClickHouse, Ollama, MinIO, Mailpit, SearXNG)
+2. Waits for health checks to pass
+3. Pulls AI models (~4.5 GB one-time download): `qwen2.5:7b` (chat) + `nomic-embed-text` (embeddings)
+4. Runs database migrations
+5. Seeds CBSE Grade 9 curriculum, game config, and a demo admin account
+6. Creates storage buckets
+
+## Ports
+
+| Port | Service | What's There |
+|------|---------|-------------|
+| 8080 | Frontend | The web app |
+| 3000 | Backend API | REST + Socket.IO |
+| 8025 | Mailpit | Email inbox UI (password resets land here) |
+| 9001 | MinIO Console | File storage browser |
+| 11434 | Ollama | Local AI (OpenAI-compatible API) |
+| 5432 | PostgreSQL | Database |
+| 6379 | Redis | Cache + queues |
+| 6333 | Qdrant | Vector search |
+| 8123 | ClickHouse | Analytics |
+
+## First-Time Login
+
+1. Open **http://localhost:8080**
+2. Click **Sign Up** — create a username (email is optional)
+3. Or use the seeded admin:
+   - Username: `nightmare`
+   - Password: `123456789`
+
+## What Works Immediately (Zero Config)
+
+- ✅ User registration and login (username-only, no email required)
+- ✅ AI chat with your uploaded notes (Ollama runs locally)
+- ✅ Focus sessions with Campfire reflections
+- ✅ AI-generated quizzes and teach-back scoring
+- ✅ RPG progression, card battles, deck building
+- ✅ File uploads (MinIO — local S3-compatible storage)
+- ✅ Marketplace, economy, events, factions
+- ✅ Realtime chat and social features
+- ✅ Password reset emails (visible in Mailpit at :8025)
+- ✅ Browser push notifications (auto-generated VAPID keys)
+
+## What's Optional (Add Your Own Keys)
+
+You can upgrade any of these later — the defaults work fine without them:
+
+| Feature | Default | Upgrade To |
+|---------|---------|-----------|
+| **AI Quality** | Ollama (local, free) | OpenRouter or any OpenAI-compatible cloud API |
+| **Search** | SearXNG (local, free) | Any search API |
+| **Storage** | MinIO (local, unlimited) | Supabase / Cloudinary / Appwrite (free tiers) |
+| **Email** | Mailpit (local, dev only) | AWS SES or any SMTP server |
+| **Code Execution** | Local code-runner (sandboxed) | E2B (cloud sandbox) |
+| **Payments** | Disabled | Stripe (infrastructure tiers only) |
+| **Data Marketplace** | Disabled | Ocean Protocol (Polygon mainnet) |
+
+See [configuration.md](./configuration.md) for all environment variables.
+
+## Backend Development (Without Docker)
+
+If you prefer to run services individually:
 
 ```bash
+# Start just the databases
+docker compose up -d postgres redis qdrant clickhouse ollama
+
+# Backend
 cd backend
-cp .env.example .env        # then fill in values (see configuration.md)
 npm ci
-npm run migrate             # applies backend/migrations/*.sql in order
+cp .env.example .env        # edit with your values
+npm run migrate
 npm run start:dev           # http://localhost:3000
-```
 
-## 3. Frontend
-
-```bash
+# Frontend (separate terminal)
 cd frontend
 npm ci
-npm run dev                 # Vite dev server (proxies /api to the backend)
+npm run dev                 # http://localhost:5189
 ```
 
 ## Verification
 
 ```bash
-# Backend
-cd backend && npm run build     # nest build
-cd backend && npm run lint      # eslint
-cd backend && npm test          # jest (use `npx jest --runInBand` in constrained workspaces)
-cd backend && npm run test:cov  # jest with coverage
+# Backend builds and tests pass
+cd backend && npm run build && npm test
 
-# Frontend
-cd frontend && npm run build    # tsc -b && vite build
-cd frontend && npm run lint     # eslint (jsx-a11y included)
-cd frontend && npm test         # vitest
+# Frontend builds and tests pass
+cd frontend && npm run build && npm test
 ```
 
-## Where to look next
+## Troubleshooting
 
-- [`configuration.md`](./configuration.md) — environment variables
-- [`../architecture/overview.md`](../architecture/overview.md) — system design
-- [`../guides/connector-guide.md`](../guides/connector-guide.md) — adding a new AI core-tool module
-- [`../../docs/runbooks/`](../runbooks/) — backup, restore, audit retention, load testing
+| Problem | Fix |
+|---------|-----|
+| `docker compose up` fails on port | Check if another service uses the port: `lsof -i :8080` |
+| Ollama model pull is slow | First pull downloads ~4.5 GB. Subsequent starts are instant. |
+| AI responses are slow | Ollama runs on CPU by default. For GPU: install CUDA and Ollama auto-detects it. |
+| Email not arriving | Check Mailpit UI at http://localhost:8025 — all SMTP goes there in dev mode |
+| Uploads fail | Check MinIO is running: `docker compose ps minio`. Console at http://localhost:9001 |
+
+## Next Steps
+
+- [Configuration reference](./configuration.md) — all environment variables
+- [Architecture overview](../architecture/overview.md) — how the system works
+- [Deployment guide](../deployment/hosting.md) — production setup

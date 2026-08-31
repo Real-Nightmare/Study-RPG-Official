@@ -1,219 +1,221 @@
-# Deployment Guide: Study RPG
+# Deployment Guide
 
-**Applies to**: PDF Phase 9 (Hardening) ops deliverable — how to run the stack
-in production, with the env vars each service needs.
+How to run Study RPG in production.
 
-## Architecture at a glance
+## Architecture
 
 ```
-                    ┌─────────────────────────────┐
- Browser ──HTTPS──▶ │  Frontend (static)          │
-                    │  Vite build → nginx / CDN   │
-                    └──────────────┬──────────────┘
-                                   │ /api, /socket.io
-                    ┌──────────────▼──────────────┐
-                    │  Backend (NestJS, BullMQ)   │
-                    └───┬──────┬──────┬──────┬────┘
-                        │      │      │      │
-                   PostgreSQL  Redis  Qdrant  (Object storage / ClickHouse)
+Browser (React SPA)
+   │  HTTP /api  +  Socket.IO
+   ▼
+Backend (NestJS API + BullMQ workers)
+   ├── PostgreSQL 15   — primary database
+   ├── Redis 7         — cache + job queues
+   ├── Qdrant          — vector search (RAG)
+   ├── ClickHouse      — analytics (optional)
+   ├── Ollama          — local AI (or swap to cloud)
+   └── MinIO           — file storage (or swap to S3/Cloudinary)
 ```
 
-- **Frontend**: static build (`frontend/dist`) — host on Cloudflare Pages, a
-  CDN + nginx, or any static host. SPA fallback to `index.html` required.
-- **Backend**: long-running Node process (Docker recommended). Runs the HTTP
-  API **and** the BullMQ workers in one process.
-- **PostgreSQL 18**, **Redis 8.10**, **Qdrant**: required. **ClickHouse**: only if
-  analytics features are enabled. **Object storage / SMTP / Firebase**: only for
-  uploads, email, and FCM push respectively.
+## Production Setup
 
-## Env vars
-
-Copy `.env.example` (backend) to `.env` and fill in secrets. Key groups:
-
-### Required
-| Var | Purpose |
-|-----|---------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | BullMQ + caching |
-| `QDRANT_URL` | Qdrant gRPC/HTTP endpoint |
-| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | Auth tokens (≥ 32 chars, unique per env) |
-| `CORS_ORIGINS` | Comma-separated allowed frontend origins |
-
-### Governance (Phase 6)
-| Var | Purpose |
-|-----|---------|
-| `NIGHTMARE_ADMIN_USERNAME` / `NIGHTMARE_ADMIN_EMAIL` / `NIGHTMARE_ADMIN_PASSWORD` | Seed the super-admin on first boot (default `123456789` — change it!) |
-
-### Push notifications (Phase 9)
-| Var | Purpose |
-|-----|---------|
-| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | Standards-based Web Push. **Optional** — when absent the subscribe UI is hidden and sends are silent no-ops. Generate: `npx web-push generate-vapid-keys` |
-| `FIREBASE_*` | FCM push (primary channel) — optional |
-
-### AI / RAG (Phase 3)
-| Var | Purpose |
-|-----|---------|
-| `OPENROUTER_API_KEY` / `OPENAI_API_KEY` | LLM for AI features |
-| `EMBEDDING_PROVIDER` / `EMBEDDING_MODEL` / `EMBEDDING_API_KEY` | Embeddings |
-| `RERANKER_PROVIDER` / `RERANKER_MODEL` / `RERANKER_API_KEY` | Optional reranker |
-| `QDRANT_COLLECTION_VERSION` | Optional pin for the active vector collection |
-
-### Security (Phase 1)
-| Var | Purpose |
-|-----|---------|
-| `SWAGGER_ENABLED` | Keep `false` in production |
-| `CORS_ORIGINS` | Strict allowlist; unknown origins get 403 |
-
-## Deploying
-
-### Option A — Docker Compose (single host)
+### 1. Clone and configure
 
 ```bash
-docker compose up -d postgres redis qdrant
-docker compose up -d --build backend frontend
+git clone https://github.com/Real-Nightmare/Study-RPG-Official.git
+cd Study-RPG-Official
+cp backend/.env.example backend/.env
 ```
 
-`start.sh` bootstraps a dev environment; for production prefer compose with
-tuned env values.
-
-#### SSH debug into the app containers
-
-The backend and frontend images ship with an **always-on** SSH server (port
-22 in the container, mapped to `${BACKEND_SSH_PORT:-3022}` and
-`${FRONTEND_SSH_PORT:-3222}` on the host) for interactive debugging:
+Edit `backend/.env` — at minimum set:
 
 ```bash
-ssh -i /path/to/id_studyrpg_debug root@host -p 3022    # backend
-ssh -i /path/to/id_studyrpg_debug root@host -p 3222    # frontend
+NODE_ENV=production
+JWT_ACCESS_SECRET=<random-64-char-string>
+JWT_REFRESH_SECRET=<random-64-char-string>
+NIGHTMARE_ADMIN_PASSWORD=<strong-password>
+CORS_ORIGINS=https://yourdomain.com
 ```
 
-The **public** half of the `studyrpg-docker-debug` keypair is baked into the
-images; the **private** key is never stored in the repo or image (it lives in
-the operator's keychain / session). Optional extras set at runtime:
-
-| Var | Purpose |
-|-----|---------|
-| `SSH_PASSWORD` | Enable root password login
-| `SSH_PUBLIC_KEY` | Add an extra root authorized key (also a way to rotate access)
-
-> ⚠️ Debug tool only. Because access is baked in, bind the SSH ports to
-> localhost or a VPN (do not expose them publicly), rotate the keypair if it
-> leaks (regenerate the key, then set `SSH_PUBLIC_KEY` at runtime or rebuild),
-> and consider overriding `/root/.ssh/authorized_keys` via a volume mount on
-> production hosts.
-
-### Option B — Backend on a VM + static frontend
+### 2. Start infrastructure
 
 ```bash
-# backend
+docker compose up -d postgres redis qdrant clickhouse ollama minio mailpit searxng
+```
+
+### 3. Run migrations
+
+```bash
+cd backend && npm ci && npm run migrate
+```
+
+### 4. Build and start
+
+```bash
+# Backend
 cd backend && npm ci && npm run build
-DATABASE_URL=... REDIS_HOST=... QDRANT_URL=... node dist/main.js
+node dist/main.js
 
-# frontend — build once, serve statically
+# Frontend (build once, serve statically)
 cd frontend && npm ci && npm run build
-# point nginx/Cloudflare Pages at frontend/dist with SPA fallback
+# Serve frontend/dist with nginx or any static host
 ```
 
-### Option C — Cloudflare Pages (automatic, free static serving)
-
-The frontend is wired for **automatic Cloudflare Pages deploys**: pushing to
-`main` runs `.github/workflows/deploy-frontend-cloudflare.yml`, which builds
-`frontend/dist` and uploads it with wrangler.
-
-**How Cloudflare billing works for this setup.** Static asset requests on
-Pages are **free and unlimited** on every plan — the 100k/day Workers free
-tier is a shared pool for **Workers + Pages Functions only**, and static
-asset requests never count against it (Cloudflare docs,
-`pages/functions/pricing`). This project ships a **pure static site** — no
-`frontend/functions/` directory and no Worker scripts — so it never consumes
-that pool. Crucially, `frontend/public/_routes.json` excludes **all** routes
-from Functions invocation: the moment Pages has Functions, *every request
-defaults to invoking the Function* unless `_routes.json` excludes it
-(docs, `pages/functions/routing`), so this guard makes the free-static
-property structural rather than coincidental.
-
-The pieces:
-
-1. `frontend/public/_routes.json` — exclude-all guard: no route can ever
-   invoke a Pages Function, keeping every request in the free & unlimited
-   static-asset pool even if a `functions/` directory is added later.
-2. `frontend/public/_redirects` — SPA fallback (`/* → /index.html 200`),
-   a plain edge rule, not a Function.
-3. `frontend/public/_headers` — hashed `/assets/*` are cached **immutable
-   for 1 year** (browser + edge), while `index.html` and `sw.js` are
-   revalidated every load so new deploys propagate immediately. Repeat
-   visits therefore hit the browser cache and the CDN — never an origin.
-4. `frontend/wrangler.toml` — Pages project config (`pages_build_output_dir
-   = "dist"`) for local `wrangler pages deploy`.
-
-The API is **not** proxied through a Worker: the browser calls the NestJS
-backend directly, either same-origin via a reverse proxy on the Pages custom
-domain or cross-origin with `CORS_ORIGINS` allowlisted. (If you ever DO add
-Pages Functions — e.g. an `/api` proxy — remember they burn the shared
-100k/day quota, and update `_routes.json` to exclude the static routes.)
-
-**GitHub configuration needed once** (repo → Settings → Secrets and
-variables → Actions):
-
-| Kind | Name | Purpose |
-|------|------|---------|
-| Secret | `CLOUDFLARE_API_TOKEN` | API token with **Cloudflare Pages: Edit** permission (create at https://dash.cloudflare.com/profile/api-tokens) |
-| Secret | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
-| Variable | `CLOUDFLARE_PROJECT_NAME` | Pages project name (defaults to `study-rpg`; auto-created on first deploy) |
-| Variable | `VITE_API_URL` | **Production API origin** — REQUIRED, e.g. `https://api.study-rpg.com`. Without it the build falls back to `http://localhost:3010` with a workflow warning |
-
-After the first deploy: attach a custom domain in the Cloudflare dashboard,
-add that origin to the backend's `CORS_ORIGINS` (or reverse-proxy `/api` and
-`/socket.io` on the same domain), and set `VITE_API_URL` to the same origin.
-
-### Option D — Caasify (full-stack hosting)
-
-[Caasify](https://caasify.com) is a full-stack web-app hosting platform (Git
-deploys, preview URLs, autoscaling, custom domains) that can run the whole
-stack in one place — ideal if you don't want to hand-manage the VM + Cloudflare
-split. It bills per provisioned resource (VPS/containers, domains, etc.) —
-that bill is **separate from Ocean**: the data marketplace itself needs **no
-Ocean wallet and no funds** (see wallet-free metadata mode below).
-
-What to wire on the Caasify side (no code changes needed — this repo is
-deploy-ready):
-
-1. **Connect the repo** — Git-based deploy from `Real-Nightmare/Study-RPG-Official`; every push to `main` builds the project (or builds the Docker images).
-2. **Backend** — build `npm ci && npm run build` (in `backend/`), run `node dist/main.js` (the NestJS API + BullMQ workers in one process) or the `backend/Dockerfile` image. Binds to the port Caasify injects (`PORT`).
-3. **Frontend** — build `npm ci && npm run build` (in `frontend/`) and serve `frontend/dist` statically (nginx or the platform's static host) with SPA fallback to `index.html`.
-4. **Data stores** — PostgreSQL 15 + Redis 7 (+ Qdrant if RAG features are on). Use Caasify-managed databases or your own, and point the env vars below at them.
-5. **Env vars** — set on the Caasify side (never commit):
-   - Required: `DATABASE_URL`, `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD`, `QDRANT_URL`, `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` (≥ 32 chars), `CORS_ORIGINS`, `VITE_API_URL` (frontend build), `OPENROUTER_API_KEY` (AI features).
-   - Marketplace (optional, **wallet-free by default**): `OCEAN_AQUARIUS_URL` (defaults to Ocean mainnet) — aggregates publish as metadata-only DDOs; the on-chain datatoken mint only becomes possible once you add `OCEAN_PUBLISHER_ADDRESS` + `OCEAN_PUBLISHER_PRIVATE_KEY` (funded wallet).
-   - Idle-capacity Ocean Node (optional): `OCEAN_NODE_ENABLED=true` + `OCEAN_NODE_PRIVATE_KEY` + `OCEAN_NODE_RPC_URLS` — the monitor runs an `oceanprotocol/ocean-node` container when the server is fully idle and stops it the moment any user appears.
-6. **SSH debug images** — the backend/frontend Dockerfiles ship an always-on SSH server (host ports `3022`/`3222`). On Caasify, bind those ports to localhost/VPN only, or disable SSH by overriding `SSH_PUBLIC_KEY`/removing the entrypoint — they are debug conveniences, not production requirements.
-
-Full env-var tables: `docs/getting-started/configuration.md` and `backend/.env.example`.
-
-### Database migrations
-
-Migrations run on boot? No — run them explicitly:
+### 5. Quick start with bootstrap script
 
 ```bash
-cd backend && npm run migrate   # requires DATABASE_URL; applies backend/migrations/*.sql in order
+sh scripts/bootstrap.sh   # starts everything, runs migrations, seeds data
 ```
 
-Run migrations **before** starting the new API version. Prefixes are unique and
-ordered (current max: `028`).
+## Production Hardening
 
-## Health checks
+### Environment Variables
 
-- `GET /api/health` (or your health endpoint) — process liveness.
-- `GET /admin/status` (admin JWT) — DB/Redis/Qdrant health flags, queue stats,
-  user/audit/event/faction counts. Use this as the ops pane of glass.
+Change all development defaults:
 
-## Backups
+| Variable | Dev Default | Production |
+|----------|------------|------------|
+| `NIGHTMARE_ADMIN_PASSWORD` | `123456789` | Strong unique password |
+| `JWT_ACCESS_SECRET` | *(must set)* | Random 64+ char string |
+| `JWT_REFRESH_SECRET` | *(must set)* | Random 64+ char string |
+| `MINIO_ACCESS_KEY` | `minioadmin` | Unique access key |
+| `MINIO_SECRET_KEY` | `minioadmin` | Unique secret key |
+| `CORS_ORIGINS` | `http://localhost:5189` | Your production domain |
 
-Follow `docs/runbooks/backup-restore.md`. Nightly `pg_dump` + off-host copy +
-monthly restore test. Qdrant is rebuilt via `POST /rag/reindex` after restore.
+### SSL/TLS
 
-## Runbooks
+Put a reverse proxy (nginx, Caddy, or cloud load balancer) in front of the backend:
 
-- `docs/runbooks/backup-restore.md` — backups, restore, restore testing
-- `docs/runbooks/audit-retention.md` — audit-log retention & export
-- `docs/runbooks/load-testing.md` — smoke load tests (`scripts/load-test.mjs`)
+```nginx
+server {
+    listen 443 ssl;
+    server_name api.yourdomain.com;
+
+    ssl_certificate /etc/ssl/cert.pem;
+    ssl_certificate_key /etc/ssl/key.pem;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+### Database Backups
+
+Nightly backups with the included script:
+
+```bash
+./scripts/backup.sh ./backups
+```
+
+See [../runbooks/backup-restore.md](../runbooks/backup-restore.md) for full backup/restore procedures.
+
+### Monitoring
+
+Health check endpoint:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Admin status (requires admin JWT):
+
+```bash
+curl -H "Authorization: Bearer <admin-token>" http://localhost:3000/admin/status
+```
+
+## Optional: Cloud AI
+
+Replace Ollama with a cloud AI provider for better quality:
+
+```bash
+# In backend/.env
+AI_PROVIDER=openai-compatible
+OPENAI_BASE_URL=https://api.groq.com/openai/v1
+OPENAI_API_KEY=gsk_your_groq_key
+OPENAI_MODEL=llama-3.1-70b-versatile
+EMBEDDING_PROVIDER=openai
+EMBEDDING_API_KEY=gsk_your_groq_key
+EMBEDDING_MODEL=text-embedding-3-small
+```
+
+Any OpenAI-compatible provider works: Groq (fastest free tier), Together AI, Fireworks, OpenRouter, OpenAI, Deepseek, Mistral.
+
+## Optional: Cloud Storage
+
+Switch from MinIO to a managed provider:
+
+```bash
+# In backend/.env
+STORAGE_PROVIDER=cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+```
+
+## Optional: Production Email
+
+Replace Mailpit with real SMTP:
+
+```bash
+# In backend/.env
+EMAIL_TRANSPORT=ses
+AWS_SES_REGION=us-east-1
+# (configure AWS credentials via IAM role or env)
+```
+
+## Docker Compose Production
+
+For a single-server deployment:
+
+```bash
+docker compose -f docker-compose.yml up -d --build
+```
+
+This starts all services including the backend and frontend/nginx.
+
+## Static Frontend Hosting
+
+The frontend builds to static files in `frontend/dist/`. Host anywhere:
+
+- **Cloudflare Pages**: Push to `main` triggers auto-deploy (see `.github/workflows/`)
+- **Nginx**: Copy `dist/` to `/var/www/` and configure SPA fallback
+- **Any CDN**: Upload `dist/` with `index.html` fallback for all routes
+
+SPA fallback rule for nginx:
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+## Ports Reference
+
+| Port | Service | Notes |
+|------|---------|-------|
+| 8080 | Frontend (dev) | Vite dev server |
+| 3000 | Backend API | REST + Socket.IO |
+| 8025 | Mailpit UI | Email testing |
+| 9001 | MinIO Console | Storage browser |
+| 11434 | Ollama | Local AI API |
+| 5432 | PostgreSQL | Database |
+| 6379 | Redis | Cache |
+| 6333 | Qdrant | Vector DB |
+| 8123 | ClickHouse | Analytics |
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| Backend won't start | Check `DATABASE_URL` and that Postgres is running: `docker compose ps postgres` |
+| AI not responding | Check Ollama: `curl http://localhost:11434/api/tags`. Pull model: `docker compose exec ollama ollama pull qwen2.5:7b` |
+| Uploads failing | Check MinIO: `docker compose ps minio`. Recreate bucket: `docker compose exec minio mc mb local/studyrpg-uploads` |
+| Emails not sending | In dev mode, all emails go to Mailpit at http://localhost:8025 |
+| Socket.IO not connecting | Check `CORS_ORIGINS` includes your frontend domain |
+| Qdrant index stale | Reindex: `curl -X POST http://localhost:3000/rag/reindex -H "Authorization: Bearer <admin-token>"` |

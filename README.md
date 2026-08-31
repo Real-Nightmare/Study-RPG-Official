@@ -109,10 +109,6 @@ EMAIL_TRANSPORT=ses
 AWS_ACCESS_KEY_ID=your-key
 AWS_SECRET_ACCESS_KEY=your-secret
 
-# Firebase push notifications (Android)
-FCM_ENABLED=true
-FIREBASE_PROJECT_ID=your-project
-
 # Stripe billing (infrastructure tiers only — never game currency)
 BILLING_ENABLED=true
 STRIPE_SECRET_KEY=sk_test_your-key

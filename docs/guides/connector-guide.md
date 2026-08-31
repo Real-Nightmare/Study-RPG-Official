@@ -1,52 +1,81 @@
-# Connector / Core-Tool Guide
+# Adding an AI Module
 
-Adding a new AI-powered "core tool" (a connector to an external model, search engine, code
-runner, etc.)? Follow the `planner` module pattern — every new core-tool module should look
-like it, so the codebase stays uniform.
+How to add a new AI-powered feature to Study RPG.
 
-## 1. Module skeleton
+## Module Pattern
 
-Create `backend/src/modules/<tool>/` with this shape:
+Every new AI module follows the same structure. Copy the `planner` module as a template:
 
 ```
-<tool>/
+backend/src/modules/<tool>/
   dto/
-    <tool>.dto.ts        # request DTOs (class-validator)
-  <tool>.module.ts       # @Module({ controllers: [...], providers: [...], exports: [...] })
-  <tool>.controller.ts   # HTTP surface (@Controller('<tool>'))
-  <tool>.service.ts      # business logic (raw SQL + external calls)
-  index.ts               # barrel re-exporting the module
-  <tool>.spec.ts         # unit tests beside the source
+    <tool>.dto.ts        # request validation
+  <tool>.module.ts       # NestJS module definition
+  <tool>.controller.ts   # HTTP endpoints
+  <tool>.service.ts      # business logic
+  index.ts               # barrel export
+  <tool>.spec.ts         # unit tests
 ```
 
-Register the barrel in `backend/src/app.module.ts` imports.
+Register in `backend/src/app.module.ts`.
 
-## 2. Conventions that must hold
+## Rules
 
-- **Raw SQL only** — no ORM. Use the shared `database` module's pool.
-- **DTOs enforced** — the global validation pipe runs `forbidNonWhitelisted`, so declare
-  every accepted field with class-validator decorators and reject the rest.
-- **camelCase responses** — the shared interceptor handles it; keep internal SQL aliases
-  consistent with it.
-- **Realtime?** — add a gateway (see `common/gateways/`) and reuse the shared CORS helper.
-- **Secrets** — read env via `ConfigService` (or the validated Joi schema in `app.module.ts`),
-  never hardcode keys; add new vars to `backend/.env.example`.
-- **Migrations** — new tables go in `backend/migrations/NNN_<name>.sql`; prefixes must be
-  unique and ordered after the current max.
-- **AI keys** — pass provider keys through the `ai` module's client; don't roll your own
-  HTTP to LLM endpoints unless you need a distinct provider shape.
+1. **Raw SQL only** — no ORM. Use the database module's pool.
+2. **DTOs enforced** — global validation pipe rejects unknown fields.
+3. **camelCase responses** — shared interceptor handles this.
+4. **AI calls through the AI module** — don't roll your own HTTP to LLM endpoints.
+5. **Secrets via ConfigService** — never hardcode keys. Add new vars to `.env.example`.
+6. **Migrations** — new tables in `backend/migrations/NNN_name.sql` with unique prefix.
 
-## 3. Frontend consumption
+## Frontend Consumption
 
-- API client: add methods to a service in `frontend/src/services/` (see `tasks.ts`).
-- State: server data via TanStack Query; ephemeral/optimistic state in a Zustand store under
-  `frontend/src/stores/`.
-- i18n: add user-facing strings to **all** locale files (nav + page namespace).
-- Accessibility: buttons over clickable divs; if a div must be clickable, add
-  `role="button"` + `tabIndex` + an Enter/Space `onKeyDown` (helper: `src/lib/a11y.ts`).
+1. Add API methods to `frontend/src/services/`
+2. Use TanStack Query for server state
+3. Add i18n keys to **all** 15 locale files
+4. Use buttons over clickable divs for accessibility
 
-## 4. Spec-first
+## Example: Adding a New AI Tool
 
-New features are authored spec-first in `specs/<NNN>-<name>/` (`spec.md` → `plan.md` →
-`tasks.md`) via the Spec Kit skills. Ship the spec, then the implementation, then update
-`IMPLEMENTATION_STATUS.md` and the `CHANGELOG`.
+```typescript
+// <tool>.service.ts
+import { Injectable } from '@nestjs/common';
+import { DatabaseService } from '../../database/database.service';
+import { AiService } from '../ai/ai.service';
+
+@Injectable()
+export class ToolService {
+  constructor(
+    private db: DatabaseService,
+    private ai: AiService,
+  ) {}
+
+  async process(input: string) {
+    // 1. Call AI
+    const result = await this.ai.complete([
+      { role: 'user', content: input }
+    ]);
+
+    // 2. Store in Postgres (raw SQL)
+    await this.db.query(
+      'INSERT INTO tool_results (input, output) VALUES ($1, $2)',
+      [input, result]
+    );
+
+    return { output: result };
+  }
+}
+```
+
+## Spec-First Development
+
+New features are authored as specs before code:
+
+```
+specs/<NNN>-<name>/
+  spec.md     # what and why
+  plan.md     # how
+  tasks.md    # checklist
+```
+
+Use the Spec Kit skills: `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`.

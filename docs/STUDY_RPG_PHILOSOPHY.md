@@ -1,108 +1,51 @@
 # Study RPG — Product Philosophy
 
-> Captured from the product owner's handwritten vision notes (2026). This document is the
-> canonical statement of what Study RPG is *for*. UI copy, rewards, and game systems should
-> always be checked against it. Everything here is **already implemented** in the app — see the
-> "Where it lives" notes under each item.
+> Study RPG is a tool meant to encourage proper and deep learning — not a simple studying tool.
 
----
+## What We Believe
 
-## Title
+- **Depth over length** — quality study matters more than hours logged
+- **Mastery over memorisation** — understanding is tested, not just recall
+- **Free to Win** — zero pay-to-win paths; every reward is earned through real study
+- **Study = playtime** — the brain learns to associate studying with dopamine, not dread
+- **Health first** — the system never punishes a student for resting
 
-**Study RPG** — a tool meant to encourage *proper and deep learning*, not a simple studying tool.
+## How This Shows Up
 
-## Overview
+| Philosophy | In the Product |
+|-----------|---------------|
+| Depth over length | Exponential reward curve on accuracy × difficulty; Campfire reflection before cash-out |
+| Mastery over memorisation | Teach-back (Feynman technique) scores explanation depth; quiz questions test application, not recall |
+| Free to Win | RPG progression earned through study only; subscriptions gate infrastructure, never content |
+| Study = playtime | Focus sessions → XP/STP → card battles → deck building → faction wars |
+| Health first | Rest cooldowns, night-rest nudges, overstudy dampening, wellbeing guards on all reward paths |
+| Unity through help | Factions auto-balanced; stronger factions must help weaker ones; collaborative exam bosses |
 
-Study RPG is not a simple studying tool. It is a tool meant to encourage proper and deep learning:
+## The Five Core Features
 
-- **Frees up time** by promoting **daily study using active recall tricks**.
-- **Rewards study with playtime** — the brain learns to associate studying with dopamine, not dread.
-- **Avoids procrastination** building up before exams.
-- Uses **AI** to power **Quizzes**, **Revision Tests**, **Practice Exams**, **Teach Back (Feynman technique)** and **Collaborative Exams** — and more.
-
-> Where it lives: AI chat → `/dashboard/chat`, quizzes → `/dashboard/live-quiz`, practice exams →
-> `/dashboard/exam-clone` + `/dashboard/practice-exam`, teach-back → `/dashboard/teach-back`,
-> collaborative exams → `/dashboard/collaborative-exam`, revision tests → Revision Centre programme below.
-
-## The Five Features
-
-### 1. Missions
-
-Any task — homework, TP, assignment, etc. — is considered a **mission** with **low-level rewards**.
-Missions promote the **rote memorisation** that memory skills require.
-
-> Where it lives: `/dashboard/tasks` (nav: **Missions**). Completing a mission grants low-tier XP/rewards
-> via the RPG reward pipeline (`backend/src/modules/rpg` + `backend/src/modules/integrity/reward-curve.ts`).
+### 1. Missions (Tasks)
+Any task — homework, assignment, practice — is a **mission** with rewards. Promotes the routine memorisation that builds a strong foundation.
 
 ### 2. Revision Centre
-
-A programme that promotes proper revision and prioritises **"Depth over Length"**. To get
-**medium-level rewards** you must **prove** you've revised by doing a quiz where you are asked to
-**use the idea you learned in a different scenario**. To participate, the student must **sign up**.
-
-> Where it lives: seeded programme template `"Revision Centre"` in migration
-> `backend/migrations/026_study_advanced.sql`, instantiated via `/dashboard/programmes`.
-> Rewards are gated on demonstrated application (medium tier), not passive time.
+A programme that proves you've revised by testing application — not passive re-reading. Medium-tier rewards for demonstrated understanding.
 
 ### 3. Competency-Based Testing
-
-A programme that tests students on **competency-based questions**, which:
-- enhances **thinking skills**,
-- prepares students for **board exams**,
-- provides **insights into why marks were lost and how to improve**.
-
-Students can **choose a subject** to be tested on.
-
-> Where it lives: `/dashboard/exam-centre` (subject selection, mistake analysis, revision plans) and
-> `/dashboard/exam-clone` (marks insights + review queue). The Exam Centre subtitle now describes this
-> programme directly.
+Tests on thinking skills, not just facts. Provides insights into why marks were lost and how to improve. Board-exam preparation built in.
 
 ### 4. Programmes
-
-A framework designed to help students **think about problems** — in class or about a topic — and
-**make a system** designed to resolve that issue and improve studies. This targets **thinking skills**:
-helping students think and create systems. **All programmes are optional** — *your choice matters most*.
-
-> Where it lives: `/dashboard/programmes` (suggest a programme or start from a template; AI builds the
-> full programme; optional to join; reward policy + objectives per programme).
+AI-built frameworks that help students think about problems and create systems to resolve them. Optional — your choice matters most.
 
 ### 5. Factions
+Student teams led by elected leaders. Stronger factions help weaker ones. Monthly study-quality scoring creates a culture of mutual improvement.
 
-Splits students into groups with **one team leader** who leads the Faction to improve studies and
-increase its score for rewards. **Weaker Factions are required to receive help from stronger factions**
-— creating a culture of studying by helping each other.
+## Design Rules
 
-> Where it lives: `/dashboard/factions` — auto-balanced teams, elected leaders, **help pledges**
-> (record help given to weaker factions), and monthly settlement scoring.
-
----
-
-## The Goal
-
-The goal of Study RPG is to **learn through mastery and understanding of topics, rather than simple
-memorisation**. Jobs require mastery of study, which rote memorisation cannot beat — it requires the
-**skill of true learning**.
-
-Study RPG also **prioritises the health of the student** and ensures a **proper timetable**:
-even if you miss some study time, it will **reschedule time for proper and efficient study** — while
-still promoting **unity and more ideas through events**.
-
-> Where it lives: focus sessions + timetable rescheduling (`/dashboard/focus`), study events
-> (`/dashboard/events`), the F2W integrity layer
-> (`backend/src/modules/integrity/` — reward curve, behavior guard, campfire reflection loop), and the
-> **anti-overstudy wellbeing layer** (spec 015) — `backend/src/modules/integrity/overstudy.ts`
-> (diminishing returns past the healthy daily optimum, rest-cooldown gate, IST night-rest guard,
-> study-health bands) enforced in focus-session start/complete + event EXP, with a study-health
-> meter on the focus page; every AI surface shares the canonical philosophy block in
-> `backend/src/modules/ai/study-rpg-philosophy.ts` (incl. the health-first anti-overstudy guardian).
+1. **Celebrate cognitive progress**, never passive grinding
+2. **Never punish resting** — the system reschedules missed time
+3. **Make studying feel rewarding** — game mechanics serve study, never replace it
+4. **Every AI response is honest** — when uncertain, say so; never fabricate
+5. **Students own their data** — the platform never sells identifiable records
 
 ---
 
-## Design Rules (how this reads in the UI)
-
-1. **Depth over length.** Proven application beats hours logged. Rewards scale with demonstrated understanding.
-2. **Mastery over memorisation.** Copy never celebrates passive grinding; it celebrates real cognitive progress.
-3. **Free to Win (F2W).** No pay-to-win shortcuts. Every reward is earned through academic achievement.
-4. **Study = playtime.** Game mechanics exist to make studying feel rewarding, never to replace it.
-5. **Health first.** Timetables reschedule missed time; the system never punishes a student for resting.
-6. **Unity through help.** Factions, events and collaborative exams exist so students lift each other up.
+*This philosophy is implemented across every module. See the architecture docs for where each principle lives in the code.*
